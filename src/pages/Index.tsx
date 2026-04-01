@@ -12,6 +12,7 @@ import BlogSection from "@/components/BlogSection";
 import CTASection from "@/components/CTASection";
 import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
+import CookieConsent from "@/components/CookieConsent";
 
 const Index = () => (
   <div className="min-h-screen bg-background">
@@ -29,6 +30,7 @@ const Index = () => (
     <CTASection />
     <FAQSection />
     <Footer />
+    <CookieConsent />
   </div>
 );
 
