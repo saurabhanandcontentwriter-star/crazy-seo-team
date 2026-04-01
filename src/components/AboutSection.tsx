@@ -1,0 +1,45 @@
+const team = [
+  {
+    name: "Anand Kumar Singh",
+    role: "Founder",
+    quote:
+      "Our mission is simple: to deliver unparalleled digital growth for our clients. We believe in transparency, hard work, and strategies that actually move the needle. Your success is our ultimate metric.",
+  },
+  {
+    name: "Saurabh Anand",
+    role: "Co-Founder",
+    quote:
+      "Innovation is at the core of what we do. By integrating advanced AI technologies with proven marketing tactics, we ensure our clients stay ahead of the curve and dominate their respective industries.",
+  },
+];
+
+const AboutSection = () => (
+  <section id="about" className="py-20 px-4 bg-secondary/30">
+    <div className="container mx-auto">
+      <p className="text-sm font-semibold text-primary text-center mb-2">About Us</p>
+      <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-3">
+        Meet the Visionaries Behind Crazy SEO Team
+      </h2>
+      <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-14">
+        Driven by passion and data, our leadership team is dedicated to transforming your digital presence and scaling your revenue.
+      </p>
+
+      <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        {team.map((t) => (
+          <div key={t.name} className="p-8 rounded-xl border border-border bg-card">
+            <div className="w-16 h-16 rounded-full gradient-bg flex items-center justify-center mb-4">
+              <span className="text-primary-foreground font-bold text-xl">
+                {t.name.charAt(0)}
+              </span>
+            </div>
+            <h3 className="text-xl font-bold text-foreground">{t.name}</h3>
+            <p className="text-sm text-primary font-medium mb-4">{t.role}</p>
+            <p className="text-muted-foreground text-sm leading-relaxed italic">"{t.quote}"</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+export default AboutSection;
