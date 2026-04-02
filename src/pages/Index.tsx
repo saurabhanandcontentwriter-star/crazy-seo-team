@@ -13,6 +13,7 @@ import CTASection from "@/components/CTASection";
 import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 const Index = () => (
   <div className="min-h-screen bg-background">
@@ -31,6 +32,7 @@ const Index = () => (
     <FAQSection />
     <Footer />
     <CookieConsent />
+    <WhatsAppButton />
   </div>
 );
 
