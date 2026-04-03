@@ -1,8 +1,8 @@
 const stats = [
   { value: "500+", label: "Projects Delivered" },
-  { value: "$50M+", label: "Client Revenue Generated" },
   { value: "98%", label: "Client Retention Rate" },
   { value: "10+", label: "Years of Experience" },
+  { value: "1M+", label: "Keywords Ranked" },
 ];
 
 const StatsBar = () => (
