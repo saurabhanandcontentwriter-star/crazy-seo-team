@@ -70,7 +70,7 @@ const ServicesSection = () => {
                   </li>
                 ))}
               </ul>
-              <a href="#" className="inline-block mt-4 text-sm font-semibold text-primary hover:underline">
+              <button className="inline-block mt-4 text-sm font-semibold text-primary hover:underline">
                 Learn more →
               </a>
             </div>
