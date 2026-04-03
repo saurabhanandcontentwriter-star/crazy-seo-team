@@ -1,5 +1,6 @@
 import founderImg from "@/assets/founder.jpeg";
 import cofounderImg from "@/assets/cofounder.jpeg";
+import ctoImg from "@/assets/cto.jpg";
 
 const team = [
   {
@@ -16,6 +17,13 @@ const team = [
     quote:
       "Innovation is at the core of what we do. By integrating advanced AI technologies with proven marketing tactics, we ensure our clients stay ahead of the curve and dominate their respective industries.",
   },
+  {
+    name: "Akash Tenguria",
+    role: "CTO",
+    img: ctoImg,
+    quote:
+      "A Full Stack Developer with 4 years of experience crafting dynamic, responsive web applications and CRM systems for the travel industry. I specialize in building intuitive frontends using React.js, Next.js, HTML/CSS, and JavaScript, and robust backends with Node.js, Express, and AWS services — helping businesses streamline operations, improve user experience, and scale efficiently.",
+  },
 ];
 
 const AboutSection = () => (
@@ -29,7 +37,7 @@ const AboutSection = () => (
         Driven by passion and data, our leadership team is dedicated to transforming your digital presence and scaling your revenue.
       </p>
 
-      <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
         {team.map((t) => (
           <div key={t.name} className="p-8 rounded-xl border border-border bg-card">
             <img
