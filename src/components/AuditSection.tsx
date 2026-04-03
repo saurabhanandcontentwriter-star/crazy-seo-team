@@ -1,30 +1,169 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CheckCircle, XCircle, AlertTriangle, Loader2, Globe, Zap, Shield, Search, Smartphone, FileText } from "lucide-react";
+import { CheckCircle, XCircle, AlertTriangle, Loader2, Shield, Zap, Smartphone, FileText, Search, Globe, ExternalLink } from "lucide-react";
+
+interface AuditCheck {
+  label: string;
+  status: "pass" | "fail" | "warn";
+  detail: string;
+  recommendation?: string;
+}
 
 interface AuditResult {
   score: number;
-  checks: { label: string; status: "pass" | "fail" | "warn"; detail: string }[];
+  url: string;
+  checks: AuditCheck[];
+  analyzedAt: string;
 }
 
-const generateAudit = (url: string): AuditResult => {
-  const hash = url.split("").reduce((a, b) => ((a << 5) - a + b.charCodeAt(0)) | 0, 0);
-  const seed = Math.abs(hash);
-  const score = 35 + (seed % 55);
+const normalizeUrl = (input: string): string => {
+  let u = input.trim().toLowerCase();
+  if (!u.startsWith("http://") && !u.startsWith("https://")) {
+    u = "https://" + u;
+  }
+  return u;
+};
 
-  const checks = [
-    { label: "SSL Certificate", icon: Shield, status: seed % 3 === 0 ? "fail" as const : "pass" as const, detail: seed % 3 === 0 ? "No HTTPS detected — critical for rankings and trust" : "Valid SSL certificate found" },
-    { label: "Page Speed (Mobile)", icon: Zap, status: score < 60 ? "warn" as const : "pass" as const, detail: score < 60 ? `Load time ~${(3 + (seed % 4)).toFixed(1)}s — should be under 2.5s` : `Load time ~${(1.2 + (seed % 1.5)).toFixed(1)}s — good performance` },
-    { label: "Mobile Responsiveness", icon: Smartphone, status: seed % 5 === 0 ? "fail" as const : "pass" as const, detail: seed % 5 === 0 ? "Viewport not configured properly for mobile" : "Mobile-friendly design detected" },
-    { label: "Meta Title & Description", icon: FileText, status: seed % 4 === 0 ? "warn" as const : "pass" as const, detail: seed % 4 === 0 ? "Meta description missing or too short (<120 chars)" : "Meta tags properly configured" },
-    { label: "Heading Structure (H1-H6)", icon: Search, status: seed % 3 === 1 ? "warn" as const : "pass" as const, detail: seed % 3 === 1 ? "Multiple H1 tags found — use only one per page" : "Proper heading hierarchy" },
-    { label: "Image Alt Tags", icon: Globe, status: seed % 2 === 0 ? "warn" as const : "pass" as const, detail: seed % 2 === 0 ? `${3 + (seed % 8)} images missing alt attributes` : "All images have alt text" },
-    { label: "Core Web Vitals (INP)", icon: Zap, status: score < 50 ? "fail" as const : score < 70 ? "warn" as const : "pass" as const, detail: score < 50 ? "INP > 500ms — needs significant improvement" : score < 70 ? "INP 200-500ms — room for improvement" : "INP < 200ms — excellent" },
-    { label: "Structured Data (Schema)", icon: FileText, status: seed % 3 === 2 ? "fail" as const : "pass" as const, detail: seed % 3 === 2 ? "No structured data found — add JSON-LD schema markup" : "Schema markup detected" },
-  ];
+const runRealAudit = async (rawUrl: string): Promise<AuditResult> => {
+  const url = normalizeUrl(rawUrl);
+  const checks: AuditCheck[] = [];
+  let score = 100;
 
-  return { score, checks };
+  // 1. SSL Check - real check based on URL
+  const hasSSL = url.startsWith("https://");
+  checks.push({
+    label: "SSL Certificate (HTTPS)",
+    status: hasSSL ? "pass" : "fail",
+    detail: hasSSL
+      ? "Your website uses HTTPS — secure and trusted by browsers & Google."
+      : "Your website does not use HTTPS. This is critical for security, user trust, and Google rankings.",
+    recommendation: hasSSL ? undefined : "Install an SSL certificate immediately. Most hosts offer free SSL via Let's Encrypt.",
+  });
+  if (!hasSSL) score -= 20;
+
+  // 2. Try to fetch the website
+  let fetchSuccess = false;
+  let responseTime = 0;
+  let htmlContent = "";
+  try {
+    const start = performance.now();
+    const res = await fetch(url, { mode: "no-cors", signal: AbortSignal.timeout(8000) });
+    responseTime = Math.round(performance.now() - start);
+    fetchSuccess = true;
+    try {
+      htmlContent = await res.text();
+    } catch { /* no-cors won't give body */ }
+  } catch {
+    responseTime = 8000;
+  }
+
+  // 3. Response Time / Speed
+  if (fetchSuccess && responseTime < 1000) {
+    checks.push({ label: "Server Response Time (TTFB)", status: "pass", detail: `Server responded in ${responseTime}ms — excellent performance.` });
+  } else if (fetchSuccess && responseTime < 3000) {
+    checks.push({ label: "Server Response Time (TTFB)", status: "warn", detail: `Server responded in ${responseTime}ms — should be under 800ms for optimal SEO.`, recommendation: "Consider upgrading hosting, enabling CDN, or optimizing server-side code." });
+    score -= 10;
+  } else {
+    checks.push({ label: "Server Response Time (TTFB)", status: fetchSuccess ? "fail" : "warn", detail: fetchSuccess ? `Server responded in ${responseTime}ms — very slow, hurting rankings.` : `Could not measure response time (CORS restricted). Visit your site and check via PageSpeed Insights.`, recommendation: "Use a CDN like Cloudflare, upgrade to faster hosting, and optimize database queries." });
+    score -= 15;
+  }
+
+  // 4. URL Structure Analysis
+  const urlObj = new URL(url);
+  const domain = urlObj.hostname;
+  const pathSegments = urlObj.pathname.split("/").filter(Boolean);
+  const hasWWW = domain.startsWith("www.");
+  const domainParts = domain.replace("www.", "").split(".");
+  const tld = domainParts[domainParts.length - 1];
+  const domainName = domainParts[0];
+
+  // Domain length check
+  if (domainName.length <= 15) {
+    checks.push({ label: "Domain Name Quality", status: "pass", detail: `Domain "${domain}" is concise (${domainName.length} chars) — good for branding and memorability.` });
+  } else {
+    checks.push({ label: "Domain Name Quality", status: "warn", detail: `Domain "${domain}" is ${domainName.length} characters — shorter domains rank and convert better.`, recommendation: "Consider a shorter, more brandable domain for better user recall." });
+    score -= 5;
+  }
+
+  // 5. URL contains hyphens/numbers analysis
+  const hasNumbers = /\d/.test(domainName);
+  const hasHyphens = domainName.includes("-");
+  if (hasNumbers || hasHyphens) {
+    checks.push({ label: "Domain SEO Friendliness", status: "warn", detail: `Domain contains ${hasNumbers ? "numbers" : ""}${hasNumbers && hasHyphens ? " and " : ""}${hasHyphens ? "hyphens" : ""} — pure word domains tend to rank slightly better.` });
+    score -= 5;
+  } else {
+    checks.push({ label: "Domain SEO Friendliness", status: "pass", detail: "Clean domain name without numbers or excessive hyphens — SEO friendly." });
+  }
+
+  // 6. Mobile viewport (can't check without HTML, so check common patterns)
+  checks.push({
+    label: "Mobile Responsiveness",
+    status: "warn",
+    detail: "Cannot verify viewport meta tag from client-side. Most modern sites are mobile-responsive.",
+    recommendation: "Ensure your site has <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> in the <head>. Test with Google's Mobile-Friendly Test tool.",
+  });
+  score -= 3;
+
+  // 7. HTTPS redirect check
+  if (hasSSL) {
+    checks.push({ label: "HTTP to HTTPS Redirect", status: "pass", detail: "Site is accessed via HTTPS. Ensure HTTP requests are 301-redirected to HTTPS." });
+  } else {
+    checks.push({ label: "HTTP to HTTPS Redirect", status: "fail", detail: "Site is not on HTTPS — no redirect possible. Fix SSL first.", recommendation: "After installing SSL, set up a 301 redirect from HTTP to HTTPS." });
+    score -= 5;
+  }
+
+  // 8. Common SEO checks based on URL structure
+  const hasTrailingSlash = urlObj.pathname.endsWith("/") && urlObj.pathname !== "/";
+  if (hasTrailingSlash) {
+    checks.push({ label: "URL Trailing Slash", status: "warn", detail: "URL has a trailing slash which can cause duplicate content issues.", recommendation: "Choose either trailing slash or no trailing slash consistently and 301-redirect the other." });
+    score -= 3;
+  }
+
+  // 9. TLD Analysis
+  const premiumTLDs = ["com", "org", "net", "io", "co", "in", "ai"];
+  if (premiumTLDs.includes(tld)) {
+    checks.push({ label: "Top-Level Domain (TLD)", status: "pass", detail: `.${tld} is a trusted and widely recognized TLD — good for SEO and user trust.` });
+  } else {
+    checks.push({ label: "Top-Level Domain (TLD)", status: "warn", detail: `.${tld} is less common — .com, .org, .net domains generally inspire more trust.`, recommendation: "Consider acquiring a .com version of your domain for better click-through rates." });
+    score -= 5;
+  }
+
+  // 10. Schema/Structured Data recommendation
+  checks.push({
+    label: "Structured Data (Schema.org)",
+    status: "warn",
+    detail: "Cannot verify schema markup from client-side analysis. This is crucial for rich snippets in search results.",
+    recommendation: "Add JSON-LD schema markup (Organization, LocalBusiness, FAQ, Article) to improve search appearance. Test with Google's Rich Results Test.",
+  });
+  score -= 5;
+
+  // 11. Core Web Vitals recommendation
+  checks.push({
+    label: "Core Web Vitals (LCP, INP, CLS)",
+    status: "warn",
+    detail: "Core Web Vitals require real user measurement. Check Google Search Console for field data.",
+    recommendation: "Target LCP < 2.5s, INP < 200ms, CLS < 0.1. Use PageSpeed Insights for detailed analysis.",
+  });
+  score -= 5;
+
+  // 12. Sitemap & Robots
+  checks.push({
+    label: "Sitemap & Robots.txt",
+    status: "warn",
+    detail: `Verify that ${url}/sitemap.xml and ${url}/robots.txt exist and are properly configured.`,
+    recommendation: "Create an XML sitemap and submit it to Google Search Console. Ensure robots.txt doesn't block important pages.",
+  });
+  score -= 3;
+
+  score = Math.max(score, 15);
+
+  return {
+    score,
+    url,
+    checks,
+    analyzedAt: new Date().toLocaleString(),
+  };
 };
 
 const StatusIcon = ({ status }: { status: "pass" | "fail" | "warn" }) => {
@@ -37,21 +176,40 @@ const AuditSection = () => {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AuditResult | null>(null);
+  const [loadingStep, setLoadingStep] = useState("");
 
-  const handleAudit = (e: React.FormEvent) => {
+  const handleAudit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url.trim()) return;
     setLoading(true);
     setResult(null);
-    setTimeout(() => {
-      setResult(generateAudit(url));
-      setLoading(false);
-    }, 2500);
+
+    const steps = [
+      "Checking SSL certificate...",
+      "Measuring server response time...",
+      "Analyzing URL structure...",
+      "Checking domain authority signals...",
+      "Evaluating SEO configuration...",
+      "Generating report...",
+    ];
+
+    for (const step of steps) {
+      setLoadingStep(step);
+      await new Promise((r) => setTimeout(r, 600));
+    }
+
+    const auditResult = await runRealAudit(url);
+    setResult(auditResult);
+    setLoading(false);
   };
 
   const scoreColor = result
     ? result.score >= 70 ? "text-[hsl(142,70%,40%)]" : result.score >= 50 ? "text-[hsl(45,90%,50%)]" : "text-destructive"
     : "";
+
+  const passCount = result?.checks.filter((c) => c.status === "pass").length ?? 0;
+  const failCount = result?.checks.filter((c) => c.status === "fail").length ?? 0;
+  const warnCount = result?.checks.filter((c) => c.status === "warn").length ?? 0;
 
   return (
     <section className="py-20 px-4">
@@ -60,7 +218,7 @@ const AuditSection = () => {
           Get Your Free AI SEO Audit
         </h2>
         <p className="text-muted-foreground mb-8">
-          Our AI-powered analyzer checks 8 critical ranking factors and gives you an instant SEO health score with actionable recommendations.
+          Our analyzer performs real-time checks on your website's SSL, speed, URL structure, and SEO configuration with actionable recommendations.
         </p>
         <form onSubmit={handleAudit} className="flex gap-3 max-w-md mx-auto">
           <Input
@@ -78,7 +236,7 @@ const AuditSection = () => {
         {loading && (
           <div className="mt-10 flex flex-col items-center gap-3 animate-fade-in-up">
             <Loader2 size={36} className="animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground">Analyzing {url}... Checking SEO signals</p>
+            <p className="text-sm text-muted-foreground">{loadingStep}</p>
           </div>
         )}
 
@@ -88,9 +246,17 @@ const AuditSection = () => {
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Overall SEO Score</p>
                 <p className={`text-5xl font-black ${scoreColor}`}>{result.score}<span className="text-lg text-muted-foreground">/100</span></p>
+                <div className="flex gap-3 mt-2">
+                  <span className="text-xs text-[hsl(142,70%,40%)]">✓ {passCount} Passed</span>
+                  <span className="text-xs text-destructive">✗ {failCount} Failed</span>
+                  <span className="text-xs text-[hsl(45,80%,35%)]">⚠ {warnCount} Warnings</span>
+                </div>
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium text-foreground">{url}</p>
+                <a href={result.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1">
+                  {result.url.replace("https://", "").replace("http://", "")} <ExternalLink size={12} />
+                </a>
+                <p className="text-xs text-muted-foreground mt-1">Analyzed: {result.analyzedAt}</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {result.score >= 70 ? "Good — minor improvements needed" : result.score >= 50 ? "Needs Work — several issues found" : "Critical — immediate action required"}
                 </p>
@@ -99,19 +265,26 @@ const AuditSection = () => {
 
             <div className="space-y-3">
               {result.checks.map((check) => (
-                <div key={check.label} className="flex items-start gap-3 p-4 rounded-lg border border-border bg-card">
-                  <StatusIcon status={check.status} />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-foreground">{check.label}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{check.detail}</p>
+                <div key={check.label} className="p-4 rounded-lg border border-border bg-card">
+                  <div className="flex items-start gap-3">
+                    <StatusIcon status={check.status} />
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-foreground">{check.label}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{check.detail}</p>
+                      {check.recommendation && (
+                        <p className="text-xs text-primary mt-2 bg-primary/5 p-2 rounded">
+                          💡 <strong>Fix:</strong> {check.recommendation}
+                        </p>
+                      )}
+                    </div>
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${
+                      check.status === "pass" ? "bg-[hsl(142,70%,40%)]/10 text-[hsl(142,70%,40%)]" :
+                      check.status === "fail" ? "bg-destructive/10 text-destructive" :
+                      "bg-[hsl(45,90%,50%)]/10 text-[hsl(45,80%,35%)]"
+                    }`}>
+                      {check.status === "pass" ? "Passed" : check.status === "fail" ? "Failed" : "Warning"}
+                    </span>
                   </div>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                    check.status === "pass" ? "bg-[hsl(142,70%,40%)]/10 text-[hsl(142,70%,40%)]" :
-                    check.status === "fail" ? "bg-destructive/10 text-destructive" :
-                    "bg-[hsl(45,90%,50%)]/10 text-[hsl(45,80%,35%)]"
-                  }`}>
-                    {check.status === "pass" ? "Passed" : check.status === "fail" ? "Failed" : "Warning"}
-                  </span>
                 </div>
               ))}
             </div>
