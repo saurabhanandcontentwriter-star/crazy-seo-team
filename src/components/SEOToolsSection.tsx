@@ -478,7 +478,7 @@ const SEOToolsSection = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="flex gap-3 max-w-lg mx-auto mb-8">
-            <Input placeholder="Enter website URL (e.g. crazyseoteam.in)" value={url} onChange={(e) => setUrl(e.target.value)} className="flex-1" required />
+            <Input placeholder="Enter website URL" value={url} onChange={(e) => setUrl(e.target.value)} className="flex-1" required />
             <Button type="submit" className="gradient-bg text-primary-foreground hover:opacity-90" disabled={loading}>
               {loading ? <Loader2 size={18} className="animate-spin" /> : <><Search size={16} className="mr-1" /> Analyze</>}
             </Button>
