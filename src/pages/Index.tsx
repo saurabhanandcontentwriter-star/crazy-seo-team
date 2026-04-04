@@ -1,7 +1,8 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import ToolsMarquee from "@/components/ToolsMarquee";
-import AuditSection from "@/components/AuditSection";
 import SEOToolsSection from "@/components/SEOToolsSection";
 import ServicesSection from "@/components/ServicesSection";
 import StatsBar from "@/components/StatsBar";
@@ -16,26 +17,38 @@ import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import WhatsAppButton from "@/components/WhatsAppButton";
 
-const Index = () => (
-  <div className="min-h-screen bg-background">
-    <Navbar />
-    <HeroSection />
-    <AuditSection />
-    <SEOToolsSection />
-    <ToolsMarquee />
-    <ServicesSection />
-    <StatsBar />
-    <PortfolioSection />
-    <IndustriesSection />
-    <AboutSection />
-    <WhyChooseUs />
-    <BlogSection />
-    <CTASection />
-    <FAQSection />
-    <Footer />
-    <CookieConsent />
-    <WhatsAppButton />
-  </div>
-);
+const Index = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    const scrollTo = (location.state as any)?.scrollTo;
+    if (scrollTo) {
+      setTimeout(() => {
+        document.getElementById(scrollTo)?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [location.state]);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <HeroSection />
+      <SEOToolsSection />
+      <ToolsMarquee />
+      <ServicesSection />
+      <StatsBar />
+      <PortfolioSection />
+      <IndustriesSection />
+      <AboutSection />
+      <WhyChooseUs />
+      <BlogSection />
+      <CTASection />
+      <FAQSection />
+      <Footer />
+      <CookieConsent />
+      <WhatsAppButton />
+    </div>
+  );
+};
 
 export default Index;
