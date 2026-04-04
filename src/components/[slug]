@@ -17,3 +17,103 @@ export default function Home() {
     </div>
   );
 }
+// app/services/page.jsx
+import Link from "next/link";
+
+const services = [
+  { slug: "web-design", title: "Web Design" },
+  { slug: "app-development", title: "App Development" },
+  { slug: "seo", title: "SEO Optimization" },
+];
+
+export default function Services() {
+  return (
+    <div>
+      <h1>Services</h1>
+
+      {services.map((s) => (
+        <div key={s.slug}>
+          <Link href={`/services/${s.slug}`}>{s.title}</Link>
+        </div>
+      ))}
+    </div>
+  );
+}
+// app/services/[slug]/page.jsx
+export default function ServicePage({ params }) {
+  const services = [
+    {
+      slug: "web-design",
+      title: "Web Design",
+      description: "We build websites",
+    },
+    {
+      slug: "app-development",
+      title: "App Development",
+      description: "We build apps",
+    },
+    {
+      slug: "seo",
+      title: "SEO",
+      description: "We rank websites",
+    },
+  ];
+
+  const service = services.find(
+    (item) => item.slug === params.slug
+  );
+
+  if (!service) return <h1>Not Found</h1>;
+
+  return (
+    <div>
+      <h1>{service.title}</h1>
+      <p>{service.description}</p>
+    </div>
+  );
+}
+// app/seo-tool/page.jsx
+"use client";
+import { useState } from "react";
+
+export default function SeoTool() {
+  const [url, setUrl] = useState("");
+  const [result, setResult] = useState("");
+
+  return (
+    <div>
+      <h1>SEO Tool</h1>
+
+      <input
+        value={url}
+        onChange={(e) => setUrl(e.target.value)}
+        placeholder="Enter URL"
+      />
+
+      <button onClick={() => setResult("Score: 80/100")}>
+        Check
+      </button>
+
+      <p>{result}</p>
+    </div>
+  );
+}
+// app/about/page.jsx
+export default function About() {
+  return <h1>About Us Page</h1>;
+}
+// app/blog/page.jsx
+export default function Blog() {
+  return <h1>Blog Page</h1>;
+}
+// app/results/page.jsx
+export default function Results() {
+  return <h1>Results Page</h1>;
+}
+// app/faqs/page.jsx
+export default function FAQs() {
+  return <h1>FAQs Page</h1>;
+}
+git add .
+git commit -m "final website setup"
+git push
