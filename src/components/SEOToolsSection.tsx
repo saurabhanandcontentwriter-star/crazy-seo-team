@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Globe, Search, Link2, TrendingUp, Key, BarChart3, Lock, AlertCircle, CheckCircle, XCircle, AlertTriangle, Shield, FileText, ExternalLink } from "lucide-react";
 import ContactFormDialog from "@/components/ContactFormDialog";
 
-type ToolType = "traffic" | "keywords" | "dapa" | "backlinks" | "audit";
+type ToolType = "traffic" | "backlinks" | "audit";
 
 const tools: { id: ToolType; label: string; icon: typeof Globe; desc: string }[] = [
   { id: "audit", label: "Full SEO Audit", icon: Shield, desc: "Complete SEO health check with actionable fixes" },
