@@ -461,7 +461,7 @@ const SEOToolsSection = () => {
           <p className="text-sm font-semibold text-primary text-center mb-2">Free SEO Tools</p>
           <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-3">Analyze Any Website Instantly</h2>
           <p className="text-center text-muted-foreground mb-10 max-w-2xl mx-auto">
-            AI-powered SEO tools to audit your site, find keywords, check authority, analyze backlinks and traffic — like Semrush & Ahrefs, but free.
+            AI-powered SEO tools to audit your site, find keywords, check authority, analyze backlinks and traffic.
           </p>
 
           <div className="flex flex-wrap justify-center gap-2 mb-8">
