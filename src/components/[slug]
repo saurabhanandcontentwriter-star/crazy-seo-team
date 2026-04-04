@@ -1,0 +1,19 @@
+// app/page.jsx
+import Link from "next/link";
+
+export default function Home() {
+  return (
+    <div>
+      <h1>🚀 My Website</h1>
+
+      <ul>
+        <li><Link href="/services">Services</Link></li>
+        <li><Link href="/seo-tool">SEO Tool</Link></li>
+        <li><Link href="/about">About</Link></li>
+        <li><Link href="/blog">Blog</Link></li>
+        <li><Link href="/results">Results</Link></li>
+        <li><Link href="/faqs">FAQs</Link></li>
+      </ul>
+    </div>
+  );
+}
