@@ -4,12 +4,10 @@ import { blogPosts } from "@/data/blogData";
 const BlogSection = () => (
   <section id="blog" className="py-20 px-4 bg-secondary/30">
     <div className="container mx-auto">
-      <div className="flex items-center justify-between mb-10">
-        <div>
-          <p className="text-sm font-semibold text-primary mb-2">Latest Insights — March 2026</p>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">Stay Ahead of the Curve</h2>
-          <p className="text-muted-foreground mt-2 max-w-lg">Expert insights on SEO, AI, PPC, and digital marketing — updated weekly with the latest 2026 strategies.</p>
-        </div>
+      <div className="text-center mb-12">
+        <p className="text-sm font-semibold text-primary mb-2">Expert Insights — April 2026</p>
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground">Latest SEO & Marketing Articles</h2>
+        <p className="text-muted-foreground mt-2 max-w-lg mx-auto">Deep-dive articles on SEO, AI, PPC, and digital marketing — updated weekly with actionable 2026 strategies.</p>
       </div>
 
       {/* Featured post */}
