@@ -4,13 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Globe, Search, Link2, TrendingUp, Key, BarChart3, Lock, AlertCircle, CheckCircle, XCircle, AlertTriangle, Shield, FileText, ExternalLink } from "lucide-react";
 import ContactFormDialog from "@/components/ContactFormDialog";
 
-type ToolType = "audit" | "traffic" | "keywords" | "dapa" | "backlinks";
+type ToolType = "audit" | "traffic" | "backlinks";
 
 const tools: { id: ToolType; label: string; icon: typeof Globe; desc: string }[] = [
   { id: "audit", label: "Full SEO Audit", icon: Shield, desc: "Complete SEO health check with actionable fixes" },
   { id: "traffic", label: "Website Traffic", icon: TrendingUp, desc: "Estimate monthly visitors & traffic sources" },
-  { id: "keywords", label: "Keyword Planner", icon: Key, desc: "Find ranking keywords with volume & CPC" },
-  { id: "dapa", label: "DA / PA Checker", icon: BarChart3, desc: "Check domain & page authority scores" },
   { id: "backlinks", label: "Backlink Checker", icon: Link2, desc: "Analyze backlink profile & referring domains" },
 ];
 
@@ -258,8 +256,6 @@ const SEOToolsSection = () => {
       await new Promise((r) => setTimeout(r, 2000));
       switch (activeTool) {
         case "traffic": setResult(generateTraffic(url)); break;
-        case "keywords": setResult(generateKeywords(url)); break;
-        case "dapa": setResult(generateDaPA(url)); break;
         case "backlinks": setResult(generateBacklinks(url)); break;
       }
     }
@@ -335,89 +331,6 @@ const SEOToolsSection = () => {
             ].map((item) => (
               <div key={item.label} className="p-4 rounded-lg border border-border bg-card text-center">
                 <p className="text-2xl font-bold text-primary">{item.value}</p>
-                <p className="text-xs text-muted-foreground mt-1">{item.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    if (activeTool === "keywords") {
-      return (
-        <div>
-          <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
-            <Key size={12} /> Keyword analysis for <strong className="text-foreground">{getDomainFromUrl(url)}</strong> — {result.length} keywords found
-          </div>
-          <div className="overflow-x-auto rounded-lg border border-border">
-            <table className="w-full text-sm">
-              <thead className="bg-secondary/50">
-                <tr>
-                  <th className="text-left p-3 text-foreground font-semibold">#</th>
-                  <th className="text-left p-3 text-foreground font-semibold">Keyword</th>
-                  <th className="text-center p-3 text-foreground font-semibold">Volume</th>
-                  <th className="text-center p-3 text-foreground font-semibold">CPC</th>
-                  <th className="text-center p-3 text-foreground font-semibold">Position</th>
-                  <th className="text-center p-3 text-foreground font-semibold">Difficulty</th>
-                  <th className="text-center p-3 text-foreground font-semibold">Competition</th>
-                  <th className="text-center p-3 text-foreground font-semibold">Trend</th>
-                </tr>
-              </thead>
-              <tbody>
-                {result.map((kw: any, i: number) => (
-                  <tr key={i} className="border-t border-border/50 hover:bg-secondary/20">
-                    <td className="p-3 text-muted-foreground">{i + 1}</td>
-                    <td className="p-3 font-medium text-foreground">
-                      {kw.keyword}
-                      {kw.type === "brand" && <span className="ml-2 px-1.5 py-0.5 text-[10px] rounded bg-primary/10 text-primary">Brand</span>}
-                    </td>
-                    <td className="p-3 text-center text-muted-foreground">{kw.volume.toLocaleString()}</td>
-                    <td className="p-3 text-center text-muted-foreground">{kw.cpc}</td>
-                    <td className="p-3 text-center">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${kw.position <= 3 ? "bg-[hsl(142,70%,40%)]/10 text-[hsl(142,70%,40%)]" : kw.position <= 10 ? "bg-[hsl(45,90%,50%)]/10 text-[hsl(45,80%,35%)]" : kw.position <= 30 ? "bg-[hsl(25,90%,50%)]/10 text-[hsl(25,80%,40%)]" : "bg-destructive/10 text-destructive"}`}>
-                        #{kw.position}
-                      </span>
-                    </td>
-                    <td className="p-3 text-center">
-                      <div className="flex items-center gap-1 justify-center">
-                        <div className="w-12 h-2 rounded-full bg-secondary overflow-hidden">
-                          <div className="h-full rounded-full" style={{ width: `${kw.difficulty}%`, background: kw.difficulty > 60 ? "hsl(0,70%,50%)" : kw.difficulty > 30 ? "hsl(45,90%,50%)" : "hsl(142,70%,40%)" }} />
-                        </div>
-                        <span className="text-xs">{kw.difficulty}</span>
-                      </div>
-                    </td>
-                    <td className="p-3 text-center">
-                      <span className={`text-xs font-medium ${kw.competition === "High" ? "text-destructive" : kw.competition === "Medium" ? "text-[hsl(45,80%,35%)]" : "text-[hsl(142,70%,40%)]"}`}>{kw.competition}</span>
-                    </td>
-                    <td className="p-3 text-center">
-                      {kw.trend === "up" ? <TrendingUp size={14} className="inline text-[hsl(142,70%,40%)]" /> : kw.trend === "down" ? <TrendingUp size={14} className="inline text-destructive rotate-180" /> : <span className="text-xs text-muted-foreground">—</span>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      );
-    }
-
-    if (activeTool === "dapa") {
-      return (
-        <div>
-          <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
-            <AlertCircle size={12} /> Authority scores for <strong className="text-foreground">{getDomainFromUrl(url)}</strong>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {[
-              { label: "Domain Authority", value: result.da, max: 100, color: result.da >= 50 ? "text-[hsl(142,70%,40%)]" : result.da >= 30 ? "text-[hsl(45,80%,35%)]" : "text-destructive" },
-              { label: "Page Authority", value: result.pa, max: 100, color: result.pa >= 50 ? "text-[hsl(142,70%,40%)]" : result.pa >= 30 ? "text-[hsl(45,80%,35%)]" : "text-destructive" },
-              { label: "Spam Score", value: result.spamScore, max: null, color: parseInt(result.spamScore) < 5 ? "text-[hsl(142,70%,40%)]" : "text-[hsl(45,80%,35%)]" },
-              { label: "Moz Rank", value: result.mozRank, max: null, color: "text-primary" },
-              { label: "Trust Flow", value: result.trustFlow, max: 100, color: "text-primary" },
-              { label: "Citation Flow", value: result.citationFlow, max: 100, color: "text-primary" },
-            ].map((item) => (
-              <div key={item.label} className="p-4 rounded-lg border border-border bg-card text-center">
-                <p className={`text-3xl font-bold ${item.color}`}>{item.value}{item.max ? <span className="text-sm text-muted-foreground">/{item.max}</span> : null}</p>
                 <p className="text-xs text-muted-foreground mt-1">{item.label}</p>
               </div>
             ))}
