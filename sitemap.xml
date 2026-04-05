@@ -1,46 +1,28 @@
-/ (root)
-  ├── index.html
-  ├── services.html
-  ├── sitemap.xml ✅
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-<url>
-<loc>https://crazyseoteam.in/</loc>
-<lastmod>2026-04-05T05:22:20+00:00</lastmod>
-</url>
+  <url>
+    <loc>https://crazyseoteam.in/</loc>
+  </url>
 
-<url>
-<loc>https://crazyseoteam.in/services</loc>
-<lastmod>2026-04-05T05:24:55+00:00</lastmod>
-</url>
+  <url>
+    <loc>https://crazyseoteam.in/services</loc>
+  </url>
 
-<url>
-<loc>https://crazyseoteam.in/seo-tools</loc>
-<lastmod>2026-04-05T05:24:55+00:00</lastmod>
-</url>
+  <url>
+    <loc>https://crazyseoteam.in/seo-tools</loc>
+  </url>
 
-<url>
-<loc>https://crazyseoteam.in/about</loc>
-<lastmod>2026-04-05T05:24:55+00:00</lastmod>
-</url>
+  <url>
+    <loc>https://crazyseoteam.in/about</loc>
+  </url>
 
-<url>
-<loc>https://crazyseoteam.in/results</loc>
-<lastmod>2026-04-05T05:24:55+00:00</lastmod>
-</url>
+  <url>
+    <loc>https://crazyseoteam.in/results</loc>
+  </url>
 
-<url>
-<loc>https://crazyseoteam.in/blog</loc>
-<lastmod>2026-04-05T05:24:55+00:00</lastmod>
-</url>
+  <url>
+    <loc>https://crazyseoteam.in/blog</loc>
+  </url>
 
 </urlset>
-/ (root)
- ├── index.html
- ├── services.html
- ├── sitemap.xml
- ├── robots.txt 
-User-agent: *
-Allow: /
-
-Sitemap: https://crazyseoteam.in/sitemap.xml
