@@ -1,3 +1,6 @@
+import founderImg from "@/assets/founder.jpeg";
+import cofounderImg from "@/assets/cofounder.jpeg";
+
 export const blogPosts = [
   {
     slug: "seo-2026-ai-first-search",
