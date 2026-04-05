@@ -13,7 +13,15 @@ const BlogPost = () => {
   const [selectedLang, setSelectedLang] = useState("en-US");
   const [speed, setSpeed] = useState(1);
   const synthRef = useRef(window.speechSynthesis);
+  const location = useLocation();
 
+  // Stop voice when navigating away
+  useEffect(() => {
+    return () => {
+      synthRef.current.cancel();
+      setSpeaking(false);
+    };
+  }, [location.pathname]);
   const languages = [
     { code: "en-US", label: "🇺🇸 English" },
     { code: "hi-IN", label: "🇮🇳 हिन्दी" },
