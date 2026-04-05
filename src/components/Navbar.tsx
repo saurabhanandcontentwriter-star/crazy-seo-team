@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import logo from "@/assets/logo.jpeg";
 
 const navLinks = [
-  { label: "Services", id: "services" },
-  { label: "SEO Tools", id: "seo-tools" },
-  { label: "About Us", id: "about" },
-  { label: "Results", id: "results" },
-  { label: "Blog", id: "blog" },
-  { label: "FAQ", id: "faq" },
+  { label: "Services", path: "/services" },
+  { label: "SEO Tools", path: "/seo-tools" },
+  { label: "About Us", path: "/about" },
+  { label: "Results", path: "/results" },
+  { label: "Blog", path: "/blog" },
+  { label: "FAQ", path: "/faq" },
 ];
 
 const Navbar = () => {
@@ -20,29 +20,24 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleNavClick = (id: string) => {
-    setOpen(false);
-    if (location.pathname !== "/") {
-      navigate("/", { state: { scrollTo: id } });
-    } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container mx-auto flex items-center justify-between h-16 px-4">
-          <button onClick={() => location.pathname === "/" ? window.scrollTo({ top: 0, behavior: "smooth" }) : navigate("/")} className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
             <img src={logo} alt="Crazy SEO Team" className="w-10 h-10 object-contain" />
             <span className="font-bold text-lg text-foreground">Crazy SEO Team</span>
-          </button>
+          </Link>
 
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <button key={link.label} onClick={() => handleNavClick(link.id)} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <Link
+                key={link.label}
+                to={link.path}
+                className={`text-sm font-medium transition-colors ${location.pathname === link.path ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              >
                 {link.label}
-              </button>
+              </Link>
             ))}
           </div>
 
@@ -61,9 +56,14 @@ const Navbar = () => {
         {open && (
           <div className="md:hidden bg-background border-b border-border px-4 pb-4 space-y-3">
             {navLinks.map((link) => (
-              <button key={link.label} onClick={() => handleNavClick(link.id)} className="block w-full text-left text-sm font-medium text-muted-foreground hover:text-foreground">
+              <Link
+                key={link.label}
+                to={link.path}
+                onClick={() => setOpen(false)}
+                className="block w-full text-left text-sm font-medium text-muted-foreground hover:text-foreground"
+              >
                 {link.label}
-              </button>
+              </Link>
             ))}
             <Button className="w-full gradient-bg text-primary-foreground" onClick={() => { setOpen(false); setDialogOpen(true); }}>
               Connect Now

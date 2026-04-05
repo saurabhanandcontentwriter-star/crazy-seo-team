@@ -1,3 +1,6 @@
+import founderImg from "@/assets/founder.jpeg";
+import cofounderImg from "@/assets/cofounder.jpeg";
+
 export const blogPosts = [
   {
     slug: "seo-2026-ai-first-search",
@@ -8,7 +11,7 @@ export const blogPosts = [
     desc: "With AI Overviews dominating results and zero-click searches at an all-time high, here's how to adapt your strategy to win in 2026.",
     author: "Anand Kumar Singh",
     role: "Founder & SEO Expert",
-    authorImg: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
+    authorImg: founderImg,
     content: `The search landscape has undergone a seismic shift. Google's AI Overviews (formerly SGE) now appear in over 60% of search queries, fundamentally changing how users interact with search results. For SEO professionals and business owners, this means the old playbook of simply ranking #1 is no longer enough.
 
 ## The Rise of Zero-Click Searches
@@ -45,7 +48,7 @@ SEO in 2026 is about being the most authoritative, trustworthy, and comprehensiv
     desc: "AI voice calling technology has matured significantly. Learn how businesses are using intelligent voice agents to scale outreach by 10x.",
     author: "Saurabh Anand",
     role: "Co-Founder",
-    authorImg: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
+    authorImg: cofounderImg,
     content: `The days of hiring large call center teams for outbound sales are numbered. AI voice agents have reached a level of sophistication where they can handle complex conversations, qualify leads, and even close deals — all without human intervention.
 
 ## The Technology Behind AI Voice Agents
@@ -86,7 +89,7 @@ The key to success with AI voice calling is starting with a well-defined use cas
     desc: "Google's Performance Max has evolved with new AI bidding features. Here's the updated playbook to maximize your return on ad spend.",
     author: "Anand Kumar Singh",
     role: "Founder & SEO Expert",
-    authorImg: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
+    authorImg: founderImg,
     content: `Google's Performance Max campaigns have undergone significant updates in early 2026, introducing new AI-powered bidding strategies and enhanced audience signals that can dramatically improve your ROAS.
 
 ## What's New in Performance Max 2026
@@ -130,7 +133,7 @@ With proper setup, we've seen clients achieve:
     desc: "Instagram's latest algorithm update prioritizes AI-curated content. Discover the new strategies for organic reach and engagement.",
     author: "Saurabh Anand",
     role: "Co-Founder",
-    authorImg: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
+    authorImg: cofounderImg,
     content: `Instagram's 2026 algorithm update is the biggest change to the platform since the introduction of Reels. The new AI-curated feed fundamentally changes how content is discovered and consumed.
 
 ## The Key Changes
@@ -170,7 +173,7 @@ Use the platform's built-in AI editing and content suggestion tools — Instagra
     desc: "Google has introduced new interaction metrics. Learn about INP, LCP changes, and how to optimize your site for the latest ranking signals.",
     author: "Anand Kumar Singh",
     role: "Founder & SEO Expert",
-    authorImg: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
+    authorImg: founderImg,
     content: `Google's Core Web Vitals have been updated for 2026 with new metrics that better reflect real user experience. Understanding and optimizing for these metrics is essential for maintaining your search rankings.
 
 ## The Updated Metrics
@@ -218,7 +221,7 @@ Use Google Search Console's Core Web Vitals report, PageSpeed Insights, and Chro
     desc: "With AI-generated content flooding the web, Google's E-E-A-T signals matter more than ever. Here's how to stand out with authentic expertise.",
     author: "Saurabh Anand",
     role: "Co-Founder",
-    authorImg: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
+    authorImg: cofounderImg,
     content: `The internet is flooded with AI-generated content. In response, Google has doubled down on E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) as a key quality signal. Here's how to build genuine authority that AI can't fake.
 
 ## Why E-E-A-T Matters More Than Ever

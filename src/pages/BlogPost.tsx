@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { blogPosts } from "@/data/blogData";
 import { ArrowLeft, Volume2, VolumeX, SkipBack, SkipForward, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,15 @@ const BlogPost = () => {
   const [selectedLang, setSelectedLang] = useState("en-US");
   const [speed, setSpeed] = useState(1);
   const synthRef = useRef(window.speechSynthesis);
+  const location = useLocation();
 
+  // Stop voice when navigating away
+  useEffect(() => {
+    return () => {
+      synthRef.current.cancel();
+      setSpeaking(false);
+    };
+  }, [location.pathname]);
   const languages = [
     { code: "en-US", label: "🇺🇸 English" },
     { code: "hi-IN", label: "🇮🇳 हिन्दी" },
