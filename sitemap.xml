@@ -35,3 +35,12 @@
 </url>
 
 </urlset>
+/ (root)
+ ├── index.html
+ ├── services.html
+ ├── sitemap.xml
+ ├── robots.txt 
+User-agent: *
+Allow: /
+
+Sitemap: https://crazyseoteam.in/sitemap.xml
