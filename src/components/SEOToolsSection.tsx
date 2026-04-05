@@ -256,8 +256,6 @@ const SEOToolsSection = () => {
       await new Promise((r) => setTimeout(r, 2000));
       switch (activeTool) {
         case "traffic": setResult(generateTraffic(url)); break;
-        case "keywords": setResult(generateKeywords(url)); break;
-        case "dapa": setResult(generateDaPA(url)); break;
         case "backlinks": setResult(generateBacklinks(url)); break;
       }
     }
