@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { blogPosts } from "@/data/blogData";
 import { ArrowLeft, Volume2, VolumeX, SkipBack, SkipForward, Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";

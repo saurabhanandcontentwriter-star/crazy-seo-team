@@ -4,11 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Globe, Search, Link2, TrendingUp, Key, BarChart3, Lock, AlertCircle, CheckCircle, XCircle, AlertTriangle, Shield, FileText, ExternalLink } from "lucide-react";
 import ContactFormDialog from "@/components/ContactFormDialog";
 
-type ToolType = "traffic" | "backlinks" | "audit";
+type ToolType = "audit" | "traffic" | "keywords" | "dapa" | "backlinks";
 
 const tools: { id: ToolType; label: string; icon: typeof Globe; desc: string }[] = [
   { id: "audit", label: "Full SEO Audit", icon: Shield, desc: "Complete SEO health check with actionable fixes" },
   { id: "traffic", label: "Website Traffic", icon: TrendingUp, desc: "Estimate monthly visitors & traffic sources" },
+  { id: "keywords", label: "Keyword Planner", icon: Key, desc: "Find ranking keywords with volume & CPC" },
+  { id: "dapa", label: "DA / PA Checker", icon: BarChart3, desc: "Check domain & page authority scores" },
   { id: "backlinks", label: "Backlink Checker", icon: Link2, desc: "Analyze backlink profile & referring domains" },
 ];
 
