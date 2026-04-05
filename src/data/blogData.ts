@@ -11,7 +11,7 @@ export const blogPosts = [
     desc: "With AI Overviews dominating results and zero-click searches at an all-time high, here's how to adapt your strategy to win in 2026.",
     author: "Anand Kumar Singh",
     role: "Founder & SEO Expert",
-    authorImg: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80",
+    authorImg: founderImg,
     content: `The search landscape has undergone a seismic shift. Google's AI Overviews (formerly SGE) now appear in over 60% of search queries, fundamentally changing how users interact with search results. For SEO professionals and business owners, this means the old playbook of simply ranking #1 is no longer enough.
 
 ## The Rise of Zero-Click Searches
