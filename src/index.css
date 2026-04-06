@@ -183,3 +183,22 @@
 .stagger-children > *:nth-child(4) { animation-delay: 0.4s; }
 .stagger-children > *:nth-child(5) { animation-delay: 0.5s; }
 .stagger-children > *:nth-child(6) { animation-delay: 0.6s; }
+
+/* Shimmer animation */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0.5; }
+}
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Gradient border glow */
+@keyframes borderGlow {
+  0%, 100% { border-color: hsl(var(--primary) / 0.2); }
+  50% { border-color: hsl(var(--primary) / 0.6); }
+}
+.animate-border-glow {
+  animation: borderGlow 3s ease-in-out infinite;
+}
