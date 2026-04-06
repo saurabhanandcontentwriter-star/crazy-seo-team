@@ -74,9 +74,3 @@ const PaymentPolicy = () => (
     </div>
     <Footer />
     <WhatsAppButton />
-    <!-- delete this -->
-<a href="/payment-policy">Payment Policy</a>
-  </div>
-);
-
-export default PaymentPolicy;
