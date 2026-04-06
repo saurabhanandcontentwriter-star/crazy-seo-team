@@ -73,4 +73,3 @@ const PaymentPolicy = () => (
       </div>
     </div>
     <Footer />
-    <WhatsAppButton />
