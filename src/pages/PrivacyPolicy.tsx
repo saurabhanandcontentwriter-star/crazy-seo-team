@@ -58,7 +58,7 @@ const PrivacyPolicy = () => (
 
         <h2>7. Contact Us</h2>
         <p>If you have any questions about this Privacy Policy, please contact us at:</p>
-        <p><strong>Email:</strong> contact@crazyseoteam.in<br /><strong>Phone:</strong> +91 9876543210</p>
+        <p><strong>Email:</strong> contact@crazyseoteam.in<br /><strong>Phone:</strong> +91 7667926418</p>
       </div>
     </div>
     <Footer />
