@@ -1,5 +1,3 @@
-src/pages/PaymentPolicy.tsx
-import Navbar from "@/components/Navbar";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -69,6 +67,9 @@ const PaymentPolicy = () => (
           <li>Tax invoice after payment confirmation</li>
           <li>Monthly reports with performance metrics</li>
         </ul>
+
+        <h2>7. Contact for Billing Queries</h2>
+        <p><strong>Email:</strong> billing@crazyseoteam.in<br /><strong>Phone:</strong> +91 7667926418</p>
       </div>
     </div>
     <Footer />
@@ -76,4 +77,3 @@ const PaymentPolicy = () => (
 );
 
 export default PaymentPolicy;
-
