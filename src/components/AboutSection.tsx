@@ -22,8 +22,15 @@ const team = [
     role: "CTO",
     img: ctoImg,
     quote:
-      "A Full Stack Developer with 4 years of experience crafting dynamic, responsive web applications and CRM systems for the travel industry. I specialize in building intuitive frontends using React.js, Next.js, HTML/CSS, and JavaScript, and robust backends with Node.js, Express, and AWS services — helping businesses streamline operations, improve user experience, and scale efficiently.",
+      "A Full Stack Developer with 5 years of experience crafting dynamic, responsive web applications and CRM systems for the travel industry. I specialize in building intuitive frontends using React.js, Next.js, HTML/CSS, and JavaScript, and robust backends with Node.js, Express, and AWS services — helping businesses streamline operations, improve user experience, and scale efficiently.",
   },
+];
+name: "Neeraj Vani",
+    role: "Advisor",
+    img: advisorImg,
+    quote:
+      "Startup builder with 10+ years of experience helping businesses scale, optimize strategy, and drive sustainable growth."
+  }
 ];
 
 const AboutSection = () => (
