@@ -100,6 +100,35 @@ const BlogPost = () => {
 
   const speeds = [0.75, 1, 1.25, 1.5, 2];
 
+  // Pick best voice for selected language (exact > language match > any)
+  const pickVoice = (langCode: string): SpeechSynthesisVoice | undefined => {
+    if (!voices.length) return undefined;
+    const baseLang = langCode.split("-")[0];
+    return (
+      voices.find((v) => v.lang === langCode && /google|natural|neural|premium/i.test(v.name)) ||
+      voices.find((v) => v.lang === langCode) ||
+      voices.find((v) => v.lang.startsWith(baseLang + "-")) ||
+      voices.find((v) => v.lang.startsWith(baseLang))
+    );
+  };
+
+  // Split long text into chunks — browsers cut off utterances >~250 chars on some engines
+  const chunkText = (text: string, maxLen = 200): string[] => {
+    const sentences = text.replace(/\s+/g, " ").match(/[^.!?]+[.!?]+|\S+$/g) || [text];
+    const chunks: string[] = [];
+    let current = "";
+    for (const s of sentences) {
+      if ((current + s).length > maxLen && current) {
+        chunks.push(current.trim());
+        current = s;
+      } else {
+        current += s;
+      }
+    }
+    if (current.trim()) chunks.push(current.trim());
+    return chunks;
+  };
+
   const toggleSpeech = () => {
     if (speaking) {
       synthRef.current.cancel();
@@ -107,13 +136,27 @@ const BlogPost = () => {
       return;
     }
     if (!post) return;
-    const text = post.content.replace(/#{1,3}\s/g, "").replace(/\*\*(.*?)\*\*/g, "$1");
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = selectedLang;
-    utterance.rate = speed;
-    utterance.onend = () => setSpeaking(false);
-    synthRef.current.speak(utterance);
+    const cleanText = post.content
+      .replace(/#{1,3}\s/g, "")
+      .replace(/\*\*(.*?)\*\*/g, "$1")
+      .replace(/^- /gm, "");
+    const fullText = `${post.title}. By ${post.author}. ${cleanText}`;
+    const chunks = chunkText(fullText);
+    const voice = pickVoice(selectedLang);
+
     setSpeaking(true);
+    let index = 0;
+    const speakNext = () => {
+      if (index >= chunks.length) { setSpeaking(false); return; }
+      const utterance = new SpeechSynthesisUtterance(chunks[index]);
+      utterance.lang = selectedLang;
+      utterance.rate = speed;
+      if (voice) utterance.voice = voice;
+      utterance.onend = () => { index++; speakNext(); };
+      utterance.onerror = () => setSpeaking(false);
+      synthRef.current.speak(utterance);
+    };
+    speakNext();
   };
 
   if (!post) {
