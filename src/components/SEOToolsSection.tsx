@@ -399,26 +399,62 @@ const SEOToolsSection = () => {
     if (activeTool === "traffic") {
       return (
         <div>
-          <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
-            <AlertCircle size={12} /> Estimated data for <strong className="text-foreground">{result.domain}</strong> • Industry: <span className="capitalize text-primary font-medium">{result.industry}</span>
+          <div className="mb-4 flex items-center justify-between flex-wrap gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <AlertCircle size={12} /> Estimates for <strong className="text-foreground">{result.domain}</strong> • Industry: <span className="capitalize text-primary font-medium">{result.industry}</span>
+            </div>
+            <div className="text-xs">
+              <span className="text-muted-foreground">Confidence: </span>
+              <span className="font-bold text-primary">{result.confidence}%</span>
+            </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <div className="p-4 rounded-lg border-2 border-primary/30 bg-primary/5 text-center col-span-2 md:col-span-2">
+              <p className="text-3xl md:text-4xl font-black text-primary">{result.monthly}</p>
+              <p className="text-xs text-muted-foreground mt-1">Estimated Monthly Visitors</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">≈ {result.daily}/day</p>
+            </div>
+            <div className="p-4 rounded-lg border border-border bg-card text-center">
+              <p className="text-2xl font-bold text-foreground">{result.bounce}</p>
+              <p className="text-xs text-muted-foreground mt-1">Bounce Rate</p>
+            </div>
+            <div className="p-4 rounded-lg border border-border bg-card text-center">
+              <p className="text-2xl font-bold text-foreground">{result.pagesPerSession}</p>
+              <p className="text-xs text-muted-foreground mt-1">Pages / Session</p>
+            </div>
+          </div>
+
+          <p className="text-xs font-semibold text-foreground mb-2 mt-5">Traffic Sources</p>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-5">
             {[
-              { label: "Monthly Visitors", value: result.monthly },
-              { label: "Organic", value: result.organic },
-              { label: "Paid", value: result.paid },
-              { label: "Social", value: result.social },
-              { label: "Direct", value: result.direct },
-              { label: "Bounce Rate", value: result.bounce },
-              { label: "Avg. Session", value: result.avgSession },
-              { label: "Pages/Session", value: result.pagesPerSession },
+              { label: "🔍 Organic", value: result.organic },
+              { label: "🔗 Direct", value: result.direct },
+              { label: "💰 Paid", value: result.paid },
+              { label: "📱 Social", value: result.social },
+              { label: "🌐 Referral", value: result.referral },
             ].map((item) => (
-              <div key={item.label} className="p-4 rounded-lg border border-border bg-card text-center">
-                <p className="text-2xl font-bold text-primary">{item.value}</p>
-                <p className="text-xs text-muted-foreground mt-1">{item.label}</p>
+              <div key={item.label} className="p-3 rounded-lg border border-border bg-card text-center">
+                <p className="text-lg font-bold text-primary">{item.value}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{item.label}</p>
               </div>
             ))}
           </div>
+
+          <p className="text-xs font-semibold text-foreground mb-2">Top Visitor Countries</p>
+          <div className="space-y-1.5 mb-5">
+            {result.topCountries.map((c: { country: string; pct: number }) => (
+              <div key={c.country} className="flex items-center gap-3 p-2 rounded-lg border border-border bg-card">
+                <span className="text-sm flex-1">{c.country}</span>
+                <div className="flex-1 max-w-[200px] bg-secondary rounded-full h-2 overflow-hidden">
+                  <div className="bg-primary h-full rounded-full" style={{ width: `${c.pct}%` }} />
+                </div>
+                <span className="text-xs font-bold text-primary w-10 text-right">{c.pct}%</span>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-[11px] text-muted-foreground italic">📊 {result.methodology}</p>
         </div>
       );
     }
@@ -426,26 +462,72 @@ const SEOToolsSection = () => {
     if (activeTool === "backlinks") {
       return (
         <div>
-          <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
-            <AlertCircle size={12} /> Backlink profile for <strong className="text-foreground">{getDomainFromUrl(url)}</strong>
+          <div className="mb-4 flex items-center gap-2 text-xs text-muted-foreground p-3 rounded-lg bg-primary/5 border border-primary/20">
+            <AlertCircle size={12} /> Backlink profile for <strong className="text-foreground">{getDomainFromUrl(url)}</strong> • DR: <span className="font-bold text-primary">{result.domainRating}</span>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <div className="p-4 rounded-lg border-2 border-primary/30 bg-primary/5 text-center col-span-2">
+              <p className="text-3xl md:text-4xl font-black text-primary">{result.total}</p>
+              <p className="text-xs text-muted-foreground mt-1">Total Backlinks</p>
+            </div>
+            <div className="p-4 rounded-lg border-2 border-primary/30 bg-primary/5 text-center col-span-2">
+              <p className="text-3xl md:text-4xl font-black text-primary">{result.referring}</p>
+              <p className="text-xs text-muted-foreground mt-1">Referring Domains</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
             {[
-              { label: "Total Backlinks", value: result.total },
-              { label: "Referring Domains", value: result.referring },
               { label: "DoFollow", value: result.dofollow },
               { label: "NoFollow", value: result.nofollow },
-              { label: "Gov/Edu Links", value: result.govEdu },
-              { label: "Top Anchor", value: result.topAnchor },
-              { label: "New (30d)", value: "+" + result.newLast30.toLocaleString() },
-              { label: "Lost (30d)", value: "-" + result.lostLast30.toLocaleString() },
+              { label: "New (30d)", value: "+" + result.newLast30, color: "text-[hsl(142,70%,40%)]" },
+              { label: "Lost (30d)", value: "-" + result.lostLast30, color: "text-destructive" },
             ].map((item) => (
-              <div key={item.label} className="p-4 rounded-lg border border-border bg-card text-center">
-                <p className="text-xl font-bold text-primary">{item.value}</p>
+              <div key={item.label} className="p-3 rounded-lg border border-border bg-card text-center">
+                <p className={`text-xl font-bold ${item.color || "text-foreground"}`}>{item.value}</p>
                 <p className="text-xs text-muted-foreground mt-1">{item.label}</p>
               </div>
             ))}
           </div>
+
+          <p className="text-xs font-semibold text-foreground mb-2">Anchor Text Distribution</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-5">
+            {[
+              { label: "Brand", value: result.anchorDistribution.brand },
+              { label: "Exact Match", value: result.anchorDistribution.exact },
+              { label: "Generic", value: result.anchorDistribution.generic },
+              { label: "URL", value: result.anchorDistribution.url },
+            ].map((item) => (
+              <div key={item.label} className="p-3 rounded-lg border border-border bg-card">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-muted-foreground">{item.label}</span>
+                  <span className="text-sm font-bold text-primary">{item.value}%</span>
+                </div>
+                <div className="bg-secondary rounded-full h-1.5 overflow-hidden">
+                  <div className="bg-primary h-full rounded-full" style={{ width: `${item.value}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {result.topReferrers.length > 0 && (
+            <>
+              <p className="text-xs font-semibold text-foreground mb-2">Top Referring Domains</p>
+              <div className="space-y-1.5 mb-5">
+                {result.topReferrers.map((r: { domain: string; dr: number; backlinks: number }) => (
+                  <div key={r.domain} className="flex items-center gap-3 p-2 rounded-lg border border-border bg-card">
+                    <Link2 size={14} className="text-primary shrink-0" />
+                    <span className="text-sm flex-1 truncate">{r.domain}</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">DR {r.dr}</span>
+                    <span className="text-xs text-muted-foreground w-20 text-right">{r.backlinks.toLocaleString()} links</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          <p className="text-[11px] text-muted-foreground italic">📊 {result.methodology}</p>
         </div>
       );
     }
