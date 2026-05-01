@@ -12,10 +12,19 @@ const BlogPost = () => {
   const [speaking, setSpeaking] = useState(false);
   const [selectedLang, setSelectedLang] = useState("en-US");
   const [speed, setSpeed] = useState(1);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const synthRef = useRef(window.speechSynthesis);
   const location = useLocation();
 
-  // Stop voice when navigating away
+  // Load available voices (async in most browsers)
+  useEffect(() => {
+    const load = () => setVoices(window.speechSynthesis.getVoices());
+    load();
+    window.speechSynthesis.onvoiceschanged = load;
+    return () => { window.speechSynthesis.onvoiceschanged = null; };
+  }, []);
+
+  // Stop voice when navigating away or unmounting
   useEffect(() => {
     return () => {
       synthRef.current.cancel();
