@@ -22,6 +22,58 @@ const BlogPost = () => {
       setSpeaking(false);
     };
   }, [location.pathname]);
+
+  // SEO: dynamic title, meta description, canonical, OG tags, JSON-LD
+  useEffect(() => {
+    if (!post) return;
+    const siteUrl = window.location.origin;
+    const url = `${siteUrl}/blog/${post.slug}`;
+    document.title = `${post.title} | Crazy SEO Team Blog`;
+
+    const setMeta = (selector: string, attr: string, key: string, content: string) => {
+      let el = document.head.querySelector(selector) as HTMLMetaElement | HTMLLinkElement | null;
+      if (!el) {
+        el = document.createElement(selector.startsWith("link") ? "link" : "meta") as any;
+        if (selector.startsWith("link")) (el as HTMLLinkElement).rel = "canonical";
+        else (el as HTMLMetaElement).setAttribute(attr, key);
+        document.head.appendChild(el);
+      }
+      if (selector.startsWith("link")) (el as HTMLLinkElement).href = content;
+      else (el as HTMLMetaElement).content = content;
+    };
+
+    setMeta('meta[name="description"]', "name", "description", post.desc);
+    setMeta('meta[property="og:title"]', "property", "og:title", post.title);
+    setMeta('meta[property="og:description"]', "property", "og:description", post.desc);
+    setMeta('meta[property="og:image"]', "property", "og:image", post.img);
+    setMeta('meta[property="og:url"]', "property", "og:url", url);
+    setMeta('meta[property="og:type"]', "property", "og:type", "article");
+    setMeta('meta[name="twitter:card"]', "name", "twitter:card", "summary_large_image");
+    setMeta('meta[name="twitter:title"]', "name", "twitter:title", post.title);
+    setMeta('meta[name="twitter:description"]', "name", "twitter:description", post.desc);
+    setMeta('meta[name="twitter:image"]', "name", "twitter:image", post.img);
+    setMeta('link[rel="canonical"]', "rel", "canonical", url);
+
+    // JSON-LD Article schema
+    let ld = document.getElementById("blog-jsonld") as HTMLScriptElement | null;
+    if (!ld) {
+      ld = document.createElement("script");
+      ld.id = "blog-jsonld";
+      ld.type = "application/ld+json";
+      document.head.appendChild(ld);
+    }
+    ld.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: post.title,
+      description: post.desc,
+      image: post.img,
+      author: { "@type": "Person", name: post.author, jobTitle: post.role },
+      publisher: { "@type": "Organization", name: "Crazy SEO Team" },
+      datePublished: post.date,
+      mainEntityOfPage: url,
+    });
+  }, [post]);
   const languages = [
     { code: "en-US", label: "🇺🇸 English" },
     { code: "hi-IN", label: "🇮🇳 हिन्दी" },

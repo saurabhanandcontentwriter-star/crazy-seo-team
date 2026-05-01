@@ -1,14 +1,14 @@
 import { Heart, Building, ShoppingCart, Cpu, GraduationCap, Landmark, Scale, Wrench } from "lucide-react";
 
 const industries = [
-  { icon: Heart, label: "Healthcare", img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=400&q=80", keywords: ["Medical SEO", "Patient Acquisition"] },
-  { icon: Building, label: "Real Estate", img: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=400&q=80", keywords: ["Property Listings", "Local SEO"] },
-  { icon: ShoppingCart, label: "E-Commerce", img: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=400&q=80", keywords: ["Product Ads", "Shopping SEO"] },
-  { icon: Cpu, label: "SaaS & Tech", img: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=400&q=80", keywords: ["B2B Marketing", "Lead Gen"] },
-  { icon: GraduationCap, label: "Education", img: "https://images.unsplash.com/photo-1523050854058-8df90110c476?auto=format&fit=crop&w=400&q=80", keywords: ["Enrollment Ads", "EdTech SEO"] },
-  { icon: Landmark, label: "Finance", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=80", keywords: ["FinTech Marketing", "Trust Building"] },
-  { icon: Scale, label: "Legal", img: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=400&q=80", keywords: ["Law Firm SEO", "PPC for Lawyers"] },
-  { icon: Wrench, label: "Home Services", img: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=400&q=80", keywords: ["Local Ads", "Google Maps SEO"] },
+  { icon: Heart, label: "Healthcare", img: "https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=600&q=80", keywords: ["Medical SEO", "Patient Acquisition"] },
+  { icon: Building, label: "Real Estate", img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80", keywords: ["Property Listings", "Local SEO"] },
+  { icon: ShoppingCart, label: "E-Commerce", img: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80", keywords: ["Product Ads", "Shopping SEO"] },
+  { icon: Cpu, label: "SaaS & Tech", img: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=600&q=80", keywords: ["B2B Marketing", "Lead Gen"] },
+  { icon: GraduationCap, label: "Education", img: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80", keywords: ["Enrollment Ads", "EdTech SEO"] },
+  { icon: Landmark, label: "Finance", img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80", keywords: ["FinTech Marketing", "Trust Building"] },
+  { icon: Scale, label: "Legal", img: "https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=600&q=80", keywords: ["Law Firm SEO", "PPC for Lawyers"] },
+  { icon: Wrench, label: "Home Services", img: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=600&q=80", keywords: ["Local Ads", "Google Maps SEO"] },
 ];
 
 const IndustriesSection = () => (
