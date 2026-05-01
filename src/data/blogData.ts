@@ -1,7 +1,83 @@
 import founderImg from "@/assets/founder.jpeg";
 import cofounderImg from "@/assets/cofounder.jpeg";
+import aiSearchImg from "@/assets/blog-ai-search.jpg";
 
 export const blogPosts = [
+  {
+    slug: "mastering-ai-search-optimization-better-rankings",
+    img: aiSearchImg,
+    tag: "AI Search SEO",
+    date: "April 28, 2026",
+    title: "Mastering AI Search Optimization for Better Rankings",
+    desc: "AI search optimization isn't a rebrand of old SEO — it's a different problem. Here's how Crazy SEO Team builds longtail content that wins on Google AI, ChatGPT Search, Perplexity & Gemini.",
+    author: "Anand Kumar Singh",
+    role: "Founder & SEO Expert",
+    authorImg: founderImg,
+    content: `Most businesses know they need to show up on Google. Fewer understand what's changed in the last two years. **AI search optimization** isn't just a new name for old tactics — it's a genuinely different problem, and if you're still treating it like 2019, your traffic numbers will tell on you eventually.
+
+The Crazy SEO Team has been working with clients across industries on exactly this — not just ranking for short, competitive keywords, but building the kind of content depth that makes both AI-powered search engines and real humans trust your website. Here's what that actually looks like.
+
+## The Shift From Keywords to Questions
+
+Search engines used to reward pages that repeated a target phrase a certain number of times. That's mostly done. Google isn't the only one paying attention anymore. **Perplexity, ChatGPT Search, Gemini** — these tools are all trying to figure out what someone actually means when they type something, not just what words they used.
+
+That matters a lot for how you approach longtail keywords. A longtail keyword isn't just a longer phrase — it's a specific question or intent. Someone typing that phrase out in full already knows what they're looking for. They've done the research. They're not browsing — they're ready to act.
+
+The mistake most brands make is chasing head terms. "SEO tips." "AI marketing" and "AI tools" are phrases that get searched a lot. They also get abandoned quickly, because everyone's competing for them, and the person searching often doesn't know exactly what they need yet. **Longtail traffic is smaller but warmer.**
+
+## What AI Search Engines Actually Look For
+
+Tools like Google's Search Generative Experience and AI-powered answer engines don't just scan for keywords. They try to figure out which sources are worth quoting. That means your content needs to actually answer things — completely, without making the reader click away to find the rest.
+
+The Crazy SEO Team builds content around **E-E-A-T** — experience, expertise, authoritativeness, and trustworthiness. Google uses these four things to decide whether your page shows up in an AI summary or a top organic result. That's it. No magic formula.
+
+What actually moves the needle is pretty straightforward:
+
+- Writing content that goes beyond surface-level summaries
+- Using specific numbers, case studies, and examples instead of vague claims
+- Building out **topic clusters** — interconnected content that covers a subject from multiple angles
+- Optimizing for questions, not just phrases: "how to improve AI search rankings for local business websites" pulls more qualified traffic than "AI SEO tips"
+
+Most people don't lose rankings because they got the keywords wrong. They lose because their content doesn't give Google anything worth surfacing.
+
+## Longtail Keywords and the Crazy SEO Team's Approach
+
+The team's methodology starts with **intent mapping**. Before writing anything, they figure out what a person is actually trying to accomplish. Someone searching "affordable AI SEO services for ecommerce brands" has different needs than someone searching "what is AI search optimization." One needs a service. The other needs an explanation. Sending both to the same page is a waste.
+
+From there, they build content around clusters of related longtail keywords. If you're targeting AI search optimization, you'd want to also cover adjacent searches like:
+
+- "How AI changes SEO strategy for small businesses"
+- "Best longtail keyword tools for AI content optimization"
+- "AI-powered search ranking factors to know in 2026"
+- "How to optimize website content for ChatGPT and Google AI search"
+- "Step-by-step AI SEO guide for beginners without a big budget"
+
+None of these phrases competes with each other — they work together. A reader who finds one article often follows the next. Search engines notice that pattern: time on site, pages per session, return visits. These behavioral signals reinforce rankings.
+
+## Technical SEO Still Matters
+
+AI optimization gets a lot of attention right now, but it doesn't override the basics. **Page speed, mobile usability, structured data, and clean URL architecture** still matter. The Crazy SEO Team runs technical audits alongside content work because a well-written page on a slow, broken site won't rank, no matter how good the writing is.
+
+**Schema markup** has become especially relevant. You're just labeling your content so the search engine doesn't have to figure it out on its own — your FAQs get tagged as FAQs, your how-to steps as how-to steps, your product details as product details. Clean labels, less guesswork.
+
+A clearly marked FAQ block has a much better shot at showing up as a direct answer in a featured snippet or an AI-generated summary than the same content sitting in an unmarked paragraph. It's a small step that a lot of sites skip — that's honestly why it still works.
+
+One thing the team prioritizes is optimizing for **"position zero"** — the answer box or AI summary that appears above organic results. You don't get there by being vague. You get there by answering a specific question in a clear, direct way, usually within the first few paragraphs of a page.
+
+## Why Content Depth Beats Content Volume
+
+A lot of SEO agencies still push volume — post five times a week, publish constantly. The Crazy SEO Team has moved away from that thinking. **One well-researched, thorough article** that actually covers a topic — including the questions people ask after the main question — will outperform ten shallow posts.
+
+AI search engines are specifically getting better at identifying content that's comprehensive versus content that just looks busy. If your content answers all the related questions in one place, you're not just a search result anymore — you're the source. That's what gets you cited in AI search results. Not keyword density. Not backlink counts. Just being the most complete, useful answer in the room.
+
+## Final Thoughts
+
+Most agencies want a signed contract and a six-month runway before they show you anything. The Crazy SEO Team doesn't work that way. The starting point is an **audit** — an honest look at what's already working on your site, what's sitting on page two and close to breaking through, and where the obvious content gaps are.
+
+From there, they map out a longtail content plan — specific topics and specific search intents in an order that makes sense — and then actually execute it.
+
+AI search optimization isn't going to get simpler. The models are getting smarter. More brands are catching on. The brands that get serious about this now, with an actual strategy and someone who understands how AI search works, won't have to play catch-up later.`,
+  },
   {
     slug: "seo-2026-ai-first-search",
     img: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
