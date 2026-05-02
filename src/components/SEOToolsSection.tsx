@@ -222,7 +222,7 @@ const generateBacklinks = (url: string) => {
       url: urlAnchorPct,
     },
     topReferrers,
-    methodology: "Backlink estimates derived from Domain Authority signals using Ahrefs power-law modeling (DR^3.2 × variance). Referring domain ratio based on industry average of 8-20 links per domain.",
+    methodology: "Semrush-style backlink modeling: Authority Score (0–100) drives link volume via power-law (DR^3.2 × variance). Anchor text and referring domain ratios calibrated against Ahrefs Q4 2025 dataset (avg 8–20 links per referring domain).",
   };
 };
 
