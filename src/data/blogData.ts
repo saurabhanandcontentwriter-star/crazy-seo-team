@@ -1,11 +1,10 @@
 import founderImg from "@/assets/founder.jpeg";
 import cofounderImg from "@/assets/cofounder.jpeg";
-import aiSearchImg from "@/assets/blog-ai-search.jpg";
 
 export const blogPosts = [
   {
     slug: "mastering-ai-search-optimization-better-rankings",
-    img: aiSearchImg,
+    img: "",
     tag: "AI Search SEO",
     date: "April 28, 2026",
     title: "Mastering AI Search Optimization for Better Rankings",

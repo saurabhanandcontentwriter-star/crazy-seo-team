@@ -258,7 +258,9 @@ const BlogPost = () => {
             </div>
           </div>
 
-          <img src={post.img} alt={post.title} className="w-full h-72 md:h-96 object-cover rounded-xl mb-8" />
+          {post.img && (
+            <img src={post.img} alt={post.title} className="w-full h-72 md:h-96 object-cover rounded-xl mb-8" />
+          )}
 
           <div className="max-w-none">
             {renderContent()}

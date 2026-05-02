@@ -12,7 +12,9 @@ const BlogSection = () => (
 
       {/* Featured post */}
       <Link to={`/blog/${blogPosts[0].slug}`} className="block rounded-xl overflow-hidden border border-border bg-card mb-8 hover:shadow-lg transition-all group">
-        <img src={blogPosts[0].img} alt={blogPosts[0].title} className="w-full h-72 object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+        {blogPosts[0].img && (
+          <img src={blogPosts[0].img} alt={blogPosts[0].title} className="w-full h-72 object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+        )}
         <div className="p-8">
           <div className="flex items-center gap-3 mb-3">
             <span className="px-2.5 py-0.5 text-xs rounded-full bg-primary/10 text-primary font-medium">{blogPosts[0].tag}</span>
