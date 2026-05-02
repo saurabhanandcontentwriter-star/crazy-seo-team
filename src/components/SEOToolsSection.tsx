@@ -129,7 +129,7 @@ const generateTraffic = (url: string) => {
     domain,
     topCountries,
     confidence,
-    methodology: "Estimates based on industry benchmarks, TLD authority weighting, and domain signal analysis (SimilarWeb/Ahrefs methodology).",
+    methodology: "Semrush-style estimation: industry traffic benchmarks × TLD authority weighting × domain quality signals × geographic intent modeling. Calibrated against SimilarWeb 2025 industry medians.",
   };
 };
 
