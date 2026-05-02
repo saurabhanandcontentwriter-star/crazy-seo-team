@@ -400,8 +400,8 @@ const SEOToolsSection = () => {
     setResult(null);
 
     if (activeTool === "audit") {
-      const steps = ["Checking SSL...", "Measuring TTFB...", "Analyzing URL structure...", "Checking authority signals...", "Evaluating SEO config...", "Generating report..."];
-      for (const step of steps) { setLoadingStep(step); await new Promise((r) => setTimeout(r, 500)); }
+      const steps = ["Checking SSL...", "Fetching page HTML...", "Extracting meta tags & headings...", "Analyzing on-page SEO...", "Verifying sitemap & robots.txt...", "Generating report..."];
+      for (const step of steps) { setLoadingStep(step); await new Promise((r) => setTimeout(r, 400)); }
       const auditResult = await runAudit(url);
       setResult(auditResult);
     } else {
