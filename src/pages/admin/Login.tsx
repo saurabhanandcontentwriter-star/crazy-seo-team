@@ -46,35 +46,3 @@ const AdminLogin = () => {
 };
 
 export default AdminLogin;
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
-const AdminPage = () => {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const isAdmin = localStorage.getItem("admin");
-
-    if (isAdmin !== "true") {
-      navigate("/", { replace: true });
-    }
-  }, [navigate]);
-
-  const logout = () => {
-    localStorage.removeItem("admin");
-    localStorage.removeItem("adminEmail");
-    navigate("/");
-  };
-
-  const email = localStorage.getItem("adminEmail");
-
-  return (
-    <div style={{ textAlign: "center", marginTop: "100px" }}>
-      <h1>Welcome Admin 🚀</h1>
-      <p>{email}</p>
-      <button onClick={logout}>Logout</button>
-    </div>
-  );
-};
-
-export default AdminPage;
