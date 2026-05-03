@@ -13,7 +13,7 @@ export default function AdminLogin() {
 
     if (allowed.includes(email)) {
       localStorage.setItem("admin", "true");
-      localStorage.setItem("email", email);
+      localStorage.setItem("adminEmail", email);
       navigate("/admin");
     } else {
       alert("Access Denied ❌");
@@ -37,6 +37,7 @@ export default function AdminLogin() {
         boxShadow: "0 0 10px rgba(0,0,0,0.1)"
       }}>
         <h2>Admin Login</h2>
+
         <button onClick={login} style={{
           padding: "10px",
           width: "100%",
