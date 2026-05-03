@@ -1,43 +1,56 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
-import { blogPosts } from "@/data/blogData";
-import { ArrowLeft, Volume2, VolumeX, SkipBack, SkipForward, Play, Pause } from "lucide-react";
+import { fetchPostBySlug, fetchPublishedPosts } from "@/lib/blog";
+import { ArrowLeft, Play, Pause, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const BlogPost = () => {
   const { slug } = useParams();
-  const post = blogPosts.find((p) => p.slug === slug);
+  const [post, setPost] = useState<any>(null);
+  const [related, setRelated] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [speaking, setSpeaking] = useState(false);
   const [selectedLang, setSelectedLang] = useState("en-US");
   const [speed, setSpeed] = useState(1);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const synthRef = useRef(window.speechSynthesis);
+  const synthRef = useRef(typeof window !== "undefined" ? window.speechSynthesis : null);
   const location = useLocation();
 
-  // Load available voices (async in most browsers)
+  // Load post + related from DB
   useEffect(() => {
+    if (!slug) return;
+    setLoading(true);
+    Promise.all([fetchPostBySlug(slug), fetchPublishedPosts()])
+      .then(([p, all]) => {
+        setPost(p);
+        setRelated((all || []).filter((x: any) => x.slug !== slug).slice(0, 3));
+      })
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  useEffect(() => {
+    if (!synthRef.current) return;
     const load = () => setVoices(window.speechSynthesis.getVoices());
     load();
     window.speechSynthesis.onvoiceschanged = load;
     return () => { window.speechSynthesis.onvoiceschanged = null; };
   }, []);
 
-  // Stop voice when navigating away or unmounting
   useEffect(() => {
     return () => {
-      synthRef.current.cancel();
+      synthRef.current?.cancel();
       setSpeaking(false);
     };
   }, [location.pathname]);
 
-  // SEO: dynamic title, meta description, canonical, OG tags, JSON-LD
+  // SEO meta
   useEffect(() => {
     if (!post) return;
     const siteUrl = window.location.origin;
     const url = `${siteUrl}/blog/${post.slug}`;
-    document.title = `${post.title} | Crazy SEO Team Blog`;
+    document.title = `${post.meta_title || post.title} | Crazy SEO Team Blog`;
 
     const setMeta = (selector: string, attr: string, key: string, content: string) => {
       let el = document.head.querySelector(selector) as HTMLMetaElement | HTMLLinkElement | null;
@@ -51,19 +64,17 @@ const BlogPost = () => {
       else (el as HTMLMetaElement).content = content;
     };
 
-    setMeta('meta[name="description"]', "name", "description", post.desc);
+    const desc = post.meta_description || post.desc || post.description || "";
+    const img = post.img || post.hero_image || "";
+    setMeta('meta[name="description"]', "name", "description", desc);
     setMeta('meta[property="og:title"]', "property", "og:title", post.title);
-    setMeta('meta[property="og:description"]', "property", "og:description", post.desc);
-    setMeta('meta[property="og:image"]', "property", "og:image", post.img);
+    setMeta('meta[property="og:description"]', "property", "og:description", desc);
+    if (img) setMeta('meta[property="og:image"]', "property", "og:image", img);
     setMeta('meta[property="og:url"]', "property", "og:url", url);
     setMeta('meta[property="og:type"]', "property", "og:type", "article");
     setMeta('meta[name="twitter:card"]', "name", "twitter:card", "summary_large_image");
-    setMeta('meta[name="twitter:title"]', "name", "twitter:title", post.title);
-    setMeta('meta[name="twitter:description"]', "name", "twitter:description", post.desc);
-    setMeta('meta[name="twitter:image"]', "name", "twitter:image", post.img);
     setMeta('link[rel="canonical"]', "rel", "canonical", url);
 
-    // JSON-LD Article schema
     let ld = document.getElementById("blog-jsonld") as HTMLScriptElement | null;
     if (!ld) {
       ld = document.createElement("script");
@@ -75,14 +86,15 @@ const BlogPost = () => {
       "@context": "https://schema.org",
       "@type": "BlogPosting",
       headline: post.title,
-      description: post.desc,
-      image: post.img,
-      author: { "@type": "Person", name: post.author, jobTitle: post.role },
+      description: desc,
+      image: img,
+      author: { "@type": "Person", name: post.author, jobTitle: post.role || post.author_role },
       publisher: { "@type": "Organization", name: "Crazy SEO Team" },
-      datePublished: post.date,
+      datePublished: post.published_at || post.date,
       mainEntityOfPage: url,
     });
   }, [post]);
+
   const languages = [
     { code: "en-US", label: "🇺🇸 English" },
     { code: "hi-IN", label: "🇮🇳 हिन्दी" },
@@ -97,11 +109,9 @@ const BlogPost = () => {
     { code: "ru-RU", label: "🇷🇺 Русский" },
     { code: "it-IT", label: "🇮🇹 Italiano" },
   ];
-
   const speeds = [0.75, 1, 1.25, 1.5, 2];
 
-  // Pick best voice for selected language (exact > language match > any)
-  const pickVoice = (langCode: string): SpeechSynthesisVoice | undefined => {
+  const pickVoice = (langCode: string) => {
     if (!voices.length) return undefined;
     const baseLang = langCode.split("-")[0];
     return (
@@ -112,74 +122,71 @@ const BlogPost = () => {
     );
   };
 
-  // Split long text into chunks — browsers cut off utterances >~250 chars on some engines
-  const chunkText = (text: string, maxLen = 200): string[] => {
+  const chunkText = (text: string, maxLen = 200) => {
     const sentences = text.replace(/\s+/g, " ").match(/[^.!?]+[.!?]+|\S+$/g) || [text];
     const chunks: string[] = [];
     let current = "";
     for (const s of sentences) {
-      if ((current + s).length > maxLen && current) {
-        chunks.push(current.trim());
-        current = s;
-      } else {
-        current += s;
-      }
+      if ((current + s).length > maxLen && current) { chunks.push(current.trim()); current = s; }
+      else current += s;
     }
     if (current.trim()) chunks.push(current.trim());
     return chunks;
   };
 
   const toggleSpeech = () => {
-    if (speaking) {
-      synthRef.current.cancel();
-      setSpeaking(false);
-      return;
-    }
-    if (!post) return;
+    if (!synthRef.current || !post) return;
+    if (speaking) { synthRef.current.cancel(); setSpeaking(false); return; }
     const cleanText = post.content
       .replace(/#{1,3}\s/g, "")
       .replace(/\*\*(.*?)\*\*/g, "$1")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
       .replace(/^- /gm, "");
     const fullText = `${post.title}. By ${post.author}. ${cleanText}`;
     const chunks = chunkText(fullText);
     const voice = pickVoice(selectedLang);
-
     setSpeaking(true);
     let index = 0;
     const speakNext = () => {
       if (index >= chunks.length) { setSpeaking(false); return; }
-      const utterance = new SpeechSynthesisUtterance(chunks[index]);
-      utterance.lang = selectedLang;
-      utterance.rate = speed;
-      if (voice) utterance.voice = voice;
-      utterance.onend = () => { index++; speakNext(); };
-      utterance.onerror = () => setSpeaking(false);
-      synthRef.current.speak(utterance);
+      const u = new SpeechSynthesisUtterance(chunks[index]);
+      u.lang = selectedLang;
+      u.rate = speed;
+      if (voice) u.voice = voice;
+      u.onend = () => { index++; speakNext(); };
+      u.onerror = () => setSpeaking(false);
+      synthRef.current!.speak(u);
     };
     speakNext();
   };
 
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>;
+  }
   if (!post) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-foreground mb-4">Post Not Found</h1>
-          <Link to="/"><Button variant="outline">← Back to Home</Button></Link>
+          <Link to="/blog"><Button variant="outline">← Back to Blog</Button></Link>
         </div>
       </div>
     );
   }
 
   const renderContent = () => {
-    return post.content.split("\n\n").map((block, i) => {
+    return post.content.split("\n\n").map((block: string, i: number) => {
       if (block.startsWith("## ")) return <h2 key={i} className="text-2xl md:text-3xl font-bold text-foreground mt-10 mb-4">{block.replace("## ", "")}</h2>;
       if (block.startsWith("### ")) return <h3 key={i} className="text-xl md:text-2xl font-semibold text-foreground mt-8 mb-3">{block.replace("### ", "")}</h3>;
+      const linkify = (s: string) => s
+        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary hover:underline">$1</a>');
       if (block.startsWith("- ")) return (
         <ul key={i} className="space-y-2 my-4 ml-4">
           {block.split("\n").map((li, j) => (
             <li key={j} className="text-muted-foreground flex items-start gap-2">
               <span className="text-primary mt-1">•</span>
-              <span dangerouslySetInnerHTML={{ __html: li.replace(/^- /, "").replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>') }} />
+              <span dangerouslySetInnerHTML={{ __html: linkify(li.replace(/^- /, "")) }} />
             </li>
           ))}
         </ul>
@@ -187,26 +194,21 @@ const BlogPost = () => {
       if (/^\d+\./.test(block)) return (
         <ol key={i} className="space-y-2 my-4 ml-4 list-decimal list-inside">
           {block.split("\n").map((li, j) => (
-            <li key={j} className="text-muted-foreground" dangerouslySetInnerHTML={{
-              __html: li.replace(/^\d+\.\s*/, "").replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>')
-            }} />
+            <li key={j} className="text-muted-foreground" dangerouslySetInnerHTML={{ __html: linkify(li.replace(/^\d+\.\s*/, "")) }} />
           ))}
         </ol>
       );
-      return <p key={i} className="text-muted-foreground leading-relaxed mb-4 text-base md:text-lg" dangerouslySetInnerHTML={{ __html: block.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>') }} />;
+      return <p key={i} className="text-muted-foreground leading-relaxed mb-4 text-base md:text-lg" dangerouslySetInnerHTML={{ __html: linkify(block) }} />;
     });
   };
-
-  // Related posts
-  const related = blogPosts.filter(p => p.slug !== post.slug).slice(0, 3);
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <article className="pt-24 pb-16 px-4">
         <div className="container mx-auto max-w-3xl">
-          <Link to="/" className="inline-flex items-center gap-2 text-sm text-primary hover:underline mb-6">
-            <ArrowLeft size={16} /> Back to Home
+          <Link to="/blog" className="inline-flex items-center gap-2 text-sm text-primary hover:underline mb-6">
+            <ArrowLeft size={16} /> Back to Blog
           </Link>
 
           <div className="flex items-center gap-3 mb-4">
@@ -214,19 +216,16 @@ const BlogPost = () => {
             <span className="text-sm text-muted-foreground">{post.date}</span>
           </div>
 
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-foreground leading-tight mb-6">
-            {post.title}
-          </h1>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-foreground leading-tight mb-6">{post.title}</h1>
 
           <div className="flex items-center gap-3 mb-6">
             <img src={post.authorImg} alt={post.author} className="w-12 h-12 rounded-full object-cover" />
             <div>
               <p className="font-semibold text-foreground">{post.author}</p>
-              <p className="text-sm text-muted-foreground">{post.role}</p>
+              <p className="text-sm text-muted-foreground">{post.role || post.author_role}</p>
             </div>
           </div>
 
-          {/* Audio Player */}
           <div className="mb-8 p-4 rounded-xl bg-[hsl(220,20%,14%)] text-[hsl(0,0%,95%)]">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-3">
@@ -239,16 +238,14 @@ const BlogPost = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                <select
-                  value={selectedLang}
-                  onChange={(e) => { setSelectedLang(e.target.value); if (speaking) { synthRef.current.cancel(); setSpeaking(false); } }}
-                  className="text-xs border border-[hsl(220,14%,30%)] rounded-lg px-2 py-1.5 bg-[hsl(220,20%,18%)] text-[hsl(0,0%,90%)]"
-                >
+                <select value={selectedLang}
+                  onChange={(e) => { setSelectedLang(e.target.value); if (speaking) { synthRef.current?.cancel(); setSpeaking(false); } }}
+                  className="text-xs border border-[hsl(220,14%,30%)] rounded-lg px-2 py-1.5 bg-[hsl(220,20%,18%)] text-[hsl(0,0%,90%)]">
                   {languages.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
                 </select>
                 <div className="flex items-center gap-1 bg-[hsl(220,20%,18%)] rounded-lg px-2 py-1">
                   {speeds.map((s) => (
-                    <button key={s} onClick={() => { setSpeed(s); if (speaking) { synthRef.current.cancel(); setSpeaking(false); } }}
+                    <button key={s} onClick={() => { setSpeed(s); if (speaking) { synthRef.current?.cancel(); setSpeaking(false); } }}
                       className={`text-xs px-2 py-0.5 rounded ${speed === s ? "bg-primary/20 text-primary font-bold" : "text-[hsl(0,0%,60%)]"}`}>
                       {s}x
                     </button>
@@ -258,33 +255,27 @@ const BlogPost = () => {
             </div>
           </div>
 
-          {post.img && (
-            <img src={post.img} alt={post.title} className="w-full h-72 md:h-96 object-cover rounded-xl mb-8" />
-          )}
+          {post.img && <img src={post.img} alt={post.title} className="w-full h-72 md:h-96 object-cover rounded-xl mb-8" />}
 
-          <div className="max-w-none">
-            {renderContent()}
-          </div>
+          <div className="max-w-none">{renderContent()}</div>
 
-          {/* CTA */}
           <div className="mt-12 p-6 rounded-xl gradient-bg text-primary-foreground text-center">
             <p className="font-bold text-xl mb-2">Need help with your SEO strategy?</p>
             <p className="text-sm opacity-90 mb-4">Get a free consultation with our experts.</p>
-            <Link to="/">
-              <Button variant="secondary" className="font-semibold">Get Free Consultation</Button>
-            </Link>
+            <Link to="/"><Button variant="secondary" className="font-semibold">Get Free Consultation</Button></Link>
           </div>
 
-          {/* Related Posts */}
           {related.length > 0 && (
             <div className="mt-16">
               <h2 className="text-2xl font-bold text-foreground mb-6">Related Articles</h2>
               <div className="grid md:grid-cols-3 gap-4">
-                {related.map(p => (
+                {related.map((p) => (
                   <Link to={`/blog/${p.slug}`} key={p.slug} className="rounded-xl overflow-hidden border border-border bg-card hover:shadow-lg transition-all group">
-                    <div className="h-36 overflow-hidden">
-                      <img src={p.img} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    </div>
+                    {p.img && (
+                      <div className="h-36 overflow-hidden">
+                        <img src={p.img} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      </div>
+                    )}
                     <div className="p-4">
                       <span className="text-xs text-primary font-medium">{p.tag}</span>
                       <h3 className="text-sm font-bold text-foreground mt-1 line-clamp-2">{p.title}</h3>
