@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>404 - Page Not Found</title>
+    <meta charset="utf-8">
+    <title>Crazy SEO Team - Redirecting</title>
+    <script type="text/javascript">
+        var pathSegmentsToKeep = 0;
+        var l = window.location;
+        l.replace(
+            l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+            l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+            l.pathname.split('/').slice(1 + pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+            (l.search ? '&' + l.search.replace(/\?/g, '~q~') : '') +
+            l.hash
+        );
+    </script>
 </head>
-<body style="text-align:center; font-family:sans-serif;">
-
-  <h1>404</h1>
-  <p>Oops! Page not found</p>
-
-  <a href="/">Return to Home</a>
-
+<body>
+    Redirecting to Admin...
 </body>
 </html>
