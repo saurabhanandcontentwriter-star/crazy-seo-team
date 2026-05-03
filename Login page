@@ -1,2 +1,11 @@
-navigate("/admin");
-/#/admin
+const login = () => {
+  const email = prompt("Enter Gmail:");
+
+  if (email === "sauravanand499@gmail.com" || email === "crazyseoteam@gmail.com") {
+    localStorage.setItem("admin", "true");
+    localStorage.setItem("adminEmail", email);
+    window.location.href = "/admin"; // ✅ FIX
+  } else {
+    alert("Access Denied");
+  }
+};
