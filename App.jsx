@@ -7,7 +7,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<AdminLogin />} />
-        <Route path="/admin/login" element={<AdminLogin />} />  {/* ✅ ADD THIS */}
+        <Route path="/admin/login" element={<AdminLogin />} />  {/* FIX */}
         <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </BrowserRouter>
