@@ -39,4 +39,3 @@ export function useAuth() {
 
   return { session, user, isAdmin, loading };
 }
-location.href = "/oauth/initiate";
