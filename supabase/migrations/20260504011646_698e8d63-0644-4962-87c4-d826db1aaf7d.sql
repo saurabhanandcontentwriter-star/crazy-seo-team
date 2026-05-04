@@ -1,0 +1,1 @@
+INSERT INTO public.admin_emails (email) VALUES ('crazyseoteam@gmail.com') ON CONFLICT (email) DO NOTHING;
