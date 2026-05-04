@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Navigate, Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllPostsAdmin, slugify, type BlogPost } from "@/lib/blog";
 import { auditPost, type SeoAuditResult } from "@/lib/seoAudit";
@@ -22,7 +21,6 @@ const StatusIcon = ({ status }: { status: "pass" | "warn" | "fail" }) => {
 };
 
 const AdminDashboard = () => {
-  const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<(BlogPost & { id: string })[]>([]);
   const [loadingList, setLoadingList] = useState(true);
@@ -45,14 +43,9 @@ const AdminDashboard = () => {
     }
   };
 
-  useEffect(() => { if (isAdmin) loadPosts(); }, [isAdmin]);
+  useEffect(() => { loadPosts(); }, []);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>;
-  if (!user) return <Navigate to="/admin/login" replace />;
-  if (!isAdmin) return <Navigate to="/admin/login" replace />;
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
+  const handleSignOut = () => {
     navigate("/admin/login", { replace: true });
   };
 
@@ -85,7 +78,6 @@ const AdminDashboard = () => {
         target_keyword: draft.target_keyword || null,
         source: draft.source || "manual",
         published: draft.published !== false,
-        created_by: user.id,
       };
       let res;
       if (draft.id) {
@@ -157,7 +149,7 @@ const AdminDashboard = () => {
             <div className="w-9 h-9 rounded-lg gradient-bg flex items-center justify-center"><FileText size={18} className="text-primary-foreground" /></div>
             <div>
               <h1 className="text-lg font-bold text-foreground">Admin Dashboard</h1>
-              <p className="text-xs text-muted-foreground">{user.email}</p>
+              <p className="text-xs text-muted-foreground">Crazy SEO Team</p>
             </div>
           </div>
           <div className="flex gap-2">
