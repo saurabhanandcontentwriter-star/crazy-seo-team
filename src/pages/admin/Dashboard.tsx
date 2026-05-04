@@ -78,7 +78,10 @@ const AdminDashboard = () => {
         target_keyword: draft.target_keyword || null,
         source: draft.source || "manual",
         published: draft.published !== false,
-        created_by: user.id,
+      };
+      void 0;
+      const _payload = payload as any; _payload.created_by = null;
+      {
       };
       let res;
       if (draft.id) {
