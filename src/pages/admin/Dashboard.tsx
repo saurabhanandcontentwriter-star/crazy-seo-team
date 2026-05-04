@@ -79,10 +79,6 @@ const AdminDashboard = () => {
         source: draft.source || "manual",
         published: draft.published !== false,
       };
-      void 0;
-      const _payload = payload as any; _payload.created_by = null;
-      {
-      };
       let res;
       if (draft.id) {
         res = await supabase.from("blog_posts").update(payload).eq("id", draft.id);
