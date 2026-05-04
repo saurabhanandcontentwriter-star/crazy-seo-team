@@ -149,7 +149,7 @@ const AdminDashboard = () => {
             <div className="w-9 h-9 rounded-lg gradient-bg flex items-center justify-center"><FileText size={18} className="text-primary-foreground" /></div>
             <div>
               <h1 className="text-lg font-bold text-foreground">Admin Dashboard</h1>
-              <p className="text-xs text-muted-foreground">{user.email}</p>
+              <p className="text-xs text-muted-foreground">Crazy SEO Team</p>
             </div>
           </div>
           <div className="flex gap-2">
