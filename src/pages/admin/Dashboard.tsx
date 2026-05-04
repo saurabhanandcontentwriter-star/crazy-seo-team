@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Navigate, Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllPostsAdmin, slugify, type BlogPost } from "@/lib/blog";
 import { auditPost, type SeoAuditResult } from "@/lib/seoAudit";
@@ -22,7 +21,6 @@ const StatusIcon = ({ status }: { status: "pass" | "warn" | "fail" }) => {
 };
 
 const AdminDashboard = () => {
-  const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const [posts, setPosts] = useState<(BlogPost & { id: string })[]>([]);
   const [loadingList, setLoadingList] = useState(true);
@@ -45,14 +43,9 @@ const AdminDashboard = () => {
     }
   };
 
-  useEffect(() => { if (isAdmin) loadPosts(); }, [isAdmin]);
+  useEffect(() => { loadPosts(); }, []);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>;
-  if (!user) return <Navigate to="/admin/login" replace />;
-  if (!isAdmin) return <Navigate to="/admin/login" replace />;
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
+  const handleSignOut = () => {
     navigate("/admin/login", { replace: true });
   };
 
