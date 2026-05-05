@@ -13,6 +13,7 @@ export type BlogPost = {
   author_role: string;
   author_img?: string | null;
   hero_image?: string | null;
+  hero_image_alt?: string | null;
   meta_title?: string | null;
   meta_description?: string | null;
   target_keyword?: string | null;
