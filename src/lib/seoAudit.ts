@@ -172,21 +172,91 @@ export function auditPost(post: Partial<BlogPost>): SeoAuditResult {
   }
 
   // ---- Image alt / hero ----
-  if (post.hero_image) {
-    const alt = ((post as any).hero_image_alt || "").trim();
-    if (alt.length >= 8 && alt.length <= 125) {
-      const altHasKw = keyword && alt.toLowerCase().includes(keyword);
-      checks.push({ id: "hero", label: "Hero Image + Alt Text", status: "pass", detail: `Hero image set with descriptive alt text (${alt.length} chars)${altHasKw ? " including the target keyword" : ""}.` });
-    } else if (alt.length > 0) {
-      checks.push({ id: "hero", label: "Hero Image Alt Text", status: "warn", detail: `Alt text is ${alt.length} chars — aim for 8–125.`, recommendation: "Write descriptive alt text (8–125 chars) and include the target keyword where natural." });
-      score -= 3;
-    } else {
-      checks.push({ id: "hero", label: "Hero Image Alt Text", status: "fail", detail: "Hero image has no alt text.", recommendation: "Add SEO-friendly alt text describing the image (helps image search & accessibility)." });
-      score -= 6;
-    }
-  } else {
-    checks.push({ id: "hero", label: "Hero Image", status: "warn", detail: "No hero image.", recommendation: "Add a hero image (1200×630) with alt text for better OG/Twitter previews & image SEO." });
+  if (!post.hero_image) {
+    checks.push({ id: "hero", label: "Hero Image", status: "warn", detail: "No hero image set.", recommendation: "Add a hero image (1200×630) with alt text for better OG/Twitter previews & image SEO." });
     score -= 2;
+  } else {
+    const alt = ((post as any).hero_image_alt || "").trim();
+    const rules: { name: string; ok: boolean; fix: string }[] = [];
+
+    // Rule 1: not empty
+    rules.push({
+      name: "Alt text present",
+      ok: alt.length > 0,
+      fix: "Add alt text in the “Hero image alt text” field — describe what the image shows.",
+    });
+
+    // Rule 2: minimum length (8 chars)
+    rules.push({
+      name: "Min length (≥ 8 chars)",
+      ok: alt.length >= 8,
+      fix: alt.length === 0
+        ? "Write at least 8 characters describing the image."
+        : `Currently ${alt.length} char${alt.length === 1 ? "" : "s"} — extend to at least 8 (e.g. add nouns/adjectives).`,
+    });
+
+    // Rule 3: max length (125 chars — screen-reader best practice)
+    rules.push({
+      name: "Max length (≤ 125 chars)",
+      ok: alt.length <= 125,
+      fix: `Currently ${alt.length} chars — trim to ≤ 125 so screen readers don't truncate.`,
+    });
+
+    // Rule 4: contains target keyword (only enforced if a keyword is set)
+    const altHasKw = keyword ? alt.toLowerCase().includes(keyword) : true;
+    rules.push({
+      name: keyword ? `Contains target keyword ("${keyword}")` : "Target keyword in alt text",
+      ok: altHasKw,
+      fix: keyword
+        ? `Work the phrase “${keyword}” into the alt text naturally (e.g. “${keyword} dashboard preview”).`
+        : "Set a target keyword on the post, then include it in the alt text.",
+    });
+
+    // Rule 5: not stuffed with the keyword
+    let kwCount = 0;
+    if (keyword && alt) {
+      const re = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi");
+      kwCount = (alt.match(re) || []).length;
+    }
+    rules.push({
+      name: "No keyword stuffing",
+      ok: kwCount <= 2,
+      fix: `“${keyword}” appears ${kwCount}× in alt text — use it once, naturally.`,
+    });
+
+    // Rule 6: not a filename / generic placeholder
+    const looksLikeFile = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(alt) || /^(image|img|photo|picture|untitled|dsc[_-]?\d+)\b/i.test(alt);
+    rules.push({
+      name: "Descriptive (not a filename)",
+      ok: alt.length === 0 ? true : !looksLikeFile,
+      fix: "Replace filename-style alt (e.g. “image1.jpg”) with a real description of the image.",
+    });
+
+    const failed = rules.filter((r) => !r.ok);
+    const passed = rules.length - failed.length;
+
+    if (failed.length === 0) {
+      checks.push({
+        id: "hero",
+        label: "Hero Image + Alt Text",
+        status: "pass",
+        detail: `All ${rules.length} alt-text rules pass — ${alt.length} chars${keyword && altHasKw ? `, includes "${keyword}"` : ""}.`,
+      });
+    } else {
+      // Severity: empty alt or 3+ failures = fail; otherwise warn
+      const isCritical = alt.length === 0 || failed.length >= 3;
+      const status: "fail" | "warn" = isCritical ? "fail" : "warn";
+      score -= isCritical ? 6 : 3;
+
+      const failedList = failed.map((r) => `• ${r.name} — ${r.fix}`).join("\n");
+      checks.push({
+        id: "hero",
+        label: "Hero Image Alt Text",
+        status,
+        detail: `${passed}/${rules.length} alt-text rules pass. Failing:\n${failedList}`,
+        recommendation: failed[0].fix,
+      });
+    }
   }
 
   return {
