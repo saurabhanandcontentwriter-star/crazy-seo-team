@@ -51,6 +51,7 @@ const AdminDashboard = () => {
   useEffect(() => { loadPosts(); }, []);
 
   const handleSignOut = () => {
+    sessionStorage.removeItem("admin_authed");
     navigate("/admin/login", { replace: true });
   };
 
