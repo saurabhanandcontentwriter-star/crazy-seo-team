@@ -77,12 +77,13 @@ const AdminDashboard = () => {
     navigate("/admin/login", { replace: true });
   };
 
-  const startNew = () => setDraft({ slug: "", title: "", description: "", content: "", tag: "SEO", author: "Crazy SEO Team", author_role: "Editorial", source: "manual", published: true, target_keyword: "", meta_title: "", meta_description: "", hero_image: "" });
+  const startNew = () => setDraft({ slug: "", title: "", description: "", content: "", tag: "SEO", author: "Crazy SEO Team", author_role: "Editorial", source: "manual", published: true, target_keyword: "", meta_title: "", meta_description: "", hero_image: "", hero_image_alt: "" });
 
   const editPost = (p: any) => setDraft({
     id: p.id, slug: p.slug, title: p.title, description: p.description, content: p.content,
     tag: p.tag, author: p.author, author_role: p.author_role, author_img: p.author_img,
-    hero_image: p.hero_image, meta_title: p.meta_title, meta_description: p.meta_description,
+    hero_image: p.hero_image, hero_image_alt: p.hero_image_alt,
+    meta_title: p.meta_title, meta_description: p.meta_description,
     target_keyword: p.target_keyword, source: p.source, published: p.published,
   });
 
@@ -101,6 +102,7 @@ const AdminDashboard = () => {
         author: draft.author || "Crazy SEO Team",
         author_role: draft.author_role || "Editorial",
         hero_image: draft.hero_image || null,
+        hero_image_alt: draft.hero_image_alt || null,
         meta_title: draft.meta_title || null,
         meta_description: draft.meta_description || null,
         target_keyword: draft.target_keyword || null,
