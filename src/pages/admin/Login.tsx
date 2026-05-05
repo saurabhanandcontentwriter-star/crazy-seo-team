@@ -58,6 +58,8 @@ export default function AdminLogin() {
         return;
       }
       sessionStorage.setItem("admin_authed", "1");
+      sessionStorage.setItem("admin_user_id", ADMIN_USER);
+      sessionStorage.setItem("admin_email", "crazyseoteam@gmail.com");
       toast.success("Welcome, Admin");
       navigate("/admin", { replace: true });
     }, 300);
