@@ -288,7 +288,20 @@ const AdminDashboard = () => {
                 <div><Label>Meta title</Label><Input value={draft.meta_title || ""} onChange={(e) => setDraft({ ...draft, meta_title: e.target.value })} maxLength={70} /></div>
                 <div><Label>Target keyword</Label><Input value={draft.target_keyword || ""} onChange={(e) => setDraft({ ...draft, target_keyword: e.target.value })} /></div>
                 <div className="col-span-2"><Label>Meta description</Label><Textarea value={draft.meta_description || ""} onChange={(e) => setDraft({ ...draft, meta_description: e.target.value })} rows={2} maxLength={200} /></div>
-                <div className="col-span-2"><Label>Hero image URL (optional)</Label><Input value={draft.hero_image || ""} onChange={(e) => setDraft({ ...draft, hero_image: e.target.value })} placeholder="https://..." /></div>
+                <div className="col-span-2 space-y-2">
+                  <Label>Hero image</Label>
+                  <div className="flex gap-2 items-center">
+                    <Input value={draft.hero_image || ""} onChange={(e) => setDraft({ ...draft, hero_image: e.target.value })} placeholder="https://... or upload below" />
+                    <label className="cursor-pointer">
+                      <input type="file" accept="image/*" className="hidden" disabled={uploading} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); e.target.value = ""; }} />
+                      <span className="inline-flex items-center px-3 py-2 rounded-md border border-input bg-background hover:bg-accent text-sm whitespace-nowrap">
+                        {uploading ? <><Loader2 size={14} className="mr-1 animate-spin" /> Uploading</> : "Upload"}
+                      </span>
+                    </label>
+                  </div>
+                  {draft.hero_image && <img src={draft.hero_image} alt={draft.hero_image_alt || "Hero preview"} className="w-full max-h-48 object-cover rounded-md border border-border" />}
+                </div>
+                <div className="col-span-2"><Label>Hero image alt text (SEO)</Label><Input value={draft.hero_image_alt || ""} onChange={(e) => setDraft({ ...draft, hero_image_alt: e.target.value })} placeholder="Describe the image, include the target keyword if natural" maxLength={125} /></div>
                 <div><Label>Author</Label><Input value={draft.author || ""} onChange={(e) => setDraft({ ...draft, author: e.target.value })} /></div>
                 <div><Label>Author role</Label><Input value={draft.author_role || ""} onChange={(e) => setDraft({ ...draft, author_role: e.target.value })} /></div>
                 <div className="col-span-2 flex items-center gap-2">
