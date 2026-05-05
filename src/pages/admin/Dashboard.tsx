@@ -22,6 +22,11 @@ const StatusIcon = ({ status }: { status: "pass" | "warn" | "fail" }) => {
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  useEffect(() => {
+    if (sessionStorage.getItem("admin_authed") !== "1") {
+      navigate("/admin/login", { replace: true });
+    }
+  }, [navigate]);
   const [posts, setPosts] = useState<(BlogPost & { id: string })[]>([]);
   const [loadingList, setLoadingList] = useState(true);
   const [draft, setDraft] = useState<DraftPost | null>(null);
