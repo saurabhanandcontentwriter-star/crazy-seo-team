@@ -337,7 +337,7 @@ const AdminDashboard = () => {
                             <StatusIcon status={c.status} />
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-semibold text-foreground">{c.label}</p>
-                              <p className="text-[11px] text-muted-foreground leading-relaxed">{c.detail}</p>
+                              <p className="text-[11px] text-muted-foreground leading-relaxed whitespace-pre-line">{c.detail}</p>
                               {c.recommendation && <p className="text-[11px] text-primary mt-1">💡 {c.recommendation}</p>}
                             </div>
                           </div>
