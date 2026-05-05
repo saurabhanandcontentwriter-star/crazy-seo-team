@@ -173,9 +173,19 @@ export function auditPost(post: Partial<BlogPost>): SeoAuditResult {
 
   // ---- Image alt / hero ----
   if (post.hero_image) {
-    checks.push({ id: "hero", label: "Hero Image", status: "pass", detail: "Hero image set — improves social sharing & engagement." });
+    const alt = ((post as any).hero_image_alt || "").trim();
+    if (alt.length >= 8 && alt.length <= 125) {
+      const altHasKw = keyword && alt.toLowerCase().includes(keyword);
+      checks.push({ id: "hero", label: "Hero Image + Alt Text", status: "pass", detail: `Hero image set with descriptive alt text (${alt.length} chars)${altHasKw ? " including the target keyword" : ""}.` });
+    } else if (alt.length > 0) {
+      checks.push({ id: "hero", label: "Hero Image Alt Text", status: "warn", detail: `Alt text is ${alt.length} chars — aim for 8–125.`, recommendation: "Write descriptive alt text (8–125 chars) and include the target keyword where natural." });
+      score -= 3;
+    } else {
+      checks.push({ id: "hero", label: "Hero Image Alt Text", status: "fail", detail: "Hero image has no alt text.", recommendation: "Add SEO-friendly alt text describing the image (helps image search & accessibility)." });
+      score -= 6;
+    }
   } else {
-    checks.push({ id: "hero", label: "Hero Image", status: "warn", detail: "No hero image.", recommendation: "Add a hero image (1200×630) for better OG/Twitter previews." });
+    checks.push({ id: "hero", label: "Hero Image", status: "warn", detail: "No hero image.", recommendation: "Add a hero image (1200×630) with alt text for better OG/Twitter previews & image SEO." });
     score -= 2;
   }
 
