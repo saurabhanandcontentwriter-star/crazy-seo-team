@@ -35,6 +35,28 @@ const AdminDashboard = () => {
   const [aiKeyword, setAiKeyword] = useState("");
   const [aiTag, setAiTag] = useState("SEO");
   const [aiBusy, setAiBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const adminUserId = sessionStorage.getItem("admin_user_id") || "Crazyseoteam";
+  const adminEmail = sessionStorage.getItem("admin_email") || "crazyseoteam@gmail.com";
+
+  const handleImageUpload = async (file: File) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image too large (max 5MB)"); return; }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("blog-images").upload(path, file, { upsert: false, contentType: file.type });
+      if (error) throw error;
+      const { data } = supabase.storage.from("blog-images").getPublicUrl(path);
+      setDraft((d) => d ? { ...d, hero_image: data.publicUrl } : d);
+      toast.success("Image uploaded");
+    } catch (e: any) {
+      toast.error("Upload failed", { description: e.message });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const loadPosts = async () => {
     setLoadingList(true);
