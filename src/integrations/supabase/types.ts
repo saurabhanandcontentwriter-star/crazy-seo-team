@@ -42,6 +42,7 @@ export type Database = {
           created_by: string | null
           description: string
           hero_image: string | null
+          hero_image_alt: string | null
           id: string
           meta_description: string | null
           meta_title: string | null
@@ -63,6 +64,7 @@ export type Database = {
           created_by?: string | null
           description?: string
           hero_image?: string | null
+          hero_image_alt?: string | null
           id?: string
           meta_description?: string | null
           meta_title?: string | null
@@ -84,6 +86,7 @@ export type Database = {
           created_by?: string | null
           description?: string
           hero_image?: string | null
+          hero_image_alt?: string | null
           id?: string
           meta_description?: string | null
           meta_title?: string | null
