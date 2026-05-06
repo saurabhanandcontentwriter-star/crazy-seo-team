@@ -175,7 +175,12 @@ const BlogPost = () => {
   }
 
   const renderContent = () => {
-    return post.content.split("\n\n").map((block: string, i: number) => {
+    const c = post.content || "";
+    const isHtml = /<\/?[a-z][\s\S]*>/i.test(c);
+    if (isHtml) {
+      return <div className="prose-content" dangerouslySetInnerHTML={{ __html: c }} />;
+    }
+    return c.split("\n\n").map((block: string, i: number) => {
       if (block.startsWith("## ")) return <h2 key={i} className="text-2xl md:text-3xl font-bold text-foreground mt-10 mb-4">{block.replace("## ", "")}</h2>;
       if (block.startsWith("### ")) return <h3 key={i} className="text-xl md:text-2xl font-semibold text-foreground mt-8 mb-3">{block.replace("### ", "")}</h3>;
       const linkify = (s: string) => s
