@@ -89,7 +89,7 @@ export default function AdminLogin() {
               autoComplete="username"
               value={userId}
               onChange={(e) => setUserId(e.target.value)}
-              placeholder="Crazyseoteam"
+              placeholder="Enter User ID"
               required
             />
           </div>
