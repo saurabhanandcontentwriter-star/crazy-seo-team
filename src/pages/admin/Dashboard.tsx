@@ -179,7 +179,7 @@ const AdminDashboard = () => {
             <div className="w-9 h-9 rounded-lg gradient-bg flex items-center justify-center"><FileText size={18} className="text-primary-foreground" /></div>
             <div>
               <h1 className="text-lg font-bold text-foreground">Admin Dashboard</h1>
-              <p className="text-xs text-muted-foreground">{adminUserId} · {adminEmail}</p>
+              <p className="text-xs text-muted-foreground">{adminUserId}</p>
             </div>
           </div>
           <div className="flex gap-2">
@@ -309,7 +309,7 @@ const AdminDashboard = () => {
                   <Label htmlFor="pub" className="cursor-pointer">Published (visible on site)</Label>
                 </div>
                 <div className="col-span-2">
-                  <Label>Body (Markdown — use <code>##</code> for H2, <code>###</code> for H3, <code>[text](url)</code> for links)</Label>
+                  <Label>Body</Label>
                   <Textarea value={draft.content || ""} onChange={(e) => setDraft({ ...draft, content: e.target.value })} rows={20} className="font-mono text-sm" />
                 </div>
               </div>
