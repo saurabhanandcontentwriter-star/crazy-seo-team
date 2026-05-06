@@ -1,1 +1,7 @@
 project_id = "jeqzgtmovougiuegrjur"
+
+[functions.llm-seo-optimize]
+verify_jwt = false
+
+[functions.generate-blog-post]
+verify_jwt = false
