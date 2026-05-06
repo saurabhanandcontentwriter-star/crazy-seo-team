@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllPostsAdmin, slugify, type BlogPost } from "@/lib/blog";
@@ -9,8 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, Plus, Trash2, Sparkles, LogOut, ExternalLink, CheckCircle2, AlertTriangle, XCircle, FileText, Wand2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Sparkles, LogOut, ExternalLink, CheckCircle2, AlertTriangle, XCircle, FileText, Wand2, Brain } from "lucide-react";
 import { toast } from "sonner";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 type DraftPost = Partial<BlogPost> & { id?: string };
 
@@ -18,6 +20,39 @@ const StatusIcon = ({ status }: { status: "pass" | "warn" | "fail" }) => {
   if (status === "pass") return <CheckCircle2 size={16} className="text-[hsl(142,70%,40%)] shrink-0" />;
   if (status === "fail") return <XCircle size={16} className="text-destructive shrink-0" />;
   return <AlertTriangle size={16} className="text-[hsl(45,90%,50%)] shrink-0" />;
+};
+
+const quillModules = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ["bold", "italic", "underline", "strike", "blockquote"],
+    [{ color: [] }, { background: [] }],
+    [{ list: "ordered" }, { list: "bullet" }, { indent: "-1" }, { indent: "+1" }],
+    ["link", "image", "video"],
+    ["clean"],
+  ],
+};
+
+// Convert simple markdown to HTML (one-time, when editing legacy posts)
+const mdToHtml = (md: string): string => {
+  if (!md) return "";
+  if (/<\/?[a-z][\s\S]*>/i.test(md)) return md; // already HTML
+  const blocks = md.split(/\n\n+/).map((b) => {
+    if (b.startsWith("### ")) return `<h3>${b.slice(4)}</h3>`;
+    if (b.startsWith("## ")) return `<h2>${b.slice(3)}</h2>`;
+    if (b.startsWith("# ")) return `<h2>${b.slice(2)}</h2>`;
+    if (b.startsWith("- ")) {
+      const items = b.split("\n").map((l) => `<li>${l.replace(/^- /, "")}</li>`).join("");
+      return `<ul>${items}</ul>`;
+    }
+    if (/^\d+\.\s/.test(b)) {
+      const items = b.split("\n").map((l) => `<li>${l.replace(/^\d+\.\s*/, "")}</li>`).join("");
+      return `<ol>${items}</ol>`;
+    }
+    let p = b.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+    return `<p>${p}</p>`;
+  });
+  return blocks.join("");
 };
 
 const AdminDashboard = () => {
@@ -36,8 +71,8 @@ const AdminDashboard = () => {
   const [aiTag, setAiTag] = useState("SEO");
   const [aiBusy, setAiBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [optimizing, setOptimizing] = useState(false);
   const adminUserId = sessionStorage.getItem("admin_user_id") || "Crazyseoteam";
-  const adminEmail = sessionStorage.getItem("admin_email") || "crazyseoteam@gmail.com";
 
   const handleImageUpload = async (file: File) => {
     if (!file) return;
@@ -80,7 +115,7 @@ const AdminDashboard = () => {
   const startNew = () => setDraft({ slug: "", title: "", description: "", content: "", tag: "SEO", author: "Crazy SEO Team", author_role: "Editorial", source: "manual", published: true, target_keyword: "", meta_title: "", meta_description: "", hero_image: "", hero_image_alt: "" });
 
   const editPost = (p: any) => setDraft({
-    id: p.id, slug: p.slug, title: p.title, description: p.description, content: p.content,
+    id: p.id, slug: p.slug, title: p.title, description: p.description, content: mdToHtml(p.content),
     tag: p.tag, author: p.author, author_role: p.author_role, author_img: p.author_img,
     hero_image: p.hero_image, hero_image_alt: p.hero_image_alt,
     meta_title: p.meta_title, meta_description: p.meta_description,
@@ -148,7 +183,7 @@ const AdminDashboard = () => {
         slug: slugify(a.slug || a.title),
         title: a.title,
         description: a.description,
-        content: a.content,
+        content: mdToHtml(a.content),
         tag: a.tag || aiTag,
         author: "Crazy SEO Team",
         author_role: "AI Editorial",
@@ -165,6 +200,40 @@ const AdminDashboard = () => {
       toast.error("AI generation failed", { description: e.message });
     } finally {
       setAiBusy(false);
+    }
+  };
+
+  const autoOptimize = async () => {
+    if (!draft) return;
+    if (!(draft.title || "").trim() && !(draft.content || "").trim()) {
+      toast.error("Add a title or some content first"); return;
+    }
+    setOptimizing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("llm-seo-optimize", {
+        body: {
+          title: draft.title, description: draft.description, content: draft.content,
+          keyword: draft.target_keyword, tag: draft.tag, rewriteBody: true,
+        },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      const o = (data as any).optimized;
+      setDraft((d) => d ? {
+        ...d,
+        meta_title: o.meta_title || d.meta_title,
+        meta_description: o.meta_description || d.meta_description,
+        target_keyword: o.target_keyword || d.target_keyword,
+        description: o.description || d.description,
+        hero_image_alt: o.hero_image_alt || d.hero_image_alt,
+        content: o.content_html || d.content,
+        title: o.title || d.title,
+      } : d);
+      toast.success("Optimized for LLM + Google SEO");
+    } catch (e: any) {
+      toast.error("Optimize failed", { description: e.message });
+    } finally {
+      setOptimizing(false);
     }
   };
 
@@ -269,9 +338,13 @@ const AdminDashboard = () => {
         ) : (
           <div className="grid lg:grid-cols-[1fr_360px] gap-6">
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <h2 className="text-xl font-bold text-foreground">{draft.id ? "Edit post" : "New post"}</h2>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  <Button variant="outline" onClick={autoOptimize} disabled={optimizing}>
+                    {optimizing ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Brain size={16} className="mr-2" />}
+                    Auto-optimize for LLM SEO
+                  </Button>
                   <Button variant="outline" onClick={() => setDraft(null)}>Cancel</Button>
                   <Button onClick={savePost} disabled={saving} className="gradient-bg text-primary-foreground">
                     {saving ? <Loader2 size={16} className="mr-2 animate-spin" /> : null}
@@ -309,8 +382,16 @@ const AdminDashboard = () => {
                   <Label htmlFor="pub" className="cursor-pointer">Published (visible on site)</Label>
                 </div>
                 <div className="col-span-2">
-                  <Label>Body</Label>
-                  <Textarea value={draft.content || ""} onChange={(e) => setDraft({ ...draft, content: e.target.value })} rows={20} className="font-mono text-sm" />
+                  <Label>Content <span className="text-destructive">*</span></Label>
+                  <div className="bg-background rounded-md border border-input mt-1">
+                    <ReactQuill
+                      theme="snow"
+                      value={draft.content || ""}
+                      onChange={(v) => setDraft({ ...draft, content: v })}
+                      modules={quillModules}
+                      placeholder="Write something amazing..."
+                    />
+                  </div>
                 </div>
               </div>
             </div>

@@ -39,29 +39,31 @@ export function auditPost(post: Partial<BlogPost>): SeoAuditResult {
   const content = post.content || "";
   const keyword = (post.target_keyword || "").trim().toLowerCase();
 
+  // Detect HTML vs markdown content
+  const isHtml = /<\/?[a-z][\s\S]*>/i.test(content);
+
   // ---- H1 ----
-  // The post title acts as the H1 (rendered by the page). The content body should NOT contain another H1.
-  const bodyH1 = countMatches(content, /^#\s+/gm);
+  const bodyH1 = isHtml ? countMatches(content, /<h1[\s>]/gi) : countMatches(content, /^#\s+/gm);
   if (!title) {
     checks.push({ id: "h1", label: "H1 (Title)", status: "fail", detail: "No title set.", recommendation: "Add a clear, keyword-rich title under 60 characters." });
     score -= 15;
   } else if (bodyH1 > 0) {
-    checks.push({ id: "h1", label: "H1 Structure", status: "warn", detail: `Title is the H1, but the body also contains ${bodyH1} extra H1 line(s).`, recommendation: "Convert any '# Heading' lines in the body to '## ' (H2) — only one H1 per page." });
+    checks.push({ id: "h1", label: "H1 Structure", status: "warn", detail: `Title is the H1, but the body also contains ${bodyH1} extra H1.`, recommendation: "Use H2/H3 inside the body — only one H1 per page." });
     score -= 6;
   } else {
     checks.push({ id: "h1", label: "H1 Structure", status: "pass", detail: `Single H1 (the post title). Length: ${title.length} chars.` });
   }
 
   // ---- H2 / H3 structure ----
-  const h2Count = countMatches(content, /^##\s+/gm);
-  const h3Count = countMatches(content, /^###\s+/gm);
+  const h2Count = isHtml ? countMatches(content, /<h2[\s>]/gi) : countMatches(content, /^##\s+/gm);
+  const h3Count = isHtml ? countMatches(content, /<h3[\s>]/gi) : countMatches(content, /^###\s+/gm);
   if (h2Count >= 3) {
     checks.push({ id: "h2", label: "H2 Subheadings", status: "pass", detail: `${h2Count} H2 sections — strong content structure.` });
   } else if (h2Count >= 1) {
     checks.push({ id: "h2", label: "H2 Subheadings", status: "warn", detail: `Only ${h2Count} H2 section(s). Aim for 3+ for scannability.`, recommendation: "Break the article into 3–6 H2 sections that target related questions." });
     score -= 6;
   } else {
-    checks.push({ id: "h2", label: "H2 Subheadings", status: "fail", detail: "No H2 subheadings found.", recommendation: "Add at least 3 '## ' subheadings to give Google clear content sections." });
+    checks.push({ id: "h2", label: "H2 Subheadings", status: "fail", detail: "No H2 subheadings found.", recommendation: "Add at least 3 H2 subheadings to give Google clear content sections." });
     score -= 12;
   }
 
@@ -94,7 +96,8 @@ export function auditPost(post: Partial<BlogPost>): SeoAuditResult {
   }
 
   // ---- Word count ----
-  const wordCount = content.replace(/[#*_`>\-]/g, " ").split(/\s+/).filter(Boolean).length;
+  const plainText = isHtml ? content.replace(/<[^>]+>/g, " ") : content.replace(/[#*_`>\-]/g, " ");
+  const wordCount = plainText.split(/\s+/).filter(Boolean).length;
   if (wordCount >= 800) {
     checks.push({ id: "words", label: "Content Length", status: "pass", detail: `${wordCount.toLocaleString()} words — strong depth for ranking.` });
   } else if (wordCount >= 400) {
@@ -141,14 +144,21 @@ export function auditPost(post: Partial<BlogPost>): SeoAuditResult {
   }
 
   // ---- Internal & external links ----
-  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-  let m: RegExpExecArray | null;
   let internalLinks = 0;
   let externalLinks = 0;
-  while ((m = linkRegex.exec(content)) !== null) {
-    const href = m[2];
-    if (/^https?:\/\//i.test(href)) externalLinks++;
-    else internalLinks++;
+  if (isHtml) {
+    const hrefRe = /<a\s+[^>]*href=["']([^"']+)["'][^>]*>/gi;
+    let mm: RegExpExecArray | null;
+    while ((mm = hrefRe.exec(content)) !== null) {
+      if (/^https?:\/\//i.test(mm[1])) externalLinks++; else internalLinks++;
+    }
+  } else {
+    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    let m: RegExpExecArray | null;
+    while ((m = linkRegex.exec(content)) !== null) {
+      const href = m[2];
+      if (/^https?:\/\//i.test(href)) externalLinks++; else internalLinks++;
+    }
   }
   if (internalLinks >= 2) {
     checks.push({ id: "intLinks", label: "Internal Links", status: "pass", detail: `${internalLinks} internal link(s) — good crawl & topical authority.` });
