@@ -7,7 +7,6 @@ import Index from "./pages/Index.tsx";
 import BlogPost from "./pages/BlogPost.tsx";
 import SEOTools from "./pages/SEOTools.tsx";
 import Services from "./pages/Services.tsx";
-import About from "./pages/About.tsx";
 import Results from "./pages/Results.tsx";
 import Blog from "./pages/Blog.tsx";
 import FAQ from "./pages/FAQ.tsx";
