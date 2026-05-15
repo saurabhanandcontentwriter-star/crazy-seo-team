@@ -1,5 +1,1 @@
-const AboutUs = () => {
-  return null;
-};
-
-export default AboutUs;
+import AboutUs from "./components/AboutUs";
