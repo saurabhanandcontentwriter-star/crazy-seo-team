@@ -17,6 +17,8 @@ import NotFound from "./pages/NotFound.tsx";
 import AdminLogin from "./pages/admin/Login.tsx";
 import AdminDashboard from "./pages/admin/Dashboard.tsx";
 import About from "./pages/src/pages/Team.tsx";
+import ServiceDetail from "./pages/ServiceDetail.tsx";
+import Pricing from "./pages/Pricing.tsx";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +31,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/services/:slug" element={<ServiceDetail />} />
+          <Route path="/pricing" element={<Pricing />} />
           <Route path="/seo-tools" element={<SEOTools />} />
           <Route path="/about" element={<About />} />
           <Route path="/results" element={<Results />} />
