@@ -178,14 +178,14 @@ const BlogPost = () => {
     const c = post.content || "";
     const isHtml = /<\/?[a-z][\s\S]*>/i.test(c);
     if (isHtml) {
-      return <div className="prose-content" dangerouslySetInnerHTML={{ __html: c }} />;
+      return <div className="prose-content" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(c) }} />;
     }
     return c.split("\n\n").map((block: string, i: number) => {
       if (block.startsWith("## ")) return <h2 key={i} className="text-2xl md:text-3xl font-bold text-foreground mt-10 mb-4">{block.replace("## ", "")}</h2>;
       if (block.startsWith("### ")) return <h3 key={i} className="text-xl md:text-2xl font-semibold text-foreground mt-8 mb-3">{block.replace("### ", "")}</h3>;
-      const linkify = (s: string) => s
+      const linkify = (s: string) => DOMPurify.sanitize(s
         .replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>')
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary hover:underline">$1</a>');
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary hover:underline">$1</a>'));
       if (block.startsWith("- ")) return (
         <ul key={i} className="space-y-2 my-4 ml-4">
           {block.split("\n").map((li, j) => (
