@@ -5,6 +5,7 @@ import { ArrowLeft, Play, Pause, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import DOMPurify from "dompurify";
 
 const BlogPost = () => {
   const { slug } = useParams();
