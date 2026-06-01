@@ -16,6 +16,7 @@ import PaymentPolicy from "./pages/PaymentPolicy.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AdminLogin from "./pages/admin/Login.tsx";
 import AdminDashboard from "./pages/admin/Dashboard.tsx";
+import About from "./pages/src/pages/Team.tsx";
 
 const queryClient = new QueryClient();
 
