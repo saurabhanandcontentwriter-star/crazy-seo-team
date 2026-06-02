@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.jpeg";
+import NewsletterSignup from "./NewsletterSignup";
+
 
 const Footer = () => (
   <footer className="py-12 px-4 border-t border-border bg-card">
@@ -11,8 +13,13 @@ const Footer = () => (
             <img src={logo} alt="Crazy SEO Team" className="w-8 h-8 object-contain" />
             <span className="font-bold text-foreground">Crazy SEO Team</span>
           </div>
-          <p className="text-sm text-muted-foreground">AI-powered digital marketing & Gen AI solutions that drive real business growth.</p>
+          <p className="text-sm text-muted-foreground mb-4">AI-powered digital marketing & Gen AI solutions that drive real business growth.</p>
+          <div>
+            <p className="text-xs font-semibold text-foreground mb-2">Get free SEO insights</p>
+            <NewsletterSignup source="footer" />
+          </div>
         </div>
+
 
         {/* Quick Links */}
         <div>
@@ -20,6 +27,8 @@ const Footer = () => (
           <ul className="space-y-2 text-sm">
             <li><Link to="/services" className="text-muted-foreground hover:text-primary transition-colors">Services</Link></li>
             <li><Link to="/seo-tools" className="text-muted-foreground hover:text-primary transition-colors">SEO Tools</Link></li>
+            <li><Link to="/ai-tools" className="text-muted-foreground hover:text-primary transition-colors">AI Toolkit</Link></li>
+            <li><Link to="/pricing" className="text-muted-foreground hover:text-primary transition-colors">Pricing</Link></li>
             <li><Link to="/blog" className="text-muted-foreground hover:text-primary transition-colors">Blog</Link></li>
             <li><Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">About Us</Link></li>
           </ul>

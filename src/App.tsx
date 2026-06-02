@@ -19,6 +19,8 @@ import AdminDashboard from "./pages/admin/Dashboard.tsx";
 import About from "./pages/src/pages/Team.tsx";
 import ServiceDetail from "./pages/ServiceDetail.tsx";
 import Pricing from "./pages/Pricing.tsx";
+import AITools from "./pages/AITools.tsx";
+import AIChatbot from "./components/AIChatbot.tsx";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +36,7 @@ const App = () => (
           <Route path="/services/:slug" element={<ServiceDetail />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/seo-tools" element={<SEOTools />} />
+          <Route path="/ai-tools" element={<AITools />} />
           <Route path="/about" element={<About />} />
           <Route path="/results" element={<Results />} />
           <Route path="/blog" element={<Blog />} />
@@ -46,6 +49,7 @@ const App = () => (
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <AIChatbot />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
