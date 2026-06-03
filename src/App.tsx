@@ -20,6 +20,7 @@ import About from "./pages/src/pages/Team.tsx";
 import ServiceDetail from "./pages/ServiceDetail.tsx";
 import Pricing from "./pages/Pricing.tsx";
 import AITools from "./pages/AITools.tsx";
+import News from "./pages/News.tsx";
 import AIChatbot from "./components/AIChatbot.tsx";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
           <Route path="/ai-tools" element={<AITools />} />
           <Route path="/about" element={<About />} />
           <Route path="/results" element={<Results />} />
+          <Route path="/news" element={<News />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/faq" element={<FAQ />} />
