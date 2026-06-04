@@ -399,11 +399,30 @@ const AdminDashboard = () => {
                   {draft.hero_image && <img src={draft.hero_image} alt={draft.hero_image_alt || "Hero preview"} className="w-full max-h-48 object-cover rounded-md border border-border" />}
                 </div>
                 <div className="col-span-2"><Label>Hero image alt text (SEO)</Label><Input value={draft.hero_image_alt || ""} onChange={(e) => setDraft({ ...draft, hero_image_alt: e.target.value })} placeholder="Describe the image, include the target keyword if natural" maxLength={125} /></div>
-                <div><Label>Author</Label><Input value={draft.author || ""} onChange={(e) => setDraft({ ...draft, author: e.target.value })} /></div>
-                <div><Label>Author role</Label><Input value={draft.author_role || ""} onChange={(e) => setDraft({ ...draft, author_role: e.target.value })} /></div>
-                <div className="col-span-2 flex items-center gap-2">
-                  <input type="checkbox" id="pub" checked={draft.published !== false} onChange={(e) => setDraft({ ...draft, published: e.target.checked })} />
-                  <Label htmlFor="pub" className="cursor-pointer">Published (visible on site)</Label>
+                <div><Label>Author name</Label><Input value={draft.author || ""} onChange={(e) => setDraft({ ...draft, author: e.target.value })} maxLength={80} /></div>
+                <div><Label>Author role</Label><Input value={draft.author_role || ""} onChange={(e) => setDraft({ ...draft, author_role: e.target.value })} maxLength={80} /></div>
+                <div className="col-span-2 space-y-2">
+                  <Label>Author photo</Label>
+                  <div className="flex gap-3 items-center">
+                    {draft.author_img && <img src={draft.author_img} alt={draft.author || "Author"} className="w-14 h-14 rounded-full object-cover border border-border" />}
+                    <Input value={draft.author_img || ""} onChange={(e) => setDraft({ ...draft, author_img: e.target.value })} placeholder="https://... or upload" />
+                    <label className="cursor-pointer">
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleAuthorImageUpload(f); e.target.value = ""; }} />
+                      <span className="inline-flex items-center px-3 py-2 rounded-md border border-input bg-background hover:bg-accent text-sm whitespace-nowrap">Upload</span>
+                    </label>
+                  </div>
+                </div>
+                <div className="col-span-2"><Label>Author bio</Label><Textarea value={draft.author_bio || ""} onChange={(e) => setDraft({ ...draft, author_bio: e.target.value })} rows={2} maxLength={400} placeholder="Short author bio shown under the post." /></div>
+                <div className="col-span-2"><Label>Author LinkedIn URL</Label><Input value={draft.author_linkedin || ""} onChange={(e) => setDraft({ ...draft, author_linkedin: e.target.value })} placeholder="https://www.linkedin.com/in/username" maxLength={200} /></div>
+                <div className="col-span-2 flex items-center gap-4 flex-wrap">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="pubstate" checked={draft.published === false} onChange={() => setDraft({ ...draft, published: false })} />
+                    <span className="text-sm">Save as Draft</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="pubstate" checked={draft.published !== false} onChange={() => setDraft({ ...draft, published: true })} />
+                    <span className="text-sm">Publish (visible on site)</span>
+                  </label>
                 </div>
                 <div className="col-span-2">
                   <Label>Content <span className="text-destructive">*</span></Label>
