@@ -12,6 +12,8 @@ export type BlogPost = {
   author: string;
   author_role: string;
   author_img?: string | null;
+  author_bio?: string | null;
+  author_linkedin?: string | null;
   hero_image?: string | null;
   hero_image_alt?: string | null;
   meta_title?: string | null;
