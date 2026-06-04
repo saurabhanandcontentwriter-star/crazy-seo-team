@@ -245,6 +245,24 @@ const AdminDashboard = () => {
 
   // Live audit for the current draft
   const audit: SeoAuditResult | null = useMemo(() => draft ? auditPost(draft) : null, [draft]);
+  const readability = useMemo(() => draft ? analyzeReadability(draft.content || "") : null, [draft?.content]);
+
+  // Author image upload
+  const handleAuthorImageUpload = async (file: File) => {
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { toast.error("Image too large (max 2MB)"); return; }
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `authors/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("blog-images").upload(path, file, { upsert: false, contentType: file.type });
+      if (error) throw error;
+      const { data } = supabase.storage.from("blog-images").getPublicUrl(path);
+      setDraft((d) => d ? { ...d, author_img: data.publicUrl } : d);
+      toast.success("Author image uploaded");
+    } catch (e: any) {
+      toast.error("Upload failed", { description: e.message });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
