@@ -9,10 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, Plus, Trash2, Sparkles, LogOut, ExternalLink, CheckCircle2, AlertTriangle, XCircle, FileText, Wand2, Brain } from "lucide-react";
+import { Loader2, Plus, Trash2, Sparkles, LogOut, ExternalLink, CheckCircle2, AlertTriangle, XCircle, FileText, Wand2, Brain, Eye, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import BlogPreview from "@/components/blog/BlogPreview";
+import { analyzeReadability } from "@/lib/readability";
 
 type DraftPost = Partial<BlogPost> & { id?: string };
 
