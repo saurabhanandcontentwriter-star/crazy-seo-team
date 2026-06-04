@@ -439,8 +439,63 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* SEO Audit panel */}
-            <div className="lg:sticky lg:top-20 lg:self-start">
+            {/* Preview + Audit + Readability panel */}
+            <div className="lg:sticky lg:top-20 lg:self-start space-y-4 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+              <div>
+                <h3 className="font-bold text-foreground mb-2 flex items-center gap-2"><Eye size={16} /> Live Preview</h3>
+                <BlogPreview
+                  title={draft.title || ""}
+                  description={draft.description || ""}
+                  metaTitle={draft.meta_title || ""}
+                  metaDescription={draft.meta_description || ""}
+                  slug={draft.slug || ""}
+                  content={draft.content || ""}
+                  heroImage={draft.hero_image || ""}
+                  author={draft.author || ""}
+                  tag={draft.tag || ""}
+                />
+              </div>
+
+              {readability && (
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <h3 className="font-bold text-foreground mb-3 flex items-center gap-2"><BookOpen size={16} /> Readability & NLP</h3>
+                  <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                    <div className="p-2 rounded bg-secondary/40">
+                      <p className={`text-2xl font-black ${readability.fleschScore >= 60 ? "text-[hsl(142,70%,40%)]" : readability.fleschScore >= 30 ? "text-[hsl(45,90%,40%)]" : "text-destructive"}`}>{readability.fleschScore}</p>
+                      <p className="text-muted-foreground">Flesch · {readability.fleschLabel}</p>
+                    </div>
+                    <div className="p-2 rounded bg-secondary/40">
+                      <p className="text-2xl font-black text-foreground">{readability.gradeLevel}</p>
+                      <p className="text-muted-foreground">Grade level</p>
+                    </div>
+                    <div className="p-2 rounded bg-secondary/40">
+                      <p className="text-lg font-bold text-foreground">{readability.avgWordsPerSentence}</p>
+                      <p className="text-muted-foreground">Words / sentence</p>
+                    </div>
+                    <div className="p-2 rounded bg-secondary/40">
+                      <p className={`text-lg font-bold ${readability.passiveRatio > 15 ? "text-destructive" : "text-foreground"}`}>{readability.passiveRatio}%</p>
+                      <p className="text-muted-foreground">Passive voice</p>
+                    </div>
+                    <div className="p-2 rounded bg-secondary/40 col-span-2">
+                      <p className={`text-sm font-bold ${readability.longSentences > 5 ? "text-[hsl(45,90%,40%)]" : "text-foreground"}`}>{readability.longSentences} long sentences</p>
+                      <p className="text-muted-foreground text-[10px]">(over 25 words — split for clarity)</p>
+                    </div>
+                  </div>
+                  {readability.topKeywords.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs font-semibold text-foreground mb-1.5">Top entities / keywords (NLP)</p>
+                      <div className="flex flex-wrap gap-1">
+                        {readability.topKeywords.map((k) => (
+                          <span key={k.word} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                            {k.word} <span className="opacity-60">×{k.count}</span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="rounded-xl border border-border bg-card p-4">
                 <h3 className="font-bold text-foreground mb-3">On-Page SEO Audit</h3>
                 {audit && (
