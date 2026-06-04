@@ -114,11 +114,12 @@ const AdminDashboard = () => {
     navigate("/admin/login", { replace: true });
   };
 
-  const startNew = () => setDraft({ slug: "", title: "", description: "", content: "", tag: "SEO", author: "Crazy SEO Team", author_role: "Editorial", source: "manual", published: true, target_keyword: "", meta_title: "", meta_description: "", hero_image: "", hero_image_alt: "" });
+  const startNew = () => setDraft({ slug: "", title: "", description: "", content: "", tag: "SEO", author: "Crazy SEO Team", author_role: "Editorial", author_bio: "", author_linkedin: "", author_img: "", source: "manual", published: true, target_keyword: "", meta_title: "", meta_description: "", hero_image: "", hero_image_alt: "" });
 
   const editPost = (p: any) => setDraft({
     id: p.id, slug: p.slug, title: p.title, description: p.description, content: mdToHtml(p.content),
     tag: p.tag, author: p.author, author_role: p.author_role, author_img: p.author_img,
+    author_bio: p.author_bio, author_linkedin: p.author_linkedin,
     hero_image: p.hero_image, hero_image_alt: p.hero_image_alt,
     meta_title: p.meta_title, meta_description: p.meta_description,
     target_keyword: p.target_keyword, source: p.source, published: p.published,
