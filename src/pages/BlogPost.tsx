@@ -230,6 +230,11 @@ const BlogPost = () => {
               <p className="font-semibold text-foreground">{post.author}</p>
               <p className="text-sm text-muted-foreground">{post.role || post.author_role}</p>
             </div>
+            {post.author_linkedin && (
+              <a href={post.author_linkedin} target="_blank" rel="noopener noreferrer" className="ml-auto text-xs px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium">
+                LinkedIn ↗
+              </a>
+            )}
           </div>
 
           <div className="mb-8 p-4 rounded-xl bg-[hsl(220,20%,14%)] text-[hsl(0,0%,95%)]">
@@ -264,6 +269,25 @@ const BlogPost = () => {
           {post.img && <img src={post.img} alt={post.hero_image_alt || post.title} className="w-full h-72 md:h-96 object-cover rounded-xl mb-8" loading="lazy" />}
 
           <div className="max-w-none">{renderContent()}</div>
+
+          {(post.author_bio || post.author_linkedin) && (
+            <div className="mt-12 p-6 rounded-xl border border-border bg-card">
+              <div className="flex items-start gap-4">
+                <img src={post.authorImg} alt={post.author} className="w-16 h-16 rounded-full object-cover shrink-0" />
+                <div className="flex-1">
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">About the Author</p>
+                  <p className="font-bold text-foreground text-lg">{post.author}</p>
+                  <p className="text-sm text-muted-foreground mb-2">{post.role || post.author_role}</p>
+                  {post.author_bio && <p className="text-sm text-foreground leading-relaxed">{post.author_bio}</p>}
+                  {post.author_linkedin && (
+                    <a href={post.author_linkedin} target="_blank" rel="noopener noreferrer" className="inline-block mt-3 text-sm text-primary hover:underline font-medium">
+                      Connect on LinkedIn ↗
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="mt-12 p-6 rounded-xl gradient-bg text-primary-foreground text-center">
             <p className="font-bold text-xl mb-2">Need help with your SEO strategy?</p>

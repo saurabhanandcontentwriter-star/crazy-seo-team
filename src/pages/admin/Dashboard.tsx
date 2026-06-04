@@ -9,10 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Loader2, Plus, Trash2, Sparkles, LogOut, ExternalLink, CheckCircle2, AlertTriangle, XCircle, FileText, Wand2, Brain } from "lucide-react";
+import { Loader2, Plus, Trash2, Sparkles, LogOut, ExternalLink, CheckCircle2, AlertTriangle, XCircle, FileText, Wand2, Brain, Eye, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import BlogPreview from "@/components/blog/BlogPreview";
+import { analyzeReadability } from "@/lib/readability";
 
 type DraftPost = Partial<BlogPost> & { id?: string };
 
@@ -112,11 +114,12 @@ const AdminDashboard = () => {
     navigate("/admin/login", { replace: true });
   };
 
-  const startNew = () => setDraft({ slug: "", title: "", description: "", content: "", tag: "SEO", author: "Crazy SEO Team", author_role: "Editorial", source: "manual", published: true, target_keyword: "", meta_title: "", meta_description: "", hero_image: "", hero_image_alt: "" });
+  const startNew = () => setDraft({ slug: "", title: "", description: "", content: "", tag: "SEO", author: "Crazy SEO Team", author_role: "Editorial", author_bio: "", author_linkedin: "", author_img: "", source: "manual", published: true, target_keyword: "", meta_title: "", meta_description: "", hero_image: "", hero_image_alt: "" });
 
   const editPost = (p: any) => setDraft({
     id: p.id, slug: p.slug, title: p.title, description: p.description, content: mdToHtml(p.content),
     tag: p.tag, author: p.author, author_role: p.author_role, author_img: p.author_img,
+    author_bio: p.author_bio, author_linkedin: p.author_linkedin,
     hero_image: p.hero_image, hero_image_alt: p.hero_image_alt,
     meta_title: p.meta_title, meta_description: p.meta_description,
     target_keyword: p.target_keyword, source: p.source, published: p.published,
@@ -136,6 +139,9 @@ const AdminDashboard = () => {
         tag: draft.tag || "SEO",
         author: draft.author || "Crazy SEO Team",
         author_role: draft.author_role || "Editorial",
+        author_img: draft.author_img || null,
+        author_bio: draft.author_bio || null,
+        author_linkedin: draft.author_linkedin || null,
         hero_image: draft.hero_image || null,
         hero_image_alt: draft.hero_image_alt || null,
         meta_title: draft.meta_title || null,
@@ -239,6 +245,24 @@ const AdminDashboard = () => {
 
   // Live audit for the current draft
   const audit: SeoAuditResult | null = useMemo(() => draft ? auditPost(draft) : null, [draft]);
+  const readability = useMemo(() => draft ? analyzeReadability(draft.content || "") : null, [draft?.content]);
+
+  // Author image upload
+  const handleAuthorImageUpload = async (file: File) => {
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { toast.error("Image too large (max 2MB)"); return; }
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `authors/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("blog-images").upload(path, file, { upsert: false, contentType: file.type });
+      if (error) throw error;
+      const { data } = supabase.storage.from("blog-images").getPublicUrl(path);
+      setDraft((d) => d ? { ...d, author_img: data.publicUrl } : d);
+      toast.success("Author image uploaded");
+    } catch (e: any) {
+      toast.error("Upload failed", { description: e.message });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -375,11 +399,30 @@ const AdminDashboard = () => {
                   {draft.hero_image && <img src={draft.hero_image} alt={draft.hero_image_alt || "Hero preview"} className="w-full max-h-48 object-cover rounded-md border border-border" />}
                 </div>
                 <div className="col-span-2"><Label>Hero image alt text (SEO)</Label><Input value={draft.hero_image_alt || ""} onChange={(e) => setDraft({ ...draft, hero_image_alt: e.target.value })} placeholder="Describe the image, include the target keyword if natural" maxLength={125} /></div>
-                <div><Label>Author</Label><Input value={draft.author || ""} onChange={(e) => setDraft({ ...draft, author: e.target.value })} /></div>
-                <div><Label>Author role</Label><Input value={draft.author_role || ""} onChange={(e) => setDraft({ ...draft, author_role: e.target.value })} /></div>
-                <div className="col-span-2 flex items-center gap-2">
-                  <input type="checkbox" id="pub" checked={draft.published !== false} onChange={(e) => setDraft({ ...draft, published: e.target.checked })} />
-                  <Label htmlFor="pub" className="cursor-pointer">Published (visible on site)</Label>
+                <div><Label>Author name</Label><Input value={draft.author || ""} onChange={(e) => setDraft({ ...draft, author: e.target.value })} maxLength={80} /></div>
+                <div><Label>Author role</Label><Input value={draft.author_role || ""} onChange={(e) => setDraft({ ...draft, author_role: e.target.value })} maxLength={80} /></div>
+                <div className="col-span-2 space-y-2">
+                  <Label>Author photo</Label>
+                  <div className="flex gap-3 items-center">
+                    {draft.author_img && <img src={draft.author_img} alt={draft.author || "Author"} className="w-14 h-14 rounded-full object-cover border border-border" />}
+                    <Input value={draft.author_img || ""} onChange={(e) => setDraft({ ...draft, author_img: e.target.value })} placeholder="https://... or upload" />
+                    <label className="cursor-pointer">
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleAuthorImageUpload(f); e.target.value = ""; }} />
+                      <span className="inline-flex items-center px-3 py-2 rounded-md border border-input bg-background hover:bg-accent text-sm whitespace-nowrap">Upload</span>
+                    </label>
+                  </div>
+                </div>
+                <div className="col-span-2"><Label>Author bio</Label><Textarea value={draft.author_bio || ""} onChange={(e) => setDraft({ ...draft, author_bio: e.target.value })} rows={2} maxLength={400} placeholder="Short author bio shown under the post." /></div>
+                <div className="col-span-2"><Label>Author LinkedIn URL</Label><Input value={draft.author_linkedin || ""} onChange={(e) => setDraft({ ...draft, author_linkedin: e.target.value })} placeholder="https://www.linkedin.com/in/username" maxLength={200} /></div>
+                <div className="col-span-2 flex items-center gap-4 flex-wrap">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="pubstate" checked={draft.published === false} onChange={() => setDraft({ ...draft, published: false })} />
+                    <span className="text-sm">Save as Draft</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="pubstate" checked={draft.published !== false} onChange={() => setDraft({ ...draft, published: true })} />
+                    <span className="text-sm">Publish (visible on site)</span>
+                  </label>
                 </div>
                 <div className="col-span-2">
                   <Label>Content <span className="text-destructive">*</span></Label>
@@ -396,8 +439,63 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* SEO Audit panel */}
-            <div className="lg:sticky lg:top-20 lg:self-start">
+            {/* Preview + Audit + Readability panel */}
+            <div className="lg:sticky lg:top-20 lg:self-start space-y-4 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+              <div>
+                <h3 className="font-bold text-foreground mb-2 flex items-center gap-2"><Eye size={16} /> Live Preview</h3>
+                <BlogPreview
+                  title={draft.title || ""}
+                  description={draft.description || ""}
+                  metaTitle={draft.meta_title || ""}
+                  metaDescription={draft.meta_description || ""}
+                  slug={draft.slug || ""}
+                  content={draft.content || ""}
+                  heroImage={draft.hero_image || ""}
+                  author={draft.author || ""}
+                  tag={draft.tag || ""}
+                />
+              </div>
+
+              {readability && (
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <h3 className="font-bold text-foreground mb-3 flex items-center gap-2"><BookOpen size={16} /> Readability & NLP</h3>
+                  <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                    <div className="p-2 rounded bg-secondary/40">
+                      <p className={`text-2xl font-black ${readability.fleschScore >= 60 ? "text-[hsl(142,70%,40%)]" : readability.fleschScore >= 30 ? "text-[hsl(45,90%,40%)]" : "text-destructive"}`}>{readability.fleschScore}</p>
+                      <p className="text-muted-foreground">Flesch · {readability.fleschLabel}</p>
+                    </div>
+                    <div className="p-2 rounded bg-secondary/40">
+                      <p className="text-2xl font-black text-foreground">{readability.gradeLevel}</p>
+                      <p className="text-muted-foreground">Grade level</p>
+                    </div>
+                    <div className="p-2 rounded bg-secondary/40">
+                      <p className="text-lg font-bold text-foreground">{readability.avgWordsPerSentence}</p>
+                      <p className="text-muted-foreground">Words / sentence</p>
+                    </div>
+                    <div className="p-2 rounded bg-secondary/40">
+                      <p className={`text-lg font-bold ${readability.passiveRatio > 15 ? "text-destructive" : "text-foreground"}`}>{readability.passiveRatio}%</p>
+                      <p className="text-muted-foreground">Passive voice</p>
+                    </div>
+                    <div className="p-2 rounded bg-secondary/40 col-span-2">
+                      <p className={`text-sm font-bold ${readability.longSentences > 5 ? "text-[hsl(45,90%,40%)]" : "text-foreground"}`}>{readability.longSentences} long sentences</p>
+                      <p className="text-muted-foreground text-[10px]">(over 25 words — split for clarity)</p>
+                    </div>
+                  </div>
+                  {readability.topKeywords.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs font-semibold text-foreground mb-1.5">Top entities / keywords (NLP)</p>
+                      <div className="flex flex-wrap gap-1">
+                        {readability.topKeywords.map((k) => (
+                          <span key={k.word} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                            {k.word} <span className="opacity-60">×{k.count}</span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="rounded-xl border border-border bg-card p-4">
                 <h3 className="font-bold text-foreground mb-3">On-Page SEO Audit</h3>
                 {audit && (
