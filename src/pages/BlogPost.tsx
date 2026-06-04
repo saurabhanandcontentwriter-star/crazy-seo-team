@@ -230,6 +230,11 @@ const BlogPost = () => {
               <p className="font-semibold text-foreground">{post.author}</p>
               <p className="text-sm text-muted-foreground">{post.role || post.author_role}</p>
             </div>
+            {post.author_linkedin && (
+              <a href={post.author_linkedin} target="_blank" rel="noopener noreferrer" className="ml-auto text-xs px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium">
+                LinkedIn ↗
+              </a>
+            )}
           </div>
 
           <div className="mb-8 p-4 rounded-xl bg-[hsl(220,20%,14%)] text-[hsl(0,0%,95%)]">
