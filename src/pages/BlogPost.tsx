@@ -270,6 +270,25 @@ const BlogPost = () => {
 
           <div className="max-w-none">{renderContent()}</div>
 
+          {(post.author_bio || post.author_linkedin) && (
+            <div className="mt-12 p-6 rounded-xl border border-border bg-card">
+              <div className="flex items-start gap-4">
+                <img src={post.authorImg} alt={post.author} className="w-16 h-16 rounded-full object-cover shrink-0" />
+                <div className="flex-1">
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">About the Author</p>
+                  <p className="font-bold text-foreground text-lg">{post.author}</p>
+                  <p className="text-sm text-muted-foreground mb-2">{post.role || post.author_role}</p>
+                  {post.author_bio && <p className="text-sm text-foreground leading-relaxed">{post.author_bio}</p>}
+                  {post.author_linkedin && (
+                    <a href={post.author_linkedin} target="_blank" rel="noopener noreferrer" className="inline-block mt-3 text-sm text-primary hover:underline font-medium">
+                      Connect on LinkedIn ↗
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="mt-12 p-6 rounded-xl gradient-bg text-primary-foreground text-center">
             <p className="font-bold text-xl mb-2">Need help with your SEO strategy?</p>
             <p className="text-sm opacity-90 mb-4">Get a free consultation with our experts.</p>
