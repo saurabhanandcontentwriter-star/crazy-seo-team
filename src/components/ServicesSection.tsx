@@ -1,112 +1,125 @@
 import { useState } from "react";
-import { Search, MousePointerClick, Share2, Code, Brain, Phone, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Search, Sparkles, FileText, Newspaper, BookOpen, UserCheck, PenTool, MousePointerClick, Code2 } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import ContactFormDialog from "@/components/ContactFormDialog";
+import { servicesByCategory, categoryOrder, type ServiceCategory } from "@/data/services";
 
-const services = [
-  {
-    icon: Search,
-    title: "Search Engine Optimization",
-    desc: "Dominate search results with our data-driven SEO strategies. We optimize your technical foundation, create authoritative content, and build high-quality backlinks.",
-    items: ["Technical SEO Audits", "Keyword Strategy", "Link Building", "Local SEO"],
-    gradient: "from-[hsl(230,80%,56%)] to-[hsl(270,80%,60%)]",
-  },
-  {
-    icon: MousePointerClick,
-    title: "PPC Advertising",
-    desc: "Maximize your ROI with highly targeted paid campaigns. We manage your ad spend efficiently across Google, Bing, and social platforms to capture high-intent buyers.",
-    items: ["Google Ads Management", "Retargeting Campaigns", "Shopping Ads", "Conversion Tracking"],
-    gradient: "from-[hsl(200,80%,50%)] to-[hsl(230,80%,56%)]",
-  },
-  {
-    icon: Share2,
-    title: "Social Media Marketing",
-    desc: "Build a loyal community and drive brand awareness. We create engaging content and manage targeted social ad campaigns that resonate with your audience.",
-    items: ["Social Strategy", "Content Creation", "Community Management", "Paid Social Ads"],
-    gradient: "from-[hsl(330,80%,55%)] to-[hsl(270,80%,60%)]",
-  },
-  {
-    icon: Code,
-    title: "Web Development",
-    desc: "Your website is your best salesperson. We build lightning-fast, conversion-optimized, and visually stunning websites that turn visitors into paying customers.",
-    items: ["Custom UI/UX Design", "E-Commerce Development", "Landing Page Optimization", "Performance Tuning"],
-    gradient: "from-[hsl(145,60%,45%)] to-[hsl(200,80%,50%)]",
-  },
-  {
-    icon: Brain,
-    title: "AI Development",
-    desc: "Leverage the power of Artificial Intelligence. We build custom AI solutions, chatbots, and automation tools to streamline your business operations.",
-    items: ["Custom AI Models", "Process Automation", "Smart Chatbots", "Machine Learning"],
-    gradient: "from-[hsl(270,80%,55%)] to-[hsl(330,80%,55%)]",
-  },
-  {
-    icon: Sparkles,
-    title: "Generative AI Solutions",
-    desc: "Transform your business with cutting-edge Gen AI. We build custom LLM-powered apps, RAG systems, AI content generators, and intelligent automation pipelines.",
-    items: ["Custom LLM Apps", "RAG & Knowledge Bases", "AI Content Generators", "Prompt Engineering"],
-    gradient: "from-[hsl(40,90%,55%)] to-[hsl(330,80%,55%)]",
-  },
-  {
-    icon: Phone,
-    title: "AI Voice Calling",
-    desc: "Revolutionize your customer outreach with AI-powered voice calling. Scale your sales and support with intelligent, human-like voice agents.",
-    items: ["Automated Outreach", "Inbound Support", "Lead Qualification", "24/7 Availability"],
-    gradient: "from-[hsl(145,60%,45%)] to-[hsl(270,80%,55%)]",
-  },
-];
+const ICONS: Record<ServiceCategory, typeof Search> = {
+  "SEO Services": Search,
+  "AI SEO Services": Sparkles,
+  "Content Writing": FileText,
+  "Article Writing": Newspaper,
+  "Blog Writing": BookOpen,
+  "Ghostwriting": UserCheck,
+  "Copywriting": PenTool,
+  "Google Ads": MousePointerClick,
+  "AI Software Development": Code2,
+};
+
+const GRADIENTS: Record<ServiceCategory, string> = {
+  "SEO Services": "from-[hsl(230,80%,56%)] to-[hsl(270,80%,60%)]",
+  "AI SEO Services": "from-[hsl(270,80%,55%)] to-[hsl(330,80%,55%)]",
+  "Content Writing": "from-[hsl(200,80%,50%)] to-[hsl(230,80%,56%)]",
+  "Article Writing": "from-[hsl(145,60%,45%)] to-[hsl(200,80%,50%)]",
+  "Blog Writing": "from-[hsl(190,70%,45%)] to-[hsl(230,80%,56%)]",
+  "Ghostwriting": "from-[hsl(280,70%,55%)] to-[hsl(330,80%,55%)]",
+  "Copywriting": "from-[hsl(330,80%,55%)] to-[hsl(15,90%,55%)]",
+  "Google Ads": "from-[hsl(40,90%,55%)] to-[hsl(15,90%,55%)]",
+  "AI Software Development": "from-[hsl(230,80%,56%)] to-[hsl(330,80%,55%)]",
+};
+
+const TAGLINE: Record<ServiceCategory, string> = {
+  "SEO Services": "Rank #1 on Google with AI-powered SEO.",
+  "AI SEO Services": "Win visibility in ChatGPT, Gemini, Claude & Perplexity.",
+  "Content Writing": "SEO + AI-optimized content that ranks and converts.",
+  "Article Writing": "Research-grade articles that earn links and AI citations.",
+  "Blog Writing": "Weekly blog programs that compound traffic month after month.",
+  "Ghostwriting": "Thought leadership content in your authentic voice.",
+  "Copywriting": "Conversion copy backed by research and proven frameworks.",
+  "Google Ads": "Profitable PPC across Search, Shopping, YouTube & PMax.",
+  "AI Software Development": "Custom AI apps, agents, chatbots and SaaS platforms.",
+};
 
 const ServicesSection = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const grouped = servicesByCategory();
 
   return (
     <>
-      <section id="services" className="py-20 px-4">
+      <Helmet>
+        <title>Services — AI SEO, GEO, Content, Google Ads & AI Development | Crazy SEO Team</title>
+        <meta
+          name="description"
+          content="Complete services hub: Technical & AI SEO, GEO/AEO/LLM SEO, content & blog writing, ghostwriting, copywriting, Google Ads, and custom AI software development."
+        />
+        <link rel="canonical" href="/services" />
+      </Helmet>
+
+      <section id="services" className="py-16 px-4">
         <div className="container mx-auto">
           <p className="text-sm font-semibold text-primary text-center mb-2">Our Expertise</p>
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-3">
-            Digital Marketing & <span className="gradient-text">Gen AI</span> Solutions
-          </h2>
-          <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-14">
-            We blend cutting-edge AI with proven marketing strategies. From SEO to custom Gen AI apps — we build systems that drive real business growth.
+          <h1 className="text-3xl md:text-5xl font-black text-center text-foreground mb-3">
+            Complete <span className="gradient-text">Services Hub</span>
+          </h1>
+          <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-12">
+            55+ specialized services across SEO, AI search, content, Google Ads, and AI software development — built for 2026.
           </p>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((s, idx) => (
-              <div
-                key={s.title}
-                className={`group relative p-6 rounded-xl border border-border bg-card hover:shadow-xl hover:border-primary/30 transition-all duration-500 hover:-translate-y-1 ${idx === 5 ? "md:col-span-2 lg:col-span-1 lg:border-primary/20 lg:shadow-lg" : ""}`}
-              >
-                {/* Glow effect on featured */}
-                {idx === 5 && (
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[hsl(40,90%,55%/0.05)] to-[hsl(330,80%,55%/0.05)] pointer-events-none" />
-                )}
-                <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${s.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                  <s.icon size={22} className="text-[hsl(0,0%,100%)]" />
+          {categoryOrder.map((cat) => {
+            const items = grouped[cat] || [];
+            const Icon = ICONS[cat];
+            const gradient = GRADIENTS[cat];
+            return (
+              <div key={cat} className="mb-14">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={`w-11 h-11 rounded-lg bg-gradient-to-r ${gradient} flex items-center justify-center`}>
+                    <Icon size={20} className="text-[hsl(0,0%,100%)]" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl md:text-3xl font-bold text-foreground">{cat}</h2>
+                    <p className="text-sm text-muted-foreground">{TAGLINE[cat]}</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-2">{s.title}</h3>
-                {idx === 5 && (
-                  <span className="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-accent/10 text-accent mb-2">New</span>
-                )}
-                <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{s.desc}</p>
-                <ul className="space-y-1.5">
-                  {s.items.map((item) => (
-                    <li key={item} className="text-sm text-muted-foreground flex items-center gap-2">
-                      <span className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${s.gradient}`} />
-                      {item}
-                    </li>
+
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {items.map((s) => (
+                    <Link
+                      key={s.slug}
+                      to={`/services/${s.slug}`}
+                      className="group p-5 rounded-xl border border-border bg-card hover:shadow-xl hover:border-primary/40 hover:-translate-y-0.5 transition-all"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors leading-snug">
+                          {s.title}
+                        </h3>
+                        <ArrowRight size={16} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-0.5" />
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{s.tagline}</p>
+                    </Link>
                   ))}
-                </ul>
-                <button
-                  onClick={() => setDialogOpen(true)}
-                  className="inline-block mt-4 text-sm font-semibold text-primary hover:underline"
-                >
-                  Get Started →
-                </button>
+                </div>
               </div>
-            ))}
+            );
+          })}
+
+          <div className="text-center mt-12">
+            <button
+              onClick={() => setDialogOpen(true)}
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-lg gradient-bg text-primary-foreground font-semibold hover:opacity-90 transition-opacity"
+            >
+              Get a Custom Plan <ArrowRight size={18} />
+            </button>
           </div>
         </div>
       </section>
-      <ContactFormDialog open={dialogOpen} onOpenChange={setDialogOpen} title="Get Started With Our Services" description="Tell us which service interests you and we'll create a custom plan." />
+
+      <ContactFormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        title="Get Started With Our Services"
+        description="Tell us which service interests you and we'll create a custom plan."
+      />
     </>
   );
 };
