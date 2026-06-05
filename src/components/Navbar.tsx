@@ -8,11 +8,13 @@ import logo from "@/assets/logo.jpeg";
 const navLinks = [
   { label: "Services", path: "/services" },
   { label: "SEO Tools", path: "/seo-tools" },
+  { label: "AI Tools", path: "/ai-tools" },
   { label: "About Us", path: "/about" },
-  { label: "Results", path: "/results" },
   { label: "Blog", path: "/blog" },
+  { label: "News", path: "/news" },
   { label: "FAQ", path: "/faq" },
 ];
+
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
