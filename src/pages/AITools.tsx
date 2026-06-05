@@ -9,9 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Download, Sparkles, FileCode, Map, Search } from "lucide-react";
+import { Copy, Download, Sparkles, FileCode, Map, Search, Wand2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { auditPost } from "@/lib/seoAudit";
+import { analyzeReadability } from "@/lib/readability";
+import { supabase } from "@/integrations/supabase/client";
+
 
 const copy = (s: string) => { navigator.clipboard.writeText(s); toast.success("Copied"); };
 const downloadFile = (name: string, content: string, type = "text/plain") => {
