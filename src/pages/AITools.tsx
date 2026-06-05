@@ -228,11 +228,188 @@ const SEOAuditor = () => {
   );
 };
 
+// ---------- AI Article Generator ----------
+type GeneratedArticle = {
+  title?: string;
+  meta_title?: string;
+  meta_description?: string;
+  slug?: string;
+  content_html?: string;
+  faqs?: { q: string; a: string }[];
+  internal_link_suggestions?: string[];
+  schema?: any;
+  featured_image_prompt?: string;
+};
+
+const ArticleGenerator = () => {
+  const [topic, setTopic] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [type, setType] = useState<"SEO" | "GEO" | "AEO" | "LLM Optimized">("SEO");
+  const [tone, setTone] = useState("Professional");
+  const [length, setLength] = useState<"Short" | "Medium" | "Long-form">("Long-form");
+  const [loading, setLoading] = useState(false);
+  const [article, setArticle] = useState<GeneratedArticle | null>(null);
+  const [tab, setTab] = useState<"preview" | "html" | "meta" | "schema" | "faqs">("preview");
+
+  const generate = async () => {
+    if (!topic.trim()) { toast.error("Enter a topic"); return; }
+    setLoading(true); setArticle(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-article", {
+        body: { topic, keyword, type, tone, length },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      setArticle(data as GeneratedArticle);
+      toast.success("Article generated");
+    } catch (e: any) {
+      toast.error(e?.message || "Generation failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveDraft = () => {
+    if (!article) return;
+    const drafts = JSON.parse(localStorage.getItem("ai_article_drafts") || "[]");
+    drafts.unshift({ ...article, _savedAt: new Date().toISOString() });
+    localStorage.setItem("ai_article_drafts", JSON.stringify(drafts.slice(0, 20)));
+    toast.success("Saved to local drafts");
+  };
+
+  const exportMd = () => {
+    if (!article) return;
+    const md = `# ${article.title}\n\n${(article.content_html || "").replace(/<[^>]+>/g, "")}\n\n## FAQs\n${(article.faqs||[]).map(f=>`**${f.q}**\n${f.a}`).join("\n\n")}`;
+    downloadFile(`${article.slug || "article"}.md`, md, "text/markdown");
+  };
+
+  const readability = article?.content_html ? analyzeReadability(article.content_html) : null;
+  const audit = article
+    ? auditPost({
+        title: article.title || "",
+        description: article.meta_description || "",
+        meta_title: article.meta_title || article.title || "",
+        meta_description: article.meta_description || "",
+        target_keyword: keyword,
+        content: article.content_html || "",
+        author: "Crazy SEO Team",
+        published_at: new Date().toISOString(),
+      })
+    : null;
+
+  return (
+    <div className="grid lg:grid-cols-[360px_1fr] gap-6">
+      <div className="space-y-3">
+        <div><Label>Topic *</Label><Textarea rows={2} value={topic} onChange={(e)=>setTopic(e.target.value)} placeholder="How AI search is changing SEO in 2026" /></div>
+        <div><Label>Target Keyword</Label><Input value={keyword} onChange={(e)=>setKeyword(e.target.value)} placeholder="ai seo 2026" /></div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label>Type</Label>
+            <select value={type} onChange={(e)=>setType(e.target.value as any)} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
+              <option>SEO</option><option>GEO</option><option>AEO</option><option>LLM Optimized</option>
+            </select>
+          </div>
+          <div>
+            <Label>Length</Label>
+            <select value={length} onChange={(e)=>setLength(e.target.value as any)} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
+              <option>Short</option><option>Medium</option><option>Long-form</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <Label>Tone</Label>
+          <select value={tone} onChange={(e)=>setTone(e.target.value)} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
+            <option>Professional</option><option>Conversational</option><option>Authoritative</option><option>Friendly</option><option>Technical</option>
+          </select>
+        </div>
+        <Button onClick={generate} disabled={loading} className="w-full gradient-bg text-primary-foreground">
+          {loading ? <><Loader2 className="mr-2 animate-spin" size={16} /> Generating…</> : <><Wand2 className="mr-2" size={16}/> Generate Article</>}
+        </Button>
+        {article && (
+          <div className="grid grid-cols-2 gap-2">
+            <Button size="sm" variant="outline" onClick={saveDraft}>Save Draft</Button>
+            <Button size="sm" variant="outline" onClick={exportMd}><Download size={14} className="mr-1"/> Export .md</Button>
+            <Button size="sm" variant="outline" onClick={()=>copy(article.content_html || "")}>Copy HTML</Button>
+            <Button size="sm" variant="outline" onClick={()=>copy(JSON.stringify(article.schema || {}, null, 2))}>Copy Schema</Button>
+          </div>
+        )}
+        {audit && (
+          <div className="grid grid-cols-3 gap-2 text-center text-xs pt-2">
+            <div className="p-2 rounded bg-secondary/40"><p className="text-xl font-black text-primary">{audit.score}</p><p className="text-muted-foreground">SEO</p></div>
+            <div className="p-2 rounded bg-secondary/40"><p className="text-xl font-black text-primary">{readability?.fleschScore.toFixed(0) ?? "—"}</p><p className="text-muted-foreground">Read</p></div>
+            <div className="p-2 rounded bg-secondary/40"><p className="text-xl font-black text-primary">{audit.stats.keywordDensity}%</p><p className="text-muted-foreground">Density</p></div>
+          </div>
+        )}
+      </div>
+
+      <div className="min-h-[500px] border border-border rounded-lg bg-card">
+        {!article && !loading && (
+          <div className="h-full flex flex-col items-center justify-center text-center p-10 text-muted-foreground">
+            <Sparkles size={32} className="mb-3 text-primary" />
+            <p className="font-semibold text-foreground">AI Article Generator</p>
+            <p className="text-sm">Enter a topic and click Generate to produce an SEO/GEO/AEO/LLM-optimized article with meta, schema, FAQs and image prompt.</p>
+          </div>
+        )}
+        {loading && (
+          <div className="h-full flex items-center justify-center"><Loader2 className="animate-spin text-primary" size={28} /></div>
+        )}
+        {article && (
+          <div className="p-4">
+            <div className="flex gap-1 mb-3 border-b border-border">
+              {(["preview","html","meta","schema","faqs"] as const).map(t => (
+                <button key={t} onClick={()=>setTab(t)} className={`px-3 py-1.5 text-xs font-semibold uppercase tracking-wide border-b-2 -mb-px ${tab===t ? "border-primary text-primary" : "border-transparent text-muted-foreground"}`}>{t}</button>
+              ))}
+            </div>
+            {tab === "preview" && (
+              <article className="prose prose-sm dark:prose-invert max-w-none">
+                <h1>{article.title}</h1>
+                <p className="text-muted-foreground italic">{article.meta_description}</p>
+                <div dangerouslySetInnerHTML={{ __html: article.content_html || "" }} />
+              </article>
+            )}
+            {tab === "html" && (
+              <pre className="p-3 rounded bg-secondary/40 text-[11px] overflow-auto max-h-[600px] whitespace-pre-wrap break-all">{article.content_html}</pre>
+            )}
+            {tab === "meta" && (
+              <div className="space-y-3 text-sm">
+                <div><p className="text-xs text-muted-foreground">Slug</p><code className="text-xs">{article.slug}</code></div>
+                <div><p className="text-xs text-muted-foreground">Meta Title ({article.meta_title?.length || 0}/60)</p><p>{article.meta_title}</p></div>
+                <div><p className="text-xs text-muted-foreground">Meta Description ({article.meta_description?.length || 0}/160)</p><p>{article.meta_description}</p></div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Internal Link Suggestions</p>
+                  <ul className="list-disc pl-5 text-sm">{(article.internal_link_suggestions||[]).map((l,i)=><li key={i}>{l}</li>)}</ul>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">AI Featured Image Prompt</p>
+                  <p className="text-sm italic">{article.featured_image_prompt}</p>
+                </div>
+              </div>
+            )}
+            {tab === "schema" && (
+              <pre className="p-3 rounded bg-secondary/40 text-[11px] overflow-auto max-h-[600px] whitespace-pre-wrap break-all">{JSON.stringify(article.schema, null, 2)}</pre>
+            )}
+            {tab === "faqs" && (
+              <div className="space-y-3">
+                {(article.faqs||[]).map((f,i) => (
+                  <div key={i} className="p-3 border border-border rounded">
+                    <p className="font-semibold text-foreground">{f.q}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{f.a}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const AITools = () => (
   <div className="min-h-screen bg-background">
     <Helmet>
-      <title>Free AI SEO Tools — Meta, Schema, Sitemap & Audit | Crazy SEO Team</title>
-      <meta name="description" content="Free AI-powered SEO tools: meta tag generator, JSON-LD schema builder, XML sitemap generator, and instant on-page SEO audit. Built by Crazy SEO Team." />
+      <title>Free AI SEO Tools — Article Generator, Meta, Schema, Sitemap & Audit | Crazy SEO Team</title>
+      <meta name="description" content="Free AI-powered SEO tools: AI article generator (SEO/GEO/AEO/LLM), meta tag generator, JSON-LD schema builder, XML sitemap generator, and on-page SEO audit." />
       <link rel="canonical" href="/ai-tools" />
     </Helmet>
     <Navbar />
@@ -241,15 +418,17 @@ const AITools = () => (
         <div className="text-center mb-8">
           <Badge className="mb-3 gradient-bg text-primary-foreground"><Sparkles size={12} className="mr-1" /> Free Tools</Badge>
           <h1 className="text-3xl md:text-5xl font-black text-foreground mb-3">AI SEO Toolkit</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">Production-ready tools to generate meta tags, structured data, sitemaps, and run instant SEO audits — all free, no signup.</p>
+          <p className="text-muted-foreground max-w-2xl mx-auto">Production-ready tools: AI article generator, meta tags, structured data, sitemaps, and instant SEO audits — all free, no signup.</p>
         </div>
-        <Tabs defaultValue="meta" className="w-full">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full mb-6">
+        <Tabs defaultValue="article" className="w-full">
+          <TabsList className="grid grid-cols-3 md:grid-cols-5 w-full mb-6">
+            <TabsTrigger value="article"><Wand2 size={14} className="mr-1" /> Article AI</TabsTrigger>
             <TabsTrigger value="meta"><Search size={14} className="mr-1" /> Meta</TabsTrigger>
             <TabsTrigger value="schema"><FileCode size={14} className="mr-1" /> Schema</TabsTrigger>
             <TabsTrigger value="sitemap"><Map size={14} className="mr-1" /> Sitemap</TabsTrigger>
             <TabsTrigger value="audit"><Sparkles size={14} className="mr-1" /> Audit</TabsTrigger>
           </TabsList>
+          <TabsContent value="article"><ArticleGenerator /></TabsContent>
           <TabsContent value="meta"><MetaGenerator /></TabsContent>
           <TabsContent value="schema"><SchemaGenerator /></TabsContent>
           <TabsContent value="sitemap"><SitemapGenerator /></TabsContent>
@@ -263,3 +442,4 @@ const AITools = () => (
 );
 
 export default AITools;
+
