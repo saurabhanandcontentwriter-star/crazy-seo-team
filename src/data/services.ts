@@ -1,6 +1,17 @@
+export type ServiceCategory =
+  | "SEO Services"
+  | "AI SEO Services"
+  | "Content Writing"
+  | "Article Writing"
+  | "Blog Writing"
+  | "Ghostwriting"
+  | "Copywriting"
+  | "Google Ads"
+  | "AI Software Development";
+
 export type ServiceDef = {
   slug: string;
-  category: "SEO" | "AI SEO" | "Content" | "Google Ads" | "AI Development";
+  category: ServiceCategory;
   title: string;
   tagline: string;
   description: string;
@@ -11,258 +22,371 @@ export type ServiceDef = {
   metaDescription: string;
 };
 
+// Helper to keep entries compact while still SEO-rich
+const make = (
+  category: ServiceCategory,
+  title: string,
+  slug: string,
+  tagline: string,
+  description: string,
+  features: string[],
+  deliverables: string[] = ["Strategy & audit", "Implementation", "Monthly reporting", "Dedicated specialist"],
+  faqs: { q: string; a: string }[] = [
+    { q: `How long until I see results from ${title}?`, a: "Most clients see measurable progress within 60–90 days, with compounding growth from month 4 onwards." },
+    { q: `Do you guarantee results?`, a: "No ethical agency guarantees rankings or revenue, but we guarantee transparent reporting and measurable, accountable execution." },
+  ],
+): ServiceDef => ({
+  slug,
+  category,
+  title,
+  tagline,
+  description,
+  features,
+  deliverables,
+  faqs,
+  metaTitle: `${title} — Crazy SEO Team | AI-Powered ${category}`,
+  metaDescription: `${tagline} Enterprise-grade ${title.toLowerCase()} by Crazy SEO Team — built for Google and AI search 2026.`,
+});
+
 export const services: ServiceDef[] = [
-  {
-    slug: "seo-services",
-    category: "SEO",
-    title: "SEO Services",
-    tagline: "Rank #1 on Google with AI-powered SEO.",
-    description:
-      "End-to-end SEO covering keyword research, on-page, technical, entity, semantic SEO, link building, and local SEO — engineered to dominate Google SERPs in 2026.",
-    features: [
-      "Keyword & intent research",
-      "On-page optimization",
-      "Technical SEO audits",
-      "Entity & semantic SEO",
-      "Authority link building",
-      "Local SEO & Google Business Profile",
-    ],
-    deliverables: [
-      "Monthly SEO roadmap",
-      "Ranking & traffic reports",
-      "Competitor gap analysis",
-      "Content briefs",
-    ],
-    faqs: [
-      { q: "How long until I see SEO results?", a: "Most clients see meaningful movement in 60–90 days, with compounding growth from month 4 onwards." },
-      { q: "Do you guarantee #1 rankings?", a: "No ethical SEO agency guarantees rankings. We do guarantee transparent reporting and measurable progress." },
-    ],
-    metaTitle: "SEO Services — Crazy SEO Team | Rank #1 on Google 2026",
-    metaDescription: "Enterprise SEO services covering technical, on-page, entity, and local SEO. Powered by AI, built for Google's 2026 search landscape.",
-  },
-  {
-    slug: "ai-seo-services",
-    category: "AI SEO",
-    title: "AI SEO Services",
-    tagline: "Get found in ChatGPT, Gemini, Claude & Perplexity.",
-    description:
-      "AI search is the new Google. We optimize your brand for generative engines so you appear in ChatGPT answers, Gemini overviews, Claude citations, and Perplexity sources.",
-    features: [
-      "ChatGPT visibility optimization",
-      "Gemini & Google AI Overview optimization",
-      "Claude citation building",
-      "Perplexity source optimization",
-      "Bing Copilot presence",
-      "LLM-readable content engineering",
-    ],
-    deliverables: [
-      "AI visibility audit",
-      "Generative engine ranking report",
-      "LLM-optimized content set",
-      "Entity & schema implementation",
-    ],
-    faqs: [
-      { q: "What is AI SEO?", a: "AI SEO (also called GEO/AEO/LLM SEO) optimizes your content so AI assistants cite, summarize, and recommend your brand." },
-      { q: "Is AI SEO different from Google SEO?", a: "It overlaps — strong technical SEO and structured data help both — but AI SEO requires extra signals like entity clarity, citations, and chunk-friendly formatting." },
-    ],
-    metaTitle: "AI SEO Services — ChatGPT, Gemini, Claude & Perplexity Optimization",
-    metaDescription: "Rank in AI search engines. We optimize your site for ChatGPT, Gemini, Claude, Perplexity and Bing Copilot.",
-  },
-  {
-    slug: "geo-optimization",
-    category: "AI SEO",
-    title: "GEO Optimization",
-    tagline: "Generative Engine Optimization that earns AI citations.",
-    description:
-      "Generative Engine Optimization (GEO) is the discipline of structuring content so large language models cite your brand. We engineer your pages to be the source AI prefers.",
-    features: [
-      "Citation-worthy content structure",
-      "Entity authority building",
-      "Source-quality signal optimization",
-      "Schema & structured data",
-      "Brand mention monitoring across LLMs",
-    ],
-    deliverables: ["GEO audit report", "LLM citation tracker", "Content rewrite pack", "Schema implementation"],
-    faqs: [
-      { q: "What's the difference between GEO and SEO?", a: "SEO targets ranking links; GEO targets being quoted inside AI answers." },
-    ],
-    metaTitle: "GEO Optimization — Get Cited by ChatGPT, Gemini & Perplexity",
-    metaDescription: "Generative Engine Optimization services to make your brand the source AI assistants cite.",
-  },
-  {
-    slug: "aeo-optimization",
-    category: "AI SEO",
-    title: "AEO Optimization",
-    tagline: "Win Answer Engine results with structured authority.",
-    description:
-      "Answer Engine Optimization (AEO) targets featured snippets, People Also Ask, voice search, and AI Overview answer boxes — where the click happens before the link.",
-    features: [
-      "Featured snippet engineering",
-      "People Also Ask coverage",
-      "Voice search optimization",
-      "FAQ schema implementation",
-      "Question-first content design",
-    ],
-    deliverables: ["Snippet capture report", "Question keyword cluster", "FAQ schema pack"],
-    faqs: [{ q: "What is AEO?", a: "Answer Engine Optimization positions your content as the direct answer in Google's answer boxes and voice assistants." }],
-    metaTitle: "AEO Optimization — Answer Engine SEO for Snippets & Voice",
-    metaDescription: "Capture featured snippets, People Also Ask, voice search and AI Overview answers with AEO.",
-  },
-  {
-    slug: "llm-seo-optimization",
-    category: "AI SEO",
-    title: "LLM SEO Optimization",
-    tagline: "Engineer your content for the large language model era.",
-    description:
-      "We structure, chunk, and signal your content so LLMs index, embed, and retrieve it accurately — increasing the odds your brand appears in generated answers.",
-    features: [
-      "Semantic chunking",
-      "Embedding-friendly structure",
-      "Topical authority maps",
-      "Entity disambiguation",
-      "Citation hooks",
-    ],
-    deliverables: ["LLM readability audit", "Content restructure plan", "Topical authority map"],
-    faqs: [{ q: "Will LLM SEO hurt my Google rankings?", a: "No. The same signals that help LLMs (clarity, structure, schema, authority) also help Google." }],
-    metaTitle: "LLM SEO Optimization — Content Engineering for AI Search",
-    metaDescription: "Optimize your content for large language models. Better embeddings, better retrieval, better AI visibility.",
-  },
-  {
-    slug: "technical-seo",
-    category: "SEO",
-    title: "Technical SEO",
-    tagline: "A site Google and AI can actually crawl.",
-    description:
-      "Core Web Vitals, crawl budget, indexation, schema, internationalization, JavaScript rendering — we fix the engineering issues that cap your growth.",
-    features: ["Core Web Vitals optimization", "Crawl & index audits", "Schema markup", "JS rendering audits", "Site architecture", "Hreflang & i18n"],
-    deliverables: ["Full technical audit", "Prioritized fix list", "Implementation support"],
-    faqs: [{ q: "Do you fix the issues or just report?", a: "We do both — audit, prioritize, and implement directly or with your dev team." }],
-    metaTitle: "Technical SEO Services — Core Web Vitals, Schema, Crawl Audits",
-    metaDescription: "Enterprise technical SEO audits and fixes covering Core Web Vitals, schema, indexation, and architecture.",
-  },
-  {
-    slug: "local-seo",
-    category: "SEO",
-    title: "Local SEO",
-    tagline: "Dominate local search in your city.",
-    description:
-      "Rank in Google Maps, the local pack, and 'near me' searches with optimized Google Business Profile, citations, reviews, and locally-targeted content.",
-    features: ["Google Business Profile optimization", "Local citations", "Review management", "Local landing pages", "Geo-targeted content"],
-    deliverables: ["Local SEO audit", "GBP optimization", "Monthly local ranking report"],
-    faqs: [{ q: "Do you do multi-location SEO?", a: "Yes — we handle single-location and multi-location franchise SEO programs." }],
-    metaTitle: "Local SEO Services — Google Maps & Local Pack Rankings",
-    metaDescription: "Rank #1 in Google Maps and local search with full local SEO optimization.",
-  },
-  {
-    slug: "google-ads-services",
-    category: "Google Ads",
-    title: "Google Ads Services",
-    tagline: "Profitable PPC powered by AI bidding.",
-    description:
-      "Search, Display, Shopping, YouTube, and Performance Max — built, optimized, and scaled by certified Google Ads specialists with AI-driven bid management.",
-    features: ["Search campaigns", "Performance Max", "Shopping ads", "YouTube ads", "Remarketing", "Conversion tracking"],
-    deliverables: ["Account audit", "Campaign builds", "Weekly optimization", "ROI reports"],
-    faqs: [
-      { q: "What's the minimum ad spend you work with?", a: "We typically work with budgets starting at ₹50,000 / $600 per month in ad spend." },
-      { q: "Do you charge a % of spend?", a: "We offer both fixed-fee and percentage-of-spend models depending on account size." },
-    ],
-    metaTitle: "Google Ads Services — PPC, Performance Max & YouTube Ads Agency",
-    metaDescription: "Profitable Google Ads management across Search, Shopping, YouTube, and Performance Max.",
-  },
-  {
-    slug: "performance-max",
-    category: "Google Ads",
-    title: "Performance Max Services",
-    tagline: "AI-driven multi-channel Google campaigns.",
-    description:
-      "Performance Max campaigns reach customers across Search, Display, YouTube, Discover, Gmail, and Maps from a single asset set, powered by Google's AI.",
-    features: ["Asset group strategy", "Audience signals", "Conversion-value bidding", "Creative asset production", "Feed optimization"],
-    deliverables: ["PMax campaign builds", "Asset library", "Monthly performance reports"],
-    faqs: [{ q: "Is Performance Max right for my business?", a: "PMax works best for ecommerce, lead gen with strong conversion data, and brands with rich creative assets." }],
-    metaTitle: "Performance Max Services — Google AI Campaign Management",
-    metaDescription: "Performance Max campaign management across Search, YouTube, Display, Discover, Gmail, and Maps.",
-  },
-  {
-    slug: "content-writing-services",
-    category: "Content",
-    title: "Content Writing Services",
-    tagline: "SEO + AI-optimized content that ranks and converts.",
-    description:
-      "Blog posts, landing pages, product descriptions, service pages, and local SEO content — written by humans, optimized for Google and LLMs.",
-    features: ["SEO blog writing", "Landing page copy", "Product descriptions", "Service pages", "Local SEO content"],
-    deliverables: ["Content briefs", "Drafts & revisions", "Optimization checklist", "Publishing-ready files"],
-    faqs: [{ q: "Is the content AI-written?", a: "Our writers use AI for research and outlines but write and edit every piece by hand." }],
-    metaTitle: "Content Writing Services — SEO & AI-Optimized Content",
-    metaDescription: "Human-written, SEO and LLM-optimized content for blogs, landing pages, and product pages.",
-  },
-  {
-    slug: "blog-writing-services",
-    category: "Content",
-    title: "Blog Writing Services",
-    tagline: "Weekly & monthly blog programs that compound traffic.",
-    description:
-      "Done-for-you blog content programs — strategy, briefs, drafts, edits, and publishing — designed for organic growth.",
-    features: ["Weekly blog writing", "Monthly content calendars", "Topic strategy", "SEO optimization", "AI visibility tuning"],
-    deliverables: ["Editorial calendar", "Weekly/monthly posts", "Performance reports"],
-    faqs: [{ q: "How many blogs per month?", a: "Packages range from 4 to 30 posts/month depending on your growth goals." }],
-    metaTitle: "Blog Writing Services — Weekly SEO Blog Content Programs",
-    metaDescription: "Weekly and monthly SEO blog writing programs that grow your organic traffic month after month.",
-  },
-  {
-    slug: "ghostwriting-services",
-    category: "Content",
-    title: "Ghostwriting Services",
-    tagline: "Thought leadership content in your voice.",
-    description:
-      "CEO, founder, and executive ghostwriting for LinkedIn, newsletters, op-eds, and books — research-backed and written in your authentic voice.",
-    features: ["CEO/founder ghostwriting", "LinkedIn thought leadership", "Newsletter ghostwriting", "Op-eds & guest posts"],
-    deliverables: ["Voice & tone guide", "Editorial calendar", "Monthly content batch"],
-    faqs: [{ q: "How do you capture my voice?", a: "We start with 1–2 voice interviews and analyze your existing writing to build a voice profile." }],
-    metaTitle: "Ghostwriting Services — CEO, Founder & LinkedIn Ghostwriters",
-    metaDescription: "Executive ghostwriting for LinkedIn, newsletters, and thought leadership content.",
-  },
-  {
-    slug: "copywriting-services",
-    category: "Content",
-    title: "Copywriting Services",
-    tagline: "Conversion copy that sells.",
-    description:
-      "Sales pages, landing pages, email sequences, and ad copy engineered for conversion — written by direct response copywriters.",
-    features: ["Sales pages", "Landing pages", "Email sequences", "Ad copy", "Conversion copywriting"],
-    deliverables: ["Research & strategy", "Copy drafts", "A/B test variations"],
-    faqs: [{ q: "Do you write for ads too?", a: "Yes — Google, Meta, LinkedIn, and YouTube ad copy." }],
-    metaTitle: "Copywriting Services — Sales Pages, Landing Pages & Ad Copy",
-    metaDescription: "Conversion-focused copywriting for sales pages, landing pages, email, and ad campaigns.",
-  },
-  {
-    slug: "ai-software-development",
-    category: "AI Development",
-    title: "AI Software Development",
-    tagline: "Custom AI applications, agents, and SaaS platforms.",
-    description:
-      "We build custom AI software — chatbots, agents, RAG systems, AI SaaS platforms, and workflow automation — from prototype to production.",
-    features: ["Custom GPT solutions", "AI agents & assistants", "RAG knowledge bases", "AI SaaS platforms", "Workflow automation"],
-    deliverables: ["Discovery & spec", "MVP build", "Production deployment", "Ongoing support"],
-    faqs: [
-      { q: "What tech stack do you use?", a: "TypeScript, Next.js, Node, Python, OpenAI, Gemini, Claude, LangChain, Pinecone — selected per project." },
-      { q: "Do you build mobile apps?", a: "Yes — React Native for iOS and Android." },
-    ],
-    metaTitle: "AI Software Development — Custom AI Apps, Agents & SaaS",
-    metaDescription: "Custom AI software development: chatbots, agents, RAG systems, and AI SaaS platforms.",
-  },
-  {
-    slug: "ai-chatbots",
-    category: "AI Development",
-    title: "AI Chatbots",
-    tagline: "Website, WhatsApp, and voice AI assistants.",
-    description:
-      "Production-grade AI chatbots for websites, WhatsApp, and voice channels — trained on your data and connected to your business systems.",
-    features: ["Website chatbots", "WhatsApp bots", "Voice assistants", "RAG over your knowledge base", "CRM integration"],
-    deliverables: ["Bot design", "Training & RAG setup", "Channel deployment", "Analytics dashboard"],
-    faqs: [{ q: "Which AI models do you use?", a: "GPT, Gemini, and Claude — selected based on use case, cost, and latency." }],
-    metaTitle: "AI Chatbots — Website, WhatsApp & Voice AI Assistants",
-    metaDescription: "Build production AI chatbots for web, WhatsApp, and voice with RAG and CRM integration.",
-  },
+  // ---------------- SEO SERVICES ----------------
+  make("SEO Services", "Technical SEO", "technical-seo",
+    "A site Google and AI can actually crawl, render, and rank.",
+    "Core Web Vitals, crawl budget, indexation, schema, JavaScript rendering, internationalization, and site architecture — we engineer the foundation that uncaps your organic growth.",
+    ["Core Web Vitals optimization", "Crawl & index audits", "Schema markup", "JS rendering audits", "Site architecture", "Hreflang & i18n", "Log file analysis", "Redirect mapping"]),
+
+  make("SEO Services", "On-Page SEO", "on-page-seo",
+    "Optimize every page for ranking, clicks, and conversions.",
+    "Title tags, meta descriptions, headings, internal linking, image SEO, content optimization, and search intent matching — done at scale across your site.",
+    ["Title & meta optimization", "Heading structure", "Internal linking", "Image SEO & alt text", "Content optimization", "Search intent matching", "Schema implementation"]),
+
+  make("SEO Services", "Off-Page SEO", "off-page-seo",
+    "Build authority signals that move rankings.",
+    "White-hat link building, digital PR, brand mentions, citations, and authority signal engineering — the off-site work that compounds your rankings.",
+    ["Digital PR campaigns", "Authority link building", "Brand mention building", "Citation building", "Unlinked mention reclamation", "Competitor backlink mining"]),
+
+  make("SEO Services", "Link Building", "link-building",
+    "Earn the high-authority backlinks Google trusts.",
+    "Manual outreach, digital PR, guest posting, HARO, and broken-link reclamation — every link is editorial, relevant, and built to last.",
+    ["Manual outreach campaigns", "Digital PR placements", "Guest posting", "HARO link building", "Broken link reclamation", "Resource page link building"]),
+
+  make("SEO Services", "Local SEO", "local-seo",
+    "Dominate Google Maps and 'near me' searches.",
+    "Rank in the local pack with optimized Google Business Profile, citations, reviews, and locally-targeted landing pages — single or multi-location.",
+    ["Google Business Profile optimization", "Local citations", "Review management", "Local landing pages", "Geo-targeted content", "Multi-location SEO"]),
+
+  make("SEO Services", "Entity SEO", "entity-seo",
+    "Become a verified entity Google and AI recognize.",
+    "Entity disambiguation, Knowledge Graph optimization, Wikidata/Wikipedia signal building, and structured data engineering — the modern foundation of organic and AI search.",
+    ["Entity research & mapping", "Knowledge Graph optimization", "Wikidata & Wikipedia signals", "Entity-rich schema", "Brand SERP optimization", "Topical authority maps"]),
+
+  make("SEO Services", "Semantic SEO", "semantic-seo",
+    "Rank for topics, not just keywords.",
+    "Topical clusters, entity-rich content, NLP optimization, and pillar/cluster architectures that signal authoritative topical coverage to Google's AI systems.",
+    ["Topical authority maps", "Pillar & cluster architecture", "NLP content optimization", "Entity-rich writing", "Internal linking strategy", "Content gap closure"]),
+
+  make("SEO Services", "Technical SEO Audits", "technical-seo-audits",
+    "Comprehensive audits that uncover what's holding you back.",
+    "Deep technical SEO audits covering crawlability, indexability, performance, schema, internationalization, and JavaScript rendering — with a prioritized fix list.",
+    ["Full crawl audit", "Performance audit", "Indexation audit", "Schema audit", "JS rendering audit", "Mobile UX audit", "Prioritized fix roadmap"]),
+
+  // ---------------- AI SEO SERVICES ----------------
+  make("AI SEO Services", "ChatGPT Optimization", "chatgpt-optimization",
+    "Get cited and recommended inside ChatGPT.",
+    "Optimize your brand, content, and entity signals so ChatGPT, ChatGPT Search, and SearchGPT cite, summarize, and recommend you in answers.",
+    ["ChatGPT visibility audit", "Citation-worthy content", "Entity & schema signals", "Brand mention building", "SearchGPT optimization", "Tracking & monitoring"]),
+
+  make("AI SEO Services", "Gemini Optimization", "gemini-optimization",
+    "Win Google Gemini and AI Overview placements.",
+    "Optimize for Gemini answers, Google AI Overviews, and AI Mode — the new front page of Google search.",
+    ["AI Overview targeting", "Gemini citation building", "Structured data engineering", "Topical authority", "Source-quality signals", "Performance tracking"]),
+
+  make("AI SEO Services", "Claude Optimization", "claude-optimization",
+    "Get referenced by Anthropic's Claude.",
+    "Position your brand as a high-trust source Claude cites and recommends in its answers across web, API, and enterprise deployments.",
+    ["Claude visibility audit", "Authority signal building", "Citation engineering", "Content restructuring", "Brand entity signals", "Ongoing monitoring"]),
+
+  make("AI SEO Services", "Perplexity Optimization", "perplexity-optimization",
+    "Be the source Perplexity cites.",
+    "Engineer your content and signals so Perplexity uses you as a primary source in its AI answers and Pro searches.",
+    ["Perplexity source audit", "Citation hooks", "Schema & freshness signals", "Authority building", "Topical coverage", "Citation tracking"]),
+
+  make("AI SEO Services", "Google AI Overview Optimization", "google-ai-overview-optimization",
+    "Capture Google's AI Overview answer box.",
+    "Win placements inside Google's AI Overviews — the AI-generated answer at the top of search results that consumes the click before it happens.",
+    ["AI Overview opportunity audit", "Answer-engineered content", "Snippet & schema work", "Entity signals", "Citation-grade structure", "Tracking dashboard"]),
+
+  make("AI SEO Services", "GEO Optimization", "geo-optimization",
+    "Generative Engine Optimization that earns AI citations.",
+    "GEO structures your content so large language models cite your brand. We engineer pages to be the source AI prefers across ChatGPT, Gemini, Claude, and Perplexity.",
+    ["Citation-worthy content", "Entity authority building", "Source-quality signals", "Schema & structured data", "LLM citation tracking", "Brand mention monitoring"]),
+
+  make("AI SEO Services", "AEO Optimization", "aeo-optimization",
+    "Win Answer Engine results with structured authority.",
+    "Answer Engine Optimization targets featured snippets, People Also Ask, voice search, and AI Overview answer boxes — where the click happens before the link.",
+    ["Featured snippet engineering", "People Also Ask coverage", "Voice search optimization", "FAQ schema", "Question-first content", "Voice assistant testing"]),
+
+  make("AI SEO Services", "LLM SEO Optimization", "llm-seo-optimization",
+    "Engineer your content for the large language model era.",
+    "We structure, chunk, and signal your content so LLMs index, embed, and retrieve it accurately — increasing the odds your brand appears in generated answers.",
+    ["Semantic chunking", "Embedding-friendly structure", "Topical authority maps", "Entity disambiguation", "Citation hooks", "LLM readability audit"]),
+
+  make("AI SEO Services", "AI Visibility Audits", "ai-visibility-audits",
+    "Know exactly where you stand inside ChatGPT, Gemini, Claude & Perplexity.",
+    "A complete audit of how AI assistants currently describe, cite, or omit your brand — plus a prioritized roadmap to win visibility.",
+    ["Cross-LLM brand audit", "Citation gap analysis", "Competitor AI benchmarking", "Entity signal audit", "90-day GEO roadmap", "Tracking setup"]),
+
+  // ---------------- CONTENT WRITING ----------------
+  make("Content Writing", "SEO Content Writing", "seo-content-writing",
+    "SEO + AI-optimized content that ranks and converts.",
+    "Human-written content optimized for Google ranking factors and LLM citation signals — blogs, landing pages, product, and service pages.",
+    ["Keyword & intent research", "Content briefs", "Human writing", "SEO + GEO optimization", "Editorial QA", "Publishing-ready files"]),
+
+  make("Content Writing", "Website Content Writing", "website-content-writing",
+    "Full website copy that ranks and converts.",
+    "Homepage, about, service, product, and supporting pages — written to convert visitors and rank in search and AI.",
+    ["Brand voice discovery", "Sitewide content plan", "Full page writing", "SEO optimization", "Revision rounds", "CMS-ready delivery"]),
+
+  make("Content Writing", "Landing Page Writing", "landing-page-writing",
+    "Conversion-optimized landing pages built to sell.",
+    "Direct response landing pages engineered with research-backed copy frameworks, conversion psychology, and SEO best practices.",
+    ["Audience & offer research", "Conversion framework", "Headline & hero copy", "Body & social proof", "CTA & form copy", "A/B variations"]),
+
+  make("Content Writing", "Product Descriptions", "product-descriptions",
+    "Product copy that ranks on Google and converts on PDPs.",
+    "Unique, SEO-optimized product descriptions written at scale — for Shopify, WooCommerce, Amazon, and custom stores.",
+    ["Keyword research per SKU", "Unique descriptions", "Feature/benefit structure", "Schema-ready copy", "Bulk delivery", "CMS integration"]),
+
+  make("Content Writing", "Service Page Writing", "service-page-writing",
+    "Service pages that rank, educate, and convert.",
+    "Long-form service pages with the structure Google and AI reward — and the conversion psychology your prospects need.",
+    ["Service & intent research", "Topical structure", "FAQ & schema", "Trust & proof sections", "CTA architecture", "SEO + GEO optimization"]),
+
+  make("Content Writing", "Local SEO Content", "local-seo-content",
+    "City and neighborhood pages that rank in local search.",
+    "Locally-targeted content for multi-location brands, franchises, and service-area businesses — built to rank in the local pack and Maps.",
+    ["Location keyword research", "Unique city pages", "Local schema", "Geo-targeted FAQs", "Internal linking", "Multi-location scale"]),
+
+  // ---------------- ARTICLE WRITING ----------------
+  make("Article Writing", "Research Articles", "research-articles",
+    "Deeply-researched long-form articles that earn links and citations.",
+    "Original research, data analysis, and expert-led articles designed to attract backlinks, AI citations, and authority.",
+    ["Original research design", "Data collection & analysis", "Expert interviews", "Long-form writing", "Visual asset production", "Outreach-ready"]),
+
+  make("Article Writing", "Educational Articles", "educational-articles",
+    "How-to and explainer articles that teach and rank.",
+    "Educational articles structured for search intent, snippet capture, and AI citation — perfect for top-of-funnel growth.",
+    ["Intent research", "Structured tutorials", "Visual & code examples", "Snippet optimization", "Schema implementation", "Internal linking"]),
+
+  make("Article Writing", "Industry Articles", "industry-articles",
+    "Industry-specific thought leadership and analysis.",
+    "Sector-specific articles — SaaS, e-commerce, finance, healthcare, legal — written by specialists who understand your industry.",
+    ["Industry research", "Specialist writers", "Compliance review", "Data & citation backing", "Thought leadership angle", "Publishing-ready delivery"]),
+
+  make("Article Writing", "News Articles", "news-articles",
+    "Fast, accurate, SEO-optimized news writing.",
+    "Topical news articles produced quickly with sourcing, fact-checking, and SEO structure — for publishers, media brands, and content sites.",
+    ["Rapid turnaround", "Source verification", "SEO structure", "Schema markup", "Editorial QA", "Bulk capacity"]),
+
+  make("Article Writing", "Long-form Articles", "long-form-articles",
+    "2,000–6,000 word pillar articles that dominate topics.",
+    "In-depth pillar content engineered for topical authority, snippet capture, link earning, and AI citation.",
+    ["Topical research", "Pillar architecture", "Long-form writing", "Visual asset production", "Schema & FAQ", "Cluster linking"]),
+
+  // ---------------- BLOG WRITING ----------------
+  make("Blog Writing", "Weekly Blogs", "weekly-blogs",
+    "Done-for-you weekly blog programs that compound traffic.",
+    "Weekly SEO blog content — strategy, briefs, drafts, edits, and publishing — designed for compounding organic growth.",
+    ["Weekly editorial calendar", "Keyword & intent research", "Briefs & drafts", "Editorial QA", "Publishing & promotion", "Performance reporting"]),
+
+  make("Blog Writing", "Monthly Blog Management", "monthly-blog-management",
+    "Full-service monthly blog management.",
+    "End-to-end blog program management — from quarterly strategy through publishing, promotion, and reporting.",
+    ["Quarterly strategy", "Monthly calendars", "Writing & editing", "Publishing & promotion", "Performance dashboards", "Quarterly QBRs"]),
+
+  make("Blog Writing", "Content Planning", "content-planning",
+    "Editorial calendars built on real search data.",
+    "Quarterly and annual editorial calendars grounded in keyword research, search intent, competitor gaps, and topical authority goals.",
+    ["Keyword & intent research", "Topical authority mapping", "Competitor gap analysis", "Quarterly calendars", "Content briefs library", "KPI framework"]),
+
+  make("Blog Writing", "Topic Research", "topic-research",
+    "Find the topics that will actually move the needle.",
+    "Data-driven topic research using SERP analysis, AI citation gaps, competitor intelligence, and search demand modeling.",
+    ["SERP analysis", "AI citation gap analysis", "Competitor topic mining", "Demand modeling", "Prioritized topic list", "Content briefs"]),
+
+  make("Blog Writing", "Keyword Research", "keyword-research",
+    "Enterprise keyword research with intent mapping.",
+    "Deep keyword research with search intent classification, difficulty scoring, AI overlap analysis, and a prioritized content roadmap.",
+    ["Seed & expansion research", "Intent classification", "Difficulty scoring", "AI/LLM overlap analysis", "Prioritized roadmap", "Tracking setup"]),
+
+  // ---------------- GHOSTWRITING ----------------
+  make("Ghostwriting", "CEO Ghostwriting", "ceo-ghostwriting",
+    "Thought leadership written in your CEO voice.",
+    "Long-form CEO ghostwriting for LinkedIn, op-eds, newsletters, and books — research-backed and written in your authentic voice.",
+    ["Voice & tone discovery", "Editorial calendar", "Research & interviews", "Ghostwritten drafts", "Revision rounds", "Publishing support"]),
+
+  make("Ghostwriting", "Founder Ghostwriting", "founder-ghostwriting",
+    "Founder storytelling that builds audience and authority.",
+    "Founder-led content programs — LinkedIn, newsletters, podcasts — that turn your story and insights into compounding brand equity.",
+    ["Story & voice discovery", "Founder content strategy", "Weekly ghostwriting", "Multi-channel adaptation", "Engagement coaching", "Performance reporting"]),
+
+  make("Ghostwriting", "LinkedIn Ghostwriting", "linkedin-ghostwriting",
+    "LinkedIn content programs that grow audience and pipeline.",
+    "Weekly LinkedIn ghostwriting for executives and founders — designed for reach, authority, and inbound leads.",
+    ["Voice profile", "Weekly post calendar", "Ghostwritten posts", "Hook & engagement design", "Comment frameworks", "Monthly analytics"]),
+
+  make("Ghostwriting", "Thought Leadership Content", "thought-leadership-content",
+    "Original points of view that move your industry.",
+    "Op-eds, manifestos, frameworks, and original research — content that earns citations, media, and inbound demand.",
+    ["POV development", "Research & data", "Long-form drafting", "Visual asset production", "Distribution strategy", "PR-ready packaging"]),
+
+  make("Ghostwriting", "Newsletter Writing", "newsletter-writing",
+    "Newsletters subscribers actually open.",
+    "Weekly and monthly newsletter writing — ghostwritten in your voice, engineered for opens, clicks, and trust.",
+    ["Editorial strategy", "Weekly/monthly writing", "Subject line testing", "List growth advice", "Analytics review", "Revision rounds"]),
+
+  // ---------------- COPYWRITING ----------------
+  make("Copywriting", "Sales Pages", "sales-pages",
+    "Long-form sales pages engineered to convert.",
+    "Direct response sales pages backed by audience research, conversion psychology, and proven copy frameworks.",
+    ["Audience & offer research", "Conversion framework", "Long-form copy", "Visual direction", "A/B variations", "Iteration support"]),
+
+  make("Copywriting", "Landing Page Copy", "landing-page-copy",
+    "Landing page copy that turns clicks into customers.",
+    "High-converting landing pages for paid traffic, lead magnets, product launches, and SaaS signups.",
+    ["Audience research", "Headline & hero", "Body & social proof", "CTA architecture", "Mobile UX copy", "A/B variations"]),
+
+  make("Copywriting", "Email Copywriting", "email-copywriting",
+    "Email sequences that nurture, sell, and re-engage.",
+    "Welcome flows, nurture sequences, sales launches, and lifecycle emails — written to drive opens, clicks, and revenue.",
+    ["Sequence strategy", "Welcome & nurture", "Sales sequences", "Lifecycle & winback", "Subject line testing", "Performance review"]),
+
+  make("Copywriting", "Ad Copywriting", "ad-copywriting",
+    "Ad copy that beats your control.",
+    "Google, Meta, LinkedIn, YouTube, and X ad copy — written by direct response specialists who know each platform.",
+    ["Audience & angle research", "Multi-variant ad copy", "Creative direction briefs", "Landing page alignment", "A/B testing plan", "Iteration cycles"]),
+
+  make("Copywriting", "Conversion Copywriting", "conversion-copywriting",
+    "Research-led copy rewrites that lift conversion.",
+    "Conversion copy audits and rewrites grounded in customer research, voice of customer mining, and conversion psychology.",
+    ["Customer research", "Message mining", "Page-by-page rewrites", "Wireframe direction", "A/B test design", "Result reporting"]),
+
+  // ---------------- GOOGLE ADS ----------------
+  make("Google Ads", "Search Ads", "google-search-ads",
+    "Profitable Google Search campaigns powered by AI bidding.",
+    "Full Google Search Ads management — keyword strategy, ad copy, bidding, landing pages, and conversion tracking — built for ROAS.",
+    ["Keyword & intent strategy", "Ad copy & extensions", "AI-powered bidding", "Landing page alignment", "Conversion tracking", "Weekly optimization"]),
+
+  make("Google Ads", "Display Ads", "google-display-ads",
+    "Reach the right audience across 3M+ sites.",
+    "Programmatic Display Ads — creative production, audience targeting, and bidding optimized for awareness and remarketing.",
+    ["Audience strategy", "Creative production", "Smart targeting", "Remarketing audiences", "Bidding optimization", "Performance reporting"]),
+
+  make("Google Ads", "Shopping Ads", "google-shopping-ads",
+    "Profitable Google Shopping for ecommerce brands.",
+    "Feed optimization, Shopping campaigns, Performance Max, and conversion-value bidding for ecommerce ROAS.",
+    ["Product feed audit & optimization", "Shopping & PMax campaigns", "Bidding strategy", "Negative keyword sculpting", "Promotion & merchant center", "ROAS reporting"]),
+
+  make("Google Ads", "YouTube Ads", "youtube-ads",
+    "YouTube campaigns that drive awareness, leads, and sales.",
+    "TrueView, in-stream, bumper, and shorts campaigns — with creative strategy, production direction, and conversion tracking.",
+    ["Audience & campaign strategy", "Creative direction", "Bid & budget management", "Audience building", "Remarketing setup", "Performance reporting"]),
+
+  make("Google Ads", "Performance Max", "performance-max",
+    "AI-driven multi-channel Google campaigns.",
+    "Performance Max reaches customers across Search, Display, YouTube, Discover, Gmail, and Maps from a single asset set — powered by Google's AI.",
+    ["Asset group strategy", "Audience signals", "Conversion-value bidding", "Creative asset production", "Feed optimization", "Monthly reporting"]),
+
+  make("Google Ads", "Google Ads Audit", "google-ads-audit",
+    "Find the leaks in your Google Ads account.",
+    "Comprehensive audit of structure, targeting, bidding, ad copy, landing pages, tracking, and PMax setup — with a prioritized action plan.",
+    ["Account structure audit", "Targeting & bidding audit", "Ad copy & extensions audit", "Landing page audit", "Tracking & GA4 audit", "Prioritized roadmap"]),
+
+  make("Google Ads", "Conversion Tracking", "conversion-tracking",
+    "Track what actually drives revenue.",
+    "End-to-end conversion tracking setup — Google Ads, GA4, server-side, enhanced conversions, and offline conversion imports.",
+    ["Tag manager setup", "Google Ads conversions", "GA4 event design", "Enhanced conversions", "Server-side tagging", "Offline conversion imports"]),
+
+  make("Google Ads", "GA4 Integration", "ga4-integration",
+    "GA4 set up the right way for ads and SEO.",
+    "GA4 implementation, event design, audience setup, BigQuery export, and Looker dashboards — built for marketing decisions.",
+    ["GA4 implementation", "Event & conversion design", "Audiences for ads", "BigQuery export", "Looker dashboards", "Team enablement"]),
+
+  // ---------------- AI SOFTWARE DEVELOPMENT ----------------
+  make("AI Software Development", "Custom SaaS Development", "custom-saas-development",
+    "Production SaaS products built fast with modern stacks.",
+    "Full-stack SaaS development — auth, billing, multi-tenant, admin, analytics — built with Next.js, Supabase, and Stripe.",
+    ["Discovery & spec", "UI/UX design", "Full-stack build", "Auth & billing", "Admin & analytics", "Production deployment"]),
+
+  make("AI Software Development", "AI SaaS Platforms", "ai-saas-platforms",
+    "AI-native SaaS products from prototype to production.",
+    "AI-first SaaS platforms — LLM features, vector search, agents, RAG, billing-by-usage — engineered for scale and cost control.",
+    ["AI product design", "LLM feature build", "Vector search & RAG", "Cost & rate-limit controls", "Usage-based billing", "Production deployment"]),
+
+  make("AI Software Development", "CRM Development", "crm-development",
+    "Custom CRMs that fit how your team actually works.",
+    "Bespoke CRM development — pipelines, automations, integrations, AI assistants — without the rigidity of off-the-shelf tools.",
+    ["Workflow discovery", "Custom CRM build", "Integrations (email, calls, ads)", "Automations", "Reporting dashboards", "Team training"]),
+
+  make("AI Software Development", "ERP Systems", "erp-systems",
+    "Modern ERP systems tailored to your operations.",
+    "Custom ERP development covering inventory, procurement, finance, HR, and operations — modular and integration-friendly.",
+    ["Process mapping", "Modular ERP build", "Integrations", "Roles & permissions", "Reporting & BI", "Rollout & training"]),
+
+  make("AI Software Development", "AI Chatbots", "ai-chatbots",
+    "Website, WhatsApp, and voice AI assistants.",
+    "Production-grade AI chatbots for web, WhatsApp, and voice — trained on your data and connected to your business systems.",
+    ["Bot design & flows", "RAG over your knowledge base", "Channel deployment", "CRM/Helpdesk integration", "Analytics dashboard", "Ongoing tuning"]),
+
+  make("AI Software Development", "AI Agents", "ai-agents",
+    "Autonomous agents that take action, not just answer.",
+    "Goal-directed AI agents — research, outreach, ops, support — built with tools, guardrails, and human-in-the-loop controls.",
+    ["Use case design", "Tool & API integration", "Guardrails & evals", "Human-in-the-loop UX", "Monitoring & cost controls", "Iteration cycles"]),
+
+  make("AI Software Development", "AI Assistants", "ai-assistants",
+    "Domain-trained AI assistants for your team and customers.",
+    "Internal and external AI assistants — sales, support, HR, ops — grounded in your data with role-based access.",
+    ["Knowledge ingestion", "RAG architecture", "Role-based access", "Channel deployment (web, Slack, Teams)", "Analytics & QA", "Continuous training"]),
+
+  make("AI Software Development", "Workflow Automation", "workflow-automation",
+    "Automate the repetitive work draining your team.",
+    "n8n, Zapier, Make, and custom automation builds — with AI steps, error handling, and observability.",
+    ["Process audit", "Automation design", "Build & integrate", "Error handling & alerts", "Documentation", "Maintenance"]),
+
+  make("AI Software Development", "AI Integrations", "ai-integrations",
+    "Drop AI into the software you already use.",
+    "GPT, Gemini, and Claude integrations into your CRM, helpdesk, CMS, and internal tools — with prompts, evals, and cost controls.",
+    ["Integration audit", "API & SDK integration", "Prompt engineering", "Eval framework", "Cost & rate-limit controls", "Monitoring"]),
+
+  make("AI Software Development", "Mobile Apps", "mobile-apps",
+    "iOS and Android apps built with React Native.",
+    "Cross-platform mobile apps — React Native and native — with AI features, offline support, and App Store deployment.",
+    ["UX & product design", "React Native build", "AI feature integration", "Offline & sync", "App Store / Play Store launch", "Crash & analytics"]),
+
+  make("AI Software Development", "Enterprise Applications", "enterprise-applications",
+    "Enterprise-grade applications with SSO, audit, and compliance.",
+    "Internal portals, dashboards, and line-of-business applications built with enterprise security, SSO, audit logging, and compliance baked in.",
+    ["Architecture & threat model", "SSO/SAML & RBAC", "Audit logging", "Compliance (SOC2, GDPR-ready)", "Performance & scale", "Production deployment"]),
 ];
 
 export const getServiceBySlug = (slug: string) => services.find((s) => s.slug === slug);
+
+export const servicesByCategory = (): Record<ServiceCategory, ServiceDef[]> => {
+  const out = {} as Record<ServiceCategory, ServiceDef[]>;
+  for (const s of services) {
+    (out[s.category] ||= []).push(s);
+  }
+  return out;
+};
+
+export const categoryOrder: ServiceCategory[] = [
+  "SEO Services",
+  "AI SEO Services",
+  "Content Writing",
+  "Article Writing",
+  "Blog Writing",
+  "Ghostwriting",
+  "Copywriting",
+  "Google Ads",
+  "AI Software Development",
+];
