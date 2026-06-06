@@ -16,6 +16,8 @@ import PaymentPolicy from "./pages/PaymentPolicy.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AdminLogin from "./pages/admin/Login.tsx";
 import AdminDashboard from "./pages/admin/Dashboard.tsx";
+import AdminAnalytics from "./pages/admin/Analytics.tsx";
+import AdminReports from "./pages/admin/Reports.tsx";
 import About from "./pages/src/pages/Team.tsx";
 import ServiceDetail from "./pages/ServiceDetail.tsx";
 import Pricing from "./pages/Pricing.tsx";
@@ -49,6 +51,8 @@ const App = () => (
           <Route path="/payment-policy" element={<PaymentPolicy />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/analytics" element={<AdminAnalytics />} />
+          <Route path="/admin/reports" element={<AdminReports />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <AIChatbot />
