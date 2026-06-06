@@ -109,36 +109,60 @@ export type Database = {
       }
       news_articles: {
         Row: {
+          author: string | null
           category: string
           content: string
           created_at: string
+          faqs: Json | null
+          focus_keyword: string | null
           id: string
+          image_alt: string | null
           image_url: string | null
+          meta_description: string | null
+          meta_title: string | null
+          nlp_keywords: string[] | null
           published_at: string
+          reading_minutes: number | null
           slug: string
           source: string | null
           summary: string
           title: string
         }
         Insert: {
+          author?: string | null
           category?: string
           content?: string
           created_at?: string
+          faqs?: Json | null
+          focus_keyword?: string | null
           id?: string
+          image_alt?: string | null
           image_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          nlp_keywords?: string[] | null
           published_at?: string
+          reading_minutes?: number | null
           slug: string
           source?: string | null
           summary?: string
           title: string
         }
         Update: {
+          author?: string | null
           category?: string
           content?: string
           created_at?: string
+          faqs?: Json | null
+          focus_keyword?: string | null
           id?: string
+          image_alt?: string | null
           image_url?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
+          nlp_keywords?: string[] | null
           published_at?: string
+          reading_minutes?: number | null
           slug?: string
           source?: string | null
           summary?: string
