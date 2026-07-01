@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MessageCircle, X, Send, Loader2, Mic, MicOff, Volume2, VolumeX, Copy, Trash2, Sparkles, Search, FileText, BarChart3, Tag, Code2, ShieldCheck, Bot, Zap, ChevronDown } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Mic, MicOff, Volume2, VolumeX, Copy, Trash2, Sparkles, Search, FileText, BarChart3, Tag, Code2, ShieldCheck, Bot, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
