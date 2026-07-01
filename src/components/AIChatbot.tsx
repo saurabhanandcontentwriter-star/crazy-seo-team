@@ -351,7 +351,7 @@ const AIChatbot = () => {
 const AIOrb = ({ size = 40, thinking = false }: { size?: number; thinking?: boolean }) => (
   <div className="relative shrink-0" style={{ width: size, height: size }}>
     <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 blur-md opacity-70 animate-pulse" />
-    <div className={`relative w-full h-full rounded-full bg-gradient-to-br from-cyan-300 via-blue-500 to-purple-700 shadow-inner overflow-hidden ${thinking ? "animate-spin-slow" : ""}`}>
+    <div className={`relative w-full h-full rounded-full bg-gradient-to-br from-cyan-300 via-blue-500 to-purple-700 shadow-inner overflow-hidden ${thinking ? "animate-pulse" : ""}`}>
       <div className="absolute inset-[15%] rounded-full bg-gradient-to-tr from-white/70 to-transparent blur-sm" />
       <div className="absolute top-[20%] left-[25%] w-[20%] h-[20%] rounded-full bg-white/80 blur-[1px]" />
       <Bot size={size * 0.4} className="absolute inset-0 m-auto text-white/90" strokeWidth={2.5} />
