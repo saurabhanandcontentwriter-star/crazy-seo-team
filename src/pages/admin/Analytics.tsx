@@ -5,35 +5,37 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
-import { Loader2, Users, FileText, Newspaper, Mail, TrendingUp, Activity, Globe, Download, FileDown, LogOut } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip,
+  ResponsiveContainer, CartesianGrid, AreaChart, Area, Legend
+} from "recharts";
+import {
+  Loader2, Users, FileText, Newspaper, Mail, TrendingUp, Activity, Globe,
+  Download, FileDown, LogOut, Smartphone, Monitor, Tablet, Eye, Wifi, MapPin, Zap
+} from "lucide-react";
 
-type Stats = {
-  totalUsers: number;
-  totalAdmins: number;
-  publishedBlogs: number;
-  draftBlogs: number;
-  newsCount: number;
-  subscribers: number;
-  blogsByMonth: { month: string; count: number }[];
-  newsByCategory: { name: string; value: number }[];
-  subscribersBySource: { source: string; count: number }[];
-  recentSubscribers: { email: string; created_at: string; source: string }[];
-  recentBlogs: { title: string; published: boolean; published_at: string }[];
+const COLORS = ["hsl(230 80% 60%)", "hsl(270 80% 65%)", "hsl(189 94% 55%)", "hsl(142 70% 45%)", "hsl(45 90% 55%)", "hsl(340 82% 60%)", "hsl(24 95% 55%)", "hsl(195 75% 50%)"];
+
+type PageView = {
+  id: string; session_id: string; path: string; country: string | null;
+  country_code: string | null; city: string | null; device: string | null;
+  browser: string | null; os: string | null; created_at: string;
 };
 
-const COLORS = ["hsl(217 91% 60%)", "hsl(271 91% 65%)", "hsl(189 94% 55%)", "hsl(142 70% 45%)", "hsl(45 90% 55%)", "hsl(340 82% 60%)", "hsl(24 95% 55%)", "hsl(195 75% 50%)"];
-
-const StatCard = ({ icon: Icon, label, value, accent }: any) => (
-  <Card className="relative overflow-hidden border-border/60 bg-gradient-to-br from-card to-card/60 backdrop-blur">
+const StatCard = ({ icon: Icon, label, value, delta, accent }: any) => (
+  <Card className="relative overflow-hidden border-border/60 bg-gradient-to-br from-card via-card to-card/40 backdrop-blur-xl">
     <div className={`absolute inset-x-0 top-0 h-1 ${accent}`} />
-    <CardContent className="p-5">
+    <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-primary/5 blur-2xl" />
+    <CardContent className="p-5 relative">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">{label}</p>
-          <p className="text-3xl font-black text-foreground mt-1">{value.toLocaleString()}</p>
+          <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-bold">{label}</p>
+          <p className="text-3xl font-black text-foreground mt-1 tabular-nums">{typeof value === "number" ? value.toLocaleString() : value}</p>
+          {delta && <p className="text-xs text-emerald-500 mt-1 font-semibold">{delta}</p>}
         </div>
-        <div className="p-2.5 rounded-lg bg-primary/10 text-primary">
+        <div className={`p-2.5 rounded-xl ${accent} text-white shadow-lg`}>
           <Icon className="w-5 h-5" />
         </div>
       </div>
@@ -41,24 +43,56 @@ const StatCard = ({ icon: Icon, label, value, accent }: any) => (
   </Card>
 );
 
+const LiveDot = () => (
+  <span className="relative inline-flex items-center gap-1.5">
+    <span className="relative flex h-2 w-2">
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+    </span>
+    <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Live</span>
+  </span>
+);
+
+const flag = (cc: string | null) => {
+  if (!cc || cc.length !== 2) return "🌐";
+  return String.fromCodePoint(...cc.toUpperCase().split("").map(c => 127397 + c.charCodeAt(0)));
+};
+
+const DeviceIcon = ({ d }: { d: string | null }) => {
+  if (d === "mobile") return <Smartphone className="w-3.5 h-3.5" />;
+  if (d === "tablet") return <Tablet className="w-3.5 h-3.5" />;
+  return <Monitor className="w-3.5 h-3.5" />;
+};
+
 const AdminAnalytics = () => {
   const navigate = useNavigate();
   const { user, isAdmin, loading: authLoading } = useAuth();
-  const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pageViews, setPageViews] = useState<PageView[]>([]);
+  const [core, setCore] = useState<any>(null);
+  const [tick, setTick] = useState(0);
 
   useEffect(() => {
     if (!authLoading && (!user || !isAdmin)) navigate("/admin/login");
   }, [user, isAdmin, authLoading, navigate]);
 
+  // Auto-refresh every 15s for live feel
+  useEffect(() => {
+    const t = setInterval(() => setTick(x => x + 1), 15000);
+    return () => clearInterval(t);
+  }, []);
+
   useEffect(() => {
     if (!user || !isAdmin) return;
     (async () => {
-      const [usersRes, blogsRes, newsRes, subsRes] = await Promise.all([
+      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const [pvRes, usersRes, blogsRes, newsRes, subsRes, toolRes] = await Promise.all([
+        supabase.from("page_views").select("*").gte("created_at", since).order("created_at", { ascending: false }).limit(2000),
         supabase.from("user_roles").select("user_id, role"),
         supabase.from("blog_posts").select("title, published, published_at, created_at").order("created_at", { ascending: false }),
         supabase.from("news_articles").select("category, title, published_at"),
         supabase.from("newsletter_subscribers").select("email, source, created_at").order("created_at", { ascending: false }),
+        supabase.from("tool_usage").select("tool_name, created_at").gte("created_at", since),
       ]);
 
       const users = usersRes.data ?? [];
@@ -66,81 +100,160 @@ const AdminAnalytics = () => {
       const news = newsRes.data ?? [];
       const subs = subsRes.data ?? [];
 
-      // Blogs by month (last 6 months)
-      const monthMap = new Map<string, number>();
-      const now = new Date();
-      for (let i = 5; i >= 0; i--) {
-        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        monthMap.set(d.toLocaleString("default", { month: "short" }), 0);
-      }
-      blogs.forEach((b: any) => {
-        const d = new Date(b.created_at);
-        const key = d.toLocaleString("default", { month: "short" });
-        if (monthMap.has(key)) monthMap.set(key, (monthMap.get(key) ?? 0) + 1);
-      });
-
-      const catMap = new Map<string, number>();
-      news.forEach((n: any) => catMap.set(n.category, (catMap.get(n.category) ?? 0) + 1));
-
-      const srcMap = new Map<string, number>();
-      subs.forEach((s: any) => srcMap.set(s.source || "footer", (srcMap.get(s.source || "footer") ?? 0) + 1));
-
-      setStats({
+      setPageViews((pvRes.data ?? []) as PageView[]);
+      setCore({
         totalUsers: new Set(users.map((u: any) => u.user_id)).size,
-        totalAdmins: users.filter((u: any) => u.role === "admin").length,
+        admins: users.filter((u: any) => u.role === "admin").length,
         publishedBlogs: blogs.filter((b: any) => b.published).length,
         draftBlogs: blogs.filter((b: any) => !b.published).length,
         newsCount: news.length,
         subscribers: subs.length,
-        blogsByMonth: Array.from(monthMap, ([month, count]) => ({ month, count })),
-        newsByCategory: Array.from(catMap, ([name, value]) => ({ name, value })),
-        subscribersBySource: Array.from(srcMap, ([source, count]) => ({ source, count })),
-        recentSubscribers: subs.slice(0, 8) as any,
-        recentBlogs: blogs.slice(0, 6) as any,
+        recentSubs: subs.slice(0, 8),
+        recentBlogs: blogs.slice(0, 5),
+        toolUsage: toolRes.data ?? [],
       });
       setLoading(false);
     })();
-  }, [user, isAdmin]);
+  }, [user, isAdmin, tick]);
 
-  const exportSubscribersCsv = () => {
-    if (!stats) return;
-    const rows = [["email", "source", "created_at"], ...stats.recentSubscribers.map((s) => [s.email, s.source, s.created_at])];
-    const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+  const stats = useMemo(() => {
+    if (!pageViews.length) return null;
+    const now = Date.now();
+    const online = new Set(pageViews.filter(v => now - new Date(v.created_at).getTime() < 5 * 60 * 1000).map(v => v.session_id));
+    const today = pageViews.filter(v => now - new Date(v.created_at).getTime() < 24 * 60 * 60 * 1000);
+    const week = pageViews.filter(v => now - new Date(v.created_at).getTime() < 7 * 24 * 60 * 60 * 1000);
+
+    const sessionsAll = new Set(pageViews.map(v => v.session_id));
+    const sessionCounts = new Map<string, number>();
+    pageViews.forEach(v => sessionCounts.set(v.session_id, (sessionCounts.get(v.session_id) ?? 0) + 1));
+    const returning = Array.from(sessionCounts.values()).filter(c => c > 1).length;
+
+    // Traffic by hour (last 24h)
+    const hourly = new Array(24).fill(0).map((_, i) => ({ hour: `${23 - i}h`, views: 0, idx: 23 - i }));
+    today.forEach(v => {
+      const hoursAgo = Math.floor((now - new Date(v.created_at).getTime()) / (60 * 60 * 1000));
+      if (hoursAgo < 24) hourly[hoursAgo].views++;
+    });
+    hourly.reverse();
+
+    // Traffic last 7 days
+    const daily = new Array(7).fill(0).map((_, i) => {
+      const d = new Date(now - (6 - i) * 24 * 60 * 60 * 1000);
+      return { day: d.toLocaleDateString(undefined, { weekday: "short" }), views: 0, visitors: new Set<string>() };
+    });
+    week.forEach(v => {
+      const daysAgo = Math.floor((now - new Date(v.created_at).getTime()) / (24 * 60 * 60 * 1000));
+      const idx = 6 - daysAgo;
+      if (idx >= 0 && idx < 7) {
+        daily[idx].views++;
+        daily[idx].visitors.add(v.session_id);
+      }
+    });
+    const dailyChart = daily.map(d => ({ day: d.day, views: d.views, visitors: d.visitors.size }));
+
+    const bucket = (key: keyof PageView) => {
+      const m = new Map<string, number>();
+      pageViews.forEach(v => { const k = (v[key] as string) || "Unknown"; m.set(k, (m.get(k) ?? 0) + 1); });
+      return Array.from(m, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+    };
+
+    const countryBuckets = new Map<string, { name: string; code: string; value: number }>();
+    pageViews.forEach(v => {
+      const name = v.country || "Unknown";
+      const cur = countryBuckets.get(name) ?? { name, code: v.country_code || "", value: 0 };
+      cur.value++;
+      countryBuckets.set(name, cur);
+    });
+    const countries = Array.from(countryBuckets.values()).sort((a, b) => b.value - a.value).slice(0, 10);
+
+    const cityBuckets = new Map<string, { name: string; country: string; value: number }>();
+    pageViews.forEach(v => {
+      if (!v.city) return;
+      const key = `${v.city}|${v.country ?? ""}`;
+      const cur = cityBuckets.get(key) ?? { name: v.city, country: v.country ?? "", value: 0 };
+      cur.value++;
+      cityBuckets.set(key, cur);
+    });
+    const cities = Array.from(cityBuckets.values()).sort((a, b) => b.value - a.value).slice(0, 8);
+
+    const paths = bucket("path").slice(0, 8);
+
+    return {
+      online: online.size,
+      todayViews: today.length,
+      todayVisitors: new Set(today.map(v => v.session_id)).size,
+      totalSessions: sessionsAll.size,
+      totalViews: pageViews.length,
+      returning,
+      hourly, dailyChart,
+      devices: bucket("device"),
+      browsers: bucket("browser"),
+      os: bucket("os"),
+      countries, cities, paths,
+    };
+  }, [pageViews]);
+
+  const liveFeed = useMemo(() => pageViews.slice(0, 12), [pageViews]);
+
+  const toolUsageChart = useMemo(() => {
+    if (!core?.toolUsage) return [];
+    const m = new Map<string, number>();
+    core.toolUsage.forEach((t: any) => m.set(t.tool_name, (m.get(t.tool_name) ?? 0) + 1));
+    return Array.from(m, ([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 10);
+  }, [core]);
+
+  const exportCsv = (filename: string, rows: any[]) => {
+    if (!rows.length) return;
+    const headers = Object.keys(rows[0]);
+    const csv = [headers.join(","), ...rows.map(r => headers.map(h => `"${String(r[h] ?? "").replace(/"/g, '""')}"`).join(","))].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url;
-    a.download = `subscribers-${Date.now()}.csv`;
-    a.click();
+    a.href = url; a.download = `${filename}-${Date.now()}.csv`; a.click();
     URL.revokeObjectURL(url);
   };
 
-  const logout = async () => {
-    await supabase.auth.signOut();
-    navigate("/");
-  };
+  const logout = async () => { await supabase.auth.signOut(); navigate("/"); };
 
-  if (authLoading || loading || !stats) {
+  if (authLoading || loading || !core) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto" />
+          <p className="text-sm text-muted-foreground mt-4">Loading Super Admin 2.0…</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
       <Helmet>
-        <title>Super Admin Dashboard — Crazy SEO Team</title>
+        <title>Super Admin 2.0 — Crazy SEO Team</title>
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
 
+      {/* Ambient background */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-accent/10 rounded-full blur-3xl" />
+      </div>
+
       {/* Top bar */}
-      <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-30">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-foreground">Super Admin Dashboard</h1>
-            <p className="text-xs text-muted-foreground">Real-time analytics · {user?.email}</p>
+      <header className="border-b border-border/50 bg-card/60 backdrop-blur-xl sticky top-0 z-30">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl gradient-bg grid place-items-center text-white shadow-lg">
+              <Zap className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg font-black text-foreground">Super Admin 2.0</h1>
+                <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-500 text-[9px] font-bold">v2</Badge>
+                <LiveDot />
+              </div>
+              <p className="text-[11px] text-muted-foreground">Real-time visitor intel · auto-refresh 15s</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Button asChild variant="outline" size="sm"><Link to="/admin">Blog CMS</Link></Button>
@@ -150,116 +263,285 @@ const AdminAnalytics = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 space-y-6">
-        {/* KPI grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <StatCard icon={Users} label="Total Users" value={stats.totalUsers} accent="bg-gradient-to-r from-primary to-purple-500" />
-          <StatCard icon={Activity} label="Admins" value={stats.totalAdmins} accent="bg-gradient-to-r from-purple-500 to-pink-500" />
-          <StatCard icon={FileText} label="Published Blogs" value={stats.publishedBlogs} accent="bg-gradient-to-r from-emerald-500 to-teal-500" />
-          <StatCard icon={FileText} label="Draft Blogs" value={stats.draftBlogs} accent="bg-gradient-to-r from-amber-500 to-orange-500" />
-          <StatCard icon={Newspaper} label="Live News" value={stats.newsCount} accent="bg-gradient-to-r from-cyan-500 to-blue-500" />
-          <StatCard icon={Mail} label="Subscribers" value={stats.subscribers} accent="bg-gradient-to-r from-rose-500 to-red-500" />
+      <main className="container mx-auto px-4 py-6 space-y-6">
+        {/* Live KPI Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+          <StatCard icon={Wifi} label="Online Now" value={stats?.online ?? 0} accent="bg-gradient-to-br from-emerald-500 to-teal-600" />
+          <StatCard icon={Eye} label="Views (24h)" value={stats?.todayViews ?? 0} accent="bg-gradient-to-br from-primary to-blue-600" />
+          <StatCard icon={Users} label="Visitors (24h)" value={stats?.todayVisitors ?? 0} accent="bg-gradient-to-br from-cyan-500 to-blue-500" />
+          <StatCard icon={Activity} label="Returning" value={stats?.returning ?? 0} accent="bg-gradient-to-br from-purple-500 to-pink-500" />
+          <StatCard icon={Users} label="Total Users" value={core.totalUsers} accent="bg-gradient-to-br from-indigo-500 to-purple-600" />
+          <StatCard icon={FileText} label="Blogs Live" value={core.publishedBlogs} accent="bg-gradient-to-br from-amber-500 to-orange-500" />
+          <StatCard icon={Newspaper} label="News" value={core.newsCount} accent="bg-gradient-to-br from-rose-500 to-red-500" />
+          <StatCard icon={Mail} label="Subscribers" value={core.subscribers} accent="bg-gradient-to-br from-pink-500 to-fuchsia-600" />
         </div>
 
-        {/* Charts */}
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid grid-cols-4 w-full max-w-xl bg-card/60 backdrop-blur border border-border/60">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="geo">Geography</TabsTrigger>
+            <TabsTrigger value="devices">Devices</TabsTrigger>
+            <TabsTrigger value="live">Live Feed</TabsTrigger>
+          </TabsList>
+
+          {/* OVERVIEW */}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <Card className="lg:col-span-2 backdrop-blur bg-card/60 border-border/60">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="flex items-center gap-2 text-base"><TrendingUp className="w-4 h-4 text-primary" /> Traffic — Last 7 Days</CardTitle>
+                  <LiveDot />
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <AreaChart data={stats?.dailyChart ?? []}>
+                      <defs>
+                        <linearGradient id="viewsGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={COLORS[0]} stopOpacity={0.6} />
+                          <stop offset="95%" stopColor={COLORS[0]} stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="visGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={COLORS[1]} stopOpacity={0.6} />
+                          <stop offset="95%" stopColor={COLORS[1]} stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="day" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                      <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} />
+                      <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }} />
+                      <Legend />
+                      <Area type="monotone" dataKey="views" stroke={COLORS[0]} strokeWidth={2} fill="url(#viewsGrad)" />
+                      <Area type="monotone" dataKey="visitors" stroke={COLORS[1]} strokeWidth={2} fill="url(#visGrad)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card className="backdrop-blur bg-card/60 border-border/60">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-base"><Activity className="w-4 h-4 text-primary" /> Hourly Pulse (24h)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={stats?.hourly ?? []}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                      <XAxis dataKey="hour" stroke="hsl(var(--muted-foreground))" fontSize={10} interval={2} />
+                      <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} />
+                      <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
+                      <Bar dataKey="views" fill={COLORS[2]} radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="backdrop-blur bg-card/60 border-border/60">
+                <CardHeader><CardTitle className="text-base flex items-center gap-2"><Eye className="w-4 h-4 text-primary" /> Top Pages</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {stats?.paths.map((p, i) => {
+                      const max = stats.paths[0]?.value || 1;
+                      return (
+                        <div key={i} className="relative">
+                          <div className="flex items-center justify-between text-sm mb-1">
+                            <span className="font-mono text-xs text-foreground truncate max-w-[70%]">{p.name}</span>
+                            <span className="font-bold text-foreground tabular-nums">{p.value}</span>
+                          </div>
+                          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full gradient-bg" style={{ width: `${(p.value / max) * 100}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {!stats?.paths.length && <p className="text-sm text-muted-foreground">Waiting for traffic…</p>}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="backdrop-blur bg-card/60 border-border/60">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2"><Zap className="w-4 h-4 text-primary" /> Tool Usage (30d)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {toolUsageChart.length === 0 ? (
+                    <div className="text-sm text-muted-foreground py-8 text-center">
+                      Call <code className="text-xs bg-muted px-1 rounded">logToolUsage("tool-name")</code> from tools to populate.
+                    </div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height={220}>
+                      <BarChart data={toolUsageChart} layout="vertical">
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                        <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={11} allowDecimals={false} />
+                        <YAxis type="category" dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={11} width={120} />
+                        <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
+                        <Bar dataKey="count" fill={COLORS[3]} radius={[0, 4, 4, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* GEO */}
+          <TabsContent value="geo" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="backdrop-blur bg-card/60 border-border/60">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2"><Globe className="w-4 h-4 text-primary" /> Top Countries</CardTitle>
+                  <Button size="sm" variant="outline" onClick={() => exportCsv("countries", stats?.countries ?? [])}><Download className="w-3.5 h-3.5 mr-1.5" />CSV</Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {stats?.countries.map((c, i) => {
+                      const max = stats.countries[0]?.value || 1;
+                      return (
+                        <div key={i}>
+                          <div className="flex items-center justify-between text-sm mb-1.5">
+                            <span className="flex items-center gap-2 text-foreground">
+                              <span className="text-lg">{flag(c.code)}</span>
+                              <span className="font-medium">{c.name}</span>
+                            </span>
+                            <span className="font-bold tabular-nums">{c.value}</span>
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-gradient-to-r from-primary to-accent" style={{ width: `${(c.value / max) * 100}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {!stats?.countries.length && <p className="text-sm text-muted-foreground">No geo data yet.</p>}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="backdrop-blur bg-card/60 border-border/60">
+                <CardHeader><CardTitle className="text-base flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" /> Top Cities</CardTitle></CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {stats?.cities.map((c, i) => (
+                      <div key={i} className="flex items-center justify-between text-sm border-b border-border/40 pb-2 last:border-0">
+                        <div>
+                          <p className="font-semibold text-foreground">{c.name}</p>
+                          <p className="text-xs text-muted-foreground">{c.country}</p>
+                        </div>
+                        <Badge variant="secondary" className="tabular-nums">{c.value} views</Badge>
+                      </div>
+                    ))}
+                    {!stats?.cities.length && <p className="text-sm text-muted-foreground">No city data yet.</p>}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* DEVICES */}
+          <TabsContent value="devices" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[{ title: "Devices", data: stats?.devices, icon: Monitor }, { title: "Browsers", data: stats?.browsers, icon: Globe }, { title: "OS", data: stats?.os, icon: Smartphone }].map((chart, idx) => (
+                <Card key={idx} className="backdrop-blur bg-card/60 border-border/60">
+                  <CardHeader><CardTitle className="text-base flex items-center gap-2"><chart.icon className="w-4 h-4 text-primary" /> {chart.title}</CardTitle></CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={220}>
+                      <PieChart>
+                        <Pie data={chart.data ?? []} dataKey="value" nameKey="name" outerRadius={80} innerRadius={40} label={(e: any) => e.name}>
+                          {(chart.data ?? []).map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                        </Pie>
+                        <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          {/* LIVE FEED */}
+          <TabsContent value="live" className="space-y-6">
+            <Card className="backdrop-blur bg-card/60 border-border/60">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2"><Activity className="w-4 h-4 text-primary" /> Live Activity Feed</CardTitle>
+                <LiveDot />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {liveFeed.length === 0 && <p className="text-sm text-muted-foreground py-6 text-center">Waiting for visitors…</p>}
+                  {liveFeed.map((v) => {
+                    const ago = Math.floor((Date.now() - new Date(v.created_at).getTime()) / 1000);
+                    const online = ago < 300;
+                    return (
+                      <div key={v.id} className="flex items-center justify-between text-sm border-b border-border/40 pb-2 last:border-0 hover:bg-muted/30 rounded px-2 py-1 transition-colors">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                          {online && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />}
+                          {!online && <span className="w-2 h-2 rounded-full bg-muted-foreground/40 shrink-0" />}
+                          <span className="text-lg">{flag(v.country_code)}</span>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-mono text-xs text-foreground truncate">{v.path}</p>
+                            <p className="text-[11px] text-muted-foreground flex items-center gap-2">
+                              <span>{v.city || v.country || "Unknown"}</span>
+                              <span className="flex items-center gap-1"><DeviceIcon d={v.device} />{v.browser}</span>
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2">
+                          {ago < 60 ? `${ago}s ago` : ago < 3600 ? `${Math.floor(ago / 60)}m ago` : `${Math.floor(ago / 3600)}h ago`}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Bottom row: recents + reports CTA */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base"><TrendingUp className="w-4 h-4 text-primary" /> Blog Growth (last 6 months)</CardTitle>
+          <Card className="backdrop-blur bg-card/60 border-border/60">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-base">Recent Subscribers</CardTitle>
+              <Button size="sm" variant="outline" onClick={() => exportCsv("subscribers", core.recentSubs)}><Download className="w-3.5 h-3.5 mr-1.5" />CSV</Button>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={260}>
-                <LineChart data={stats.blogsByMonth}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} />
-                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                  <Line type="monotone" dataKey="count" stroke={COLORS[0]} strokeWidth={3} dot={{ r: 4 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base"><Globe className="w-4 h-4 text-primary" /> News by Category</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={260}>
-                <PieChart>
-                  <Pie data={stats.newsByCategory} dataKey="value" nameKey="name" outerRadius={90} label={(e: any) => e.name}>
-                    {stats.newsByCategory.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0">
-              <CardTitle className="flex items-center gap-2 text-base"><Mail className="w-4 h-4 text-primary" /> Subscribers by Source</CardTitle>
-              <Button size="sm" variant="outline" onClick={exportSubscribersCsv}><Download className="w-4 h-4 mr-2" />Export CSV</Button>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={stats.subscribersBySource}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="source" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} allowDecimals={false} />
-                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
-                  <Bar dataKey="count" fill={COLORS[1]} radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader><CardTitle className="text-base">Recent Subscribers</CardTitle></CardHeader>
-            <CardContent>
-              <div className="space-y-2 max-h-[220px] overflow-y-auto">
-                {stats.recentSubscribers.length === 0 && <p className="text-sm text-muted-foreground">No subscribers yet.</p>}
-                {stats.recentSubscribers.map((s, i) => (
-                  <div key={i} className="flex items-center justify-between text-sm border-b border-border/50 pb-2 last:border-0">
+              <div className="space-y-2 max-h-[240px] overflow-y-auto">
+                {core.recentSubs.length === 0 && <p className="text-sm text-muted-foreground">No subscribers yet.</p>}
+                {core.recentSubs.map((s: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between text-sm border-b border-border/40 pb-2 last:border-0">
                     <span className="truncate text-foreground">{s.email}</span>
-                    <span className="text-xs text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</span>
+                    <span className="text-[10px] text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</span>
                   </div>
                 ))}
               </div>
             </CardContent>
           </Card>
-        </div>
 
-        <Card>
-          <CardHeader><CardTitle className="text-base">Recent Blog Posts</CardTitle></CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {stats.recentBlogs.map((b, i) => (
-                <div key={i} className="flex items-center justify-between text-sm border-b border-border/50 pb-2 last:border-0">
-                  <span className="truncate text-foreground font-medium">{b.title}</span>
-                  <div className="flex items-center gap-3">
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${b.published ? "bg-emerald-500/15 text-emerald-500" : "bg-amber-500/15 text-amber-500"}`}>
-                      {b.published ? "Published" : "Draft"}
+          <Card className="backdrop-blur bg-card/60 border-border/60">
+            <CardHeader><CardTitle className="text-base">Recent Blogs</CardTitle></CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {core.recentBlogs.map((b: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between text-sm border-b border-border/40 pb-2 last:border-0">
+                    <span className="truncate text-foreground font-medium">{b.title}</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${b.published ? "bg-emerald-500/15 text-emerald-500" : "bg-amber-500/15 text-amber-500"}`}>
+                      {b.published ? "LIVE" : "DRAFT"}
                     </span>
-                    <span className="text-xs text-muted-foreground whitespace-nowrap">{new Date(b.published_at).toLocaleDateString()}</span>
                   </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card className="bg-gradient-to-br from-primary/5 to-purple-500/5 border-primary/20">
-          <CardContent className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-lg font-bold text-foreground flex items-center gap-2"><FileDown className="w-5 h-5 text-primary" /> PDF Report Center</h3>
-              <p className="text-sm text-muted-foreground mt-1">Generate branded SEO audits, competitor reports, and AI visibility scorecards.</p>
-            </div>
-            <Button asChild><Link to="/admin/reports">Open Report Center</Link></Button>
-          </CardContent>
-        </Card>
+          <Card className="bg-gradient-to-br from-primary/10 via-accent/5 to-transparent border-primary/30 backdrop-blur">
+            <CardContent className="p-6 flex flex-col justify-between h-full gap-4">
+              <div>
+                <h3 className="text-lg font-black text-foreground flex items-center gap-2"><FileDown className="w-5 h-5 text-primary" /> PDF Reports</h3>
+                <p className="text-sm text-muted-foreground mt-1">Branded SEO audits, competitor scorecards, AI visibility reports.</p>
+              </div>
+              <Button asChild className="w-full"><Link to="/admin/reports">Open Report Center</Link></Button>
+            </CardContent>
+          </Card>
+        </div>
       </main>
     </div>
   );
