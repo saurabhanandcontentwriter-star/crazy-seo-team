@@ -191,6 +191,75 @@ export type Database = {
         }
         Relationships: []
       }
+      page_views: {
+        Row: {
+          browser: string | null
+          city: string | null
+          country: string | null
+          country_code: string | null
+          created_at: string
+          device: string | null
+          id: string
+          os: string | null
+          path: string
+          referrer: string | null
+          region: string | null
+          session_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          country_code?: string | null
+          created_at?: string
+          device?: string | null
+          id?: string
+          os?: string | null
+          path: string
+          referrer?: string | null
+          region?: string | null
+          session_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          country_code?: string | null
+          created_at?: string
+          device?: string | null
+          id?: string
+          os?: string | null
+          path?: string
+          referrer?: string | null
+          region?: string | null
+          session_id?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      tool_usage: {
+        Row: {
+          created_at: string
+          id: string
+          session_id: string | null
+          tool_name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          session_id?: string | null
+          tool_name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          session_id?: string | null
+          tool_name?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
