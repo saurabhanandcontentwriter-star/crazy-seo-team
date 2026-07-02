@@ -24,8 +24,14 @@ import Pricing from "./pages/Pricing.tsx";
 import AITools from "./pages/AITools.tsx";
 import News from "./pages/News.tsx";
 import AIChatbot from "./components/AIChatbot.tsx";
+import { useVisitorTracking } from "./hooks/useVisitorTracking.ts";
 
 const queryClient = new QueryClient();
+
+const TrackingLayer = () => {
+  useVisitorTracking();
+  return null;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -33,6 +39,8 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <TrackingLayer />
+
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/services" element={<Services />} />
