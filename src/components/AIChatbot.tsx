@@ -195,14 +195,15 @@ const AIChatbot = () => {
     <>
       {!open && (
         <button
+          id="tour-chatbot"
           onClick={() => setOpen(true)}
           className="fixed bottom-6 right-6 z-40 group"
           aria-label="Open AI assistant"
         >
           <span className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 blur-xl opacity-70 group-hover:opacity-100 animate-pulse" />
-          <span className="relative flex items-center gap-2 pl-3 pr-4 py-3 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-2xl border border-white/20 backdrop-blur-xl group-hover:scale-105 transition-transform">
-            <AIOrb size={28} />
-            <span className="text-sm font-semibold hidden sm:inline">Ask AI</span>
+          <span className="relative flex items-center gap-2 pl-2 pr-4 py-2 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-2xl border border-white/20 backdrop-blur-xl group-hover:scale-105 transition-transform">
+            <AIOrb size={36} />
+            <span className="text-sm font-semibold hidden sm:inline">Ask Nova</span>
           </span>
         </button>
       )}
@@ -349,13 +350,13 @@ const AIChatbot = () => {
   );
 };
 
-const AIOrb = ({ size = 40, thinking = false }: { size?: number; thinking?: boolean }) => (
+const AIOrb = ({ size = 40, thinking = false, speaking = false }: { size?: number; thinking?: boolean; speaking?: boolean }) => (
   <div className="relative shrink-0" style={{ width: size, height: size }}>
-    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 blur-md opacity-70 animate-pulse" />
-    <div className={`relative w-full h-full rounded-full bg-gradient-to-br from-cyan-300 via-blue-500 to-purple-700 shadow-inner overflow-hidden ${thinking ? "animate-pulse" : ""}`}>
-      <div className="absolute inset-[15%] rounded-full bg-gradient-to-tr from-white/70 to-transparent blur-sm" />
-      <div className="absolute top-[20%] left-[25%] w-[20%] h-[20%] rounded-full bg-white/80 blur-[1px]" />
-      <Bot size={size * 0.4} className="absolute inset-0 m-auto text-white/90" strokeWidth={2.5} />
+    <div className={`absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 blur-md ${speaking ? "opacity-90 animate-pulse" : thinking ? "opacity-80 animate-pulse" : "opacity-60"}`} />
+    <div className={`absolute -inset-1 rounded-full border border-cyan-300/40 ${speaking ? "animate-ping" : ""}`} />
+    <div className={`relative w-full h-full rounded-full overflow-hidden ring-2 ring-white/25 shadow-inner ${thinking ? "animate-pulse" : ""}`}>
+      <img src={avatarImg} alt="Nova, AI concierge" className="w-full h-full object-cover" draggable={false} />
+      <div className="absolute inset-0 bg-gradient-to-t from-purple-900/30 via-transparent to-cyan-400/10 mix-blend-overlay" />
     </div>
   </div>
 );
