@@ -15,7 +15,7 @@ import CTASection from "@/components/CTASection";
 import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
-import WhatsAppButton from "@/components/WhatsAppButton";
+import WebsiteTour from "@/components/WebsiteTour";
 
 const Index = () => {
   const location = useLocation();
@@ -30,13 +30,13 @@ const Index = () => {
   }, [location.state]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[hsl(230_40%_5%)] text-white">
       <Navbar />
       <HeroSection />
+      <StatsBar />
       <SEOToolsSection />
       <ToolsMarquee />
       <ServicesSection />
-      <StatsBar />
       <PortfolioSection />
       <IndustriesSection />
       <AboutSection />
@@ -46,7 +46,7 @@ const Index = () => {
       <FAQSection />
       <Footer />
       <CookieConsent />
-      <WhatsAppButton />
+      <WebsiteTour />
     </div>
   );
 };

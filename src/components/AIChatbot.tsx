@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Send, Loader2, Mic, MicOff, Volume2, VolumeX, Copy, Trash2, Search, FileText, BarChart3, Tag, Code2, ShieldCheck, Bot, Zap, Sparkles } from "lucide-react";
+import { X, Send, Loader2, Mic, MicOff, Volume2, VolumeX, Copy, Trash2, Search, FileText, BarChart3, Tag, Code2, ShieldCheck, Zap, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Link } from "react-router-dom";
+import avatarImg from "@/assets/ai-avatar.jpg";
 
 type Msg = { role: "user" | "assistant"; content: string; ts: number };
 
