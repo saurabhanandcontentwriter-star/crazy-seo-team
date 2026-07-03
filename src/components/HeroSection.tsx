@@ -1,123 +1,196 @@
-import { useState, useEffect, useRef } from "react";
-import { ArrowRight, TrendingUp, Target, Zap, Sparkles, Bot, BarChart3 } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { ArrowRight, Sparkles, Play, TrendingUp, Bot, Zap, ShieldCheck, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 import ContactFormDialog from "@/components/ContactFormDialog";
-
-const typingTexts = ["AI-Powered SEO", "Gen AI Solutions", "Digital Growth", "Smart Automation"];
 
 const HeroSection = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [textIdx, setTextIdx] = useState(0);
-  const [displayed, setDisplayed] = useState("");
-  const [deleting, setDeleting] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const [seo, setSeo] = useState(87);
+  const [ai, setAi] = useState(92);
+  const [llm, setLlm] = useState(89);
 
   useEffect(() => {
-    const current = typingTexts[textIdx];
-    if (!deleting) {
-      if (displayed.length < current.length) {
-        timeoutRef.current = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), 80);
-      } else {
-        timeoutRef.current = setTimeout(() => setDeleting(true), 2000);
-      }
-    } else {
-      if (displayed.length > 0) {
-        timeoutRef.current = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 40);
-      } else {
-        setDeleting(false);
-        setTextIdx((prev) => (prev + 1) % typingTexts.length);
-      }
-    }
-    return () => clearTimeout(timeoutRef.current);
-  }, [displayed, deleting, textIdx]);
+    const t = setInterval(() => {
+      setSeo((v) => Math.max(85, Math.min(99, v + (Math.random() > 0.5 ? 1 : -1))));
+      setAi((v) => Math.max(85, Math.min(99, v + (Math.random() > 0.5 ? 1 : -1))));
+      setLlm((v) => Math.max(85, Math.min(99, v + (Math.random() > 0.5 ? 1 : -1))));
+    }, 1800);
+    return () => clearInterval(t);
+  }, []);
+
+  const particles = useMemo(() => Array.from({ length: 24 }).map((_, i) => ({
+    left: `${Math.random() * 100}%`,
+    top: `${60 + Math.random() * 40}%`,
+    dur: `${8 + Math.random() * 10}s`,
+    delay: `${Math.random() * 6}s`,
+    px: `${(Math.random() - 0.5) * 80}px`,
+    py: `${-80 - Math.random() * 200}px`,
+    key: i,
+  })), []);
 
   return (
     <>
-      <section className="pt-28 pb-16 px-4 overflow-hidden relative">
-        {/* Animated background particles */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 left-[10%] w-72 h-72 rounded-full bg-primary/5 blur-3xl animate-float" />
-          <div className="absolute bottom-20 right-[10%] w-96 h-96 rounded-full bg-accent/5 blur-3xl animate-float" style={{ animationDelay: "1.5s" }} />
-          <div className="absolute top-1/2 left-1/2 w-64 h-64 rounded-full bg-primary/3 blur-3xl animate-float" style={{ animationDelay: "3s" }} />
-        </div>
+      <section className="relative pt-32 pb-24 overflow-hidden mesh-bg animate-mesh">
+        {/* Grid overlay */}
+        <div className="absolute inset-0 opacity-[0.07] pointer-events-none" style={{
+          backgroundImage: "linear-gradient(hsl(210 100% 80%) 1px, transparent 1px), linear-gradient(90deg, hsl(210 100% 80%) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
+          maskImage: "radial-gradient(ellipse at center, black 40%, transparent 75%)",
+        }} />
+        {/* Ambient blobs */}
+        <div className="absolute -top-32 -left-32 w-[520px] h-[520px] rounded-full bg-blue-500/25 blur-[120px] animate-pulse" />
+        <div className="absolute -bottom-32 -right-32 w-[520px] h-[520px] rounded-full bg-purple-500/25 blur-[120px] animate-pulse" style={{ animationDelay: "1s" }} />
 
-        <div className="container mx-auto grid lg:grid-cols-2 gap-12 items-center relative z-10">
-          <div className="animate-fade-in-left">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/5 mb-6 animate-flash-glow">
-              <Sparkles size={14} className="text-accent animate-pulse" />
-              <span className="text-sm font-medium text-primary">AI + Digital Marketing Agency</span>
-            </div>
+        {/* Floating particles */}
+        {particles.map((p) => (
+          <span key={p.key} className="particle" style={{
+            left: p.left, top: p.top,
+            animationDuration: p.dur, animationDelay: p.delay,
+            // @ts-expect-error css var
+            "--px": p.px, "--py": p.py,
+          }} />
+        ))}
 
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight text-foreground">
-              Dominate With{" "}
-              <span className="gradient-text">{displayed}</span>
-              <span className="animate-pulse text-primary">|</span>
-            </h1>
-
-            <p className="mt-6 text-lg text-muted-foreground max-w-lg leading-relaxed">
-              Crazy SEO Team is your strategic partner for explosive digital growth. We combine <strong className="text-foreground">Generative AI</strong> with proven SEO, PPC & social strategies to build high-performance revenue engines.
-            </p>
-
-            <div className="flex flex-wrap gap-4 mt-8 stagger-children">
-              <Button size="lg" className="gradient-bg text-primary-foreground hover:opacity-90 gap-2 text-base px-8 py-6 hover:scale-105 transition-transform" onClick={() => setDialogOpen(true)}>
-                Start Growing Today <ArrowRight size={18} />
-              </Button>
-              <Button size="lg" variant="outline" className="text-base px-8 py-6 hover:scale-105 transition-transform gap-2" onClick={() => document.getElementById("services")?.scrollIntoView({ behavior: "smooth" })}>
-                <Sparkles size={16} /> Explore AI Services
-              </Button>
-            </div>
-
-            <div className="flex items-center gap-3 mt-8">
-              <div className="flex -space-x-3">
-                <img src="https://i.pravatar.cc/100?img=1" className="w-10 h-10 rounded-full border-2 border-background" alt="" />
-                <img src="https://i.pravatar.cc/100?img=2" className="w-10 h-10 rounded-full border-2 border-background" alt="" />
-                <img src="https://i.pravatar.cc/100?img=3" className="w-10 h-10 rounded-full border-2 border-background" alt="" />
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-14 items-center">
+            {/* Left: copy */}
+            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-light text-xs font-medium text-blue-200 mb-6">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <Sparkles size={12} className="text-cyan-300" />
+                Next-Gen AI SEO Platform · v2026
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-sm text-foreground">+500</span>
-                <span className="text-sm text-muted-foreground">Trusted by 500+ fast-growing companies</span>
-              </div>
-            </div>
-          </div>
 
-          <div className="relative animate-fade-in-right">
-            <div className="hero-card-bg rounded-2xl p-6 shadow-2xl animate-float">
-              <div className="rounded-xl bg-[hsl(220,25%,12%)] p-5 mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-[hsl(220,14%,70%)]">Organic Traffic</span>
-                  <TrendingUp size={20} className="text-[hsl(145,60%,50%)]" />
-                </div>
-                <p className="text-4xl font-black text-[hsl(0,0%,100%)]">+245%</p>
-                <div className="mt-3 h-2 rounded-full bg-[hsl(220,20%,18%)] overflow-hidden">
-                  <div className="h-full w-3/4 rounded-full bg-gradient-to-r from-[hsl(145,60%,45%)] to-[hsl(145,60%,55%)] animate-shimmer" />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-3 stagger-children">
-                <div className="rounded-xl bg-[hsl(220,25%,12%)] p-4 text-center">
-                  <Target size={20} className="text-primary mx-auto mb-1.5" />
-                  <p className="text-xl font-bold text-[hsl(0,0%,100%)]">12.5k</p>
-                  <span className="text-[10px] text-[hsl(220,14%,60%)]">Leads</span>
-                </div>
-                <div className="rounded-xl bg-[hsl(220,25%,12%)] p-4 text-center">
-                  <Zap size={20} className="text-accent mx-auto mb-1.5" />
-                  <p className="text-xl font-bold text-[hsl(0,0%,100%)]">4.8x</p>
-                  <span className="text-[10px] text-[hsl(220,14%,60%)]">ROAS</span>
-                </div>
-                <div className="rounded-xl bg-[hsl(220,25%,12%)] p-4 text-center">
-                  <Bot size={20} className="text-[hsl(40,90%,55%)] mx-auto mb-1.5" />
-                  <p className="text-xl font-bold text-[hsl(0,0%,100%)]">AI</p>
-                  <span className="text-[10px] text-[hsl(220,14%,60%)]">Powered</span>
-                </div>
-              </div>
-            </div>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.02] tracking-tight text-white">
+                The AI SEO Platform for{" "}
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-blue-400 to-purple-400">
+                  Google, ChatGPT,
+                </span>{" "}
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-400 via-purple-400 to-blue-400">
+                  Gemini & AI Search
+                </span>
+              </h1>
 
-            {/* Floating badges */}
-            <div className="absolute -top-3 -right-3 px-3 py-1.5 rounded-full bg-accent text-accent-foreground text-xs font-bold shadow-lg animate-bounce">
-              🚀 Gen AI Ready
-            </div>
-            <div className="absolute -bottom-3 -left-3 px-3 py-1.5 rounded-full bg-card border border-border text-foreground text-xs font-medium shadow-lg flex items-center gap-1.5 animate-flash-glow">
-              <BarChart3 size={12} className="text-primary" /> Real-Time Analytics
-            </div>
+              <p className="mt-6 text-lg text-slate-300/90 max-w-xl leading-relaxed">
+                Rank higher across Google and every AI search engine with an all-in-one platform for
+                <strong className="text-white"> AI SEO, GEO, AEO & LLM Optimization</strong> — built for the 2026 search stack.
+              </p>
+
+              <div className="flex flex-wrap gap-4 mt-8">
+                <Button size="lg" onClick={() => setDialogOpen(true)}
+                  className="relative group bg-gradient-to-r from-blue-600 to-purple-600 text-white text-base px-8 py-6 rounded-2xl hover:opacity-95 transition-transform hover:scale-[1.02] shadow-[0_10px_40px_-10px_hsl(230_90%_60%/0.7)]">
+                  <span className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-400/40 to-purple-500/40 blur-xl opacity-0 group-hover:opacity-100 transition" />
+                  <span className="relative flex items-center gap-2">Start Free Audit <ArrowRight size={18} /></span>
+                </Button>
+                <Button size="lg" variant="outline"
+                  onClick={() => document.getElementById("services")?.scrollIntoView({ behavior: "smooth" })}
+                  className="glass-light text-white border-white/15 hover:bg-white/10 text-base px-8 py-6 rounded-2xl gap-2">
+                  <Play size={16} className="text-cyan-300" /> Try AI Writer
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4 mt-10 max-w-lg">
+                {[
+                  { v: "18k+", l: "Websites Optimized" },
+                  { v: "215k+", l: "AI Articles" },
+                  { v: "97.6%", l: "AI Visibility" },
+                ].map((s) => (
+                  <div key={s.l} className="glass-light rounded-2xl p-4">
+                    <p className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-purple-300">{s.v}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{s.l}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Right: dashboard preview */}
+            <motion.div initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.15 }}
+              className="relative">
+              {/* Orbit rings behind card */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="w-[420px] h-[420px] rounded-full border border-blue-400/20 animate-ring" />
+                <div className="absolute w-[320px] h-[320px] rounded-full border border-purple-400/20 animate-ring" style={{ animationDelay: "0.6s" }} />
+                <div className="absolute w-[220px] h-[220px] rounded-full border border-cyan-400/20 animate-ring" style={{ animationDelay: "1.2s" }} />
+              </div>
+
+              <div className="relative glass rounded-3xl p-5 md:p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center">
+                      <Bot size={16} className="text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">AI SEO Dashboard</p>
+                      <p className="text-[10px] text-emerald-400 flex items-center gap-1">
+                        <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" /> Live
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-red-400/70" />
+                    <span className="w-2 h-2 rounded-full bg-amber-400/70" />
+                    <span className="w-2 h-2 rounded-full bg-emerald-400/70" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  {[
+                    { label: "SEO Score", value: seo, icon: TrendingUp, tone: "from-cyan-400 to-blue-500" },
+                    { label: "AI Visibility", value: ai, icon: Zap, tone: "from-purple-400 to-fuchsia-500" },
+                    { label: "LLM Score", value: llm, icon: ShieldCheck, tone: "from-blue-400 to-purple-500" },
+                  ].map((m) => (
+                    <div key={m.label} className="rounded-2xl bg-white/5 border border-white/10 p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <m.icon size={14} className="text-cyan-300" />
+                        <span className="text-[9px] text-emerald-400">EXC</span>
+                      </div>
+                      <p className={`text-2xl font-black bg-clip-text text-transparent bg-gradient-to-br ${m.tone}`}>{m.value}</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">{m.label}</p>
+                      <div className="mt-2 h-1 rounded-full bg-white/10 overflow-hidden">
+                        <div className={`h-full bg-gradient-to-r ${m.tone} transition-all duration-700`} style={{ width: `${m.value}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Fake chart */}
+                <div className="mt-4 rounded-2xl bg-white/5 border border-white/10 p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs text-slate-300 font-medium flex items-center gap-1.5"><Activity size={12} className="text-cyan-300" /> Traffic Overview</p>
+                    <p className="text-[10px] text-emerald-400">+23.4% ↑</p>
+                  </div>
+                  <svg viewBox="0 0 300 80" className="w-full h-20">
+                    <defs>
+                      <linearGradient id="hero-grad" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0%" stopColor="hsl(210 100% 65%)" stopOpacity="0.6" />
+                        <stop offset="100%" stopColor="hsl(270 100% 65%)" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <path d="M0,60 C40,40 60,55 90,35 C120,20 150,45 180,30 C210,18 240,32 300,10 L300,80 L0,80 Z" fill="url(#hero-grad)" />
+                    <path d="M0,60 C40,40 60,55 90,35 C120,20 150,45 180,30 C210,18 240,32 300,10" fill="none" stroke="hsl(190 100% 70%)" strokeWidth="2" />
+                  </svg>
+                </div>
+
+                <div className="mt-4 flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-500/15 to-purple-500/15 border border-white/10 p-3">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center shrink-0">
+                    <Sparkles size={14} className="text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-white">AI recommends 3 fixes</p>
+                    <p className="text-[10px] text-slate-400 truncate">Fix Core Web Vitals · Add FAQ schema · Refresh meta titles</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating pills */}
+              <div className="absolute -top-4 -right-2 glass rounded-full px-3 py-1.5 text-[11px] text-white font-semibold flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> ChatGPT Ranking
+              </div>
+              <div className="absolute -bottom-4 -left-2 glass rounded-full px-3 py-1.5 text-[11px] text-white font-semibold flex items-center gap-1.5">
+                <Bot size={12} className="text-cyan-300" /> Gemini · Claude · Perplexity
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>

@@ -24,36 +24,41 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-slate-950/60 backdrop-blur-xl">
         <div className="container mx-auto flex items-center justify-between h-16 px-4">
-          <Link to="/" className="flex items-center gap-2" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-            <img src={logo} alt="Crazy SEO Team" className="w-10 h-10 object-contain" />
-            <span className="font-bold text-lg text-foreground">Crazy SEO Team</span>
+          <Link id="tour-logo" to="/" className="flex items-center gap-2.5 group" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+            <div className="relative">
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 blur-md opacity-70 group-hover:opacity-100 transition" />
+              <img src={logo} alt="Crazy SEO Team" className="relative w-9 h-9 object-contain rounded-xl" />
+            </div>
+            <span className="font-bold text-lg text-white tracking-tight">Crazy SEO Team</span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-8">
+          <div id="tour-nav" className="hidden md:flex items-center gap-1 rounded-full glass-light px-2 py-1.5">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 to={link.path}
-                className={`text-sm font-medium transition-colors ${location.pathname === link.path ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${location.pathname === link.path ? "bg-white/10 text-white shadow-inner" : "text-slate-300 hover:text-white hover:bg-white/5"}`}
               >
                 {link.label}
               </Link>
             ))}
           </div>
 
-          <div className="hidden md:flex items-center gap-3">
-            <Button variant="outline" onClick={() => setDialogOpen(true)}>Connect Now</Button>
-            <Button className="gradient-bg text-primary-foreground hover:opacity-90" onClick={() => setDialogOpen(true)}>
-              Get Free Audit
+          <div id="tour-cta" className="hidden md:flex items-center gap-2">
+            <Button variant="outline" onClick={() => setDialogOpen(true)} className="border-white/15 bg-white/5 text-white hover:bg-white/10 rounded-xl">Connect</Button>
+            <Button onClick={() => setDialogOpen(true)}
+              className="rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-95 shadow-[0_8px_30px_-8px_hsl(230_90%_60%/0.6)]">
+              Start Free Audit
             </Button>
           </div>
 
-          <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
+          <button className="md:hidden text-white" onClick={() => setOpen(!open)}>
             {open ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
+
 
         {open && (
           <div className="md:hidden bg-background border-b border-border px-4 pb-4 space-y-3">
