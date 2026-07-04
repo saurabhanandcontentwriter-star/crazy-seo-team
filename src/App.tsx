@@ -20,7 +20,7 @@ import AdminAnalytics from "./pages/admin/Analytics.tsx";
 import AdminReports from "./pages/admin/Reports.tsx";
 import About from "./pages/src/pages/Team.tsx";
 import ServiceDetail from "./pages/ServiceDetail.tsx";
-import Pricing from "./pages/Pricing.tsx";
+
 import AITools from "./pages/AITools.tsx";
 import News from "./pages/News.tsx";
 import AIChatbot from "./components/AIChatbot.tsx";
@@ -45,7 +45,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/services" element={<Services />} />
           <Route path="/services/:slug" element={<ServiceDetail />} />
-          <Route path="/pricing" element={<Pricing />} />
+          
           <Route path="/seo-tools" element={<SEOTools />} />
           <Route path="/ai-tools" element={<AITools />} />
           <Route path="/about" element={<About />} />
