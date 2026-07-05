@@ -59,9 +59,9 @@ const App = () => (
           <Route path="/terms-and-conditions" element={<TermsConditions />} />
           <Route path="/payment-policy" element={<PaymentPolicy />} />
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/analytics" element={<AdminAnalytics />} />
-          <Route path="/admin/reports" element={<AdminReports />} />
+          <Route path="/admin" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
+          <Route path="/admin/analytics" element={<AdminGuard><AdminAnalytics /></AdminGuard>} />
+          <Route path="/admin/reports" element={<AdminGuard><AdminReports /></AdminGuard>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <AIChatbot />
