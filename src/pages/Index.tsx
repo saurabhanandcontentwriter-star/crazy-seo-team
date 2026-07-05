@@ -28,7 +28,7 @@ const Index = () => {
   }, [location.state]);
 
   return (
-    <div className="min-h-screen bg-[hsl(230_40%_5%)] text-white">
+    <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-blue-50/40 text-slate-900">
       <Navbar />
       <HeroSection />
       <StatsBar />
