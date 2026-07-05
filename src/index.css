@@ -110,7 +110,7 @@
   .gradient-bg { background: var(--gradient-primary); }
   .gradient-cta { background: var(--gradient-cta); }
   .hero-card-bg { background: var(--gradient-hero-card); }
-  .mesh-bg { background-color: hsl(230 40% 6%); background-image: var(--gradient-mesh); }
+  .mesh-bg { background-color: hsl(210 40% 99%); background-image: var(--gradient-mesh); }
   .glass {
     background: var(--glass-bg);
     backdrop-filter: blur(24px) saturate(160%);
