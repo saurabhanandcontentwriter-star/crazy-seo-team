@@ -24,22 +24,22 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-slate-950/60 backdrop-blur-xl">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-slate-200/60 bg-white/70 backdrop-blur-xl">
         <div className="container mx-auto flex items-center justify-between h-16 px-4">
           <Link id="tour-logo" to="/" className="flex items-center gap-2.5 group" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
             <div className="relative">
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 blur-md opacity-70 group-hover:opacity-100 transition" />
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 blur-md opacity-40 group-hover:opacity-70 transition" />
               <img src={logo} alt="Crazy SEO Team" className="relative w-9 h-9 object-contain rounded-xl" />
             </div>
-            <span className="font-bold text-lg text-white tracking-tight">Crazy SEO Team</span>
+            <span className="font-bold text-lg text-slate-900 tracking-tight">Crazy SEO Team</span>
           </Link>
 
-          <div id="tour-nav" className="hidden md:flex items-center gap-1 rounded-full glass-light px-2 py-1.5">
+          <div id="tour-nav" className="hidden md:flex items-center gap-1 rounded-full bg-slate-100/80 border border-slate-200/60 px-2 py-1.5">
             {navLinks.map((link) => (
               <Link
                 key={link.label}
                 to={link.path}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${location.pathname === link.path ? "bg-white/10 text-white shadow-inner" : "text-slate-300 hover:text-white hover:bg-white/5"}`}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${location.pathname === link.path ? "bg-white text-slate-900 shadow-sm" : "text-slate-600 hover:text-slate-900 hover:bg-white/60"}`}
               >
                 {link.label}
               </Link>
@@ -47,21 +47,22 @@ const Navbar = () => {
           </div>
 
           <div id="tour-cta" className="hidden md:flex items-center gap-2">
-            <Button variant="outline" onClick={() => setDialogOpen(true)} className="border-white/15 bg-white/5 text-white hover:bg-white/10 rounded-xl">Connect</Button>
+            <Button variant="outline" onClick={() => setDialogOpen(true)} className="border-slate-200 bg-white text-slate-900 hover:bg-slate-50 rounded-xl">Connect</Button>
             <Button onClick={() => setDialogOpen(true)}
-              className="rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-95 shadow-[0_8px_30px_-8px_hsl(230_90%_60%/0.6)]">
+              className="rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-95 shadow-[0_8px_30px_-8px_hsl(226_83%_55%/0.5)]">
               Start Free Audit
             </Button>
           </div>
 
-          <button className="md:hidden text-white" onClick={() => setOpen(!open)}>
+          <button className="md:hidden text-slate-900" onClick={() => setOpen(!open)}>
             {open ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
 
         {open && (
-          <div className="md:hidden bg-background border-b border-border px-4 pb-4 space-y-3">
+          <div className="md:hidden bg-white border-b border-slate-200 px-4 pb-4 space-y-3">
+
             {navLinks.map((link) => (
               <Link
                 key={link.label}
