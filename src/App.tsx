@@ -18,6 +18,7 @@ import AdminLogin from "./pages/admin/Login.tsx";
 import AdminDashboard from "./pages/admin/Dashboard.tsx";
 import AdminAnalytics from "./pages/admin/Analytics.tsx";
 import AdminReports from "./pages/admin/Reports.tsx";
+import AdminGuard from "./components/admin/AdminGuard.tsx";
 import About from "./pages/src/pages/Team.tsx";
 import ServiceDetail from "./pages/ServiceDetail.tsx";
 
