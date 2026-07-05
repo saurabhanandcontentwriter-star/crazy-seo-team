@@ -18,6 +18,7 @@ import AdminLogin from "./pages/admin/Login.tsx";
 import AdminDashboard from "./pages/admin/Dashboard.tsx";
 import AdminAnalytics from "./pages/admin/Analytics.tsx";
 import AdminReports from "./pages/admin/Reports.tsx";
+import AdminGuard from "./components/admin/AdminGuard.tsx";
 import About from "./pages/src/pages/Team.tsx";
 import ServiceDetail from "./pages/ServiceDetail.tsx";
 
@@ -58,9 +59,9 @@ const App = () => (
           <Route path="/terms-and-conditions" element={<TermsConditions />} />
           <Route path="/payment-policy" element={<PaymentPolicy />} />
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/analytics" element={<AdminAnalytics />} />
-          <Route path="/admin/reports" element={<AdminReports />} />
+          <Route path="/admin" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
+          <Route path="/admin/analytics" element={<AdminGuard><AdminAnalytics /></AdminGuard>} />
+          <Route path="/admin/reports" element={<AdminGuard><AdminReports /></AdminGuard>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <AIChatbot />
