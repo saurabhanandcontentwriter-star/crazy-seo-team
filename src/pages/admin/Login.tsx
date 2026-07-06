@@ -14,16 +14,15 @@ async function logAttempt(row: {
   success: boolean;
   mfa_verified?: boolean;
   failure_reason?: string;
-  user_id?: string | null;
 }) {
   try {
-    await supabase.from("login_history").insert({
-      email: row.email,
-      success: row.success,
-      mfa_verified: row.mfa_verified ?? false,
-      failure_reason: row.failure_reason ?? null,
-      user_id: row.user_id ?? null,
-      user_agent: navigator.userAgent.slice(0, 500),
+    await supabase.functions.invoke("log-login-attempt", {
+      body: {
+        email: row.email,
+        success: row.success,
+        mfa_verified: row.mfa_verified ?? false,
+        failure_reason: row.failure_reason ?? null,
+      },
     });
   } catch {
     /* best-effort */
