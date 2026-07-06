@@ -71,7 +71,6 @@ const stripHtml = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/\s+/g
 const News = () => {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [category, setCategory] = useState("All");
 
   // TTS state
@@ -100,25 +99,9 @@ const News = () => {
     setLoading(false);
   };
 
-  const triggerRefresh = async (silent = false) => {
-    if (!silent) setRefreshing(true);
-    try {
-      await supabase.functions.invoke("refresh-news");
-      await load();
-    } finally {
-      if (!silent) setRefreshing(false);
-    }
-  };
-
   useEffect(() => {
-    (async () => {
-      await load();
-      const { count } = await supabase.from("news_articles").select("*", { count: "exact", head: true });
-      if (!count) await triggerRefresh(true);
-    })();
-    const id = setInterval(() => triggerRefresh(true), REFRESH_MS);
+    load();
     return () => {
-      clearInterval(id);
       if (typeof window !== "undefined") window.speechSynthesis?.cancel();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -247,10 +230,6 @@ const News = () => {
             <Slider value={[rate]} min={0.6} max={1.6} step={0.1} onValueChange={(v) => setRate(v[0])} />
           </div>
           <div className="flex gap-2 justify-end">
-            <Button variant="outline" size="sm" onClick={() => triggerRefresh()} disabled={refreshing}>
-              {refreshing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-              Refresh
-            </Button>
             {playingId && (
               <Button variant="destructive" size="sm" onClick={stop}>
                 <Square className="w-4 h-4 mr-2" /> Stop
