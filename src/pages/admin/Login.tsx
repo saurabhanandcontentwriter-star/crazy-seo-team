@@ -14,16 +14,15 @@ async function logAttempt(row: {
   success: boolean;
   mfa_verified?: boolean;
   failure_reason?: string;
-  user_id?: string | null;
 }) {
   try {
-    await supabase.from("login_history").insert({
-      email: row.email,
-      success: row.success,
-      mfa_verified: row.mfa_verified ?? false,
-      failure_reason: row.failure_reason ?? null,
-      user_id: row.user_id ?? null,
-      user_agent: navigator.userAgent.slice(0, 500),
+    await supabase.functions.invoke("log-login-attempt", {
+      body: {
+        email: row.email,
+        success: row.success,
+        mfa_verified: row.mfa_verified ?? false,
+        failure_reason: row.failure_reason ?? null,
+      },
     });
   } catch {
     /* best-effort */
@@ -44,21 +43,7 @@ export default function AdminLogin() {
   const [qrSvg, setQrSvg] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
 
-  // Auto-provision the two seeded admins on first mount (idempotent).
-  useEffect(() => {
-    (async () => {
-      if (localStorage.getItem("admin_provisioned_v1") === "1") return;
-      setProvisioning(true);
-      try {
-        await supabase.functions.invoke("provision-admin", { body: {} });
-        localStorage.setItem("admin_provisioned_v1", "1");
-      } catch {
-        /* ignore — user may not have network yet */
-      } finally {
-        setProvisioning(false);
-      }
-    })();
-  }, []);
+  // Provisioning is a server-only, secret-gated operation now — no client auto-invoke.
 
   const handlePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,7 +80,7 @@ export default function AdminLogin() {
 
     if (!roleRow) {
       await supabase.auth.signOut();
-      await logAttempt({ email: cleanEmail, success: false, failure_reason: "not_admin", user_id: data.user.id });
+      await logAttempt({ email: cleanEmail, success: false, failure_reason: "not_admin" });
       toast.error("Access denied — not an admin");
       setBusy(false);
       return;
@@ -161,7 +146,6 @@ export default function AdminLogin() {
       email: u.user?.email ?? email,
       success: true,
       mfa_verified: true,
-      user_id: u.user?.id,
     });
     toast.success("2FA enabled — welcome, Admin");
     navigate("/admin", { replace: true });
@@ -183,7 +167,6 @@ export default function AdminLogin() {
         success: false,
         mfa_verified: false,
         failure_reason: "totp_invalid",
-        user_id: u.user?.id,
       });
       toast.error(error.message);
       setBusy(false);
@@ -194,7 +177,6 @@ export default function AdminLogin() {
       email: u.user?.email ?? email,
       success: true,
       mfa_verified: true,
-      user_id: u.user?.id,
     });
     toast.success("Welcome, Admin");
     navigate("/admin", { replace: true });

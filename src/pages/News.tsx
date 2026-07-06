@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Loader2, Newspaper, Pause, Play, RefreshCw, Square, Volume2, Clock, User } from "lucide-react";
+import DOMPurify from "dompurify";
+import { Loader2, Newspaper, Pause, Play, Square, Volume2, Clock, User } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -70,7 +71,6 @@ const stripHtml = (html: string) => html.replace(/<[^>]*>/g, " ").replace(/\s+/g
 const News = () => {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [category, setCategory] = useState("All");
 
   // TTS state
@@ -99,25 +99,9 @@ const News = () => {
     setLoading(false);
   };
 
-  const triggerRefresh = async (silent = false) => {
-    if (!silent) setRefreshing(true);
-    try {
-      await supabase.functions.invoke("refresh-news");
-      await load();
-    } finally {
-      if (!silent) setRefreshing(false);
-    }
-  };
-
   useEffect(() => {
-    (async () => {
-      await load();
-      const { count } = await supabase.from("news_articles").select("*", { count: "exact", head: true });
-      if (!count) await triggerRefresh(true);
-    })();
-    const id = setInterval(() => triggerRefresh(true), REFRESH_MS);
+    load();
     return () => {
-      clearInterval(id);
       if (typeof window !== "undefined") window.speechSynthesis?.cancel();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -246,10 +230,6 @@ const News = () => {
             <Slider value={[rate]} min={0.6} max={1.6} step={0.1} onValueChange={(v) => setRate(v[0])} />
           </div>
           <div className="flex gap-2 justify-end">
-            <Button variant="outline" size="sm" onClick={() => triggerRefresh()} disabled={refreshing}>
-              {refreshing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-              Refresh
-            </Button>
             {playingId && (
               <Button variant="destructive" size="sm" onClick={stop}>
                 <Square className="w-4 h-4 mr-2" /> Stop
@@ -325,7 +305,7 @@ const News = () => {
                       <summary className="cursor-pointer text-primary font-medium select-none">Read full story</summary>
                       <div
                         className="mt-4 prose prose-sm dark:prose-invert max-w-none [&_h2]:text-foreground [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-2 [&_p]:my-3 [&_ul]:my-3 [&_li]:my-1"
-                        dangerouslySetInnerHTML={{ __html: a.content }}
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(a.content) }}
                       />
                       {a.faqs && a.faqs.length > 0 && (
                         <div className="mt-6 border-t border-border pt-4">
