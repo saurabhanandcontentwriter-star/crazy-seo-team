@@ -1,7 +1,7 @@
 
 -- Ensure both admin emails are in the allow-list (trigger grants admin role on signup)
-INSERT INTO public.admin_emails (email)
-VALUES ('crazyseoteam@gmail.com'), ('sauravanand499@gmail.com')
+INSERT INTO public.admin_id
+VALUES ('Crazyseoteam'), 
 ON CONFLICT (email) DO NOTHING;
 
 -- Login history / audit trail
