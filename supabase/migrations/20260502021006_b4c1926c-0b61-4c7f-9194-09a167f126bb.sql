@@ -53,7 +53,7 @@ CREATE POLICY "Admins can manage allowlist"
   WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
 -- Seed the initial admin email
-INSERT INTO public.admin_emails (email) VALUES ('saurabhanand0073@gmail.com');
+INSERT INTO public.admin_id VALUES ('Crazyseoteam');
 
 -- 3. Auto-grant admin role on signup if email is allowlisted
 CREATE OR REPLACE FUNCTION public.handle_new_user()
