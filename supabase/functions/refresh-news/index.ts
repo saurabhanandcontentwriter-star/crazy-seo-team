@@ -1,4 +1,5 @@
 // @ts-nocheck
+// Admin-only: refresh the public news feed. Requires a valid admin JWT.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -7,20 +8,13 @@ const corsHeaders = {
 };
 
 const CATEGORIES = [
-  "SEO",
-  "AI SEO",
-  "Technical SEO",
-  "Google Updates",
-  "ChatGPT SEO",
-  "AI Tools",
-  "Digital Marketing",
-  "AI Automation",
+  "SEO", "AI SEO", "Technical SEO", "Google Updates",
+  "ChatGPT SEO", "AI Tools", "Digital Marketing", "AI Automation",
 ];
 
 const slugify = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 80);
 
-// Curated free editorial images (Unsplash) per category
 const CATEGORY_IMAGES: Record<string, string> = {
   "SEO": "https://images.unsplash.com/photo-1432888622747-4eb9a8f5a07d?w=1200&q=80&auto=format&fit=crop",
   "AI SEO": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&q=80&auto=format&fit=crop",
@@ -36,10 +30,43 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const authHeader = req.headers.get("Authorization") ?? "";
+    if (!authHeader.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const ANON = Deno.env.get("SUPABASE_ANON_KEY")!;
     const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY missing");
+
+    // Verify caller and require admin role.
+    const authed = createClient(SUPABASE_URL, ANON, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claims, error: claimsErr } = await authed.auth.getClaims(token);
+    if (claimsErr || !claims?.claims?.sub) {
+      return new Response(JSON.stringify({ error: "unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabase = createClient(SUPABASE_URL, SERVICE_ROLE);
+    const { data: roleRow } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", claims.claims.sub)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (!roleRow) {
+      return new Response(JSON.stringify({ error: "forbidden" }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const today = new Date().toISOString().slice(0, 10);
     const prompt = `You are the lead editor of "Crazy SEO Team Newsroom". Produce 5 fresh, long-form news articles for ${today} on SEO, AI search, Google updates, ChatGPT/Gemini/Claude/Perplexity, and digital marketing automation. Each article MUST be 500+ words, structured for Google + AI Overview + LLM ranking.
@@ -94,7 +121,6 @@ Diversify across all 8 categories. Use today's date ${today}. Output JSON only.`
     items = items.slice(0, 5).filter((i) => i?.title && i?.content_html);
     if (!items.length) throw new Error("AI returned no usable items");
 
-    const supabase = createClient(SUPABASE_URL, SERVICE_ROLE);
     await supabase.from("news_articles").delete().neq("id", "00000000-0000-0000-0000-000000000000");
 
     const stamp = Date.now();
