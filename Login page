@@ -1,11 +1,14 @@
 const login = () => {
-  const email = prompt("Enter Gmail:");
+    const username = prompt("Enter Username");
+    const password = prompt("Enter Password");
 
-  if (email === "sauravanand499@gmail.com" || email === "crazyseoteam@gmail.com") {
-    localStorage.setItem("admin", "true");
-    localStorage.setItem("adminEmail", email);
-    window.location.href = "/admin"; // ✅ FIX
-  } else {
-    alert("Access Denied");
-  }
+    if (
+        username === "Crazyseoteam" &&
+        password === "Crazyseoteam@#$2025"
+    ) {
+        localStorage.setItem("admin", "true");
+        window.location.href = "/admin/dashboard";
+    } else {
+        alert("Invalid Username or Password");
+    }
 };
