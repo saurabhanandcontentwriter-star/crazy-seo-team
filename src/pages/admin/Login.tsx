@@ -63,7 +63,15 @@ export default function AdminLogin() {
   const handlePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const cleanEmail = email.trim().toLowerCase();
+    const raw = email.trim();
+    // Username alias: map "Crazyseoteam" -> crazyseoteam@gmail.com
+    const cleanEmail = raw.includes("@")
+      ? raw.toLowerCase()
+      : raw.toLowerCase() === "crazyseoteam"
+        ? "crazyseoteam@gmail.com"
+        : raw.toLowerCase() === "sauravanand499"
+          ? "sauravanand499@gmail.com"
+          : raw.toLowerCase();
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email: cleanEmail,
@@ -216,14 +224,14 @@ export default function AdminLogin() {
         {stage === "credentials" && (
           <form onSubmit={handlePassword} className="space-y-4">
             <div>
-              <Label htmlFor="email">Admin Email</Label>
+              <Label htmlFor="email">Username or Email</Label>
               <Input
                 id="email"
-                type="email"
+                type="text"
                 autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="crazyseoteam@gmail.com"
+                placeholder="Crazyseoteam"
                 required
               />
             </div>
