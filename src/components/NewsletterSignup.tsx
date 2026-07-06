@@ -18,10 +18,14 @@ const NewsletterSignup = ({ source = "footer" }: { source?: string }) => {
     if (!parsed.success) { toast.error("Enter a valid email"); return; }
     setBusy(true);
     try {
-      const { error } = await supabase.from("newsletter_subscribers").insert({ email: parsed.data, source });
-      if (error) {
-        if (error.code === "23505") toast.success("You're already subscribed!");
-        else throw error;
+      const { data, error } = await supabase.functions.invoke("subscribe-newsletter", {
+        body: { email: parsed.data, source },
+      });
+      if (error) throw error;
+      if ((data as any)?.error === "rate_limited") {
+        toast.error("Too many attempts — try again later");
+      } else if ((data as any)?.duplicate) {
+        toast.success("You're already subscribed!");
       } else {
         toast.success("Subscribed!", { description: "We'll send SEO insights to your inbox." });
         setEmail("");

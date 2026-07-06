@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
+import DOMPurify from "dompurify";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -364,7 +365,7 @@ const ArticleGenerator = () => {
               <article className="prose prose-sm dark:prose-invert max-w-none">
                 <h1>{article.title}</h1>
                 <p className="text-muted-foreground italic">{article.meta_description}</p>
-                <div dangerouslySetInnerHTML={{ __html: article.content_html || "" }} />
+                <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.content_html || "") }} />
               </article>
             )}
             {tab === "html" && (

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Loader2, Newspaper, Pause, Play, RefreshCw, Square, Volume2, Clock, User } from "lucide-react";
+import DOMPurify from "dompurify";
+import { Loader2, Newspaper, Pause, Play, Square, Volume2, Clock, User } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -325,7 +326,7 @@ const News = () => {
                       <summary className="cursor-pointer text-primary font-medium select-none">Read full story</summary>
                       <div
                         className="mt-4 prose prose-sm dark:prose-invert max-w-none [&_h2]:text-foreground [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-2 [&_p]:my-3 [&_ul]:my-3 [&_li]:my-1"
-                        dangerouslySetInnerHTML={{ __html: a.content }}
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(a.content) }}
                       />
                       {a.faqs && a.faqs.length > 0 && (
                         <div className="mt-6 border-t border-border pt-4">
