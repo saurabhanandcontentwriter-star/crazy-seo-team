@@ -14,6 +14,10 @@ import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import WebsiteTour from "@/components/WebsiteTour";
+import CursorGlow from "@/components/CursorGlow";
+import ServicesPreview from "@/components/ServicesPreview";
+import TestimonialsSection from "@/components/TestimonialsSection";
+import ContactSection from "@/components/ContactSection";
 
 const Index = () => {
   const location = useLocation();
@@ -29,17 +33,21 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-blue-50/40 text-slate-900">
+      <CursorGlow />
       <Navbar />
       <HeroSection />
       <StatsBar />
       <ToolsMarquee />
+      <AboutSection />
+      <ServicesPreview />
       <PortfolioSection />
       <IndustriesSection />
-      <AboutSection />
       <WhyChooseUs />
+      <TestimonialsSection />
       <BlogSection />
       <CTASection />
       <FAQSection />
+      <ContactSection />
       <Footer />
       <CookieConsent />
       <WebsiteTour />
