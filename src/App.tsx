@@ -25,6 +25,7 @@ import ServiceDetail from "./pages/ServiceDetail.tsx";
 import AITools from "./pages/AITools.tsx";
 import News from "./pages/News.tsx";
 import AIChatbot from "./components/AIChatbot.tsx";
+import AuroraBackground from "./components/AuroraBackground.tsx";
 import { useVisitorTracking } from "./hooks/useVisitorTracking.ts";
 
 const queryClient = new QueryClient();
