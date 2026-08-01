@@ -91,7 +91,7 @@ const SEOToolsGrid = () => {
                     </div>
                     <h3 className="text-lg font-bold text-slate-900 mb-2">{tool.title}</h3>
                     <p className="text-sm text-slate-600 mb-5 leading-relaxed">{tool.desc}</p>
-                    <div className="flex items-center gap-2 text-sm font-semibold text-cyan-300 group-hover:text-cyan-200 transition-colors">
+                    <div className="flex items-center gap-2 text-sm font-semibold text-blue-600 group-hover:text-violet-600 transition-colors">
                       {tool.action.kind === "request" ? "Request Access" : "Open Tool"}
                       <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                     </div>
