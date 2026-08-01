@@ -32,7 +32,7 @@ const Index = () => {
   }, [location.state]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-slate-50 to-blue-50/40 text-slate-900">
+    <div className="min-h-screen text-slate-900">
       <CursorGlow />
       <Navbar />
       <HeroSection />

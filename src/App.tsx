@@ -41,7 +41,9 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <AuroraBackground />
         <TrackingLayer />
+
 
         <Routes>
           <Route path="/" element={<Index />} />

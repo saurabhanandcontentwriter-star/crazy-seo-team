@@ -106,18 +106,19 @@ export default function AdminLogin() {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <Label htmlFor="username" className="text-slate-700 font-medium">Username</Label>
+              <Label htmlFor="username" className="text-slate-700 font-medium">Admin ID</Label>
               <Input
                 id="username"
                 type="text"
                 autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your username"
+                placeholder="Crazyseoteam"
                 required
                 className="mt-1.5 bg-white/70 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
               />
             </div>
+
 
             <div>
               <Label htmlFor="pwd" className="text-slate-700 font-medium">Password</Label>
