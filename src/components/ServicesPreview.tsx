@@ -58,7 +58,7 @@ const ServicesPreview = () => (
             <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-blue-500/40 via-indigo-500/30 to-purple-500/40 opacity-0 blur transition-opacity duration-300 group-hover:opacity-100" />
             <Link
               to={`/services/${item.slug}`}
-              className="relative flex h-full flex-col rounded-2xl border border-slate-200/70 bg-white/70 p-6 backdrop-blur-xl shadow-sm transition-shadow group-hover:shadow-xl group-hover:shadow-blue-500/10"
+              className="relative flex h-full flex-col glass-card border border-slate-200/50 bg-white/60 p-6 backdrop-blur-xl shadow-sm transition-shadow group-hover:shadow-xl group-hover:shadow-blue-500/10"
             >
               <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
                 <item.icon size={20} />

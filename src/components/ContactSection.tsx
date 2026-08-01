@@ -40,7 +40,7 @@ const ContactSection = () => {
   return (
     <section id="contact" className="relative py-24 px-4">
       <div className="container mx-auto max-w-6xl">
-        <div className="relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white/70 p-8 md:p-12 backdrop-blur-xl shadow-xl shadow-blue-500/5">
+        <div className="relative overflow-hidden glass-card border border-slate-200/50 bg-white/60 p-8 md:p-12 backdrop-blur-xl shadow-xl shadow-blue-500/5">
           <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-gradient-to-br from-blue-400/25 to-purple-400/25 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-gradient-to-br from-cyan-400/20 to-indigo-400/20 blur-3xl" />
 

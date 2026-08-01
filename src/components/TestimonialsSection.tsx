@@ -70,7 +70,7 @@ const TestimonialsSection = () => (
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.45, delay: (i % 3) * 0.08 }}
             whileHover={{ y: -6 }}
-            className="relative flex h-full flex-col rounded-2xl border border-slate-200/70 bg-white/70 p-6 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-xl hover:shadow-purple-500/10"
+            className="relative flex h-full flex-col glass-card border border-slate-200/50 bg-white/60 p-6 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-xl hover:shadow-purple-500/10"
           >
             <Quote className="mb-3 text-blue-500/60" size={22} />
             <blockquote className="flex-1 text-sm leading-relaxed text-slate-700">
