@@ -33,26 +33,26 @@ const useCount = (target: number, decimals = 0) => {
 const StatCard = ({ icon: Icon, value, suffix, label, tone, decimals }: typeof stats[number]) => {
   const c = useCount(value, decimals);
   return (
-    <div ref={c.ref} className="relative glass rounded-3xl p-6 overflow-hidden group hover:scale-[1.02] transition-transform">
+    <div ref={c.ref} className="relative glass-card glass-sheen p-6 overflow-hidden group float-y-slow">
       <div className={`absolute -top-16 -right-16 w-40 h-40 rounded-full bg-gradient-to-br ${tone} opacity-20 blur-3xl group-hover:opacity-40 transition`} />
       <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${tone} flex items-center justify-center mb-4 shadow-lg`}>
         <Icon size={20} className="text-white" />
       </div>
-      <p className="text-3xl md:text-4xl font-black text-white tabular-nums">{c.fmt}{suffix}</p>
-      <p className="text-sm text-slate-400 mt-1">{label}</p>
+      <p className="text-3xl md:text-4xl font-black text-slate-900 tabular-nums">{c.fmt}{suffix}</p>
+      <p className="text-sm text-slate-600 mt-1">{label}</p>
     </div>
   );
 };
 
 const StatsBar = () => (
-  <section className="relative py-20 mesh-bg overflow-hidden">
+  <section className="relative py-20 overflow-hidden">
     <div className="absolute inset-0 pointer-events-none">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-blue-500/15 blur-[120px]" />
     </div>
     <div className="container mx-auto px-4 relative">
       <div className="text-center mb-12">
-        <p className="text-xs font-semibold tracking-[0.3em] text-cyan-300 uppercase mb-3">Trusted at Scale</p>
-        <h2 className="text-3xl md:text-4xl font-black text-white">Powering the next wave of <span className="gradient-text">AI search visibility</span></h2>
+        <p className="text-xs font-semibold tracking-[0.3em] text-cyan-600 uppercase mb-3">Trusted at Scale</p>
+        <h2 className="text-3xl md:text-4xl font-black text-slate-900">Powering the next wave of <span className="gradient-text">AI search visibility</span></h2>
       </div>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {stats.map((s) => <StatCard key={s.label} {...s} />)}
