@@ -310,3 +310,69 @@
 .cst-tour-popover .driver-popover-arrow-side-bottom.driver-popover-arrow { border-bottom-color: hsl(230 40% 10%); }
 .cst-tour-popover .driver-popover-arrow-side-left.driver-popover-arrow { border-left-color: hsl(240 42% 12%); }
 .cst-tour-popover .driver-popover-arrow-side-right.driver-popover-arrow { border-right-color: hsl(240 42% 12%); }
+
+/* ══ AI SaaS 2026 — glass, 3D & aurora system ══ */
+@layer utilities {
+  /* Frosted glass card with gradient border, soft shadow, hover glow + lift */
+  .glass-card {
+    position: relative;
+    border-radius: 24px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(26px) saturate(180%);
+    -webkit-backdrop-filter: blur(26px) saturate(180%);
+    box-shadow: var(--glass-shadow);
+    transition: transform .45s cubic-bezier(.22,1,.36,1), box-shadow .45s ease;
+  }
+  .glass-card::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+    background: var(--gradient-border);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    opacity: .55; transition: opacity .4s ease; pointer-events: none;
+  }
+  .glass-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-float), var(--shadow-glow); }
+  .glass-card:hover::before { opacity: 1; }
+
+  /* Animated reflection sweep */
+  .glass-sheen::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: linear-gradient(115deg, transparent 30%, hsla(0,0%,100%,.55) 48%, transparent 62%);
+    transform: translateX(-120%); transition: transform .9s cubic-bezier(.22,1,.36,1);
+  }
+  .glass-card:hover .glass-sheen::after, .glass-sheen:hover::after { transform: translateX(120%); }
+
+  /* 3D depth */
+  .scene-3d { perspective: 1200px; }
+  .tilt-3d { transform-style: preserve-3d; transition: transform .5s cubic-bezier(.22,1,.36,1); }
+  .tilt-3d:hover { transform: rotateX(6deg) rotateY(-6deg) translateZ(18px); }
+  .depth-lift { transition: transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s ease; }
+  .depth-lift:hover { transform: translateY(-6px) scale(1.02); box-shadow: var(--shadow-float); }
+
+  /* Gradient + glow surfaces */
+  .aurora-bg { background-color: hsl(var(--background)); background-image: var(--gradient-aurora); }
+  .gradient-cta-bg { background-image: var(--gradient-cta); background-size: 200% 200%; animation: gradientMorph 8s ease infinite; }
+  .holo-ring { box-shadow: 0 0 0 1px hsl(var(--primary)/.25), 0 0 40px hsl(var(--violet)/.35), 0 0 90px hsl(var(--cyan)/.25); }
+  .glow-pulse { animation: glowPulse 3.2s ease-in-out infinite; }
+  .float-y { animation: floatY 6s ease-in-out infinite; }
+  .float-y-slow { animation: floatY 9s ease-in-out infinite; }
+  .spin-slow { animation: spinSlow 26s linear infinite; }
+}
+
+@keyframes gradientMorph { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes glowPulse {
+  0%,100% { box-shadow: 0 0 22px hsl(var(--primary-glow)/.28); }
+  50% { box-shadow: 0 0 52px hsl(var(--violet)/.5), 0 0 90px hsl(var(--cyan)/.25); }
+}
+@keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+@keyframes spinSlow { to { transform: rotate(360deg); } }
+@keyframes auroraDrift {
+  0%,100% { transform: translate3d(0,0,0) scale(1); }
+  33% { transform: translate3d(6%, -4%, 0) scale(1.12); }
+  66% { transform: translate3d(-5%, 5%, 0) scale(.94); }
+}
+.animate-aurora { animation: auroraDrift 22s ease-in-out infinite; }
+@keyframes rippleOut { to { transform: scale(4); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-aurora, .float-y, .float-y-slow, .spin-slow, .glow-pulse, .gradient-cta-bg { animation: none !important; }
+}
