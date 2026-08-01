@@ -50,23 +50,23 @@ const SEOToolsGrid = () => {
 
   return (
     <>
-      <section className="relative py-20 px-4 overflow-hidden bg-[hsl(230_40%_5%)]">
+      <section className="relative py-20 px-4 overflow-hidden">
         {/* Mesh backdrop */}
         <div className="absolute inset-0 pointer-events-none opacity-40"
           style={{ background: "radial-gradient(600px circle at 20% 10%, hsl(230 90% 50% / 0.25), transparent 60%), radial-gradient(500px circle at 80% 80%, hsl(280 90% 60% / 0.22), transparent 60%)" }} />
 
         <div className="container mx-auto max-w-7xl relative">
           <div className="text-center mb-14">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-xl text-xs font-semibold text-cyan-300 mb-4">
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-cyan-200 bg-cyan-50 text-xs font-semibold text-cyan-700 mb-4">
               <Sparkles size={14} /> Free SEO Toolkit
             </span>
-            <h2 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
               15 Enterprise SEO Tools —{" "}
               <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
                 Free Forever
               </span>
             </h2>
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-600 max-w-2xl mx-auto">
               Rank on Google, ChatGPT, Gemini, Claude & Perplexity. Instant results — no signup required.
             </p>
           </div>
@@ -75,7 +75,7 @@ const SEOToolsGrid = () => {
             {TOOLS.map((tool) => {
               const Icon = tool.icon;
               const inner = (
-                <div className="group relative h-full rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-6 transition-all hover:border-white/20 hover:bg-white/[0.06] hover:-translate-y-1 hover:shadow-[0_20px_60px_-15px_hsl(230_90%_50%/0.5)]">
+                <div className="group relative h-full glass-card glass-sheen p-6">
                   <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
                     style={{ background: "linear-gradient(135deg, hsl(230 90% 50% / 0.08), hsl(280 90% 60% / 0.08))" }} />
                   <div className="relative">
@@ -89,9 +89,9 @@ const SEOToolsGrid = () => {
                         </span>
                       )}
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">{tool.title}</h3>
-                    <p className="text-sm text-slate-400 mb-5 leading-relaxed">{tool.desc}</p>
-                    <div className="flex items-center gap-2 text-sm font-semibold text-cyan-300 group-hover:text-cyan-200 transition-colors">
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">{tool.title}</h3>
+                    <p className="text-sm text-slate-600 mb-5 leading-relaxed">{tool.desc}</p>
+                    <div className="flex items-center gap-2 text-sm font-semibold text-blue-600 group-hover:text-violet-600 transition-colors">
                       {tool.action.kind === "request" ? "Request Access" : "Open Tool"}
                       <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                     </div>

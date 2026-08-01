@@ -88,7 +88,7 @@ const Counter = ({ target, suffix, label }: { target: number; suffix: string; la
   }, [target]);
 
   return (
-    <div ref={ref} className="p-6 rounded-2xl bg-card border border-border text-center">
+    <div ref={ref} className="p-6 glass-card text-center">
       <p className="text-4xl md:text-5xl font-black gradient-text">
         {formatNumber(value)}
         {suffix}
@@ -156,7 +156,7 @@ const AboutSection = () => (
     {/* Mission & Vision */}
     <section className="py-16 bg-muted/30">
       <div className="container mx-auto px-4 max-w-6xl grid md:grid-cols-2 gap-6">
-        <div className="p-8 rounded-2xl bg-card border border-border">
+        <div className="p-8 glass-card">
           <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
             <Target className="w-6 h-6 text-primary" />
           </div>
@@ -177,7 +177,7 @@ const AboutSection = () => (
           </div>
         </div>
 
-        <div className="p-8 rounded-2xl bg-card border border-border">
+        <div className="p-8 glass-card">
           <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
             <Eye className="w-6 h-6 text-accent" />
           </div>
@@ -208,7 +208,7 @@ const AboutSection = () => (
           {whatWeDo.map(({ icon: Icon, title, desc }) => (
             <div
               key={title}
-              className="p-6 rounded-2xl bg-card border border-border hover:border-primary/40 transition-colors"
+              className="p-6 glass-card glass-sheen"
             >
               <div className="w-11 h-11 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                 <Icon className="w-5 h-5 text-primary" />

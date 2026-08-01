@@ -6,23 +6,41 @@
 
 @layer base {
   :root {
-    --background: 210 40% 99%;
-    --foreground: 222 47% 11%;
+    /* Base surfaces — premium light AI SaaS (never full black) */
+    --background: 220 60% 99%;
+    --foreground: 224 45% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 224 45% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 224 45% 12%;
 
-    --primary: 226 83% 53%;
+    /* Electric Blue #2563EB */
+    --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
+    /* Neon Blue #3B82F6 */
+    --primary-glow: 217 91% 60%;
+    /* Cyan #06B6D4 */
+    --cyan: 189 94% 43%;
+    /* Violet #7C3AED */
+    --violet: 262 83% 58%;
+    /* Purple #9333EA */
+    --purple: 272 82% 56%;
+    /* Indigo #6366F1 */
+    --indigo: 239 84% 67%;
+    /* Emerald #10B981 */
+    --emerald: 160 84% 39%;
+    /* Sky #38BDF8 */
+    --sky: 199 93% 60%;
+    /* Soft Gold #FBBF24 */
+    --gold: 43 96% 56%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 217 60% 97%;
+    --secondary-foreground: 224 45% 12%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 20% 40%;
+    --muted: 220 40% 96%;
+    --muted-foreground: 218 18% 42%;
 
     --accent: 262 83% 58%;
     --accent-foreground: 0 0% 100%;
@@ -30,34 +48,39 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 226 83% 53%;
+    --border: 218 40% 92%;
+    --input: 218 40% 92%;
+    --ring: 221 83% 53%;
 
-    --radius: 1.25rem;
+    --radius: 1.5rem;
 
-    --gradient-primary: linear-gradient(135deg, hsl(226 83% 55%), hsl(262 83% 60%));
-    --gradient-hero-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 40% 97%));
-    --gradient-cta: linear-gradient(135deg, hsl(217 91% 60%), hsl(280 83% 62%));
-    --gradient-mesh: radial-gradient(at 20% 20%, hsl(217 91% 60% / 0.18) 0px, transparent 55%),
-                     radial-gradient(at 80% 10%, hsl(280 83% 62% / 0.18) 0px, transparent 55%),
-                     radial-gradient(at 60% 90%, hsl(190 95% 55% / 0.16) 0px, transparent 55%),
-                     radial-gradient(at 15% 80%, hsl(322 84% 62% / 0.14) 0px, transparent 55%);
-    --glass-bg: hsla(0, 0%, 100%, 0.65);
-    --glass-border: hsla(226, 83%, 55%, 0.12);
-    --glass-shadow: 0 20px 60px -20px hsl(226 83% 40% / 0.18), 0 0 0 1px hsl(226 83% 60% / 0.06) inset;
-    --shadow-glow: 0 0 40px hsl(226 83% 60% / 0.35);
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--violet)));
+    --gradient-hero-card: linear-gradient(145deg, hsla(0,0%,100%,0.92), hsla(217,90%,97%,0.75));
+    --gradient-cta: linear-gradient(120deg, hsl(var(--primary)) 0%, hsl(var(--indigo)) 45%, hsl(var(--purple)) 100%);
+    --gradient-aurora: radial-gradient(at 12% 18%, hsl(var(--primary-glow) / 0.22) 0px, transparent 55%),
+                       radial-gradient(at 82% 8%, hsl(var(--purple) / 0.20) 0px, transparent 55%),
+                       radial-gradient(at 68% 88%, hsl(var(--cyan) / 0.18) 0px, transparent 55%),
+                       radial-gradient(at 18% 82%, hsl(var(--violet) / 0.16) 0px, transparent 55%),
+                       radial-gradient(at 50% 45%, hsl(var(--sky) / 0.12) 0px, transparent 60%);
+    --gradient-mesh: var(--gradient-aurora);
+    --gradient-border: linear-gradient(135deg, hsl(var(--primary) / 0.55), hsl(var(--purple) / 0.45), hsl(var(--cyan) / 0.5));
 
+    --glass-bg: hsla(0, 0%, 100%, 0.62);
+    --glass-border: hsla(221, 83%, 60%, 0.16);
+    --glass-shadow: 0 24px 70px -24px hsl(221 83% 40% / 0.24), 0 1px 0 0 hsla(0,0%,100%,0.7) inset;
+    --shadow-glow: 0 0 44px hsl(var(--primary-glow) / 0.4);
+    --shadow-float: 0 30px 70px -30px hsl(224 60% 35% / 0.35);
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 220 60% 99%;
+    --sidebar-foreground: 224 30% 26%;
+    --sidebar-primary: 221 83% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 60% 96%;
+    --sidebar-accent-foreground: 224 45% 12%;
+    --sidebar-border: 218 40% 92%;
+    --sidebar-ring: 221 83% 53%;
   }
+
 
   .dark {
     --background: 220 20% 6%;
@@ -287,3 +310,69 @@
 .cst-tour-popover .driver-popover-arrow-side-bottom.driver-popover-arrow { border-bottom-color: hsl(230 40% 10%); }
 .cst-tour-popover .driver-popover-arrow-side-left.driver-popover-arrow { border-left-color: hsl(240 42% 12%); }
 .cst-tour-popover .driver-popover-arrow-side-right.driver-popover-arrow { border-right-color: hsl(240 42% 12%); }
+
+/* ══ AI SaaS 2026 — glass, 3D & aurora system ══ */
+@layer utilities {
+  /* Frosted glass card with gradient border, soft shadow, hover glow + lift */
+  .glass-card {
+    position: relative;
+    border-radius: 24px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(26px) saturate(180%);
+    -webkit-backdrop-filter: blur(26px) saturate(180%);
+    box-shadow: var(--glass-shadow);
+    transition: transform .45s cubic-bezier(.22,1,.36,1), box-shadow .45s ease;
+  }
+  .glass-card::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+    background: var(--gradient-border);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    opacity: .55; transition: opacity .4s ease; pointer-events: none;
+  }
+  .glass-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-float), var(--shadow-glow); }
+  .glass-card:hover::before { opacity: 1; }
+
+  /* Animated reflection sweep */
+  .glass-sheen::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: linear-gradient(115deg, transparent 30%, hsla(0,0%,100%,.55) 48%, transparent 62%);
+    transform: translateX(-120%); transition: transform .9s cubic-bezier(.22,1,.36,1);
+  }
+  .glass-card:hover .glass-sheen::after, .glass-sheen:hover::after { transform: translateX(120%); }
+
+  /* 3D depth */
+  .scene-3d { perspective: 1200px; }
+  .tilt-3d { transform-style: preserve-3d; transition: transform .5s cubic-bezier(.22,1,.36,1); }
+  .tilt-3d:hover { transform: rotateX(6deg) rotateY(-6deg) translateZ(18px); }
+  .depth-lift { transition: transform .4s cubic-bezier(.22,1,.36,1), box-shadow .4s ease; }
+  .depth-lift:hover { transform: translateY(-6px) scale(1.02); box-shadow: var(--shadow-float); }
+
+  /* Gradient + glow surfaces */
+  .aurora-bg { background-color: hsl(var(--background)); background-image: var(--gradient-aurora); }
+  .gradient-cta-bg { background-image: var(--gradient-cta); background-size: 200% 200%; animation: gradientMorph 8s ease infinite; }
+  .holo-ring { box-shadow: 0 0 0 1px hsl(var(--primary)/.25), 0 0 40px hsl(var(--violet)/.35), 0 0 90px hsl(var(--cyan)/.25); }
+  .glow-pulse { animation: glowPulse 3.2s ease-in-out infinite; }
+  .float-y { animation: floatY 6s ease-in-out infinite; }
+  .float-y-slow { animation: floatY 9s ease-in-out infinite; }
+  .spin-slow { animation: spinSlow 26s linear infinite; }
+}
+
+@keyframes gradientMorph { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes glowPulse {
+  0%,100% { box-shadow: 0 0 22px hsl(var(--primary-glow)/.28); }
+  50% { box-shadow: 0 0 52px hsl(var(--violet)/.5), 0 0 90px hsl(var(--cyan)/.25); }
+}
+@keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+@keyframes spinSlow { to { transform: rotate(360deg); } }
+@keyframes auroraDrift {
+  0%,100% { transform: translate3d(0,0,0) scale(1); }
+  33% { transform: translate3d(6%, -4%, 0) scale(1.12); }
+  66% { transform: translate3d(-5%, 5%, 0) scale(.94); }
+}
+.animate-aurora { animation: auroraDrift 22s ease-in-out infinite; }
+@keyframes rippleOut { to { transform: scale(4); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-aurora, .float-y, .float-y-slow, .spin-slow, .glow-pulse, .gradient-cta-bg { animation: none !important; }
+}
