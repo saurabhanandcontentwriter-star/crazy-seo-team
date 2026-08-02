@@ -225,7 +225,7 @@ const BlogPost = () => {
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-foreground leading-tight mb-6">{post.title}</h1>
 
           <div className="flex items-center gap-3 mb-6">
-            <img src={post.authorImg} alt={post.author} className="w-12 h-12 rounded-full object-cover" />
+            
             <div>
               <p className="font-semibold text-foreground">{post.author}</p>
               <p className="text-sm text-muted-foreground">{post.role || post.author_role}</p>
