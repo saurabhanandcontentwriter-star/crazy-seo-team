@@ -273,7 +273,7 @@ const BlogPost = () => {
           {(post.author_bio || post.author_linkedin) && (
             <div className="mt-12 p-6 rounded-xl border border-border bg-card">
               <div className="flex items-start gap-4">
-                <img src={post.authorImg} alt={post.author} className="w-16 h-16 rounded-full object-cover shrink-0" />
+                
                 <div className="flex-1">
                   <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">About the Author</p>
                   <p className="font-bold text-foreground text-lg">{post.author}</p>
