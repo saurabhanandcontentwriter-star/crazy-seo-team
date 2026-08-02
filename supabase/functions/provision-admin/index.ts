@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   const secret = req.headers.get("x-provision-secret");
-  if (!secret || (secret !== Deno.env.get("PROVISION_ADMIN_SECRET") && secret !== Deno.env.get("PROVISION_KEY"))) {
+  if (!secret || secret !== Deno.env.get("PROVISION_ADMIN_SECRET")) {
     return new Response(JSON.stringify({ error: "unauthorized" }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
