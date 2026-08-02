@@ -61,7 +61,7 @@ const HeroSection = () => {
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <Sparkles size={12} className="text-blue-600" />
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
-                  Next-Gen AI SEO Platform · v2026
+                  Next-Gen AI SEO Platform · 2026
                 </span>
               </div>
 

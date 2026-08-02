@@ -66,6 +66,16 @@ const AIChatbot = () => {
     if (open) setTimeout(() => inputRef.current?.focus(), 200);
   }, [open]);
 
+  // Spoken female welcome, once per browser session
+  const greetedRef = useRef(false);
+  useEffect(() => {
+    if (!open || greetedRef.current) return;
+    greetedRef.current = true;
+    if (sessionStorage.getItem("cst-chat-greeted")) return;
+    sessionStorage.setItem("cst-chat-greeted", "1");
+    playTTS("Hi, I'm Nova from Crazy SEO Team. How can I help you rank higher on Google and AI search today?", -2);
+  }, [open]);
+
   const showWelcome = messages.length === 1 && messages[0].role === "assistant" && messages[0].content === WELCOME.content;
 
   const send = useCallback(async (textOverride?: string) => {
