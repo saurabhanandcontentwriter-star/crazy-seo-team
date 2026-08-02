@@ -225,7 +225,7 @@ const BlogPost = () => {
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-foreground leading-tight mb-6">{post.title}</h1>
 
           <div className="flex items-center gap-3 mb-6">
-            <img src={post.authorImg} alt={post.author} className="w-12 h-12 rounded-full object-cover" />
+            
             <div>
               <p className="font-semibold text-foreground">{post.author}</p>
               <p className="text-sm text-muted-foreground">{post.role || post.author_role}</p>
@@ -273,7 +273,7 @@ const BlogPost = () => {
           {(post.author_bio || post.author_linkedin) && (
             <div className="mt-12 p-6 rounded-xl border border-border bg-card">
               <div className="flex items-start gap-4">
-                <img src={post.authorImg} alt={post.author} className="w-16 h-16 rounded-full object-cover shrink-0" />
+                
                 <div className="flex-1">
                   <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">About the Author</p>
                   <p className="font-bold text-foreground text-lg">{post.author}</p>
