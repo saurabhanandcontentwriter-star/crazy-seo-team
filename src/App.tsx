@@ -16,6 +16,11 @@ import PaymentPolicy from "./pages/PaymentPolicy.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import AdminLogin from "./pages/admin/Login.tsx";
 import AdminDashboard from "./pages/admin/Dashboard.tsx";
+import AdminLayout from "./components/admin/AdminLayout.tsx";
+import AdminHome from "./pages/admin/Home.tsx";
+import AdminNews from "./pages/admin/NewsAdmin.tsx";
+import AdminUsers from "./pages/admin/Users.tsx";
+import AdminSubscribers from "./pages/admin/Subscribers.tsx";
 import AdminAnalytics from "./pages/admin/Analytics.tsx";
 import AdminReports from "./pages/admin/Reports.tsx";
 import AdminGuard from "./components/admin/AdminGuard.tsx";
@@ -62,9 +67,15 @@ const App = () => (
           <Route path="/terms-and-conditions" element={<TermsConditions />} />
           <Route path="/payment-policy" element={<PaymentPolicy />} />
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
-          <Route path="/admin/analytics" element={<AdminGuard><AdminAnalytics /></AdminGuard>} />
-          <Route path="/admin/reports" element={<AdminGuard><AdminReports /></AdminGuard>} />
+          <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+            <Route index element={<AdminHome />} />
+            <Route path="blog" element={<AdminDashboard />} />
+            <Route path="news" element={<AdminNews />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="subscribers" element={<AdminSubscribers />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="reports" element={<AdminReports />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
         <AIChatbot />

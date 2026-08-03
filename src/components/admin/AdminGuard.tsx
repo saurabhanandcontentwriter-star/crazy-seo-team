@@ -7,7 +7,7 @@ type State = "checking" | "allowed" | "denied";
 
 /**
  * Route guard for admin pages.
- * Requires: valid session + admin role in user_roles + aal2 (2FA verified).
+ * Requires: valid session + admin role in user_roles.
  */
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<State>("checking");
@@ -33,13 +33,6 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
 
       if (!role) {
         await supabase.auth.signOut();
-        if (!cancelled) setState("denied");
-        return;
-      }
-
-      // Require aal2 (MFA-verified session)
-      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-      if (aal?.currentLevel !== "aal2") {
         if (!cancelled) setState("denied");
         return;
       }
