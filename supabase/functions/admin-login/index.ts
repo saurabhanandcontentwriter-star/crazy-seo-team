@@ -57,6 +57,7 @@ Deno.serve(async (req) => {
   });
   const link = await linkRes.json();
   if (!linkRes.ok || !link.hashed_token) {
+    console.log("generate_link fail", linkRes.status, JSON.stringify(link));
     return json({ error: "Login unavailable" }, 500);
   }
 
@@ -67,6 +68,7 @@ Deno.serve(async (req) => {
   });
   const session = await verifyRes.json();
   if (!verifyRes.ok || !session.access_token) {
+    console.log("verify fail", verifyRes.status, JSON.stringify(session));
     return json({ error: "Login unavailable" }, 500);
   }
 
