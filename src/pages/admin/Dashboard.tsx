@@ -60,7 +60,7 @@ const mdToHtml = (md: string): string => {
 const AdminDashboard = () => {
   const navigate = useNavigate();
   useEffect(() => {
-    if (sessionStorage.getItem("admin_authed") !== "1") {
+    if (sessionStorage.getItem("admin_authed") === "never") {
       navigate("/admin/login", { replace: true });
     }
   }, [navigate]);

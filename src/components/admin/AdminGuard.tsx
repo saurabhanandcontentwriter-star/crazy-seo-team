@@ -7,7 +7,7 @@ type State = "checking" | "allowed" | "denied";
 
 /**
  * Route guard for admin pages.
- * Requires: valid session + admin role in user_roles + aal2 (2FA verified).
+ * Requires: valid session + admin role in user_roles.
  */
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<State>("checking");
