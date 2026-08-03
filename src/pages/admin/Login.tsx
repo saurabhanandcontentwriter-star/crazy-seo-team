@@ -32,46 +32,37 @@ export default function AdminLogin() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const raw = username.trim();
-    const cleanEmail = raw.includes("@")
-      ? raw.toLowerCase()
-      : raw.toLowerCase() === "crazyseoteam"
-        ? "crazyseoteam@gmail.com"
-        : raw.toLowerCase() === "sauravanand499"
-          ? "sauravanand499@gmail.com"
-          : raw.toLowerCase();
+    const id = username.trim();
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: cleanEmail,
-      password,
+    const { data, error } = await supabase.functions.invoke("admin-login", {
+      body: { username: id, password },
     });
 
-    if (error || !data.user) {
-      await logAttempt({ email: cleanEmail, success: false, failure_reason: error?.message ?? "unknown" });
-      toast.error(error?.message ?? "Invalid username or password");
+    const tokens = data as { access_token?: string; refresh_token?: string; error?: string } | null;
+
+    if (error || !tokens?.access_token || !tokens?.refresh_token) {
+      await logAttempt({ email: id, success: false, failure_reason: tokens?.error ?? "invalid_credentials" });
+      toast.error("Invalid Admin ID or password");
       setBusy(false);
       return;
     }
 
-    const { data: roleRow } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", data.user.id)
-      .eq("role", "admin")
-      .maybeSingle();
+    const { error: sessErr } = await supabase.auth.setSession({
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+    });
 
-    if (!roleRow) {
-      await supabase.auth.signOut();
-      await logAttempt({ email: cleanEmail, success: false, failure_reason: "not_admin" });
-      toast.error("Access denied — this account is not an admin");
+    if (sessErr) {
+      toast.error("Could not start session");
       setBusy(false);
       return;
     }
 
-    await logAttempt({ email: cleanEmail, success: true });
+    await logAttempt({ email: id, success: true });
     toast.success("Welcome back, Admin");
     navigate("/admin", { replace: true });
   };
+
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center px-4 bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
