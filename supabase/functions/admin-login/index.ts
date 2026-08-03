@@ -46,10 +46,11 @@ Deno.serve(async (req) => {
 
   const email = Deno.env.get("ADMIN_LOGIN_EMAIL")!;
 
+  console.log("svc key len", SERVICE_KEY?.length, SERVICE_KEY?.slice(0,3), "anon len", ANON_KEY?.length);
   const linkRes = await fetch(`${SUPABASE_URL}/auth/v1/admin/generate_link`, {
     method: "POST",
     headers: {
-      apikey: ANON_KEY,
+      apikey: SERVICE_KEY,
       Authorization: `Bearer ${SERVICE_KEY}`,
       "Content-Type": "application/json",
     },
