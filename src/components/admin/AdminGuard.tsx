@@ -37,13 +37,6 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
         return;
       }
 
-      // Require aal2 (MFA-verified session)
-      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-      if (aal?.currentLevel !== "aal2") {
-        if (!cancelled) setState("denied");
-        return;
-      }
-
       if (!cancelled) setState("allowed");
     };
 
