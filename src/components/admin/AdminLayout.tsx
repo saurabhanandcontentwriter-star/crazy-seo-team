@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FileText, Newspaper, Users, Mail, BarChart3, FileBarChart,
-  LogOut, Menu, X, Search, ExternalLink, Bell, Sparkles,
+  LogOut, Menu, X, Search, ExternalLink, Bell, Sparkles, Radio,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
 
 const NAV = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
+  { to: "/admin/live", label: "Live Traffic", icon: Radio },
   { to: "/admin/blog", label: "Blog CMS", icon: FileText },
   { to: "/admin/news", label: "Live News", icon: Newspaper },
   { to: "/admin/users", label: "Users & Roles", icon: Users },
@@ -19,6 +20,7 @@ const NAV = [
   { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/admin/reports", label: "Reports", icon: FileBarChart },
 ];
+
 
 export default function AdminLayout() {
   const navigate = useNavigate();
