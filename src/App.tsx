@@ -84,15 +84,26 @@ const App = () => (
           <Route path="/terms-and-conditions" element={<TermsConditions />} />
           <Route path="/payment-policy" element={<PaymentPolicy />} />
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
-            <Route index element={<AdminHome />} />
-            <Route path="blog" element={<AdminDashboard />} />
-            <Route path="news" element={<AdminNews />} />
-            <Route path="users" element={<AdminUsers />} />
-            <Route path="subscribers" element={<AdminSubscribers />} />
-            <Route path="analytics" element={<AdminAnalytics />} />
-            <Route path="reports" element={<AdminReports />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminGuard>
+                <Suspense fallback={<AdminFallback />}>
+                  <AdminLayout />
+                </Suspense>
+              </AdminGuard>
+            }
+          >
+            <Route index element={<Suspense fallback={<AdminSkeleton />}><AdminHome /></Suspense>} />
+            <Route path="live" element={<Suspense fallback={<AdminSkeleton />}><AdminLive /></Suspense>} />
+            <Route path="blog" element={<Suspense fallback={<AdminSkeleton />}><AdminDashboard /></Suspense>} />
+            <Route path="news" element={<Suspense fallback={<AdminSkeleton />}><AdminNews /></Suspense>} />
+            <Route path="users" element={<Suspense fallback={<AdminSkeleton />}><AdminUsers /></Suspense>} />
+            <Route path="subscribers" element={<Suspense fallback={<AdminSkeleton />}><AdminSubscribers /></Suspense>} />
+            <Route path="analytics" element={<Suspense fallback={<AdminSkeleton />}><AdminAnalytics /></Suspense>} />
+            <Route path="reports" element={<Suspense fallback={<AdminSkeleton />}><AdminReports /></Suspense>} />
           </Route>
+
           <Route path="*" element={<NotFound />} />
         </Routes>
         <AIChatbot />
