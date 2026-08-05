@@ -66,6 +66,24 @@ const AIChatbot = () => {
     if (open) setTimeout(() => inputRef.current?.focus(), 200);
   }, [open]);
 
+  // External "talk to AI assistant" trigger (welcome popup, CTAs)
+  useEffect(() => {
+    const on = () => setOpen(true);
+    window.addEventListener("cst:open-chat", on);
+    return () => window.removeEventListener("cst:open-chat", on);
+  }, []);
+
+  // Auto welcome teaser after 5 seconds (once per session)
+  const [teaser, setTeaser] = useState(false);
+  useEffect(() => {
+    if (sessionStorage.getItem("cst-chat-teaser")) return;
+    const t = setTimeout(() => setTeaser(true), 5000);
+    return () => clearTimeout(t);
+  }, []);
+  useEffect(() => { if (open) setTeaser(false); }, [open]);
+  const dismissTeaser = () => { sessionStorage.setItem("cst-chat-teaser", "1"); setTeaser(false); };
+
+
   // Spoken female welcome, once per browser session
   const greetedRef = useRef(false);
   useEffect(() => {
