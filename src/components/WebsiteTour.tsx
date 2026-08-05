@@ -52,12 +52,17 @@ const WebsiteTour = () => {
   // Auto-start on first visit (resumes saved progress)
   useEffect(() => {
     if (localStorage.getItem(SEEN_KEY)) return;
-    const t = setTimeout(() => {
-      setI(Number(localStorage.getItem(PROGRESS_KEY) ?? 0) || 0);
-      setActive(true);
-    }, 1600);
-    return () => clearTimeout(t);
+    // Wait until the welcome popup has been dismissed before auto-starting.
+    const tick = setInterval(() => {
+      if (localStorage.getItem("cst-welcome-v1-seen")) {
+        clearInterval(tick);
+        setI(Number(localStorage.getItem(PROGRESS_KEY) ?? 0) || 0);
+        setActive(true);
+      }
+    }, 800);
+    return () => clearInterval(tick);
   }, []);
+
 
   // Manual start / restart
   useEffect(() => {
