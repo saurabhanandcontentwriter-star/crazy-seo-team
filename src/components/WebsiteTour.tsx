@@ -130,20 +130,18 @@ const WebsiteTour = () => {
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[100]"
         >
-          {/* Dark overlay with animated spotlight cut-out */}
-          <motion.div
-            className="absolute inset-0 bg-foreground/70 backdrop-blur-[2px]"
-            animate={{
-              WebkitMaskImage: rect
+          {/* Dark overlay with spotlight cut-out */}
+          <div
+            className="absolute inset-0 bg-foreground/70 backdrop-blur-[2px] transition-all duration-300"
+            style={(() => {
+              const mask = rect
                 ? `radial-gradient(circle at ${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px, transparent ${Math.max(rect.width, rect.height) * 0.75}px, black ${Math.max(rect.width, rect.height) * 0.75 + 40}px)`
-                : "none",
-              maskImage: rect
-                ? `radial-gradient(circle at ${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px, transparent ${Math.max(rect.width, rect.height) * 0.75}px, black ${Math.max(rect.width, rect.height) * 0.75 + 40}px)`
-                : "none",
-            }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
+                : undefined;
+              return { WebkitMaskImage: mask, maskImage: mask } as React.CSSProperties;
+            })()}
             onClick={() => finish(false)}
           />
+
 
           {/* Highlight ring */}
           {rect && (
