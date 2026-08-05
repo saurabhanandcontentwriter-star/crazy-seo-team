@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.jpeg";
 import NewsletterSignup from "./NewsletterSignup";
+import { startWebsiteTour } from "./WebsiteTour";
+
 
 
 const Footer = () => (
