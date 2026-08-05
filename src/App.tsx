@@ -110,6 +110,9 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
         <AIChatbot />
+        <WelcomeExperience />
+        <WebsiteTour />
+
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
