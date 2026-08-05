@@ -52,6 +52,12 @@ const Footer = () => (
             <li><Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link></li>
             <li><Link to="/terms-and-conditions" className="text-muted-foreground hover:text-primary transition-colors">Terms & Conditions</Link></li>
             <li><Link to="/faq" className="text-muted-foreground hover:text-primary transition-colors">FAQ</Link></li>
+            <li>
+              <button onClick={startWebsiteTour} className="text-muted-foreground hover:text-primary transition-colors">
+                Restart website tour
+              </button>
+            </li>
+
           </ul>
         </div>
       </div>
