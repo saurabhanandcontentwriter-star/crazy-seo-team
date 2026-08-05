@@ -13,7 +13,6 @@ import CTASection from "@/components/CTASection";
 import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
-import WebsiteTour from "@/components/WebsiteTour";
 import CursorGlow from "@/components/CursorGlow";
 import ServicesPreview from "@/components/ServicesPreview";
 import TestimonialsSection from "@/components/TestimonialsSection";
@@ -50,7 +49,6 @@ const Index = () => {
       <ContactSection />
       <Footer />
       <CookieConsent />
-      <WebsiteTour />
     </div>
   );
 };

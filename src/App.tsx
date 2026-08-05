@@ -37,7 +37,10 @@ import AITools from "./pages/AITools.tsx";
 import News from "./pages/News.tsx";
 import AIChatbot from "./components/AIChatbot.tsx";
 import AuroraBackground from "./components/AuroraBackground.tsx";
+import WebsiteTour from "./components/WebsiteTour.tsx";
+import WelcomeExperience from "./components/WelcomeExperience.tsx";
 import { useVisitorTracking } from "./hooks/useVisitorTracking.ts";
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -107,6 +110,9 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
         <AIChatbot />
+        <WelcomeExperience />
+        <WebsiteTour />
+
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
