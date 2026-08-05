@@ -236,6 +236,27 @@ const AIChatbot = () => {
         </button>
       )}
 
+      {!open && teaser && (
+        <div className="fixed bottom-24 right-6 z-40 w-[min(300px,80vw)] rounded-3xl border border-white/60 bg-white/90 backdrop-blur-2xl p-4 shadow-2xl animate-in fade-in slide-in-from-bottom-3 duration-300">
+          <button
+            onClick={dismissTeaser}
+            aria-label="Dismiss"
+            className="absolute right-3 top-3 text-slate-400 hover:text-slate-700"
+          >
+            <X size={14} />
+          </button>
+          <p className="text-sm font-semibold text-slate-900">👋 Welcome to Crazy SEO Team</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-600">
+            I'm your AI SEO Assistant — SEO, GEO, AEO, LLM optimization, Google Ads, AI development, website audits and
+            content writing. Ask me anything.
+          </p>
+          <Button size="sm" className="mt-3 w-full rounded-2xl" onClick={() => { dismissTeaser(); setOpen(true); }}>
+            Start chatting
+          </Button>
+        </div>
+      )}
+
+
       {open && (
         <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 z-50 sm:w-[min(420px,92vw)] sm:h-[min(680px,88vh)] flex flex-col rounded-none sm:rounded-3xl overflow-hidden shadow-[0_25px_80px_-15px_rgba(99,102,241,0.35)] border border-white/60 bg-white/85 backdrop-blur-2xl animate-in fade-in slide-in-from-bottom-4 duration-300">
           {/* Ambient blobs */}
