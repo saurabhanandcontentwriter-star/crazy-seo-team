@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
@@ -7,41 +7,76 @@ type State = "checking" | "allowed" | "denied";
 
 /**
  * Route guard for admin pages.
- * Requires: valid session + admin role in user_roles.
+ * - Restores the persisted session on refresh / new tab / browser restart.
+ * - Never signs the user out on a transient role-check failure (no redirect loops).
+ * - Auth state changes are handled outside the Supabase callback (avoids deadlocks
+ *   that used to freeze the guard on "checking" forever).
  */
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<State>("checking");
+  const location = useLocation();
+  const verified = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
 
-    const check = async () => {
+    const verify = async () => {
       const { data: sessionData } = await supabase.auth.getSession();
       const user = sessionData.session?.user;
+
       if (!user) {
-        if (!cancelled) setState("denied");
+        if (!cancelled) {
+          verified.current = false;
+          setState("denied");
+        }
         return;
       }
 
-      // Require admin role
-      const { data: role } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id)
-        .eq("role", "admin")
-        .maybeSingle();
-
-      if (!role) {
-        await supabase.auth.signOut();
-        if (!cancelled) setState("denied");
+      // Already verified in this mount — a token refresh must not re-gate the UI.
+      if (verified.current) {
+        if (!cancelled) setState("allowed");
         return;
       }
 
-      if (!cancelled) setState("allowed");
+      const { data: isAdmin, error } = await supabase.rpc("has_role", {
+        _user_id: user.id,
+        _role: "admin",
+      });
+
+      if (cancelled) return;
+
+      if (error) {
+        // Network/transient failure: keep an existing session usable rather than
+        // bouncing the user to the login page.
+        setState(verified.current ? "allowed" : "denied");
+        return;
+      }
+
+      if (!isAdmin) {
+        setState("denied");
+        return;
+      }
+
+      verified.current = true;
+      setState("allowed");
     };
 
-    check();
-    const { data: sub } = supabase.auth.onAuthStateChange(() => check());
+    verify();
+
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      // Defer: never call supabase APIs synchronously inside this callback.
+      setTimeout(() => {
+        if (cancelled) return;
+        if (event === "SIGNED_OUT" || !session) {
+          verified.current = false;
+          setState("denied");
+          return;
+        }
+        if (event === "TOKEN_REFRESHED" && verified.current) return;
+        verify();
+      }, 0);
+    });
+
     return () => {
       cancelled = true;
       sub.subscription.unsubscribe();
@@ -55,6 +90,8 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
       </div>
     );
   }
-  if (state === "denied") return <Navigate to="/admin/login" replace />;
+  if (state === "denied") {
+    return <Navigate to="/admin/login" replace state={{ from: location.pathname }} />;
+  }
   return <>{children}</>;
 }

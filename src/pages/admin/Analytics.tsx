@@ -72,9 +72,8 @@ const AdminAnalytics = () => {
   const [core, setCore] = useState<any>(null);
   const [tick, setTick] = useState(0);
 
-  useEffect(() => {
-    if (!authLoading && (!user || !isAdmin)) navigate("/admin/login");
-  }, [user, isAdmin, authLoading, navigate]);
+  // Access control is handled by AdminGuard on the /admin route.
+
 
   // Auto-refresh every 15s for live feel
   useEffect(() => {

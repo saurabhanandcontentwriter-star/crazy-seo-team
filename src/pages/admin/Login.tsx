@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,6 +29,18 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  // If a valid session already exists, go straight to the dashboard.
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!cancelled && data.session) navigate("/admin", { replace: true });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

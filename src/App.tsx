@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -60,6 +60,20 @@ const TrackingLayer = () => {
   return null;
 };
 
+// Public-site-only overlays (chatbot, welcome popup, tour) — never on /admin.
+const PublicOverlays = () => {
+  const { pathname } = useLocation();
+  if (pathname.startsWith("/admin")) return null;
+  return (
+    <>
+      <AIChatbot />
+      <WelcomeExperience />
+      <WebsiteTour />
+    </>
+  );
+};
+
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -109,9 +123,8 @@ const App = () => (
 
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <AIChatbot />
-        <WelcomeExperience />
-        <WebsiteTour />
+        <PublicOverlays />
+
 
       </BrowserRouter>
     </TooltipProvider>
