@@ -19,6 +19,7 @@ const NAV = [
   { to: "/admin/subscribers", label: "Newsletter", icon: Mail },
   { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/admin/reports", label: "Reports", icon: FileBarChart },
+  { to: "/admin/operations", label: "AI Operations", icon: Activity },
 ];
 
 
