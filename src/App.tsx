@@ -60,6 +60,20 @@ const TrackingLayer = () => {
   return null;
 };
 
+// Public-site-only overlays (chatbot, welcome popup, tour) — never on /admin.
+const PublicOverlays = () => {
+  const { pathname } = useLocation();
+  if (pathname.startsWith("/admin")) return null;
+  return (
+    <>
+      <AIChatbot />
+      <WelcomeExperience />
+      <WebsiteTour />
+    </>
+  );
+};
+
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
