@@ -44,10 +44,18 @@ export default function AdminLayout() {
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    sessionStorage.removeItem("admin_authed");
+    await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+    try {
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith("sb-") || k.startsWith("admin"))
+        .forEach((k) => localStorage.removeItem(k));
+      sessionStorage.clear();
+    } catch {
+      /* ignore */
+    }
     navigate("/admin/login", { replace: true });
   };
+
 
   const NavItems = () => (
     <nav className="space-y-1">
