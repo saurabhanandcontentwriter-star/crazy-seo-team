@@ -59,11 +59,8 @@ const mdToHtml = (md: string): string => {
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  useEffect(() => {
-    if (sessionStorage.getItem("admin_authed") === "never") {
-      navigate("/admin/login", { replace: true });
-    }
-  }, [navigate]);
+  // Access control is handled by AdminGuard on the /admin route.
+
   const [posts, setPosts] = useState<(BlogPost & { id: string })[]>([]);
   const [loadingList, setLoadingList] = useState(true);
   const [draft, setDraft] = useState<DraftPost | null>(null);
