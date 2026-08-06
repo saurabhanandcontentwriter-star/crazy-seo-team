@@ -198,9 +198,8 @@ const Reports = () => {
   const [generating, setGenerating] = useState(false);
   const [audit, setAudit] = useState<Audit | null>(null);
 
-  useEffect(() => {
-    if (!loading && (!user || !isAdmin)) navigate("/admin/login");
-  }, [user, isAdmin, loading, navigate]);
+  // Access control is handled by AdminGuard on the /admin route.
+
 
   const run = async () => {
     const d = domain.replace(/^https?:\/\//, "").replace(/\/.*$/, "").trim();
