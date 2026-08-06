@@ -32,6 +32,7 @@ const AdminUsers = lazy(() => import("./pages/admin/Users.tsx"));
 const AdminSubscribers = lazy(() => import("./pages/admin/Subscribers.tsx"));
 const AdminAnalytics = lazy(() => import("./pages/admin/Analytics.tsx"));
 const AdminReports = lazy(() => import("./pages/admin/Reports.tsx"));
+const AdminOperations = lazy(() => import("./pages/admin/Operations.tsx"));
 
 import AITools from "./pages/AITools.tsx";
 import News from "./pages/News.tsx";
@@ -119,6 +120,8 @@ const App = () => (
             <Route path="subscribers" element={<Suspense fallback={<AdminSkeleton />}><AdminSubscribers /></Suspense>} />
             <Route path="analytics" element={<Suspense fallback={<AdminSkeleton />}><AdminAnalytics /></Suspense>} />
             <Route path="reports" element={<Suspense fallback={<AdminSkeleton />}><AdminReports /></Suspense>} />
+            <Route path="operations" element={<Suspense fallback={<AdminSkeleton />}><AdminOperations /></Suspense>} />
+
           </Route>
 
           <Route path="*" element={<NotFound />} />

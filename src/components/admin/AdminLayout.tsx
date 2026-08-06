@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, FileText, Newspaper, Users, Mail, BarChart3, FileBarChart,
-  LogOut, Menu, X, Search, ExternalLink, Bell, Sparkles, Radio,
+  LogOut, Menu, X, Search, ExternalLink, Bell, Sparkles, Radio, Activity,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ const NAV = [
   { to: "/admin/subscribers", label: "Newsletter", icon: Mail },
   { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/admin/reports", label: "Reports", icon: FileBarChart },
+  { to: "/admin/operations", label: "AI Operations", icon: Activity },
 ];
 
 
