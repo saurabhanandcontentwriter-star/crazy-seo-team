@@ -101,3 +101,6 @@
     "vitest": "^3.2.4"
   }
 }
+npm approve-scripts
+npm run build
+npm --version
