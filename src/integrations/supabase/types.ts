@@ -107,6 +107,113 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_notes: {
+        Row: {
+          author_email: string | null
+          created_at: string
+          id: string
+          lead_id: string
+          note: string
+        }
+        Insert: {
+          author_email?: string | null
+          created_at?: string
+          id?: string
+          lead_id: string
+          note: string
+        }
+        Update: {
+          author_email?: string | null
+          created_at?: string
+          id?: string
+          lead_id?: string
+          note?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_notes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          city: string | null
+          company: string | null
+          consent: boolean
+          country: string | null
+          created_at: string
+          district: string | null
+          email: string
+          full_name: string
+          id: string
+          message: string | null
+          page_path: string | null
+          phone: string
+          phone_country: string
+          preferred_contact: string | null
+          score: number
+          service: string
+          session_id: string | null
+          source: string
+          state: string | null
+          status: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          city?: string | null
+          company?: string | null
+          consent?: boolean
+          country?: string | null
+          created_at?: string
+          district?: string | null
+          email: string
+          full_name: string
+          id?: string
+          message?: string | null
+          page_path?: string | null
+          phone: string
+          phone_country?: string
+          preferred_contact?: string | null
+          score?: number
+          service: string
+          session_id?: string | null
+          source?: string
+          state?: string | null
+          status?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          city?: string | null
+          company?: string | null
+          consent?: boolean
+          country?: string | null
+          created_at?: string
+          district?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          message?: string | null
+          page_path?: string | null
+          phone?: string
+          phone_country?: string
+          preferred_contact?: string | null
+          score?: number
+          service?: string
+          session_id?: string | null
+          source?: string
+          state?: string | null
+          status?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       login_history: {
         Row: {
           created_at: string
