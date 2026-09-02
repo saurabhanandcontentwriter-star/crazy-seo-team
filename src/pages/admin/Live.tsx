@@ -130,12 +130,25 @@ const durationLabel = (ms: number) => {
 
 /* ---------------- page ---------------- */
 
+const INTERVALS = [
+  { label: "15s", ms: 15_000 },
+  { label: "30s", ms: 30_000 },
+  { label: "1m", ms: 60_000 },
+  { label: "5m", ms: 300_000 },
+  { label: "15m", ms: 900_000 },
+  { label: "30m", ms: 1_800_000 },
+];
+
 export default function AdminLive() {
   const [rows, setRows] = useState<View[]>([]);
   const [monthCount, setMonthCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [now, setNow] = useState(Date.now());
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [intervalMs, setIntervalMs] = useState(30_000);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [nextRefresh, setNextRefresh] = useState<Date | null>(null);
 
   const loadWindow = useCallback(async (silent = false) => {
     if (!silent) setRefreshing(true);
@@ -156,18 +169,31 @@ export default function AdminLive() {
     setMonthCount(month.count ?? 0);
     setLoading(false);
     setRefreshing(false);
+    setLastUpdated(new Date());
   }, []);
 
   useEffect(() => {
     loadWindow();
-    // tiered background refresh: 10s heartbeat for "online", 30s data pull
-    const clock = setInterval(() => setNow(Date.now()), 10_000);
-    const pull = setInterval(() => loadWindow(true), 30_000);
-    return () => {
-      clearInterval(clock);
-      clearInterval(pull);
-    };
   }, [loadWindow]);
+
+  useEffect(() => {
+    const clock = setInterval(() => setNow(Date.now()), 10_000);
+    return () => clearInterval(clock);
+  }, []);
+
+  useEffect(() => {
+    if (!autoRefresh) {
+      setNextRefresh(null);
+      return;
+    }
+    setNextRefresh(new Date(Date.now() + intervalMs));
+    const pull = setInterval(() => {
+      loadWindow(true);
+      setNextRefresh(new Date(Date.now() + intervalMs));
+    }, intervalMs);
+    return () => clearInterval(pull);
+  }, [autoRefresh, intervalMs, loadWindow]);
+
 
   // realtime: prepend new page views instantly (no page refresh)
   useEffect(() => {
