@@ -345,20 +345,47 @@ export default function AdminLive() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-black flex items-center gap-2">
-            Live traffic
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-500/10 rounded-full px-2 py-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> realtime
+            Live Traffic Command Center
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-black tracking-wide text-emerald-600 bg-emerald-500/10 rounded-full px-2 py-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> LIVE
             </span>
           </h1>
-          <p className="text-sm text-muted-foreground">Streaming visitor data — updates automatically, no page reload</p>
+          <p className="text-sm text-muted-foreground">
+            Streaming visitor data from your database — updates in place, never reloads the page
+          </p>
+          <p className="text-xs text-muted-foreground mt-1 tabular-nums">
+            Last updated: <b className="text-foreground">{lastUpdated ? lastUpdated.toLocaleTimeString() : "—"}</b>
+            {nextRefresh && <> · Next refresh: {nextRefresh.toLocaleTimeString()}</>}
+          </p>
         </div>
-        <Button variant="outline" size="sm" className="rounded-2xl" onClick={() => loadWindow()} disabled={refreshing}>
-          {refreshing ? <Loader2 size={14} className="mr-1 animate-spin" /> : <RefreshCw size={14} className="mr-1" />} Refresh
-        </Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setAutoRefresh((v) => !v)}
+            className={`rounded-2xl border px-3 py-1.5 text-xs font-semibold transition ${
+              autoRefresh ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-600" : "border-border bg-muted/40 text-muted-foreground"
+            }`}
+          >
+            Auto refresh {autoRefresh ? "ON" : "OFF"}
+          </button>
+          <select
+            value={intervalMs}
+            onChange={(e) => setIntervalMs(Number(e.target.value))}
+            disabled={!autoRefresh}
+            className="rounded-2xl border border-border bg-card/70 px-3 py-1.5 text-xs disabled:opacity-50"
+          >
+            {INTERVALS.map((i) => (
+              <option key={i.ms} value={i.ms}>Every {i.label}</option>
+            ))}
+          </select>
+          <Button variant="outline" size="sm" className="rounded-2xl" onClick={() => loadWindow()} disabled={refreshing}>
+            {refreshing ? <Loader2 size={14} className="mr-1 animate-spin" /> : <RefreshCw size={14} className="mr-1" />} Refresh Now
+          </Button>
+        </div>
       </div>
+
 
       <div className="grid gap-3 grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
         <Stat label="Online now (5m)" value={m.online} icon={Radio} live />
