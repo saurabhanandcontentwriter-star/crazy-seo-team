@@ -130,12 +130,25 @@ const durationLabel = (ms: number) => {
 
 /* ---------------- page ---------------- */
 
+const INTERVALS = [
+  { label: "15s", ms: 15_000 },
+  { label: "30s", ms: 30_000 },
+  { label: "1m", ms: 60_000 },
+  { label: "5m", ms: 300_000 },
+  { label: "15m", ms: 900_000 },
+  { label: "30m", ms: 1_800_000 },
+];
+
 export default function AdminLive() {
   const [rows, setRows] = useState<View[]>([]);
   const [monthCount, setMonthCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [now, setNow] = useState(Date.now());
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [intervalMs, setIntervalMs] = useState(30_000);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [nextRefresh, setNextRefresh] = useState<Date | null>(null);
 
   const loadWindow = useCallback(async (silent = false) => {
     if (!silent) setRefreshing(true);
@@ -156,18 +169,31 @@ export default function AdminLive() {
     setMonthCount(month.count ?? 0);
     setLoading(false);
     setRefreshing(false);
+    setLastUpdated(new Date());
   }, []);
 
   useEffect(() => {
     loadWindow();
-    // tiered background refresh: 10s heartbeat for "online", 30s data pull
-    const clock = setInterval(() => setNow(Date.now()), 10_000);
-    const pull = setInterval(() => loadWindow(true), 30_000);
-    return () => {
-      clearInterval(clock);
-      clearInterval(pull);
-    };
   }, [loadWindow]);
+
+  useEffect(() => {
+    const clock = setInterval(() => setNow(Date.now()), 10_000);
+    return () => clearInterval(clock);
+  }, []);
+
+  useEffect(() => {
+    if (!autoRefresh) {
+      setNextRefresh(null);
+      return;
+    }
+    setNextRefresh(new Date(Date.now() + intervalMs));
+    const pull = setInterval(() => {
+      loadWindow(true);
+      setNextRefresh(new Date(Date.now() + intervalMs));
+    }, intervalMs);
+    return () => clearInterval(pull);
+  }, [autoRefresh, intervalMs, loadWindow]);
+
 
   // realtime: prepend new page views instantly (no page refresh)
   useEffect(() => {
@@ -243,6 +269,8 @@ export default function AdminLive() {
           session,
           last,
           pages: sorted.length,
+          entry: first.path,
+          start: first.created_at,
           duration: new Date(last.created_at).getTime() - new Date(first.created_at).getTime(),
           source: classify(last.referrer),
           isOnline: last.created_at >= iso(5 * 60_000),
@@ -317,20 +345,47 @@ export default function AdminLive() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-black flex items-center gap-2">
-            Live traffic
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600 bg-emerald-500/10 rounded-full px-2 py-0.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> realtime
+            Live Traffic Command Center
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-black tracking-wide text-emerald-600 bg-emerald-500/10 rounded-full px-2 py-0.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> LIVE
             </span>
           </h1>
-          <p className="text-sm text-muted-foreground">Streaming visitor data — updates automatically, no page reload</p>
+          <p className="text-sm text-muted-foreground">
+            Streaming visitor data from your database — updates in place, never reloads the page
+          </p>
+          <p className="text-xs text-muted-foreground mt-1 tabular-nums">
+            Last updated: <b className="text-foreground">{lastUpdated ? lastUpdated.toLocaleTimeString() : "—"}</b>
+            {nextRefresh && <> · Next refresh: {nextRefresh.toLocaleTimeString()}</>}
+          </p>
         </div>
-        <Button variant="outline" size="sm" className="rounded-2xl" onClick={() => loadWindow()} disabled={refreshing}>
-          {refreshing ? <Loader2 size={14} className="mr-1 animate-spin" /> : <RefreshCw size={14} className="mr-1" />} Refresh
-        </Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setAutoRefresh((v) => !v)}
+            className={`rounded-2xl border px-3 py-1.5 text-xs font-semibold transition ${
+              autoRefresh ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-600" : "border-border bg-muted/40 text-muted-foreground"
+            }`}
+          >
+            Auto refresh {autoRefresh ? "ON" : "OFF"}
+          </button>
+          <select
+            value={intervalMs}
+            onChange={(e) => setIntervalMs(Number(e.target.value))}
+            disabled={!autoRefresh}
+            className="rounded-2xl border border-border bg-card/70 px-3 py-1.5 text-xs disabled:opacity-50"
+          >
+            {INTERVALS.map((i) => (
+              <option key={i.ms} value={i.ms}>Every {i.label}</option>
+            ))}
+          </select>
+          <Button variant="outline" size="sm" className="rounded-2xl" onClick={() => loadWindow()} disabled={refreshing}>
+            {refreshing ? <Loader2 size={14} className="mr-1 animate-spin" /> : <RefreshCw size={14} className="mr-1" />} Refresh Now
+          </Button>
+        </div>
       </div>
+
 
       <div className="grid gap-3 grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
         <Stat label="Online now (5m)" value={m.online} icon={Radio} live />
@@ -397,20 +452,27 @@ export default function AdminLive() {
       </div>
 
       <div className="rounded-[24px] border border-border/60 bg-card/70 backdrop-blur-xl p-4">
-        <h2 className="font-bold mb-3">Live visitors</h2>
+        <h2 className="font-bold mb-3 flex items-center gap-2">
+          Live Visitor Activity
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-600 bg-emerald-500/10 rounded-full px-2 py-0.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> LIVE
+          </span>
+        </h2>
         {m.live.length === 0 ? (
           <p className="text-sm text-muted-foreground">No visitors in the last 30 minutes.</p>
         ) : (
           <div className="overflow-auto max-h-[460px] -mx-2 px-2">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[1080px]">
               <thead className="sticky top-0 bg-card/95 backdrop-blur z-10">
                 <tr className="text-left text-xs text-muted-foreground">
                   <th className="py-2 pr-3 font-medium">Status</th>
                   <th className="py-2 pr-3 font-medium">Location</th>
-                  <th className="py-2 pr-3 font-medium">Page</th>
+                  <th className="py-2 pr-3 font-medium">Current page</th>
+                  <th className="py-2 pr-3 font-medium">Entry page</th>
                   <th className="py-2 pr-3 font-medium">Source</th>
-                  <th className="py-2 pr-3 font-medium">Device</th>
+                  <th className="py-2 pr-3 font-medium">Device / Browser / OS</th>
                   <th className="py-2 pr-3 font-medium">Pages</th>
+                  <th className="py-2 pr-3 font-medium">Started</th>
                   <th className="py-2 pr-3 font-medium">Duration</th>
                 </tr>
               </thead>
@@ -425,9 +487,11 @@ export default function AdminLive() {
                     </td>
                     <td className="py-2 pr-3 whitespace-nowrap">
                       {flag(v.last.country_code)} {v.last.city ?? v.last.region ?? v.last.country ?? "Unknown"}
+                      {v.last.region && <span className="text-muted-foreground"> · {v.last.region}</span>}
                       {v.last.country && <span className="text-muted-foreground"> · {v.last.country}</span>}
                     </td>
-                    <td className="py-2 pr-3 max-w-[220px] truncate">{v.last.path}</td>
+                    <td className="py-2 pr-3 max-w-[200px] truncate">{v.last.path}</td>
+                    <td className="py-2 pr-3 max-w-[180px] truncate text-muted-foreground">{v.entry}</td>
                     <td className="py-2 pr-3">
                       <Badge variant="outline" className="text-[10px]">{v.source}</Badge>
                     </td>
@@ -435,9 +499,13 @@ export default function AdminLive() {
                       {v.last.device} · {v.last.browser} · {v.last.os}
                     </td>
                     <td className="py-2 pr-3 tabular-nums">{v.pages}</td>
+                    <td className="py-2 pr-3 tabular-nums text-xs whitespace-nowrap">
+                      {new Date(v.start).toLocaleTimeString()}
+                    </td>
                     <td className="py-2 pr-3 tabular-nums">{durationLabel(v.duration)}</td>
                   </tr>
                 ))}
+
               </tbody>
             </table>
           </div>

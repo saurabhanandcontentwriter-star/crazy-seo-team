@@ -139,7 +139,7 @@ export async function submitLead(input: LeadInput, source: string) {
       .eq("session_id", sessionId);
     toolRuns = count ?? 0;
   }
-  const score = scoreLead({ ...parsed, source, toolRuns });
+  const score = scoreLead({ ...parsed, service: parsed.service ?? "", source, toolRuns });
 
   const { error } = await supabase.from("leads").insert({
     full_name: parsed.full_name,
