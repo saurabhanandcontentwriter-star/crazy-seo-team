@@ -269,6 +269,8 @@ export default function AdminLive() {
           session,
           last,
           pages: sorted.length,
+          entry: first.path,
+          start: first.created_at,
           duration: new Date(last.created_at).getTime() - new Date(first.created_at).getTime(),
           source: classify(last.referrer),
           isOnline: last.created_at >= iso(5 * 60_000),
