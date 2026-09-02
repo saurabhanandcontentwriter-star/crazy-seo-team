@@ -452,20 +452,27 @@ export default function AdminLive() {
       </div>
 
       <div className="rounded-[24px] border border-border/60 bg-card/70 backdrop-blur-xl p-4">
-        <h2 className="font-bold mb-3">Live visitors</h2>
+        <h2 className="font-bold mb-3 flex items-center gap-2">
+          Live Visitor Activity
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-600 bg-emerald-500/10 rounded-full px-2 py-0.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> LIVE
+          </span>
+        </h2>
         {m.live.length === 0 ? (
           <p className="text-sm text-muted-foreground">No visitors in the last 30 minutes.</p>
         ) : (
           <div className="overflow-auto max-h-[460px] -mx-2 px-2">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm min-w-[1080px]">
               <thead className="sticky top-0 bg-card/95 backdrop-blur z-10">
                 <tr className="text-left text-xs text-muted-foreground">
                   <th className="py-2 pr-3 font-medium">Status</th>
                   <th className="py-2 pr-3 font-medium">Location</th>
-                  <th className="py-2 pr-3 font-medium">Page</th>
+                  <th className="py-2 pr-3 font-medium">Current page</th>
+                  <th className="py-2 pr-3 font-medium">Entry page</th>
                   <th className="py-2 pr-3 font-medium">Source</th>
-                  <th className="py-2 pr-3 font-medium">Device</th>
+                  <th className="py-2 pr-3 font-medium">Device / Browser / OS</th>
                   <th className="py-2 pr-3 font-medium">Pages</th>
+                  <th className="py-2 pr-3 font-medium">Started</th>
                   <th className="py-2 pr-3 font-medium">Duration</th>
                 </tr>
               </thead>
@@ -480,9 +487,11 @@ export default function AdminLive() {
                     </td>
                     <td className="py-2 pr-3 whitespace-nowrap">
                       {flag(v.last.country_code)} {v.last.city ?? v.last.region ?? v.last.country ?? "Unknown"}
+                      {v.last.region && <span className="text-muted-foreground"> · {v.last.region}</span>}
                       {v.last.country && <span className="text-muted-foreground"> · {v.last.country}</span>}
                     </td>
-                    <td className="py-2 pr-3 max-w-[220px] truncate">{v.last.path}</td>
+                    <td className="py-2 pr-3 max-w-[200px] truncate">{v.last.path}</td>
+                    <td className="py-2 pr-3 max-w-[180px] truncate text-muted-foreground">{v.entry}</td>
                     <td className="py-2 pr-3">
                       <Badge variant="outline" className="text-[10px]">{v.source}</Badge>
                     </td>
@@ -490,9 +499,13 @@ export default function AdminLive() {
                       {v.last.device} · {v.last.browser} · {v.last.os}
                     </td>
                     <td className="py-2 pr-3 tabular-nums">{v.pages}</td>
+                    <td className="py-2 pr-3 tabular-nums text-xs whitespace-nowrap">
+                      {new Date(v.start).toLocaleTimeString()}
+                    </td>
                     <td className="py-2 pr-3 tabular-nums">{durationLabel(v.duration)}</td>
                   </tr>
                 ))}
+
               </tbody>
             </table>
           </div>
