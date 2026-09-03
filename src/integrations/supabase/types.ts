@@ -107,6 +107,159 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_activities: {
+        Row: {
+          actor_email: string | null
+          body: string | null
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          lead_id: string
+          outcome: string | null
+          subject: string | null
+          team_member_id: string | null
+          type: string
+        }
+        Insert: {
+          actor_email?: string | null
+          body?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          lead_id: string
+          outcome?: string | null
+          subject?: string | null
+          team_member_id?: string | null
+          type?: string
+        }
+        Update: {
+          actor_email?: string | null
+          body?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          lead_id?: string
+          outcome?: string | null
+          subject?: string | null
+          team_member_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_activities_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "crm_team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_followups: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          due_at: string
+          id: string
+          lead_id: string
+          notes: string | null
+          reminder_minutes: number
+          team_member_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          due_at?: string
+          id?: string
+          lead_id: string
+          notes?: string | null
+          reminder_minutes?: number
+          team_member_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          due_at?: string
+          id?: string
+          lead_id?: string
+          notes?: string | null
+          reminder_minutes?: number
+          team_member_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_followups_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_followups_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "crm_team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_team_members: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          mobile: string | null
+          name: string
+          photo_url: string | null
+          position: string
+          status: string
+          updated_at: string
+          working_days: string[]
+          working_hours: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          mobile?: string | null
+          name: string
+          photo_url?: string | null
+          position?: string
+          status?: string
+          updated_at?: string
+          working_days?: string[]
+          working_hours?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          mobile?: string | null
+          name?: string
+          photo_url?: string | null
+          position?: string
+          status?: string
+          updated_at?: string
+          working_days?: string[]
+          working_hours?: string
+        }
+        Relationships: []
+      }
       lead_notes: {
         Row: {
           author_email: string | null
@@ -141,16 +294,20 @@ export type Database = {
       }
       leads: {
         Row: {
+          assigned_to: string | null
           city: string | null
           company: string | null
           consent: boolean
           country: string | null
           created_at: string
+          deal_value: number
           district: string | null
           email: string
           full_name: string
           id: string
+          last_contact_at: string | null
           message: string | null
+          next_follow_up_at: string | null
           page_path: string | null
           phone: string
           phone_country: string
@@ -165,16 +322,20 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          assigned_to?: string | null
           city?: string | null
           company?: string | null
           consent?: boolean
           country?: string | null
           created_at?: string
+          deal_value?: number
           district?: string | null
           email: string
           full_name: string
           id?: string
+          last_contact_at?: string | null
           message?: string | null
+          next_follow_up_at?: string | null
           page_path?: string | null
           phone: string
           phone_country?: string
@@ -189,16 +350,20 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          assigned_to?: string | null
           city?: string | null
           company?: string | null
           consent?: boolean
           country?: string | null
           created_at?: string
+          deal_value?: number
           district?: string | null
           email?: string
           full_name?: string
           id?: string
+          last_contact_at?: string | null
           message?: string | null
+          next_follow_up_at?: string | null
           page_path?: string | null
           phone?: string
           phone_country?: string
@@ -212,7 +377,15 @@ export type Database = {
           updated_at?: string
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "crm_team_members"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       login_history: {
         Row: {
