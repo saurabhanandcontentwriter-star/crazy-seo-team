@@ -33,6 +33,7 @@ const AdminSubscribers = lazy(() => import("./pages/admin/Subscribers.tsx"));
 const AdminAnalytics = lazy(() => import("./pages/admin/Analytics.tsx"));
 const AdminReports = lazy(() => import("./pages/admin/Reports.tsx"));
 const AdminOperations = lazy(() => import("./pages/admin/Operations.tsx"));
+const AdminCrm = lazy(() => import("./pages/admin/crm/CrmDashboard.tsx"));
 
 import AITools from "./pages/AITools.tsx";
 import News from "./pages/News.tsx";
