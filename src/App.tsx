@@ -33,6 +33,7 @@ const AdminSubscribers = lazy(() => import("./pages/admin/Subscribers.tsx"));
 const AdminAnalytics = lazy(() => import("./pages/admin/Analytics.tsx"));
 const AdminReports = lazy(() => import("./pages/admin/Reports.tsx"));
 const AdminOperations = lazy(() => import("./pages/admin/Operations.tsx"));
+const AdminCrm = lazy(() => import("./pages/admin/crm/CrmDashboard.tsx"));
 
 import AITools from "./pages/AITools.tsx";
 import News from "./pages/News.tsx";
@@ -121,6 +122,8 @@ const App = () => (
             <Route path="analytics" element={<Suspense fallback={<AdminSkeleton />}><AdminAnalytics /></Suspense>} />
             <Route path="reports" element={<Suspense fallback={<AdminSkeleton />}><AdminReports /></Suspense>} />
             <Route path="operations" element={<Suspense fallback={<AdminSkeleton />}><AdminOperations /></Suspense>} />
+            <Route path="crm" element={<Suspense fallback={<AdminSkeleton />}><AdminCrm /></Suspense>} />
+            <Route path="crm/*" element={<Suspense fallback={<AdminSkeleton />}><AdminCrm /></Suspense>} />
 
           </Route>
 
