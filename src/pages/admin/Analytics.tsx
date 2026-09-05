@@ -301,11 +301,44 @@ const AdminAnalytics = () => {
               <p className="text-[11px] text-muted-foreground">Real-time visitor intel · auto-refresh 15s</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-card/60 p-1">
+              {PRESETS.map(p => (
+                <button
+                  key={p.key}
+                  onClick={() => { setRange(undefined); setPreset(p.key); }}
+                  className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${!range && preset === p.key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+            <Popover open={calOpen} onOpenChange={setCalOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <CalendarDays className="w-4 h-4 mr-2" />{rangeLabel}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="range"
+                  numberOfMonths={2}
+                  selected={range}
+                  onSelect={setRange}
+                  disabled={{ after: new Date() }}
+                  className="p-3 pointer-events-auto"
+                />
+                <div className="flex justify-between gap-2 border-t border-border/60 p-2">
+                  <Button variant="ghost" size="sm" onClick={() => setRange(undefined)}>Clear</Button>
+                  <Button size="sm" onClick={() => setCalOpen(false)}>Apply</Button>
+                </div>
+              </PopoverContent>
+            </Popover>
             <Button asChild variant="outline" size="sm"><Link to="/admin">Blog CMS</Link></Button>
             <Button asChild variant="outline" size="sm"><Link to="/admin/reports">Reports</Link></Button>
             <Button variant="ghost" size="sm" onClick={logout}><LogOut className="w-4 h-4 mr-2" />Logout</Button>
           </div>
+
         </div>
       </header>
 
