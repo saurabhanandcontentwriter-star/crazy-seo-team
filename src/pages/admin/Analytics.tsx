@@ -81,9 +81,12 @@ const AdminAnalytics = () => {
   const navigate = useNavigate();
   const { user, isAdmin, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [pageViews, setPageViews] = useState<PageView[]>([]);
+  const [allViews, setAllViews] = useState<PageView[]>([]);
   const [core, setCore] = useState<any>(null);
   const [tick, setTick] = useState(0);
+  const [preset, setPreset] = useState<string>("30d");
+  const [range, setRange] = useState<DateRange | undefined>();
+  const [calOpen, setCalOpen] = useState(false);
 
   // Access control is handled by AdminGuard on the /admin route.
 
@@ -97,9 +100,9 @@ const AdminAnalytics = () => {
   useEffect(() => {
     if (!user || !isAdmin) return;
     (async () => {
-      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const since = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
       const [pvRes, usersRes, blogsRes, newsRes, subsRes, toolRes] = await Promise.all([
-        supabase.from("page_views").select("*").gte("created_at", since).order("created_at", { ascending: false }).limit(2000),
+        supabase.from("page_views").select("*").gte("created_at", since).order("created_at", { ascending: false }).limit(5000),
         supabase.from("user_roles").select("user_id, role"),
         supabase.from("blog_posts").select("title, published, published_at, created_at").order("created_at", { ascending: false }),
         supabase.from("news_articles").select("category, title, published_at"),
@@ -112,7 +115,7 @@ const AdminAnalytics = () => {
       const news = newsRes.data ?? [];
       const subs = subsRes.data ?? [];
 
-      setPageViews((pvRes.data ?? []) as PageView[]);
+      setAllViews((pvRes.data ?? []) as PageView[]);
       setCore({
         totalUsers: new Set(users.map((u: any) => u.user_id)).size,
         admins: users.filter((u: any) => u.role === "admin").length,
@@ -128,11 +131,31 @@ const AdminAnalytics = () => {
     })();
   }, [user, isAdmin, tick]);
 
+  // Custom calendar range wins over the quick presets.
+  const pageViews = useMemo(() => {
+    if (range?.from) {
+      const from = new Date(range.from); from.setHours(0, 0, 0, 0);
+      const to = new Date(range.to ?? range.from); to.setHours(23, 59, 59, 999);
+      return allViews.filter(v => {
+        const t = new Date(v.created_at).getTime();
+        return t >= from.getTime() && t <= to.getTime();
+      });
+    }
+    const days = PRESETS.find(p => p.key === preset)?.days ?? 30;
+    const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+    return allViews.filter(v => new Date(v.created_at).getTime() >= cutoff);
+  }, [allViews, range, preset]);
+
+  const rangeLabel = range?.from
+    ? `${range.from.toLocaleDateString()} – ${(range.to ?? range.from).toLocaleDateString()}`
+    : `Last ${PRESETS.find(p => p.key === preset)?.label ?? "30 days"}`;
+
   const stats = useMemo(() => {
     if (!pageViews.length) return null;
     const now = Date.now();
     const online = new Set(pageViews.filter(v => now - new Date(v.created_at).getTime() < 5 * 60 * 1000).map(v => v.session_id));
     const today = pageViews.filter(v => now - new Date(v.created_at).getTime() < 24 * 60 * 60 * 1000);
+
     const week = pageViews.filter(v => now - new Date(v.created_at).getTime() < 7 * 24 * 60 * 60 * 1000);
 
     const sessionsAll = new Set(pageViews.map(v => v.session_id));
