@@ -235,7 +235,7 @@ const AdminAnalytics = () => {
       devices: bucket("device"),
       browsers: bucket("browser"),
       os: bucket("os"),
-      countries, cities, paths,
+      countries, cities, states, paths,
     };
   }, [pageViews]);
 
