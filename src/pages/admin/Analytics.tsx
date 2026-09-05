@@ -201,17 +201,28 @@ const AdminAnalytics = () => {
     });
     const countries = Array.from(countryBuckets.values()).sort((a, b) => b.value - a.value).slice(0, 10);
 
-    const cityBuckets = new Map<string, { name: string; country: string; value: number }>();
+    const cityBuckets = new Map<string, { name: string; state: string; country: string; value: number }>();
     pageViews.forEach(v => {
       if (!v.city) return;
-      const key = `${v.city}|${v.country ?? ""}`;
-      const cur = cityBuckets.get(key) ?? { name: v.city, country: v.country ?? "", value: 0 };
+      const key = `${v.city}|${v.region ?? ""}|${v.country ?? ""}`;
+      const cur = cityBuckets.get(key) ?? { name: v.city, state: v.region ?? "", country: v.country ?? "", value: 0 };
       cur.value++;
       cityBuckets.set(key, cur);
     });
     const cities = Array.from(cityBuckets.values()).sort((a, b) => b.value - a.value).slice(0, 8);
 
+    const stateBuckets = new Map<string, { name: string; country: string; value: number }>();
+    pageViews.forEach(v => {
+      if (!v.region) return;
+      const key = `${v.region}|${v.country ?? ""}`;
+      const cur = stateBuckets.get(key) ?? { name: v.region, country: v.country ?? "", value: 0 };
+      cur.value++;
+      stateBuckets.set(key, cur);
+    });
+    const states = Array.from(stateBuckets.values()).sort((a, b) => b.value - a.value).slice(0, 8);
+
     const paths = bucket("path").slice(0, 8);
+
 
     return {
       online: online.size,
