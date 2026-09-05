@@ -463,14 +463,19 @@ const AdminAnalytics = () => {
               </Card>
 
               <Card className="backdrop-blur bg-card/60 border-border/60">
-                <CardHeader><CardTitle className="text-base flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" /> Top Cities</CardTitle></CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" /> Top Cities</CardTitle>
+                  <Button size="sm" variant="outline" onClick={() => exportCsv("cities", stats?.cities ?? [])}><Download className="w-3.5 h-3.5 mr-1.5" />CSV</Button>
+                </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
                     {stats?.cities.map((c, i) => (
                       <div key={i} className="flex items-center justify-between text-sm border-b border-border/40 pb-2 last:border-0">
                         <div>
                           <p className="font-semibold text-foreground">{c.name}</p>
-                          <p className="text-xs text-muted-foreground">{c.country}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {[c.state, c.country].filter(Boolean).join(", ") || "—"}
+                          </p>
                         </div>
                         <Badge variant="secondary" className="tabular-nums">{c.value} views</Badge>
                       </div>
@@ -480,7 +485,35 @@ const AdminAnalytics = () => {
                 </CardContent>
               </Card>
             </div>
+
+            <Card className="backdrop-blur bg-card/60 border-border/60">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2"><Building2 className="w-4 h-4 text-primary" /> Top States / Regions</CardTitle>
+                <Button size="sm" variant="outline" onClick={() => exportCsv("states", stats?.states ?? [])}><Download className="w-3.5 h-3.5 mr-1.5" />CSV</Button>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 md:grid-cols-2">
+                  {stats?.states.map((s, i) => {
+                    const max = stats.states[0]?.value || 1;
+                    return (
+                      <div key={i}>
+                        <div className="flex items-center justify-between text-sm mb-1.5">
+                          <span className="font-medium text-foreground">{s.name}</span>
+                          <span className="text-xs text-muted-foreground">{s.country}</span>
+                          <span className="font-bold tabular-nums">{s.value}</span>
+                        </div>
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-cyan-500 to-violet-500" style={{ width: `${(s.value / max) * 100}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {!stats?.states.length && <p className="text-sm text-muted-foreground">No state data yet.</p>}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
+
 
           {/* DEVICES */}
           <TabsContent value="devices" className="space-y-6">
