@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import type { DateRange } from "react-day-picker";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip,
@@ -13,16 +16,26 @@ import {
 } from "recharts";
 import {
   Loader2, Users, FileText, Newspaper, Mail, TrendingUp, Activity, Globe,
-  Download, FileDown, LogOut, Smartphone, Monitor, Tablet, Eye, Wifi, MapPin, Zap
+  Download, FileDown, LogOut, Smartphone, Monitor, Tablet, Eye, Wifi, MapPin, Zap,
+  CalendarDays, Building2
 } from "lucide-react";
 
 const COLORS = ["hsl(230 80% 60%)", "hsl(270 80% 65%)", "hsl(189 94% 55%)", "hsl(142 70% 45%)", "hsl(45 90% 55%)", "hsl(340 82% 60%)", "hsl(24 95% 55%)", "hsl(195 75% 50%)"];
 
 type PageView = {
   id: string; session_id: string; path: string; country: string | null;
-  country_code: string | null; city: string | null; device: string | null;
+  country_code: string | null; city: string | null; region: string | null;
+  device: string | null;
   browser: string | null; os: string | null; created_at: string;
 };
+
+const PRESETS = [
+  { key: "24h", label: "24 hours", days: 1 },
+  { key: "7d", label: "7 days", days: 7 },
+  { key: "30d", label: "30 days", days: 30 },
+  { key: "90d", label: "90 days", days: 90 },
+] as const;
+
 
 const StatCard = ({ icon: Icon, label, value, delta, accent }: any) => (
   <Card className="relative overflow-hidden border-border/60 bg-gradient-to-br from-card via-card to-card/40 backdrop-blur-xl">
