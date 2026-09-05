@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import type { DateRange } from "react-day-picker";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip,
@@ -13,16 +16,26 @@ import {
 } from "recharts";
 import {
   Loader2, Users, FileText, Newspaper, Mail, TrendingUp, Activity, Globe,
-  Download, FileDown, LogOut, Smartphone, Monitor, Tablet, Eye, Wifi, MapPin, Zap
+  Download, FileDown, LogOut, Smartphone, Monitor, Tablet, Eye, Wifi, MapPin, Zap,
+  CalendarDays, Building2
 } from "lucide-react";
 
 const COLORS = ["hsl(230 80% 60%)", "hsl(270 80% 65%)", "hsl(189 94% 55%)", "hsl(142 70% 45%)", "hsl(45 90% 55%)", "hsl(340 82% 60%)", "hsl(24 95% 55%)", "hsl(195 75% 50%)"];
 
 type PageView = {
   id: string; session_id: string; path: string; country: string | null;
-  country_code: string | null; city: string | null; device: string | null;
+  country_code: string | null; city: string | null; region: string | null;
+  device: string | null;
   browser: string | null; os: string | null; created_at: string;
 };
+
+const PRESETS = [
+  { key: "24h", label: "24 hours", days: 1 },
+  { key: "7d", label: "7 days", days: 7 },
+  { key: "30d", label: "30 days", days: 30 },
+  { key: "90d", label: "90 days", days: 90 },
+] as const;
+
 
 const StatCard = ({ icon: Icon, label, value, delta, accent }: any) => (
   <Card className="relative overflow-hidden border-border/60 bg-gradient-to-br from-card via-card to-card/40 backdrop-blur-xl">
@@ -68,9 +81,12 @@ const AdminAnalytics = () => {
   const navigate = useNavigate();
   const { user, isAdmin, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [pageViews, setPageViews] = useState<PageView[]>([]);
+  const [allViews, setAllViews] = useState<PageView[]>([]);
   const [core, setCore] = useState<any>(null);
   const [tick, setTick] = useState(0);
+  const [preset, setPreset] = useState<string>("30d");
+  const [range, setRange] = useState<DateRange | undefined>();
+  const [calOpen, setCalOpen] = useState(false);
 
   // Access control is handled by AdminGuard on the /admin route.
 
@@ -84,9 +100,9 @@ const AdminAnalytics = () => {
   useEffect(() => {
     if (!user || !isAdmin) return;
     (async () => {
-      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const since = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
       const [pvRes, usersRes, blogsRes, newsRes, subsRes, toolRes] = await Promise.all([
-        supabase.from("page_views").select("*").gte("created_at", since).order("created_at", { ascending: false }).limit(2000),
+        supabase.from("page_views").select("*").gte("created_at", since).order("created_at", { ascending: false }).limit(5000),
         supabase.from("user_roles").select("user_id, role"),
         supabase.from("blog_posts").select("title, published, published_at, created_at").order("created_at", { ascending: false }),
         supabase.from("news_articles").select("category, title, published_at"),
@@ -99,7 +115,7 @@ const AdminAnalytics = () => {
       const news = newsRes.data ?? [];
       const subs = subsRes.data ?? [];
 
-      setPageViews((pvRes.data ?? []) as PageView[]);
+      setAllViews((pvRes.data ?? []) as PageView[]);
       setCore({
         totalUsers: new Set(users.map((u: any) => u.user_id)).size,
         admins: users.filter((u: any) => u.role === "admin").length,
@@ -115,11 +131,31 @@ const AdminAnalytics = () => {
     })();
   }, [user, isAdmin, tick]);
 
+  // Custom calendar range wins over the quick presets.
+  const pageViews = useMemo(() => {
+    if (range?.from) {
+      const from = new Date(range.from); from.setHours(0, 0, 0, 0);
+      const to = new Date(range.to ?? range.from); to.setHours(23, 59, 59, 999);
+      return allViews.filter(v => {
+        const t = new Date(v.created_at).getTime();
+        return t >= from.getTime() && t <= to.getTime();
+      });
+    }
+    const days = PRESETS.find(p => p.key === preset)?.days ?? 30;
+    const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+    return allViews.filter(v => new Date(v.created_at).getTime() >= cutoff);
+  }, [allViews, range, preset]);
+
+  const rangeLabel = range?.from
+    ? `${range.from.toLocaleDateString()} – ${(range.to ?? range.from).toLocaleDateString()}`
+    : `Last ${PRESETS.find(p => p.key === preset)?.label ?? "30 days"}`;
+
   const stats = useMemo(() => {
     if (!pageViews.length) return null;
     const now = Date.now();
     const online = new Set(pageViews.filter(v => now - new Date(v.created_at).getTime() < 5 * 60 * 1000).map(v => v.session_id));
     const today = pageViews.filter(v => now - new Date(v.created_at).getTime() < 24 * 60 * 60 * 1000);
+
     const week = pageViews.filter(v => now - new Date(v.created_at).getTime() < 7 * 24 * 60 * 60 * 1000);
 
     const sessionsAll = new Set(pageViews.map(v => v.session_id));
@@ -165,17 +201,28 @@ const AdminAnalytics = () => {
     });
     const countries = Array.from(countryBuckets.values()).sort((a, b) => b.value - a.value).slice(0, 10);
 
-    const cityBuckets = new Map<string, { name: string; country: string; value: number }>();
+    const cityBuckets = new Map<string, { name: string; state: string; country: string; value: number }>();
     pageViews.forEach(v => {
       if (!v.city) return;
-      const key = `${v.city}|${v.country ?? ""}`;
-      const cur = cityBuckets.get(key) ?? { name: v.city, country: v.country ?? "", value: 0 };
+      const key = `${v.city}|${v.region ?? ""}|${v.country ?? ""}`;
+      const cur = cityBuckets.get(key) ?? { name: v.city, state: v.region ?? "", country: v.country ?? "", value: 0 };
       cur.value++;
       cityBuckets.set(key, cur);
     });
     const cities = Array.from(cityBuckets.values()).sort((a, b) => b.value - a.value).slice(0, 8);
 
+    const stateBuckets = new Map<string, { name: string; country: string; value: number }>();
+    pageViews.forEach(v => {
+      if (!v.region) return;
+      const key = `${v.region}|${v.country ?? ""}`;
+      const cur = stateBuckets.get(key) ?? { name: v.region, country: v.country ?? "", value: 0 };
+      cur.value++;
+      stateBuckets.set(key, cur);
+    });
+    const states = Array.from(stateBuckets.values()).sort((a, b) => b.value - a.value).slice(0, 8);
+
     const paths = bucket("path").slice(0, 8);
+
 
     return {
       online: online.size,
@@ -188,7 +235,7 @@ const AdminAnalytics = () => {
       devices: bucket("device"),
       browsers: bucket("browser"),
       os: bucket("os"),
-      countries, cities, paths,
+      countries, cities, states, paths,
     };
   }, [pageViews]);
 
@@ -254,11 +301,44 @@ const AdminAnalytics = () => {
               <p className="text-[11px] text-muted-foreground">Real-time visitor intel · auto-refresh 15s</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1 rounded-xl border border-border/60 bg-card/60 p-1">
+              {PRESETS.map(p => (
+                <button
+                  key={p.key}
+                  onClick={() => { setRange(undefined); setPreset(p.key); }}
+                  className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors ${!range && preset === p.key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+            <Popover open={calOpen} onOpenChange={setCalOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <CalendarDays className="w-4 h-4 mr-2" />{rangeLabel}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="range"
+                  numberOfMonths={2}
+                  selected={range}
+                  onSelect={setRange}
+                  disabled={{ after: new Date() }}
+                  className="p-3 pointer-events-auto"
+                />
+                <div className="flex justify-between gap-2 border-t border-border/60 p-2">
+                  <Button variant="ghost" size="sm" onClick={() => setRange(undefined)}>Clear</Button>
+                  <Button size="sm" onClick={() => setCalOpen(false)}>Apply</Button>
+                </div>
+              </PopoverContent>
+            </Popover>
             <Button asChild variant="outline" size="sm"><Link to="/admin">Blog CMS</Link></Button>
             <Button asChild variant="outline" size="sm"><Link to="/admin/reports">Reports</Link></Button>
             <Button variant="ghost" size="sm" onClick={logout}><LogOut className="w-4 h-4 mr-2" />Logout</Button>
           </div>
+
         </div>
       </header>
 
@@ -416,14 +496,19 @@ const AdminAnalytics = () => {
               </Card>
 
               <Card className="backdrop-blur bg-card/60 border-border/60">
-                <CardHeader><CardTitle className="text-base flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" /> Top Cities</CardTitle></CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-base flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" /> Top Cities</CardTitle>
+                  <Button size="sm" variant="outline" onClick={() => exportCsv("cities", stats?.cities ?? [])}><Download className="w-3.5 h-3.5 mr-1.5" />CSV</Button>
+                </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
                     {stats?.cities.map((c, i) => (
                       <div key={i} className="flex items-center justify-between text-sm border-b border-border/40 pb-2 last:border-0">
                         <div>
                           <p className="font-semibold text-foreground">{c.name}</p>
-                          <p className="text-xs text-muted-foreground">{c.country}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {[c.state, c.country].filter(Boolean).join(", ") || "—"}
+                          </p>
                         </div>
                         <Badge variant="secondary" className="tabular-nums">{c.value} views</Badge>
                       </div>
@@ -433,7 +518,35 @@ const AdminAnalytics = () => {
                 </CardContent>
               </Card>
             </div>
+
+            <Card className="backdrop-blur bg-card/60 border-border/60">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2"><Building2 className="w-4 h-4 text-primary" /> Top States / Regions</CardTitle>
+                <Button size="sm" variant="outline" onClick={() => exportCsv("states", stats?.states ?? [])}><Download className="w-3.5 h-3.5 mr-1.5" />CSV</Button>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 md:grid-cols-2">
+                  {stats?.states.map((s, i) => {
+                    const max = stats.states[0]?.value || 1;
+                    return (
+                      <div key={i}>
+                        <div className="flex items-center justify-between text-sm mb-1.5">
+                          <span className="font-medium text-foreground">{s.name}</span>
+                          <span className="text-xs text-muted-foreground">{s.country}</span>
+                          <span className="font-bold tabular-nums">{s.value}</span>
+                        </div>
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-cyan-500 to-violet-500" style={{ width: `${(s.value / max) * 100}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {!stats?.states.length && <p className="text-sm text-muted-foreground">No state data yet.</p>}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
+
 
           {/* DEVICES */}
           <TabsContent value="devices" className="space-y-6">
