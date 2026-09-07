@@ -13,6 +13,17 @@ const channels = [
     value: "+91 62051 53346",
     href: `https://wa.me/${WHATSAPP}`,
     external: true,
+    const WHATSAPP_MESSAGE = encodeURIComponent(
+  `👋 Hello Crazy SEO Team,
+
+I want to book a Free AI Visibility Audit.
+
+Please contact me regarding SEO and AI search visibility.
+
+Thank you.`
+);
+
+const WHATSAPP_URL = `https://wa.me/${WHATSAPP}?text=${WHATSAPP_MESSAGE}`;
   },
   {
     icon: Phone,
