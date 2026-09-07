@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
-  ArrowLeft, Bot, Building2, CalendarPlus, Globe, Mail, MapPin, MessageSquare, Phone, Sparkles, User2,
+  ArrowLeft, Bot, Building2, CalendarPlus, CheckCircle2, Globe, Mail, MapPin, MessageSquare,
+  Phone, PhoneCall, Sparkles, User2, XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -120,9 +121,66 @@ export default function CrmLeadProfile() {
       outcome: callOutcome,
       duration_seconds: Math.max(0, Number(callMinutes) || 0) * 60,
     });
-    await updateLead(lead.id, { last_contact_at: new Date().toISOString() });
+    await updateLead(lead.id, {
+      last_contact_at: new Date().toISOString(),
+      ...(callOutcome === "Connected" ? { status: "contacted" } : {}),
+    });
     await refresh();
-    toast.success("Call logged");
+    toast.success(callOutcome === "Connected" ? "Call connected and logged" : "Call logged");
+  };
+
+  const acceptLead = async () => {
+    try {
+      await updateLead(lead.id, { status: "qualified" });
+      await logActivity({
+        lead_id: lead.id,
+        type: "status",
+        subject: "Lead Accepted",
+        body: "Lead was accepted by the sales team.",
+        outcome: "Accepted",
+      });
+      await refresh();
+      toast.success("Lead accepted successfully");
+    } catch (e: any) {
+      toast.error(e.message ?? "Could not accept lead");
+    }
+  };
+
+  const rejectLead = async () => {
+    try {
+      await updateLead(lead.id, { status: "lost" });
+      await logActivity({
+        lead_id: lead.id,
+        type: "status",
+        subject: "Lead Rejected",
+        body: "Lead was rejected by the sales team.",
+        outcome: "Rejected",
+      });
+      await refresh();
+      toast.success("Lead rejected");
+    } catch (e: any) {
+      toast.error(e.message ?? "Could not reject lead");
+    }
+  };
+
+  const callConnected = async () => {
+    try {
+      await logActivity({
+        lead_id: lead.id,
+        type: "call",
+        subject: "Call Connected",
+        body: `Call connected with ${lead.full_name} on ${fullPhone(lead)}.`,
+        outcome: "Connected",
+      });
+      await updateLead(lead.id, {
+        status: "contacted",
+        last_contact_at: new Date().toISOString(),
+      });
+      await refresh();
+      toast.success("Call marked as connected");
+    } catch (e: any) {
+      toast.error(e.message ?? "Could not mark call connected");
+    }
   };
 
   const sendEmail = async () => {
@@ -159,7 +217,6 @@ export default function CrmLeadProfile() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        {/* profile */}
         <GlassCard className="p-5 lg:col-span-1">
           <div className="flex items-center gap-3">
             <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-blue-600 to-violet-600 text-lg font-black text-white">
@@ -175,21 +232,33 @@ export default function CrmLeadProfile() {
 
           <div className="mt-4 space-y-2 text-sm">
             <p className="flex items-center gap-2"><Mail size={14} className="text-muted-foreground" /><a className="hover:underline" href={`mailto:${lead.email}`}>{lead.email}</a></p>
-            <p className="flex items-center gap-2"><Phone size={14} className="text-muted-foreground" /><a className="hover:underline" href={`tel:${fullPhone(lead)}`}>{fullPhone(lead)}</a></p>
+            <p className="flex items-center gap-2"><Phone size={14} className="text-muted-foreground" /><a className="font-semibold hover:text-primary hover:underline" href={`tel:${fullPhone(lead)}`}>{fullPhone(lead)}</a></p>
+          </div>
+
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <Button size="sm" asChild className="w-full">
+              <a href={`tel:${fullPhone(lead)}`}><PhoneCall size={15} className="mr-1.5" />Call Now</a>
+            </Button>
+            <Button size="sm" variant="outline" className="w-full" onClick={callConnected}>
+              <Phone size={15} className="mr-1.5" />Call Connected
+            </Button>
+            <Button size="sm" className="w-full" onClick={acceptLead} disabled={lead.status === "qualified" || lead.status === "won"}>
+              <CheckCircle2 size={15} className="mr-1.5" />Accept Lead
+            </Button>
+            <Button size="sm" variant="destructive" className="w-full" onClick={rejectLead} disabled={lead.status === "lost"}>
+              <XCircle size={15} className="mr-1.5" />Reject Lead
+            </Button>
+          </div>
+
+          <div className="mt-4 space-y-2 text-sm">
             {lead.company && <p className="flex items-center gap-2"><Building2 size={14} className="text-muted-foreground" />{lead.company}</p>}
             {lead.website && <p className="flex items-center gap-2"><Globe size={14} className="text-muted-foreground" /><a className="hover:underline" href={lead.website} target="_blank" rel="noreferrer">{lead.website}</a></p>}
             <p className="flex items-center gap-2"><MapPin size={14} className="text-muted-foreground" />{[lead.city, lead.state, lead.country].filter(Boolean).join(", ") || "—"}</p>
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-2 text-center">
-            <div className="rounded-xl bg-muted/50 p-2">
-              <p className="text-[10px] uppercase text-muted-foreground">Score</p>
-              <p className="text-lg font-black">{lead.score}</p>
-            </div>
-            <div className="rounded-xl bg-muted/50 p-2">
-              <p className="text-[10px] uppercase text-muted-foreground">Deal value</p>
-              <p className="text-lg font-black">{inr(lead.deal_value)}</p>
-            </div>
+            <div className="rounded-xl bg-muted/50 p-2"><p className="text-[10px] uppercase text-muted-foreground">Score</p><p className="text-lg font-black">{lead.score}</p></div>
+            <div className="rounded-xl bg-muted/50 p-2"><p className="text-[10px] uppercase text-muted-foreground">Deal value</p><p className="text-lg font-black">{inr(lead.deal_value)}</p></div>
           </div>
 
           <div className="mt-4 space-y-2">
@@ -197,17 +266,12 @@ export default function CrmLeadProfile() {
               <Label className="text-xs">Stage</Label>
               <Select value={lead.status} onValueChange={async (v) => { await changeStage(lead, v); await refresh(); }}>
                 <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {CRM_STAGES.map((s) => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}
-                </SelectContent>
+                <SelectContent>{CRM_STAGES.map((s) => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div>
               <Label className="text-xs">Owner</Label>
-              <Select
-                value={lead.assigned_to ?? UNASSIGNED}
-                onValueChange={async (v) => { await updateLead(lead.id, { assigned_to: v === UNASSIGNED ? null : v }); await refresh(); }}
-              >
+              <Select value={lead.assigned_to ?? UNASSIGNED} onValueChange={async (v) => { await updateLead(lead.id, { assigned_to: v === UNASSIGNED ? null : v }); await refresh(); }}>
                 <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value={UNASSIGNED}>Unassigned</SelectItem>
@@ -217,45 +281,29 @@ export default function CrmLeadProfile() {
             </div>
             <div>
               <Label className="text-xs">Deal value (INR)</Label>
-              <Input
-                className="mt-1"
-                type="number"
-                defaultValue={lead.deal_value}
-                onBlur={async (e) => {
-                  const v = Number(e.target.value) || 0;
-                  if (v !== lead.deal_value) { await updateLead(lead.id, { deal_value: v }); await refresh(); toast.success("Deal value updated"); }
-                }}
-              />
+              <Input className="mt-1" type="number" defaultValue={lead.deal_value} onBlur={async (e) => {
+                const v = Number(e.target.value) || 0;
+                if (v !== lead.deal_value) { await updateLead(lead.id, { deal_value: v }); await refresh(); toast.success("Deal value updated"); }
+              }} />
             </div>
-            <p className="pt-1 text-[11px] text-muted-foreground">
-              Owner: {owner} · Created {relativeTime(lead.created_at)} · Last contact {relativeTime(lead.last_contact_at)}
-            </p>
+            <p className="pt-1 text-[11px] text-muted-foreground">Owner: {owner} · Created {relativeTime(lead.created_at)} · Last contact {relativeTime(lead.last_contact_at)}</p>
           </div>
         </GlassCard>
 
-        {/* actions + timeline */}
         <div className="space-y-4 lg:col-span-2">
           <GlassCard className="p-5" delay={0.05}>
             <p className="mb-3 flex items-center gap-2 text-sm font-bold"><Sparkles size={15} className="text-primary" /> AI sales intelligence</p>
             <div className="flex flex-wrap gap-2">
-              {AI_ACTIONS.map((a) => (
-                <Button key={a.id} size="sm" variant="outline" disabled={!!aiBusy} onClick={() => runAi(a.id)}>
-                  {aiBusy === a.id ? "Working…" : a.label}
-                </Button>
-              ))}
+              {AI_ACTIONS.map((a) => <Button key={a.id} size="sm" variant="outline" disabled={!!aiBusy} onClick={() => runAi(a.id)}>{aiBusy === a.id ? "Working…" : a.label}</Button>)}
             </div>
-            {aiText && (
-              <div className="mt-3 whitespace-pre-wrap rounded-2xl border border-border/60 bg-muted/40 p-3 text-sm">
-                <p className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase text-muted-foreground"><Bot size={13} /> AI output</p>
-                {aiText}
-                <div className="mt-2 flex gap-2">
-                  <Button size="sm" variant="ghost" onClick={() => { navigator.clipboard.writeText(aiText); toast.success("Copied"); }}>Copy</Button>
-                  <Button size="sm" variant="ghost" asChild>
-                    <a href={`https://wa.me/${fullPhone(lead).replace("+", "")}?text=${encodeURIComponent(aiText)}`} target="_blank" rel="noreferrer">Send on WhatsApp</a>
-                  </Button>
-                </div>
+            {aiText && <div className="mt-3 whitespace-pre-wrap rounded-2xl border border-border/60 bg-muted/40 p-3 text-sm">
+              <p className="mb-1 flex items-center gap-2 text-[11px] font-bold uppercase text-muted-foreground"><Bot size={13} /> AI output</p>
+              {aiText}
+              <div className="mt-2 flex gap-2">
+                <Button size="sm" variant="ghost" onClick={() => { navigator.clipboard.writeText(aiText); toast.success("Copied"); }}>Copy</Button>
+                <Button size="sm" variant="ghost" asChild><a href={`https://wa.me/${fullPhone(lead).replace("+", "")}?text=${encodeURIComponent(aiText)}`} target="_blank" rel="noreferrer">Send on WhatsApp</a></Button>
               </div>
-            )}
+            </div>}
           </GlassCard>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -285,55 +333,14 @@ export default function CrmLeadProfile() {
           </div>
 
           <GlassCard className="p-5" delay={0.2}>
-            <div className="mb-3 flex items-center justify-between">
-              <p className="flex items-center gap-2 text-sm font-bold"><CalendarPlus size={15} className="text-primary" /> Follow-ups</p>
-              <Button size="sm" variant="outline" onClick={() => setFuOpen(true)}>Schedule</Button>
-            </div>
-            {followUps.length ? (
-              <ul className="space-y-2">
-                {followUps.map((f) => (
-                  <li key={f.id} className="flex items-center justify-between gap-3 rounded-2xl border border-border/60 p-3 text-sm">
-                    <div className="min-w-0">
-                      <p className={`font-semibold ${f.completed ? "line-through text-muted-foreground" : ""}`}>{f.title}</p>
-                      <p className="text-[11px] text-muted-foreground">{new Date(f.due_at).toLocaleString()} · {relativeTime(f.due_at)}</p>
-                    </div>
-                    {!f.completed && (
-                      <Button size="sm" variant="ghost" onClick={async () => {
-                        await saveFollowUp({ ...f, completed: true });
-                        await refresh();
-                        toast.success("Marked done");
-                      }}>Done</Button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-muted-foreground">No follow-ups scheduled yet.</p>
-            )}
+            <div className="mb-3 flex items-center justify-between"><p className="flex items-center gap-2 text-sm font-bold"><CalendarPlus size={15} className="text-primary" /> Follow-ups</p><Button size="sm" variant="outline" onClick={() => setFuOpen(true)}>Schedule</Button></div>
+            {followUps.length ? <ul className="space-y-2">{followUps.map((f) => <li key={f.id} className="flex items-center justify-between gap-3 rounded-2xl border border-border/60 p-3 text-sm"><div className="min-w-0"><p className={`font-semibold ${f.completed ? "line-through text-muted-foreground" : ""}`}>{f.title}</p><p className="text-[11px] text-muted-foreground">{new Date(f.due_at).toLocaleString()} · {relativeTime(f.due_at)}</p></div>{!f.completed && <Button size="sm" variant="ghost" onClick={async () => { await saveFollowUp({ ...f, completed: true }); await refresh(); toast.success("Marked done"); }}>Done</Button>}</li>)}</ul> : <p className="text-sm text-muted-foreground">No follow-ups scheduled yet.</p>}
           </GlassCard>
 
           <GlassCard className="p-5" delay={0.25}>
             <p className="mb-3 flex items-center gap-2 text-sm font-bold"><MessageSquare size={15} className="text-primary" /> Activity timeline</p>
-            <div className="flex gap-2">
-              <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add a note…" onKeyDown={(e) => e.key === "Enter" && addNote()} />
-              <Button size="sm" onClick={addNote}>Add</Button>
-            </div>
-            {activities.length ? (
-              <ul className="mt-4 space-y-3">
-                {activities.map((a) => (
-                  <li key={a.id} className="relative border-l border-border/70 pl-4">
-                    <span className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-gradient-to-br from-blue-500 to-violet-500" />
-                    <p className="text-sm font-semibold">{a.subject ?? a.type}</p>
-                    {a.body && <p className="whitespace-pre-wrap text-sm text-muted-foreground">{a.body}</p>}
-                    <p className="text-[11px] text-muted-foreground">
-                      {a.type}{a.outcome ? ` · ${a.outcome}` : ""} · {new Date(a.created_at).toLocaleString()} · {a.actor_email ?? "system"}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-4 text-sm text-muted-foreground">No activity logged yet.</p>
-            )}
+            <div className="flex gap-2"><Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Add a note…" onKeyDown={(e) => e.key === "Enter" && addNote()} /><Button size="sm" onClick={addNote}>Add</Button></div>
+            {activities.length ? <ul className="mt-4 space-y-3">{activities.map((a) => <li key={a.id} className="relative border-l border-border/70 pl-4"><span className="absolute -left-[5px] top-1.5 h-2.5 w-2.5 rounded-full bg-gradient-to-br from-blue-500 to-violet-500" /><p className="text-sm font-semibold">{a.subject ?? a.type}</p>{a.body && <p className="whitespace-pre-wrap text-sm text-muted-foreground">{a.body}</p>}<p className="text-[11px] text-muted-foreground">{a.type}{a.outcome ? ` · ${a.outcome}` : ""} · {new Date(a.created_at).toLocaleString()} · {a.actor_email ?? "system"}</p></li>)}</ul> : <p className="mt-4 text-sm text-muted-foreground">No activity logged yet.</p>}
           </GlassCard>
         </div>
       </div>
@@ -346,10 +353,7 @@ export default function CrmLeadProfile() {
             <div><Label>Date & time</Label><Input className="mt-1" type="datetime-local" value={fuWhen} onChange={(e) => setFuWhen(e.target.value)} /></div>
             <div><Label>Notes</Label><Textarea className="mt-1" rows={3} value={fuNotes} onChange={(e) => setFuNotes(e.target.value)} /></div>
           </div>
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setFuOpen(false)}>Cancel</Button>
-            <Button onClick={saveFu}>Save</Button>
-          </DialogFooter>
+          <DialogFooter><Button variant="ghost" onClick={() => setFuOpen(false)}>Cancel</Button><Button onClick={saveFu}>Save</Button></DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
