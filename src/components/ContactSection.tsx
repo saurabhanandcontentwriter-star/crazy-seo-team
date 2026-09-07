@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import ContactFormDialog from "@/components/ContactFormDialog";
 
 const WHATSAPP = "916205153346";
+
 const WHATSAPP_MESSAGE = encodeURIComponent(
   `👋 Hello Crazy SEO Team,
 
