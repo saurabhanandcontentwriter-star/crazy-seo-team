@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.ai-stt]
 verify_jwt = false
+
+[functions.refresh-news]
+verify_jwt = false
