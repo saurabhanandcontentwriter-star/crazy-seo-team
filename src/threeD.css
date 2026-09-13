@@ -1,4 +1,4 @@
-/* Crazy SEO Team — enhanced 3D depth layer. Existing theme/layout remains unchanged. */
+/* Crazy SEO Team — enhanced 3D depth + branded loading layer. Existing theme/layout remains unchanged. */
 .cst-3d-site{perspective:1600px;perspective-origin:50% 20%;overflow-x:clip}
 .cst-3d-site section{transform-style:preserve-3d}
 .cst-3d-site section .rounded-xl,.cst-3d-site section .rounded-2xl,.cst-3d-site section .rounded-3xl{transform:translate3d(0,0,0);transform-style:preserve-3d;transition:transform .45s cubic-bezier(.2,.75,.25,1),box-shadow .45s ease,border-color .45s ease;will-change:transform}
@@ -6,12 +6,18 @@
 .cst-3d-site section .rounded-xl:hover,.cst-3d-site section .rounded-2xl:hover,.cst-3d-site section .rounded-3xl:hover{transform:translate3d(0,-8px,24px) rotateX(2deg) rotateY(-2deg);box-shadow:0 30px 70px -28px hsl(224 60% 35%/.48),0 0 0 1px hsl(var(--primary)/.14),inset 0 1px 0 hsl(0 0% 100%/.7)}
 .cst-3d-site section .group:hover img{transform:translateZ(20px) scale(1.035);filter:saturate(1.08)}
 .cst-3d-site section.mesh-bg .container>div>div:nth-child(2){transform-style:preserve-3d;transition:transform .65s cubic-bezier(.2,.8,.2,1);animation:cstHeroFloat 7s ease-in-out infinite}
-.cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.relative.glass{transform:translateZ(34px) rotateX(1deg);box-shadow:0 35px 90px -35px hsl(224 70% 35%/.45),0 0 55px hsl(217 91% 60%/.12);}
+.cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.relative.glass{transform:translateZ(34px) rotateX(1deg);box-shadow:0 35px 90px -35px hsl(224 70% 35%/.45),0 0 55px hsl(217 91% 60%/.12)}
 .cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.absolute.glass{transform:translateZ(70px);animation:cstPillFloat 4.5s ease-in-out infinite}
 .cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.absolute.glass:last-child{animation-delay:1.3s}
 .cst-3d-site section.mesh-bg .container>div>div:nth-child(2)::after{content:"";position:absolute;inset:8%;border-radius:3rem;background:radial-gradient(circle,hsl(217 91% 60%/.12),transparent 65%);filter:blur(25px);transform:translateZ(-35px);pointer-events:none;z-index:-1}
 }
 .cst-3d-site .cst-3d-float{transform-style:preserve-3d;animation:cst3dFloat 5s ease-in-out infinite}
+
+/* Use the original Crazy SEO Team logo for every existing spinning/loading indicator. */
+.cst-3d-site svg.animate-spin{display:block;width:30px!important;height:30px!important;flex:none;animation:cstLogoSpin 1.15s linear infinite!important;color:transparent!important;stroke:transparent!important;fill:none!important;background-image:url('./assets/logo.jpeg');background-repeat:no-repeat;background-position:center;background-size:contain;filter:drop-shadow(0 5px 14px hsl(221 83% 53%/.28));}
+.cst-3d-site svg.animate-spin *{stroke:transparent!important;fill:none!important}
+@keyframes cstLogoSpin{from{transform:rotate(0deg) scale(.94)}50%{transform:rotate(180deg) scale(1.04)}to{transform:rotate(360deg) scale(.94)}}
+
 @keyframes cst3dFloat{0%,100%{transform:translate3d(0,0,0) rotateX(0) rotateY(0)}50%{transform:translate3d(0,-9px,12px) rotateX(1deg) rotateY(-1deg)}}
 @keyframes cstHeroFloat{0%,100%{transform:translate3d(0,0,0) rotateX(0deg) rotateY(0deg)}50%{transform:translate3d(0,-7px,10px) rotateX(.8deg) rotateY(-.8deg)}}
 @keyframes cstPillFloat{0%,100%{transform:translate3d(0,0,60px) rotateZ(0deg)}50%{transform:translate3d(0,-12px,75px) rotateZ(1deg)}}
