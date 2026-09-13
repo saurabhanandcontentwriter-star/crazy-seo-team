@@ -31,7 +31,7 @@ const Index = () => {
   }, [location.state]);
 
   return (
-    <div className="min-h-screen text-slate-900">
+    <div className="min-h-screen text-slate-900 cst-3d-site">
       <CursorGlow />
       <Navbar />
       <HeroSection />
