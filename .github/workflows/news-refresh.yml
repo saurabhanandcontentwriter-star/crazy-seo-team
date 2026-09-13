@@ -15,10 +15,16 @@ jobs:
           NEWS_CRON_SECRET: ${{ secrets.NEWS_CRON_SECRET }}
         run: |
           set -euo pipefail
-          test -n "$SUPABASE_URL"
-          test -n "$NEWS_CRON_SECRET"
+          if [ -z "${SUPABASE_URL:-}" ]; then
+            echo "SUPABASE_URL GitHub Actions secret is missing. Add it in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          if [ -z "${NEWS_CRON_SECRET:-}" ]; then
+            echo "NEWS_CRON_SECRET GitHub Actions secret is missing. Add it in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
           curl --fail-with-body --silent --show-error \
-            -X POST "$SUPABASE_URL/functions/v1/refresh-news" \
+            -X POST "${SUPABASE_URL%/}/functions/v1/refresh-news" \
             -H "Content-Type: application/json" \
             -H "x-cron-secret: $NEWS_CRON_SECRET" \
             --data '{"scheduled":true,"source":"github-actions"}'
