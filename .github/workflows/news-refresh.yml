@@ -1,0 +1,24 @@
+name: Crazy SEO Team News Refresh
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+
+jobs:
+  refresh-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Refresh live news
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEWS_CRON_SECRET: ${{ secrets.NEWS_CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_URL"
+          test -n "$NEWS_CRON_SECRET"
+          curl --fail-with-body --silent --show-error \
+            -X POST "$SUPABASE_URL/functions/v1/refresh-news" \
+            -H "Content-Type: application/json" \
+            -H "x-cron-secret: $NEWS_CRON_SECRET" \
+            --data '{"scheduled":true,"source":"github-actions"}'
