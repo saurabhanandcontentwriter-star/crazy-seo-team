@@ -268,7 +268,7 @@ function serpPreview(page: PageData): Result {
 }
 
 function nlpAnalyze(page: PageData): Result {
-  const stop = new Set("the a an and or but for with from this that these those are is was were be been being to of in on at by as into about how what why when where can could should would will your you we our their they it its this have has had do does did not no yes more most very using use used get make made page website service services official latest new best guide from than then also all any each”.split(" "));
+  const stop = new Set("the a an and or but for with from this that these those are is was were be been being to of in on at by as into about how what why when where can could should would will your you we our their they it its this have has had do does did not no yes more most very using use used get make made page website service services official latest new best guide from than then also all any each".split(" "));
   const counts = new Map<string, number>();
   page.text.toLowerCase().replace(/[^a-z0-9\s-]/g, " ").split(/\s+/).forEach((word) => {
     const w = word.trim();
