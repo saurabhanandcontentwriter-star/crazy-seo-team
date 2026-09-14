@@ -13,7 +13,6 @@
 html { scroll-behavior: smooth; }
 body { overflow-x: hidden; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
 
-/* Premium global canvas */
 body:has(.cst-public-nav) {
   background:
     radial-gradient(circle at 5% 4%, hsl(var(--cst-blue) / .085), transparent 30rem),
@@ -26,7 +25,6 @@ body:has(.cst-public-nav) .cst-3d-site section {
   position: relative;
   isolation: isolate;
 }
-
 body:has(.cst-public-nav) .cst-3d-site section::before {
   content: "";
   position: absolute;
@@ -35,10 +33,9 @@ body:has(.cst-public-nav) .cst-3d-site section::before {
   z-index: -1;
   background: linear-gradient(180deg, transparent 0%, hsl(var(--cst-blue) / .016) 50%, transparent 100%);
 }
-
 body:has(.cst-public-nav) .cst-3d-site .container { max-width: 1280px; }
 
-/* Editorial spacing and type */
+/* International typography */
 body:has(.cst-public-nav) .cst-3d-site h1 { letter-spacing: -.052em; line-height: 1.02; text-wrap: balance; }
 body:has(.cst-public-nav) .cst-3d-site h2 { letter-spacing: -.032em; line-height: 1.12; text-wrap: balance; }
 body:has(.cst-public-nav) .cst-3d-site h3 { letter-spacing: -.018em; }
@@ -50,29 +47,24 @@ body:has(.cst-public-nav) .cst-3d-site .rounded-2xl,
 body:has(.cst-public-nav) .cst-3d-site .rounded-3xl {
   transition: transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease, border-color .3s ease, background-color .3s ease;
 }
-
 body:has(.cst-public-nav) .cst-3d-site .rounded-2xl:hover,
 body:has(.cst-public-nav) .cst-3d-site .rounded-3xl:hover {
   border-color: hsl(var(--cst-blue) / .20);
   box-shadow: 0 28px 80px -44px hsl(var(--cst-blue) / .40), 0 12px 34px -24px hsl(var(--cst-violet) / .26);
 }
-
-/* Give common content cards an international SaaS glass finish without changing structure */
 body:has(.cst-public-nav) .cst-3d-site .glass {
   box-shadow: 0 24px 65px -38px hsl(var(--cst-blue) / .30), inset 0 1px 0 hsl(0 0% 100% / .72);
 }
 
-/* Interactive controls */
+/* Buttons and interactive controls */
 body:has(.cst-public-nav) .cst-3d-site button:not([aria-label]),
 body:has(.cst-public-nav) .cst-3d-site a[role="button"] {
   transition: transform .2s ease, box-shadow .2s ease, filter .2s ease, border-color .2s ease;
 }
 body:has(.cst-public-nav) .cst-3d-site button:not([aria-label]):hover,
-body:has(.cst-public-nav) .cst-3d-site a[role="button"]:hover {
-  transform: translateY(-2px);
-}
+body:has(.cst-public-nav) .cst-3d-site a[role="button"]:hover { transform: translateY(-2px); }
 
-/* Form fields */
+/* Forms */
 body:has(.cst-public-nav) .cst-3d-site input,
 body:has(.cst-public-nav) .cst-3d-site textarea,
 body:has(.cst-public-nav) .cst-3d-site select {
@@ -83,14 +75,12 @@ body:has(.cst-public-nav) .cst-3d-site textarea:focus,
 body:has(.cst-public-nav) .cst-3d-site select:focus {
   box-shadow: 0 0 0 4px hsl(var(--cst-blue) / .08), 0 12px 30px -24px hsl(var(--cst-blue) / .45);
 }
-
-/* Accessible focus */
 body:has(.cst-public-nav) .cst-3d-site :is(a,button,input,textarea,select):focus-visible {
   outline: 3px solid hsl(var(--cst-blue) / .28);
   outline-offset: 3px;
 }
 
-/* Announcement bar */
+/* Ganesh Chaturdashi announcement — keep the existing festive identity */
 .cst-public-announcement {
   position: relative;
   overflow: hidden;
@@ -134,16 +124,70 @@ body:has(.cst-public-nav) .cst-3d-site :is(a,button,input,textarea,select):focus
 .cst-public-nav .cst-nav-link[data-active="true"]::after { width: 55%; }
 .cst-public-nav .cst-brand-mark { box-shadow: 0 12px 32px -17px hsl(var(--cst-blue) / .60); }
 
-/* Page-level visual separators */
+/* Hero sections: high-end SaaS depth without changing the existing content */
+body:has(.cst-public-nav) .cst-3d-site section:first-of-type {
+  background:
+    radial-gradient(circle at 8% 30%, hsl(var(--cst-blue) / .12), transparent 22rem),
+    radial-gradient(circle at 92% 20%, hsl(var(--cst-violet) / .10), transparent 20rem);
+}
+body:has(.cst-public-nav) .cst-3d-site section:first-of-type::after {
+  content: "";
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  right: -180px;
+  top: 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle, hsl(var(--cst-cyan) / .10), transparent 68%);
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: -1;
+  animation: cstOrbFloat 9s ease-in-out infinite;
+}
+@keyframes cstOrbFloat { 0%,100%{transform:translate3d(0,0,0) scale(1)} 50%{transform:translate3d(-28px,20px,0) scale(1.08)} }
+
+/* Section rhythm */
 body:has(.cst-public-nav) .cst-3d-site section + section { border-top: 1px solid hsl(var(--cst-line) / .38); }
+body:has(.cst-public-nav) .cst-3d-site section > .container { position: relative; }
+body:has(.cst-public-nav) .cst-3d-site section > .container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(92%, 760px);
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, hsl(var(--cst-blue) / .08), transparent);
+  pointer-events: none;
+}
+
+/* Images and media */
 body:has(.cst-public-nav) .cst-3d-site img { transition: transform .35s ease, filter .35s ease; }
 body:has(.cst-public-nav) .cst-3d-site .group:hover img { filter: saturate(1.05) contrast(1.01); }
+body:has(.cst-public-nav) .cst-3d-site picture { display: block; }
 
-/* Tables / data surfaces */
+/* Data surfaces */
 body:has(.cst-public-nav) .cst-3d-site table { border-collapse: separate; border-spacing: 0; overflow: hidden; border-radius: 1rem; }
 body:has(.cst-public-nav) .cst-3d-site th { letter-spacing: .02em; text-transform: uppercase; font-size: .72rem; }
 body:has(.cst-public-nav) .cst-3d-site tbody tr { transition: background-color .18s ease; }
 body:has(.cst-public-nav) .cst-3d-site tbody tr:hover { background: hsl(var(--cst-blue) / .035); }
+
+/* Trust / stat numbers commonly used by SaaS pages */
+body:has(.cst-public-nav) .cst-3d-site [class*="text-4xl"],
+body:has(.cst-public-nav) .cst-3d-site [class*="text-5xl"],
+body:has(.cst-public-nav) .cst-3d-site [class*="text-6xl"] {
+  text-shadow: 0 10px 32px hsl(var(--cst-blue) / .10);
+}
+
+/* Badges and pills */
+body:has(.cst-public-nav) .cst-3d-site .badge,
+body:has(.cst-public-nav) .cst-3d-site [class*="rounded-full"] {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+/* Loading states */
+body:has(.cst-public-nav) .cst-3d-site [class*="animate-pulse"] { filter: drop-shadow(0 0 8px hsl(var(--cst-blue) / .22)); }
 
 /* Premium footer */
 .cst-public-footer {
@@ -163,19 +207,40 @@ body:has(.cst-public-nav) .cst-3d-site tbody tr:hover { background: hsl(var(--cs
 .cst-footer-link { transition: color .2s ease, transform .2s ease; display: inline-block; }
 .cst-footer-link:hover { transform: translateX(3px); }
 
-/* Live / status indicators */
-.cst-3d-site [class*="animate-pulse"] { filter: drop-shadow(0 0 8px hsl(var(--cst-blue) / .22)); }
+/* Scrollbar */
+body:has(.cst-public-nav) ::-webkit-scrollbar { width: 10px; height: 10px; }
+body:has(.cst-public-nav) ::-webkit-scrollbar-track { background: hsl(220 45% 97%); }
+body:has(.cst-public-nav) ::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  border: 3px solid hsl(220 45% 97%);
+  background: linear-gradient(180deg, hsl(var(--cst-blue) / .70), hsl(var(--cst-violet) / .70));
+}
 
-/* Mobile polish */
+/* Mobile: retain clean international spacing */
 @media (max-width: 767px) {
   body:has(.cst-public-nav) .cst-3d-site h1 { letter-spacing: -.038em; }
   .cst-public-nav .cst-nav-inner { min-height: 62px; }
   body:has(.cst-public-nav) .cst-3d-site .rounded-2xl:hover,
   body:has(.cst-public-nav) .cst-3d-site .rounded-3xl:hover { transform: none; }
+  body:has(.cst-public-nav) .cst-3d-site section:first-of-type::after { width: 260px; height: 260px; right: -130px; }
 }
+
+/* Dark mode: preserve brand identity while making all pages feel premium */
+.dark body:has(.cst-public-nav),
+html.dark body:has(.cst-public-nav) {
+  background:
+    radial-gradient(circle at 5% 4%, hsl(var(--cst-blue) / .13), transparent 30rem),
+    radial-gradient(circle at 96% 10%, hsl(var(--cst-violet) / .12), transparent 28rem),
+    hsl(224 45% 7%);
+}
+.dark .cst-public-nav .cst-nav-inner,
+html.dark .cst-public-nav .cst-nav-inner { background: hsl(224 45% 9% / .86); border-color: hsl(220 35% 20% / .75); }
+.dark .cst-public-footer,
+html.dark .cst-public-footer { background: linear-gradient(180deg, hsl(224 45% 8%), hsl(224 42% 6%)); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .cst-public-announcement::after { animation: none; }
+  .cst-public-announcement::after,
+  body:has(.cst-public-nav) .cst-3d-site section:first-of-type::after { animation: none; }
   body:has(.cst-public-nav) .cst-3d-site * { scroll-behavior: auto !important; animation-duration: .01ms !important; }
 }
