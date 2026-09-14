@@ -3,17 +3,19 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SEOToolsGrid from "@/components/SEOToolsGrid";
 import SEOToolsSection from "@/components/SEOToolsSection";
+import PublicToolsLab from "@/components/PublicToolsLab";
 
 const SEOTools = () => (
   <div className="min-h-screen">
     <Helmet>
-      <title>Free SEO Tools 2026 — 15 AI-Powered Tools | Crazy SEO Team</title>
-      <meta name="description" content="15 free enterprise SEO tools: keyword research, website audit, AI article generator, LLM/GEO/AEO checkers, schema, sitemap & more. Instant results." />
+      <title>Free SEO, AEO & GEO Tools 2026 | Crazy SEO Team</title>
+      <meta name="description" content="Free public SEO, AEO, GEO and LLM checkers plus keyword, schema, robots, sitemap, SERP and NLP tools. Run checks without login and download PDF reports or screenshots." />
       <link rel="canonical" href="/seo-tools" />
     </Helmet>
     <Navbar />
     <div className="pt-16">
       <SEOToolsGrid />
+      <PublicToolsLab />
       <div id="seo-tools-interactive">
         <SEOToolsSection />
       </div>
