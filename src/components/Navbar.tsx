@@ -14,6 +14,17 @@ const navLinks = [
   { label: "News", path: "/news" },
 ];
 
+const GaneshIcon = () => (
+  <svg viewBox="0 0 64 64" aria-hidden="true" className="h-9 w-9 shrink-0 drop-shadow-sm">
+    <circle cx="32" cy="32" r="30" fill="currentColor" opacity="0.12" />
+    <path d="M20 27c-6-7-12-4-12 2 0 6 5 9 11 6M44 27c6-7 12-4 12 2 0 6-5 9-11 6" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
+    <path d="M23 25c1-8 6-12 9-12s8 4 9 12v10c0 8-5 14-9 14s-9-6-9-14z" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinejoin="round" />
+    <path d="M32 36c-2 3-2 7 0 10 2-3 2-7 0-10Z" fill="currentColor" />
+    <path d="M27 22c2 2 8 2 10 0M26 29h2M36 29h2" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+    <path d="M29 17h6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+  </svg>
+);
+
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -25,11 +36,20 @@ const Navbar = () => {
   return (
     <>
       <nav className="cst-public-nav fixed top-0 left-0 right-0 z-50">
-        <div className="cst-public-announcement">
-          <div className="container mx-auto flex min-h-9 items-center justify-center gap-2 px-3 py-1 text-center">
-            <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,.8)]" />
-            <span className="text-[11px] font-bold tracking-[.14em] uppercase text-slate-600">Global SEO • AI Search • Automation</span>
-            <span className="hidden sm:inline text-[11px] text-slate-500">Built for modern growth teams worldwide</span>
+        <div className="cst-public-announcement border-b border-orange-200/70 bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 text-orange-800">
+          <div className="container mx-auto flex min-h-12 items-center justify-center gap-2.5 px-3 py-1.5 text-center">
+            <GaneshIcon />
+            <div className="leading-tight">
+              <div className="text-sm font-extrabold tracking-wide text-orange-700 sm:text-base">
+                Happy Ganesh Chaturdashi 2026
+              </div>
+              <div className="hidden text-[11px] font-medium text-orange-600/80 sm:block">
+                Ganpati Bappa Morya • May Lord Ganesha bless you with wisdom, success & prosperity
+              </div>
+            </div>
+            <span className="ml-1 hidden rounded-full border border-orange-200 bg-white/70 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-orange-600 md:inline-flex">
+              Festive Greeting
+            </span>
           </div>
         </div>
 
