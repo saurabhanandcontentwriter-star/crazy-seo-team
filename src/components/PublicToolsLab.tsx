@@ -1,117 +1,134 @@
 import { useMemo, useState } from "react";
-import { Download, ImageDown, Loader2, Search, ShieldCheck, Sparkles, Globe2, Bot, FileText, Code2, FileCode, Map, Eye, Link2, Tags, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Download, ImageDown, Loader2, Search, Sparkles, Globe2, Bot, ShieldCheck, Tags, Code2, FileCode, Map, Eye, FileText, Link2 } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
 type ToolId = "audit" | "aeo" | "geo" | "llm" | "keyword" | "meta" | "schema" | "robots" | "sitemap" | "serp" | "nlp" | "links";
 type Check = { label: string; status: "pass" | "warn" | "fail"; detail: string };
-type Result = { error?: string; code?: string; title?: string; score?: number; checks?: Check[]; summary?: string; source?: { ms: number; status: number; url: string } };
+type Result = { title: string; score?: number; summary: string; checks?: Check[]; code?: string; source?: string; error?: string };
 
-const TOOLS: { id: ToolId; name: string; desc: string; icon: any }[] = [
-  { id: "audit", name: "SEO Audit", desc: "Real on-page crawl signals", icon: ShieldCheck },
+const TOOLS: Array<{ id: ToolId; name: string; desc: string; icon: typeof Search }> = [
+  { id: "audit", name: "SEO Audit", desc: "On-page signals", icon: ShieldCheck },
   { id: "aeo", name: "AEO Checker", desc: "Answer-engine readiness", icon: Sparkles },
   { id: "geo", name: "GEO Checker", desc: "Generative search readiness", icon: Globe2 },
-  { id: "llm", name: "LLM Checker", desc: "AI crawler & entity signals", icon: Bot },
-  { id: "keyword", name: "Keyword Research", desc: "Seed and intent ideas", icon: Search },
-  { id: "meta", name: "Meta Generator", desc: "SEO title + description", icon: Tags },
-  { id: "schema", name: "Schema Generator", desc: "Valid JSON-LD starter", icon: Code2 },
-  { id: "robots", name: "Robots.txt", desc: "Production-safe template", icon: FileCode },
-  { id: "sitemap", name: "Sitemap", desc: "XML sitemap starter", icon: Map },
-  { id: "serp", name: "SERP Preview", desc: "Google-style snippet", icon: Eye },
-  { id: "nlp", name: "NLP Analyzer", desc: "Entities and topical terms", icon: FileText },
-  { id: "links", name: "Internal Link Checker", desc: "Link structure signals", icon: Link2 },
+  { id: "llm", name: "LLM Checker", desc: "AI/entity signals", icon: Bot },
+  { id: "keyword", name: "Keyword Research", desc: "Keyword seeds", icon: Search },
+  { id: "meta", name: "Meta Generator", desc: "Title + description", icon: Tags },
+  { id: "schema", name: "Schema Generator", desc: "JSON-LD", icon: Code2 },
+  { id: "robots", name: "Robots.txt", desc: "Crawler rules", icon: FileCode },
+  { id: "sitemap", name: "Sitemap", desc: "XML starter", icon: Map },
+  { id: "serp", name: "SERP Preview", desc: "Search snippet", icon: Eye },
+  { id: "nlp", name: "NLP Analyzer", desc: "Topics + entities", icon: FileText },
+  { id: "links", name: "Internal Link Checker", desc: "Link signals", icon: Link2 },
 ];
 
 const normalize = (value: string) => {
   const v = value.trim();
+  if (!v) return "";
   return /^https?:\/\//i.test(v) ? v : `https://${v}`;
 };
-const stripText = (html: string) => html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-const get = (html: string, re: RegExp) => (html.match(re)?.[1] || "").trim();
 
-async function fetchPage(input: string) {
+const stripHtml = (html: string) => html
+  .replace(/<script[\s\S]*?<\/script>/gi, " ")
+  .replace(/<style[\s\S]*?<\/style>/gi, " ")
+  .replace(/<[^>]+>/g, " ")
+  .replace(/\s+/g, " ")
+  .trim();
+
+const firstMatch = (html: string, pattern: RegExp) => html.match(pattern)?.[1]?.trim() || "";
+
+async function fetchPublicPage(input: string) {
   const url = normalize(input);
-  const started = performance.now();
-  const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(15000) });
-  if (!response.ok) throw new Error(`Fetch failed (${response.status})`);
-  const payload = await response.json();
-  const status = Number(payload?.status?.http_code || 0);
-  return { url, html: String(payload?.contents || ""), status, ms: Math.round(performance.now() - started) };
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), 15000);
+  try {
+    const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, { signal: controller.signal });
+    if (!response.ok) throw new Error(`Website fetch failed (${response.status})`);
+    const payload = await response.json();
+    const html = String(payload?.contents || "");
+    const status = Number(payload?.status?.http_code || 0);
+    if (!html) throw new Error("No public HTML returned. The website may block automated requests.");
+    if (status >= 400) throw new Error(`Website returned HTTP ${status}`);
+    return { url, html };
+  } finally {
+    window.clearTimeout(timer);
+  }
 }
 
-function scoreChecks(checks: Check[]) {
-  return Math.max(0, Math.min(100, Math.round(checks.reduce((sum, c) => sum + (c.status === "pass" ? 100 : c.status === "warn" ? 60 : 20), 0) / Math.max(1, checks.length))));
+function score(checks: Check[]) {
+  const value = checks.reduce((sum, item) => sum + (item.status === "pass" ? 100 : item.status === "warn" ? 60 : 20), 0) / Math.max(1, checks.length);
+  return Math.max(0, Math.min(100, Math.round(value)));
 }
 
-function analyze(html: string, url: string, tool: ToolId) {
-  const title = get(html, /<title[^>]*>([^<]*)<\/title>/i);
-  const desc = get(html, /<meta[^>]+name=["']description["'][^>]*content=["']([^"']*)["']/i);
-  const canonical = get(html, /<link[^>]+rel=["']canonical["'][^>]*href=["']([^"']*)["']/i);
-  const h1 = html.match(/<h1[\s>][\s\S]*?<\/h1>/gi)?.length || 0;
-  const imgs = html.match(/<img[^>]*>/gi) || [];
-  const noAlt = imgs.filter(tag => !/\salt\s*=/i.test(tag)).length;
+function analyze(html: string, url: string, tool: ToolId): Result {
+  const title = firstMatch(html, /<title[^>]*>([^<]*)<\/title>/i);
+  const description = firstMatch(html, /<meta[^>]+name=["']description["'][^>]*content=["']([^"']*)["']/i);
+  const canonical = firstMatch(html, /<link[^>]+rel=["']canonical["'][^>]*href=["']([^"']*)["']/i);
+  const h1 = (html.match(/<h1[\s>][\s\S]*?<\/h1>/gi) || []).length;
+  const images = html.match(/<img[^>]*>/gi) || [];
+  const missingAlt = images.filter((tag) => !/\salt\s*=/i.test(tag)).length;
   const links = html.match(/<a\s[^>]*href=["'][^"']+["'][^>]*>/gi) || [];
-  const jsonLd = /application\/ld\+json/i.test(html);
-  const og = /property=["']og:/i.test(html);
-  const body = stripText(html);
+  const hasSchema = /application\/ld\+json/i.test(html);
+  const hasOg = /property=["']og:/i.test(html);
+  const body = stripHtml(html);
   const words = body ? body.split(/\s+/).length : 0;
   const faq = /faq|frequently asked|question/i.test(body);
-  const answerPatterns = /\bwhat is\b|\bhow to\b|\bwhy\b|\bwhen\b|\bwhere\b/i.test(body);
-  const entities = (body.match(/\b[A-Z][A-Za-z0-9&.-]{2,}\b/g) || []).slice(0, 12);
-  const aiTerms = ["Organization", "sameAs", "author", "about", "mentions", "citation", "source", "FAQPage"].filter(k => new RegExp(k, "i").test(html));
-  let checks: Check[];
-  if (tool === "aeo") checks = [
-    { label: "Answer-oriented headings", status: answerPatterns ? "pass" : "warn", detail: answerPatterns ? "Question/answer phrasing detected." : "Add direct question headings." },
-    { label: "FAQ content", status: faq ? "pass" : "warn", detail: faq ? "FAQ/question content detected." : "Add concise FAQs with direct answers." },
-    { label: "Structured data", status: jsonLd ? "pass" : "fail", detail: jsonLd ? "JSON-LD detected." : "No JSON-LD detected." },
-    { label: "Single primary H1", status: h1 === 1 ? "pass" : "warn", detail: `${h1} H1 tag(s) detected.` },
-    { label: "Content depth", status: words >= 500 ? "pass" : "warn", detail: `${words.toLocaleString()} visible words detected.` },
-    { label: "Crawlable links", status: links.length >= 5 ? "pass" : "warn", detail: `${links.length} links detected.` },
-  ];
-  else if (tool === "geo") checks = [
-    { label: "Entity signals", status: entities.length >= 6 ? "pass" : "warn", detail: `${entities.length} candidate entities found.` },
-    { label: "Author / source context", status: /author|about|source/i.test(html) ? "pass" : "warn", detail: /author|about|source/i.test(html) ? "Context signals detected." : "Strengthen author, organization and source context." },
-    { label: "Canonical identity", status: canonical ? "pass" : "warn", detail: canonical ? "Canonical URL detected." : "Canonical URL not detected." },
-    { label: "Open Graph", status: og ? "pass" : "warn", detail: og ? "Open Graph metadata detected." : "Add OG metadata." },
-    { label: "Machine-readable schema", status: jsonLd ? "pass" : "fail", detail: jsonLd ? "JSON-LD detected." : "Add Organization/Article/FAQ/Service schema." },
-    { label: "Content completeness", status: words >= 700 ? "pass" : words >= 350 ? "warn" : "fail", detail: `${words.toLocaleString()} visible words detected.` },
-  ];
-  else if (tool === "llm") checks = [
-    { label: "Structured data", status: jsonLd ? "pass" : "warn", detail: jsonLd ? "JSON-LD detected." : "No JSON-LD detected." },
-    { label: "Entity/context vocabulary", status: aiTerms.length >= 3 ? "pass" : "warn", detail: `${aiTerms.length} AI-readable context signals detected.` },
-    { label: "About/author/source signals", status: /about|author|publisher|source/i.test(html) ? "pass" : "warn", detail: "Check author, publisher and entity context." },
-    { label: "Canonical URL", status: canonical ? "pass" : "warn", detail: canonical ? "Canonical identity present." : "Canonical identity missing." },
-    { label: "Open Graph", status: og ? "pass" : "warn", detail: og ? "Social/entity metadata present." : "OG metadata missing." },
-    { label: "Semantic content", status: words >= 500 ? "pass" : "warn", detail: `${words.toLocaleString()} visible words detected.` },
-  ];
-  else checks = [
-    { label: "HTTPS", status: url.startsWith("https://") ? "pass" : "fail", detail: url.startsWith("https://") ? "HTTPS URL detected." : "Use HTTPS." },
-    { label: "Title tag", status: title.length >= 30 && title.length <= 60 ? "pass" : title ? "warn" : "fail", detail: title ? `${title.length} characters.` : "Missing title." },
-    { label: "Meta description", status: desc.length >= 120 && desc.length <= 160 ? "pass" : desc ? "warn" : "fail", detail: desc ? `${desc.length} characters.` : "Missing description." },
-    { label: "One H1", status: h1 === 1 ? "pass" : "warn", detail: `${h1} H1 tag(s).` },
-    { label: "Image alt text", status: imgs.length === 0 || noAlt === 0 ? "pass" : "warn", detail: imgs.length ? `${noAlt}/${imgs.length} images lack alt.` : "No images detected." },
-    { label: "Schema", status: jsonLd ? "pass" : "warn", detail: jsonLd ? "JSON-LD detected." : "No JSON-LD detected." },
-    { label: "Canonical", status: canonical ? "pass" : "warn", detail: canonical ? "Canonical detected." : "Canonical missing." },
-    { label: "Open Graph", status: og ? "pass" : "warn", detail: og ? "OG metadata detected." : "OG metadata missing." },
-    { label: "Content depth", status: words >= 600 ? "pass" : words >= 300 ? "warn" : "fail", detail: `${words.toLocaleString()} visible words.` },
-    { label: "Internal/external links", status: links.length >= 5 ? "pass" : "warn", detail: `${links.length} links detected.` },
-  ];
-  return { title: `${tool.toUpperCase()} analysis`, score: scoreChecks(checks), checks, summary: `${tool.toUpperCase()} analysis completed for ${url}.` };
+  const answerStyle = /\bwhat is\b|\bhow to\b|\bwhy\b|\bwhen\b|\bwhere\b/i.test(body);
+  const entityCount = (body.match(/\b[A-Z][A-Za-z0-9&.-]{2,}\b/g) || []).length;
+  const context = /author|publisher|about|source|organization/i.test(html);
+  const checks: Check[] = [];
+
+  if (tool === "aeo") {
+    checks.push({ label: "Answer-oriented content", status: answerStyle ? "pass" : "warn", detail: answerStyle ? "Question/answer phrasing detected." : "Add direct question headings and answers." });
+    checks.push({ label: "FAQ signals", status: faq ? "pass" : "warn", detail: faq ? "FAQ/question content detected." : "Add concise FAQs with direct answers." });
+    checks.push({ label: "Structured data", status: hasSchema ? "pass" : "fail", detail: hasSchema ? "JSON-LD detected." : "Add FAQ, Article, Organization or Service schema." });
+    checks.push({ label: "Primary H1", status: h1 === 1 ? "pass" : "warn", detail: `${h1} H1 tag(s) detected.` });
+    checks.push({ label: "Content depth", status: words >= 500 ? "pass" : "warn", detail: `${words.toLocaleString()} visible words detected.` });
+    checks.push({ label: "Crawlable links", status: links.length >= 5 ? "pass" : "warn", detail: `${links.length} links detected.` });
+  } else if (tool === "geo") {
+    checks.push({ label: "Entity signals", status: entityCount >= 6 ? "pass" : "warn", detail: `${Math.min(entityCount, 99)} candidate entities detected.` });
+    checks.push({ label: "Source and author context", status: context ? "pass" : "warn", detail: context ? "Context signals detected." : "Strengthen organization, author and source context." });
+    checks.push({ label: "Canonical identity", status: canonical ? "pass" : "warn", detail: canonical ? "Canonical URL detected." : "Canonical URL missing." });
+    checks.push({ label: "Open Graph", status: hasOg ? "pass" : "warn", detail: hasOg ? "Open Graph metadata detected." : "Add OG metadata." });
+    checks.push({ label: "Machine-readable schema", status: hasSchema ? "pass" : "fail", detail: hasSchema ? "JSON-LD detected." : "Add machine-readable schema." });
+    checks.push({ label: "Content completeness", status: words >= 700 ? "pass" : words >= 350 ? "warn" : "fail", detail: `${words.toLocaleString()} visible words detected.` });
+  } else if (tool === "llm") {
+    checks.push({ label: "Structured data", status: hasSchema ? "pass" : "warn", detail: hasSchema ? "JSON-LD detected." : "No JSON-LD detected." });
+    checks.push({ label: "Entity/context vocabulary", status: context ? "pass" : "warn", detail: context ? "Entity context signals detected." : "Add clear organization, author and source context." });
+    checks.push({ label: "Canonical URL", status: canonical ? "pass" : "warn", detail: canonical ? "Canonical identity present." : "Canonical identity missing." });
+    checks.push({ label: "Open Graph", status: hasOg ? "pass" : "warn", detail: hasOg ? "OG metadata present." : "OG metadata missing." });
+    checks.push({ label: "Semantic content", status: words >= 500 ? "pass" : "warn", detail: `${words.toLocaleString()} visible words detected.` });
+  } else {
+    checks.push({ label: "HTTPS", status: url.startsWith("https://") ? "pass" : "fail", detail: url.startsWith("https://") ? "HTTPS detected." : "Use HTTPS." });
+    checks.push({ label: "Title", status: title.length >= 30 && title.length <= 60 ? "pass" : title ? "warn" : "fail", detail: title ? `${title.length} characters.` : "Missing title." });
+    checks.push({ label: "Meta description", status: description.length >= 120 && description.length <= 160 ? "pass" : description ? "warn" : "fail", detail: description ? `${description.length} characters.` : "Missing description." });
+    checks.push({ label: "One H1", status: h1 === 1 ? "pass" : "warn", detail: `${h1} H1 tag(s) detected.` });
+    checks.push({ label: "Image alt text", status: images.length === 0 || missingAlt === 0 ? "pass" : "warn", detail: images.length ? `${missingAlt}/${images.length} images lack alt text.` : "No images detected." });
+    checks.push({ label: "Schema", status: hasSchema ? "pass" : "warn", detail: hasSchema ? "JSON-LD detected." : "No JSON-LD detected." });
+    checks.push({ label: "Canonical", status: canonical ? "pass" : "warn", detail: canonical ? "Canonical detected." : "Canonical missing." });
+    checks.push({ label: "Open Graph", status: hasOg ? "pass" : "warn", detail: hasOg ? "OG metadata detected." : "OG metadata missing." });
+    checks.push({ label: "Content depth", status: words >= 600 ? "pass" : words >= 300 ? "warn" : "fail", detail: `${words.toLocaleString()} visible words.` });
+    checks.push({ label: "Links", status: links.length >= 5 ? "pass" : "warn", detail: `${links.length} links detected.` });
+  }
+
+  return { title: `${tool.toUpperCase()} Analysis`, score: score(checks), summary: `Analysis completed for ${url}.`, checks, source: url };
 }
 
-function generator(tool: ToolId, input: string) {
-  const u = normalize(input);
-  const parsed = new URL(u);
+function generate(tool: ToolId, input: string): Result {
+  const url = normalize(input);
+  const parsed = new URL(url);
   const host = parsed.hostname.replace(/^www\./, "");
   const name = host.split(".")[0].replace(/[-_]/g, " ");
-  if (tool === "meta") return { code: `<title>${name} — Official Website & Services</title>\n<meta name="description" content="Explore ${name}, services, solutions, resources and latest updates from the official website.">` };
-  if (tool === "schema") return { code: JSON.stringify({ "@context": "https://schema.org", "@type": "Organization", name, url: u, sameAs: [] }, null, 2) };
-  if (tool === "robots") return { code: `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\nSitemap: ${parsed.origin}/sitemap.xml` };
-  if (tool === "sitemap") return { code: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${parsed.origin}/</loc></url>\n  <url><loc>${parsed.origin}/services</loc></url>\n  <url><loc>${parsed.origin}/blog</loc></url>\n  <url><loc>${parsed.origin}/contact</loc></url>\n</urlset>` };
-  if (tool === "keyword") return { code: [name, `${name} services`, `${name} company`, `${name} solutions`, `${name} pricing`, `${name} reviews`, `${name} near me`, `best ${name}`, `${name} online`, `${name} official website`].join("\n") };
-  if (tool === "serp") return { code: `${name} — Official Website & Services\n${u}\nExplore trusted services, solutions and latest resources. Learn more and get started today.` };
-  if (tool === "nlp") return { code: `Topical terms:\n${name}\nservices\nsolutions\nwebsite\nresources\nupdates\n\nUse these as seed terms and validate them against your real page copy.` };
-  return { code: `Internal link audit target: ${u}\nReview contextual links to key service, product, category and supporting content pages.` };
+  let code = "";
+  if (tool === "meta") code = `<title>${name} — Official Website & Services</title>\n<meta name="description" content="Explore ${name}, services, solutions, resources and latest updates from the official website.">`;
+  else if (tool === "schema") code = JSON.stringify({ "@context": "https://schema.org", "@type": "Organization", name, url, sameAs: [] }, null, 2);
+  else if (tool === "robots") code = `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\nSitemap: ${parsed.origin}/sitemap.xml`;
+  else if (tool === "sitemap") code = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>${parsed.origin}/</loc></url>\n  <url><loc>${parsed.origin}/services</loc></url>\n  <url><loc>${parsed.origin}/blog</loc></url>\n  <url><loc>${parsed.origin}/contact</loc></url>\n</urlset>`;
+  else if (tool === "keyword") code = [name, `${name} services`, `${name} company`, `${name} solutions`, `${name} pricing`, `${name} reviews`, `best ${name}`, `${name} online`, `${name} official website`].join("\n");
+  else if (tool === "serp") code = `${name} — Official Website & Services\n${url}\nExplore trusted services, solutions and latest resources. Learn more and get started today.`;
+  else if (tool === "nlp") code = `Topical terms:\n${name}\nservices\nsolutions\nwebsite\nresources\nupdates\n\nUse these as seed terms and validate them against your real page copy.`;
+  else code = `Internal link audit target: ${url}\nReview contextual links to key service, product, category and supporting pages.`;
+  return { title: `${TOOLS.find((item) => item.id === tool)?.name || "Tool"} Result`, summary: "Generated successfully.", code, source: url };
 }
 
 export default function PublicToolsLab() {
@@ -119,68 +136,98 @@ export default function PublicToolsLab() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
-  const selected = useMemo(() => TOOLS.find(item => item.id === tool)!, [tool]);
+  const selected = useMemo(() => TOOLS.find((item) => item.id === tool) || TOOLS[0], [tool]);
 
   const run = async () => {
-    if (!url.trim()) return;
-    setLoading(true); setResult(null);
+    if (!url.trim()) {
+      setResult({ title: "Enter a website", summary: "Enter a public website URL first.", error: "Example: https://example.com" });
+      return;
+    }
+    setLoading(true);
+    setResult(null);
     try {
       if (["audit", "aeo", "geo", "llm"].includes(tool)) {
-        const page = await fetchPage(url);
-        if (!page.html) throw new Error("No HTML was returned. The website may block automated requests.");
-        if (page.status >= 400) throw new Error(`Website returned HTTP ${page.status}`);
-        setResult({ ...analyze(page.html, page.url, tool), source: page });
-      } else setResult(generator(tool, url));
-    } catch (error: any) {
-      setResult({ error: error?.message || "Unable to process this URL. Make sure the website is public." });
-    } finally { setLoading(false); }
+        const page = await fetchPublicPage(url);
+        setResult(analyze(page.html, page.url, tool));
+      } else {
+        setResult(generate(tool, url));
+      }
+    } catch (error) {
+      setResult({ title: "Tool could not complete", summary: "The requested website could not be processed.", error: error instanceof Error ? error.message : "Please check the URL and try again." });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const getNode = () => document.getElementById("cst-tool-result");
-  const makeCanvas = async () => {
-    const node = getNode();
+  const resultNode = () => document.getElementById("cst-tool-result");
+
+  const screenshot = async () => {
+    const node = resultNode();
     if (!node) throw new Error("Run a tool first.");
-    return html2canvas(node, { scale: 2, useCORS: true, allowTaint: false, backgroundColor: "#ffffff", logging: false });
+    const canvas = await html2canvas(node, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
+    const link = document.createElement("a");
+    link.download = `crazy-seo-${tool}-report.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
   };
-  const downloadPdf = async () => {
-    try {
-      const canvas = await makeCanvas();
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pageW = 190; const pageH = 277; const imgH = (canvas.height * pageW) / canvas.width;
-      const img = canvas.toDataURL("image/png");
-      let offset = 0;
-      while (offset < imgH) { if (offset > 0) pdf.addPage(); pdf.setFontSize(16); if (offset === 0) pdf.text("Crazy SEO Team — Tool Report", 10, 10); pdf.addImage(img, "PNG", 10, 18 - offset, pageW, imgH); offset += pageH; }
-      pdf.save(`crazy-seo-${tool}-${new Date().toISOString().slice(0, 10)}.pdf`);
-    } catch (error: any) { setResult(prev => ({ ...(prev || {}), error: error?.message || "PDF export failed." })); }
+
+  const pdf = async () => {
+    const node = resultNode();
+    if (!node) throw new Error("Run a tool first.");
+    const canvas = await html2canvas(node, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
+    const doc = new jsPDF("p", "mm", "a4");
+    const width = 190;
+    const height = (canvas.height * width) / canvas.width;
+    const image = canvas.toDataURL("image/png");
+    const pageHeight = 277;
+    let offset = 0;
+    while (offset < height) {
+      if (offset > 0) doc.addPage();
+      doc.setFontSize(14);
+      if (offset === 0) doc.text("Crazy SEO Team — Tool Report", 10, 10);
+      doc.addImage(image, "PNG", 10, 18 - offset, width, height);
+      offset += pageHeight;
+    }
+    doc.save(`crazy-seo-${tool}-${new Date().toISOString().slice(0, 10)}.pdf`);
   };
-  const downloadScreenshot = async () => {
-    try {
-      const canvas = await makeCanvas();
-      const link = document.createElement("a"); link.download = `crazy-seo-${tool}-report.png`; link.href = canvas.toDataURL("image/png"); link.click();
-    } catch (error: any) { setResult(prev => ({ ...(prev || {}), error: error?.message || "Screenshot export failed." })); }
-  };
-  const downloadText = () => {
-    if (!result) return;
-    const blob = new Blob([result.code || JSON.stringify(result, null, 2)], { type: "text/plain;charset=utf-8" });
-    const link = document.createElement("a"); link.download = `crazy-seo-${tool}-result.txt`; link.href = URL.createObjectURL(blob); link.click(); URL.revokeObjectURL(link.href);
+
+  const safeExport = async (action: () => Promise<void>, message: string) => {
+    try { await action(); } catch (error) { setResult((current) => ({ ...(current || { title: "Export error", summary: "" }), error: error instanceof Error ? error.message : message })); }
   };
 
   return (
-    <section id="public-tools-lab" className="relative border-y border-slate-200/70 bg-slate-50/70 px-4 py-20">
-      <div className="container mx-auto max-w-7xl">
-        <div className="mb-10 text-center"><span className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white px-3 py-1 text-xs font-bold text-blue-700"><Sparkles size={14} /> Public AI SEO Lab</span><h2 className="mt-4 text-4xl font-black text-slate-900 md:text-5xl">Free SEO, AEO & GEO Tools</h2><p className="mx-auto mt-3 max-w-3xl text-slate-600">No login. Run public on-page checks, generate SEO assets and export professional reports. Scores use signals available from the public URL; traffic and backlink numbers are never fabricated.</p></div>
-        <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-          <div className="grid h-max grid-cols-2 gap-2 lg:grid-cols-1">{TOOLS.map(item => { const Icon = item.icon; return <button key={item.id} type="button" onClick={() => { setTool(item.id); setResult(null); }} className={`rounded-xl border p-3 text-left transition-all ${tool === item.id ? "border-blue-400 bg-blue-50 shadow-sm" : "border-slate-200 bg-white hover:border-blue-200"}`}><div className="flex items-center gap-3"><Icon size={18} className="text-blue-600" /><div><div className="text-sm font-bold text-slate-900">{item.name}</div><div className="text-[11px] text-slate-500">{item.desc}</div></div></div></button>; })}</div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xl shadow-slate-200/40 md:p-7">
-            <div className="mb-5 flex items-center gap-3"><selected.icon className="text-blue-600" /><div><h3 className="text-xl font-black text-slate-900">{selected.name}</h3><p className="text-sm text-slate-500">{selected.desc}</p></div></div>
-            <div className="flex flex-col gap-3 sm:flex-row"><input value={url} onChange={event => setUrl(event.target.value)} onKeyDown={event => { if (event.key === "Enter") void run(); }} placeholder="https://example.com" className="h-12 flex-1 rounded-xl border border-slate-300 px-4 outline-none focus:ring-4 focus:ring-blue-100" /><button type="button" onClick={() => void run()} disabled={loading || !url.trim()} className="flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 font-bold text-white disabled:opacity-50">{loading ? <Loader2 className="animate-spin" size={18} /> : <Search size={18} />} Run {selected.name}</button></div>
-            {result && <div id="cst-tool-result" className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
-              {result.error && <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700">{result.error}</div>}
-              {result.code ? <><pre className="max-h-[460px] overflow-auto rounded-xl bg-slate-950 p-5 text-sm text-slate-100">{result.code}</pre><div className="mt-4 flex flex-wrap gap-2"><button type="button" onClick={downloadText} className="flex items-center gap-2 rounded-lg border px-4 py-2 font-semibold"><Download size={16} /> Download</button><button type="button" onClick={() => void downloadPdf()} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white"><Download size={16} /> PDF</button><button type="button" onClick={() => void downloadScreenshot()} className="flex items-center gap-2 rounded-lg border px-4 py-2 font-semibold"><ImageDown size={16} /> Screenshot</button></div></> : result.checks && <><div className="mb-5 flex flex-wrap items-center justify-between gap-4"><div><p className="text-xs uppercase tracking-wider text-slate-500">Score</p><div className="text-5xl font-black text-blue-600">{result.score}<span className="text-lg text-slate-400">/100</span></div></div><div className="text-sm text-slate-600">{result.summary}<br />{result.source?.ms}ms fetch • HTTP {result.source?.status}</div></div><div className="grid gap-2 sm:grid-cols-2">{result.checks.map(check => <div key={check.label} className="rounded-xl border border-slate-200 p-3"><div className="flex items-start gap-2">{check.status === "pass" ? <CheckCircle2 className="text-emerald-600" size={17} /> : check.status === "fail" ? <XCircle className="text-red-600" size={17} /> : <AlertTriangle className="text-amber-500" size={17} />}<div><b className="text-sm">{check.label}</b><p className="mt-1 text-xs text-slate-500">{check.detail}</p></div></div></div>)}</div><div className="mt-5 flex flex-wrap gap-2"><button type="button" onClick={() => void downloadPdf()} className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white"><Download size={16} /> Download PDF Report</button><button type="button" onClick={() => void downloadScreenshot()} className="flex items-center gap-2 rounded-lg border px-4 py-2 font-semibold"><ImageDown size={16} /> Save Screenshot</button></div></>}
-            </div>}
-          </div>
+    <section className="container mx-auto px-4 py-12" aria-label="Public SEO tools">
+      <div className="mb-8 text-center">
+        <span className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium"><Sparkles className="h-4 w-4" /> Public AI Search & SEO Lab</span>
+        <h2 className="mt-4 text-3xl font-bold md:text-4xl">Free SEO, AEO, GEO & LLM tools</h2>
+        <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">Run public checks without login, generate SEO assets, and export a report as PDF or PNG.</p>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-4">
+        {TOOLS.map((item) => {
+          const Icon = item.icon;
+          const active = item.id === tool;
+          return <button key={item.id} type="button" onClick={() => { setTool(item.id); setResult(null); }} className={`rounded-xl border p-4 text-left transition ${active ? "border-primary bg-primary/10 shadow-sm" : "hover:bg-muted/60"}`}><Icon className="h-5 w-5" /><div className="mt-2 font-semibold">{item.name}</div><div className="text-xs text-muted-foreground">{item.desc}</div></button>;
+        })}
+      </div>
+
+      <div className="mx-auto mt-8 max-w-4xl rounded-2xl border bg-background/80 p-5 shadow-sm">
+        <div className="flex flex-col gap-3 md:flex-row">
+          <input value={url} onChange={(event) => setUrl(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void run(); }} placeholder={selected.id === "keyword" ? "example.com or seed topic" : "https://example.com"} className="h-12 flex-1 rounded-xl border bg-background px-4 outline-none focus:ring-2 focus:ring-primary" aria-label="Website URL" />
+          <button type="button" onClick={() => void run()} disabled={loading} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 font-semibold text-primary-foreground disabled:opacity-60">{loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />} {loading ? "Analyzing…" : "Run tool"}</button>
         </div>
       </div>
+
+      {result && <div id="cst-tool-result" className="mx-auto mt-8 max-w-4xl rounded-2xl border bg-background p-6 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div><h3 className="text-2xl font-bold">{result.title}</h3><p className="mt-1 text-muted-foreground">{result.summary}</p>{result.source && <p className="mt-1 break-all text-xs text-muted-foreground">Source: {result.source}</p>}</div>
+          {typeof result.score === "number" && <div className="rounded-2xl border px-5 py-3 text-center"><div className="text-3xl font-bold">{result.score}</div><div className="text-xs text-muted-foreground">/ 100</div></div>}
+        </div>
+        {result.error && <div className="mt-5 flex gap-2 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm"><AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" /><span>{result.error}</span></div>}
+        {result.checks && <div className="mt-6 grid gap-3 md:grid-cols-2">{result.checks.map((item) => <div key={item.label} className="rounded-xl border p-4"><div className="flex items-center gap-2 font-semibold">{item.status === "pass" ? <CheckCircle2 className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}{item.label}</div><p className="mt-1 text-sm text-muted-foreground">{item.detail}</p></div>)}</div>}
+        {result.code && <pre className="mt-6 max-h-[480px] overflow-auto rounded-xl bg-muted p-4 text-sm whitespace-pre-wrap break-words">{result.code}</pre>}
+        {!result.error && <div className="mt-6 flex flex-wrap gap-3"><button type="button" onClick={() => void safeExport(pdf, "PDF export failed.")} className="inline-flex items-center gap-2 rounded-xl border px-4 py-2 font-medium"><Download className="h-4 w-4" /> Download PDF</button><button type="button" onClick={() => void safeExport(screenshot, "Screenshot export failed.")} className="inline-flex items-center gap-2 rounded-xl border px-4 py-2 font-medium"><ImageDown className="h-4 w-4" /> Save Screenshot</button></div>}
+      </div>}
     </section>
   );
 }
