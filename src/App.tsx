@@ -36,7 +36,6 @@ const AdminCrm = lazy(() => import("./pages/admin/crm/CrmDashboard.tsx"));
 import AITools from "./pages/AITools.tsx";
 import News from "./pages/News.tsx";
 import AIChatbot from "./components/AIChatbot.tsx";
-import AuroraBackground from "./components/AuroraBackground.tsx";
 import WebsiteTour from "./components/WebsiteTour.tsx";
 import WelcomeExperience from "./components/WelcomeExperience.tsx";
 import { useVisitorTracking } from "./hooks/useVisitorTracking.ts";
@@ -76,52 +75,49 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AuroraBackground />
         <TrackingLayer />
-        <div className="cst-3d-site">
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/services/:slug" element={<ServiceDetail />} />
-            <Route path="/seo-tools" element={<SEOTools />} />
-            <Route path="/ai-tools" element={<AITools />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/results" element={<Results />} />
-            <Route path="/news" element={<News />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogPost />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms-and-conditions" element={<TermsConditions />} />
-            <Route path="/payment-policy" element={<PaymentPolicy />} />
-            <Route path="/crm" element={<Navigate to="/admin/crm" replace />} />
-            <Route path="/crm/*" element={<Navigate to="/admin/crm" replace />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route
-              path="/admin"
-              element={
-                <AdminGuard>
-                  <Suspense fallback={<AdminFallback />}>
-                    <AdminLayout />
-                  </Suspense>
-                </AdminGuard>
-              }
-            >
-              <Route index element={<Suspense fallback={<AdminSkeleton />}><AdminHome /></Suspense>} />
-              <Route path="live" element={<Suspense fallback={<AdminSkeleton />}><AdminLive /></Suspense>} />
-              <Route path="blog" element={<Suspense fallback={<AdminSkeleton />}><AdminDashboard /></Suspense>} />
-              <Route path="news" element={<Suspense fallback={<AdminSkeleton />}><AdminNews /></Suspense>} />
-              <Route path="users" element={<Suspense fallback={<AdminSkeleton />}><AdminUsers /></Suspense>} />
-              <Route path="subscribers" element={<Suspense fallback={<AdminSkeleton />}><AdminSubscribers /></Suspense>} />
-              <Route path="analytics" element={<Suspense fallback={<AdminSkeleton />}><AdminAnalytics /></Suspense>} />
-              <Route path="reports" element={<Suspense fallback={<AdminSkeleton />}><AdminReports /></Suspense>} />
-              <Route path="operations" element={<Suspense fallback={<AdminSkeleton />}><AdminOperations /></Suspense>} />
-              <Route path="crm" element={<Suspense fallback={<AdminSkeleton />}><AdminCrm /></Suspense>} />
-              <Route path="crm/*" element={<Suspense fallback={<AdminSkeleton />}><AdminCrm /></Suspense>} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/services/:slug" element={<ServiceDetail />} />
+          <Route path="/seo-tools" element={<SEOTools />} />
+          <Route path="/ai-tools" element={<AITools />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/results" element={<Results />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-and-conditions" element={<TermsConditions />} />
+          <Route path="/payment-policy" element={<PaymentPolicy />} />
+          <Route path="/crm" element={<Navigate to="/admin/crm" replace />} />
+          <Route path="/crm/*" element={<Navigate to="/admin/crm" replace />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminGuard>
+                <Suspense fallback={<AdminFallback />}>
+                  <AdminLayout />
+                </Suspense>
+              </AdminGuard>
+            }
+          >
+            <Route index element={<Suspense fallback={<AdminSkeleton />}><AdminHome /></Suspense>} />
+            <Route path="live" element={<Suspense fallback={<AdminSkeleton />}><AdminLive /></Suspense>} />
+            <Route path="blog" element={<Suspense fallback={<AdminSkeleton />}><AdminDashboard /></Suspense>} />
+            <Route path="news" element={<Suspense fallback={<AdminSkeleton />}><AdminNews /></Suspense>} />
+            <Route path="users" element={<Suspense fallback={<AdminSkeleton />}><AdminUsers /></Suspense>} />
+            <Route path="subscribers" element={<Suspense fallback={<AdminSkeleton />}><AdminSubscribers /></Suspense>} />
+            <Route path="analytics" element={<Suspense fallback={<AdminSkeleton />}><AdminAnalytics /></Suspense>} />
+            <Route path="reports" element={<Suspense fallback={<AdminSkeleton />}><AdminReports /></Suspense>} />
+            <Route path="operations" element={<Suspense fallback={<AdminSkeleton />}><AdminOperations /></Suspense>} />
+            <Route path="crm" element={<Suspense fallback={<AdminSkeleton />}><AdminCrm /></Suspense>} />
+            <Route path="crm/*" element={<Suspense fallback={<AdminSkeleton />}><AdminCrm /></Suspense>} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
         <PublicOverlays />
       </BrowserRouter>
     </TooltipProvider>
