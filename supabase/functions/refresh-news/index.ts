@@ -3,7 +3,7 @@
 // Source facts are fetched first; AI only rewrites the supplied facts into concise original editorial copy.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret" };
+const corsHeaders = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret, x-github-token" };
 const CATEGORIES = ["AI News","Technology","SEO","AI SEO","Technical SEO","Google Updates","AI Search","ChatGPT","ChatGPT SEO","Gemini","AI Agents","AI Tools","Cybersecurity","AI Research","Machine Learning","Generative AI","Voice AI","Business Intelligence","SaaS & Startups","Digital Marketing","AI Automation"];
 const FEEDS = [
   { name: "OpenAI News", url: "https://openai.com/news/rss.xml" },
@@ -53,6 +53,13 @@ async function isAdmin(req: Request, url: string, anon: string, service: string)
   const { data } = await c.auth.getClaims(token); const uid = data?.claims?.sub; if (!uid) return false;
   const s = createClient(url, service); const { data: role } = await s.from("user_roles").select("role").eq("user_id", uid).eq("role", "admin").maybeSingle(); return !!role;
 }
+async function isGitHubAction(req: Request) {
+  const token = req.headers.get("x-github-token")?.trim(); if (!token) return false;
+  try {
+    const r = await fetch("https://api.github.com/repos/sauravanand499-source/crazy-seo-team", { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "CrazySEO-Team-News-Refresh" } });
+    return r.ok;
+  } catch { return false; }
+}
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
@@ -60,7 +67,8 @@ Deno.serve(async (req) => {
     if (!AI) throw new Error("LOVABLE_API_KEY missing");
     const supabase = createClient(URL, SERVICE);
     const cronSecret = Deno.env.get("NEWS_CRON_SECRET"); const cronOk = !!cronSecret && req.headers.get("x-cron-secret") === cronSecret;
-    const adminOk = await isAdmin(req, URL, ANON, SERVICE); if (!cronOk && !adminOk) return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    const adminOk = await isAdmin(req, URL, ANON, SERVICE); const githubOk = await isGitHubAction(req);
+    if (!cronOk && !adminOk && !githubOk) return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     const feedResults = await Promise.all(FEEDS.map(async (feed) => { try { const r = await fetch(feed.url, { headers: { "User-Agent": "CrazySEO-Team-LiveNews/3.0" } }); return r.ok ? parseFeed(await r.text(), feed.name).slice(0, 15) : []; } catch { return []; } }));
     const candidates = feedResults.flat().filter((x) => { const t = new Date(x.published_at).getTime(); return !Number.isNaN(t) && Date.now() - t < 72 * 60 * 60 * 1000; }).sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime()).slice(0, 40);
     if (!candidates.length) throw new Error("No recent source feed items available");
