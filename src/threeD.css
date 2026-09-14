@@ -9,7 +9,8 @@
 .cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.relative.glass{transform:translateZ(34px) rotateX(1deg);box-shadow:0 35px 90px -35px hsl(224 70% 35%/.45),0 0 55px hsl(217 91% 60%/.12)}
 .cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.absolute.glass{transform:translateZ(70px);animation:cstPillFloat 4.5s ease-in-out infinite}
 .cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.absolute.glass:last-child{animation-delay:1.3s}
-.cst-3d-site section.mesh-bg .container>div>div:nth-child(2)::after{content:"";position:absolute;inset:8%;border-radius:3rem;background:radial-gradient(circle,hsl(217 91% 60%/.12),transparent 65%);filter:blur(25px);transform:translateZ(-35px);pointer-events:none;z-index:-1}
+/* Removed the large blurred pseudo-element that appeared as a cursor-following circle over the hero/dashboard. */
+.cst-3d-site section.mesh-bg .container>div>div:nth-child(2)::after{content:none!important;display:none!important}
 }
 .cst-3d-site .cst-3d-float{transform-style:preserve-3d;animation:cst3dFloat 5s ease-in-out infinite}
 
