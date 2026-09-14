@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { Menu, X, ArrowUpRight, Globe2 } from "lucide-react";
+import { Menu, X, ArrowUpRight, Globe2, PartyPopper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import logo from "@/assets/logo.jpeg";
@@ -47,7 +47,8 @@ const Navbar = () => {
                 Ganpati Bappa Morya • May Lord Ganesha bless you with wisdom, success & prosperity
               </div>
             </div>
-            <span className="ml-1 hidden rounded-full border border-orange-200 bg-white/70 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-orange-600 md:inline-flex">
+            <span className="ml-1 hidden items-center gap-1 rounded-full border border-orange-200 bg-white/75 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-orange-600 shadow-sm md:inline-flex">
+              <PartyPopper aria-hidden="true" className="h-3 w-3" />
               Festive Greeting
             </span>
           </div>
