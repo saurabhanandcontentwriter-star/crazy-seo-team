@@ -1,16 +1,14 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BlogSection from "@/components/BlogSection";
-import WhatsAppButton from "@/components/WhatsAppButton";
 
 const Blog = () => (
-  <div className="min-h-screen bg-background">
+  <div className="cst-public-page min-h-screen bg-background">
     <Navbar />
-    <div className="pt-16">
+    <main className="pt-16">
       <BlogSection />
-    </div>
+    </main>
     <Footer />
-    <WhatsAppButton />
   </div>
 );
 
