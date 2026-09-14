@@ -13,7 +13,6 @@ import CTASection from "@/components/CTASection";
 import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
-import CursorGlow from "@/components/CursorGlow";
 import ServicesPreview from "@/components/ServicesPreview";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import ContactSection from "@/components/ContactSection";
@@ -32,7 +31,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen text-slate-900 cst-3d-site">
-      <CursorGlow />
       <Navbar />
       <HeroSection />
       <StatsBar />
