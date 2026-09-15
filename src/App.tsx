@@ -24,6 +24,7 @@ import AITools from "./pages/AITools.tsx";
 import News from "./pages/News.tsx";
 import AIChatbot from "./components/AIChatbot.tsx";
 import LeadQuickActions from "./components/crm/LeadQuickActions.tsx";
+import SEOHead from "./components/SEOHead.tsx";
 import { useVisitorTracking } from "./hooks/useVisitorTracking.ts";
 const AdminLayout = lazy(() => import("./components/admin/AdminLayout.tsx"));
 const AdminHome = lazy(() => import("./pages/admin/Home.tsx"));
@@ -51,7 +52,7 @@ const TrackingLayer = () => { useVisitorTracking(); return null; };
 const PublicOverlays = () => { const { pathname } = useLocation(); if (pathname.startsWith("/admin")) return null; return <><AIChatbot /><WelcomeExperience /><WebsiteTour /></>; };
 const CrmPage = () => <div className="space-y-5"><AdminCrm /><LeadQuickActions /></div>;
 const Lazy = ({ children }: { children: React.ReactNode }) => <Suspense fallback={<AdminFallback />}>{children}</Suspense>;
-const App = () => <QueryClientProvider client={queryClient}><TooltipProvider><Toaster /><Sonner /><BrowserRouter><TrackingLayer /><Routes>
+const App = () => <QueryClientProvider client={queryClient}><TooltipProvider><Toaster /><Sonner /><BrowserRouter><SEOHead /><TrackingLayer /><Routes>
 <Route path="/" element={<Index />} /><Route path="/services" element={<Services />} /><Route path="/services/:slug" element={<ServiceDetail />} /><Route path="/seo-tools" element={<SEOTools />} /><Route path="/ai-tools" element={<AITools />} />
 <Route path="/about" element={<About />} /><Route path="/results" element={<Results />} /><Route path="/news" element={<News />} /><Route path="/blog" element={<Blog />} /><Route path="/blog/:slug" element={<BlogPost />} /><Route path="/faq" element={<FAQ />} /><Route path="/pricing" element={<Services />} /><Route path="/privacy-policy" element={<PrivacyPolicy />} /><Route path="/terms-and-conditions" element={<TermsConditions />} /><Route path="/payment-policy" element={<PaymentPolicy />} />
 <Route path="/crm" element={<Navigate to="/admin/crm" replace />} /><Route path="/crm/*" element={<Navigate to="/admin/crm" replace />} /><Route path="/admin/login" element={<AdminLogin />} />
