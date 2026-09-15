@@ -1,5 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
+const db = supabase as any;
+
 export type Attendance = {
   id: string;
   user_id: string;
@@ -28,20 +30,20 @@ export const formatDuration = (seconds: number) => {
 };
 
 export async function getTodayAttendance(): Promise<Attendance | null> {
-  const { data: userData, error: userError } = await supabase.auth.getUser();
+  const { data: userData, error: userError } = await db.auth.getUser();
   if (userError) throw userError;
   if (!userData.user) return null;
-  const { data, error } = await supabase.from("crm_attendance").select("*").eq("user_id", userData.user.id).eq("work_date", indiaDate()).maybeSingle();
+  const { data, error } = await db.from("crm_attendance").select("*").eq("user_id", userData.user.id).eq("work_date", indiaDate()).maybeSingle();
   if (error) throw error;
   return (data as Attendance) ?? null;
 }
 
 export async function punchIn() {
-  const { data: userData, error: userError } = await supabase.auth.getUser();
+  const { data: userData, error: userError } = await db.auth.getUser();
   if (userError) throw userError;
   if (!userData.user) throw new Error("Please sign in again.");
   const now = new Date().toISOString();
-  const { data, error } = await supabase.from("crm_attendance").upsert({
+  const { data, error } = await db.from("crm_attendance").upsert({
     user_id: userData.user.id,
     email: userData.user.email ?? "",
     work_date: indiaDate(),
@@ -58,7 +60,7 @@ export async function punchOut(current: Attendance) {
   if (!current.punch_in) throw new Error("Punch in first.");
   const now = new Date();
   const elapsed = Math.max(0, Math.floor((now.getTime() - new Date(current.punch_in).getTime()) / 1000));
-  const { data, error } = await supabase.from("crm_attendance").update({
+  const { data, error } = await db.from("crm_attendance").update({
     punch_out: now.toISOString(),
     total_seconds: elapsed,
     status: "punched_out",
@@ -68,9 +70,9 @@ export async function punchOut(current: Attendance) {
 }
 
 export async function getWorkingHours() {
-  const { data: userData } = await supabase.auth.getUser();
+  const { data: userData } = await db.auth.getUser();
   const email = userData.user?.email;
   if (!email) return "10:00 - 19:00";
-  const { data } = await supabase.from("crm_team_members").select("working_hours").eq("email", email).maybeSingle();
+  const { data } = await db.from("crm_team_members").select("working_hours").eq("email", email).maybeSingle();
   return data?.working_hours || "10:00 - 19:00";
 }
