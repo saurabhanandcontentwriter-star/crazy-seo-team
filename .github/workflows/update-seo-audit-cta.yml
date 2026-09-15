@@ -9,7 +9,6 @@ permissions:
 
 jobs:
   update-cta:
-    if: github.event.head_commit.message == 'Update SEO Audit CTA button'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,8 +24,7 @@ jobs:
           new = "Talk to Our Team"
           if old not in s:
               raise SystemExit('Target CTA text not found; no change made.')
-          s = s.replace(old, new)
-          p.write_text(s, encoding='utf-8')
+          p.write_text(s.replace(old, new), encoding='utf-8')
           PY
 
       - name: Commit change and remove temporary workflow
