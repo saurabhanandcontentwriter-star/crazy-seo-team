@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { Menu, X, ArrowUpRight, Globe2, PartyPopper } from "lucide-react";
+import { Menu, X, ArrowUpRight, Globe2, PartyPopper, ChevronDown, Sparkles, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import logo from "@/assets/logo.jpeg";
 
 const navLinks = [
   { label: "Services", path: "/services" },
-  { label: "SEO Tools", path: "/seo-tools" },
-  { label: "AI Tools", path: "/ai-tools" },
+  { label: "Tools", path: "/seo-tools" },
   { label: "About", path: "/about" },
   { label: "Blog", path: "/blog" },
   { label: "News", path: "/news" },
@@ -27,11 +26,13 @@ const GaneshIcon = () => (
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [toolsOpen, setToolsOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`);
+  const toolsActive = isActive("/seo-tools") || isActive("/ai-tools");
 
   return (
     <>
@@ -40,16 +41,11 @@ const Navbar = () => {
           <div className="container mx-auto flex min-h-12 items-center justify-center gap-2.5 px-3 py-1.5 text-center">
             <GaneshIcon />
             <div className="leading-tight">
-              <div className="text-sm font-extrabold tracking-wide text-orange-700 sm:text-base">
-                Happy Ganesh Chaturdashi 2026
-              </div>
-              <div className="hidden text-[11px] font-medium text-orange-600/80 sm:block">
-                Ganpati Bappa Morya • May Lord Ganesha bless you with wisdom, success & prosperity
-              </div>
+              <div className="text-sm font-extrabold tracking-wide text-orange-700 sm:text-base">Happy Ganesh Chaturdashi 2026</div>
+              <div className="hidden text-[11px] font-medium text-orange-600/80 sm:block">Ganpati Bappa Morya • May Lord Ganesha bless you with wisdom, success & prosperity</div>
             </div>
             <span className="ml-1 hidden items-center gap-1 rounded-full border border-orange-200 bg-white/75 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-orange-600 shadow-sm md:inline-flex">
-              <PartyPopper aria-hidden="true" className="h-3 w-3" />
-              Festive Greeting
+              <PartyPopper aria-hidden="true" className="h-3 w-3" /> Festive Greeting
             </span>
           </div>
         </div>
@@ -68,45 +64,66 @@ const Navbar = () => {
             </Link>
 
             <div id="tour-nav" className="cst-nav-pill hidden lg:flex items-center gap-0.5 rounded-full border border-slate-200/80 bg-slate-50/85 p-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.label}
-                  to={link.path}
-                  data-active={isActive(link.path)}
-                  className={`cst-nav-link rounded-full px-3.5 py-2 text-[13px] font-semibold transition-all ${isActive(link.path) ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:bg-white/80 hover:text-slate-900"}`}
-                >
+              {navLinks.map((link) => link.label === "Tools" ? (
+                <div key={link.label} className="relative" onMouseEnter={() => setToolsOpen(true)} onMouseLeave={() => setToolsOpen(false)}>
+                  <button
+                    type="button"
+                    aria-haspopup="menu"
+                    aria-expanded={toolsOpen}
+                    onClick={() => setToolsOpen(!toolsOpen)}
+                    className={`cst-nav-link inline-flex items-center gap-1 rounded-full px-3.5 py-2 text-[13px] font-semibold transition-all ${toolsActive ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:bg-white/80 hover:text-slate-900"}`}
+                  >
+                    Tools <ChevronDown size={13} className={`transition-transform ${toolsOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {toolsOpen && (
+                    <div className="absolute left-1/2 top-full w-56 -translate-x-1/2 pt-2" role="menu">
+                      <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
+                        <Link to="/seo-tools" onClick={() => setToolsOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                          <Search size={16} className="text-blue-600" /><span><span className="block">SEO Tools</span><span className="block text-[10px] font-medium text-slate-400">Audit, AEO, GEO, NLP & more</span></span>
+                        </Link>
+                        <Link to="/ai-tools" onClick={() => setToolsOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                          <Sparkles size={16} className="text-violet-600" /><span><span className="block">AI Tools</span><span className="block text-[10px] font-medium text-slate-400">AI articles & optimization</span></span>
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link key={link.label} to={link.path} data-active={isActive(link.path)} className={`cst-nav-link rounded-full px-3.5 py-2 text-[13px] font-semibold transition-all ${isActive(link.path) ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:bg-white/80 hover:text-slate-900"}`}>
                   {link.label}
                 </Link>
               ))}
             </div>
 
             <div id="tour-cta" className="hidden md:flex items-center gap-2">
-              <button type="button" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition" title="International service availability">
-                <Globe2 size={15} /> Global
-              </button>
+              <button type="button" className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition" title="International service availability"><Globe2 size={15} /> Global</button>
               <Button variant="outline" onClick={() => setDialogOpen(true)} className="rounded-xl border-slate-200 bg-white/80 text-slate-800 hover:bg-slate-50">Talk to us</Button>
-              <Button onClick={() => setDialogOpen(true)} className="group rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-4 text-white shadow-[0_12px_30px_-12px_hsl(239_84%_67%/.65)] hover:shadow-[0_16px_36px_-12px_hsl(239_84%_67%/.75)]">
-                Start Free Audit <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </Button>
+              <Button onClick={() => setDialogOpen(true)} className="group rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-4 text-white shadow-[0_12px_30px_-12px_hsl(239_84%_67%/.65)] hover:shadow-[0_16px_36px_-12px_hsl(239_84%_67%_/.75)]">Start Free Audit <ArrowUpRight size={15} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></Button>
             </div>
 
-            <button aria-label="Open navigation" className="rounded-xl border border-slate-200 bg-white p-2 text-slate-800 shadow-sm md:hidden" onClick={() => setOpen(!open)}>
-              {open ? <X size={21} /> : <Menu size={21} />}
-            </button>
+            <button aria-label="Open navigation" className="rounded-xl border border-slate-200 bg-white p-2 text-slate-800 shadow-sm md:hidden" onClick={() => setOpen(!open)}>{open ? <X size={21} /> : <Menu size={21} />}</button>
           </div>
 
           {open && (
             <div className="border-t border-slate-200/80 bg-white/95 px-4 pb-5 pt-3 shadow-xl backdrop-blur-xl md:hidden">
               <div className="grid gap-1">
-                {navLinks.map((link) => (
-                  <Link key={link.label} to={link.path} onClick={() => setOpen(false)} className={`rounded-xl px-4 py-3 text-sm font-semibold ${isActive(link.path) ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50"}`}>
-                    {link.label}
-                  </Link>
+                {navLinks.map((link) => link.label === "Tools" ? (
+                  <div key={link.label} className="rounded-xl border border-slate-100 bg-slate-50/60 p-1">
+                    <button type="button" onClick={() => setToolsOpen(!toolsOpen)} className={`flex w-full items-center justify-between rounded-lg px-3 py-3 text-sm font-semibold ${toolsActive ? "text-blue-700" : "text-slate-600"}`}>
+                      Tools <ChevronDown size={16} className={`transition-transform ${toolsOpen ? "rotate-180" : ""}`} />
+                    </button>
+                    {toolsOpen && (
+                      <div className="grid gap-1 px-1 pb-1">
+                        <Link to="/seo-tools" onClick={() => { setOpen(false); setToolsOpen(false); }} className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-white"><Search size={15} /> SEO Tools</Link>
+                        <Link to="/ai-tools" onClick={() => { setOpen(false); setToolsOpen(false); }} className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-white"><Sparkles size={15} /> AI Tools</Link>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link key={link.label} to={link.path} onClick={() => setOpen(false)} className={`rounded-xl px-4 py-3 text-sm font-semibold ${isActive(link.path) ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50"}`}>{link.label}</Link>
                 ))}
               </div>
-              <Button className="mt-3 w-full rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white" onClick={() => { setOpen(false); setDialogOpen(true); }}>
-                Start Free Audit
-              </Button>
+              <Button className="mt-3 w-full rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 text-white" onClick={() => { setOpen(false); setDialogOpen(true); }}>Start Free Audit</Button>
             </div>
           )}
         </div>
