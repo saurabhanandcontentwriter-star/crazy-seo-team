@@ -24,3 +24,18 @@
 @keyframes cstPillFloat{0%,100%{transform:translate3d(0,0,60px) rotateZ(0deg)}50%{transform:translate3d(0,-12px,75px) rotateZ(1deg)}}
 @media (max-width:1023px){.cst-3d-site section.mesh-bg .container>div>div:nth-child(2){animation:none}.cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.relative.glass{transform:translateZ(15px)}}
 @media (prefers-reduced-motion:reduce){.cst-3d-site *{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Header fix: perspective on the page wrapper can create a fixed-position containing block.
+   Sticky keeps the two-row public header aligned to the viewport and prevents the festive bar
+   or navbar from being vertically clipped when the page is scrolled. */
+.cst-3d-site > .cst-public-nav{position:sticky!important;top:0!important;left:0!important;right:0!important;width:100%!important;z-index:100!important;transform:none!important}
+.cst-public-nav .cst-public-announcement{min-height:48px;max-height:none;overflow:hidden}
+.cst-public-nav .cst-public-announcement > .container{min-height:48px}
+.cst-public-nav .cst-nav-inner{min-height:68px}
+.cst-public-nav .cst-nav-inner > .container{min-height:68px}
+@media (max-width:767px){
+  .cst-public-nav .cst-public-announcement{min-height:44px}
+  .cst-public-nav .cst-public-announcement > .container{min-height:44px}
+  .cst-public-nav .cst-nav-inner{min-height:62px}
+  .cst-public-nav .cst-nav-inner > .container{min-height:62px}
+}
