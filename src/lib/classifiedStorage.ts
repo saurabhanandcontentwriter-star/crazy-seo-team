@@ -11,6 +11,17 @@ export const saveMedia = async (listingId: string, files: File[]) => { const db 
 export const getMedia = async (key: string) => { const db = await openDb(); return await new Promise<File | null>((resolve, reject) => { const r = db.transaction(STORE).objectStore(STORE).get(key); r.onsuccess = () => resolve(r.result || null); r.onerror = () => reject(r.error); }); };
 export const saveListing = (listing: ClassifiedListing) => { localStorage.setItem(`crazy-classified:${listing.id}`, JSON.stringify(listing)); localStorage.setItem("crazy-classified:last", listing.id); };
 export const getListing = (id: string): ClassifiedListing | null => { try { return JSON.parse(localStorage.getItem(`crazy-classified:${id}`) || "null"); } catch { return null; } };
+export const getLocalListingBySlug = (slug: string): ClassifiedListing | null => {
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i) || "";
+      if (!key.startsWith("crazy-classified:") || key === "crazy-classified:last") continue;
+      const item = JSON.parse(localStorage.getItem(key) || "null");
+      if (item?.slug === slug || item?.id === slug) return item as ClassifiedListing;
+    }
+  } catch { /* ignore malformed local entries */ }
+  return null;
+};
 
 const isMissingClassifiedTable = (message = "") => /classified_listings|schema cache|relation.*does not exist/i.test(message);
 
@@ -38,8 +49,6 @@ export const createLiveListing = async (listing: ClassifiedListing) => {
   let result = await (supabase as any).from("classified_listings").insert(full).select().single();
   if (result.error && /source|device_type|latitude|longitude|column/i.test(result.error.message || "")) result = await (supabase as any).from("classified_listings").insert(base).select().single();
   if (result.error) {
-    // Production projects that have not received the migration yet should still be able to publish.
-    // Persist the complete listing locally and let the UI use it until the database table is available.
     if (isMissingClassifiedTable(result.error.message)) {
       saveListing(listing);
       return listing;
@@ -52,14 +61,18 @@ export const createLiveListing = async (listing: ClassifiedListing) => {
 const mapListing = (data: any): ClassifiedListing => ({ id: data.id, title: data.title, description: data.description, category: data.category, price: data.price, location: data.location, seller: data.seller_type || "Individual", phone: data.phone, photos: Array.isArray(data.photos) ? data.photos : [], video: data.video_url ? { id: `${data.id}-video`, kind: "video", name: "Listing video", type: "video/mp4", size: 0, url: data.video_url } : undefined, createdAt: data.created_at, source: data.source, deviceType: data.device_type, latitude: data.latitude, longitude: data.longitude, slug: data.slug, status: data.status });
 
 export const getLiveListing = async (idOrSlug: string): Promise<ClassifiedListing | null> => {
-  const { data, error } = await (supabase as any).from("classified_listings").select("*").or(`id.eq.${idOrSlug},slug.eq.${idOrSlug}`).maybeSingle();
-  if (!error && data) return mapListing(data);
-  return getListing(idOrSlug) || null;
+  try {
+    const { data, error } = await (supabase as any).from("classified_listings").select("*").or(`id.eq.${idOrSlug},slug.eq.${idOrSlug}`).maybeSingle();
+    if (!error && data) return mapListing(data);
+  } catch { /* database unavailable; use local published listing */ }
+  return getLocalListingBySlug(idOrSlug) || getListing(idOrSlug) || null;
 };
 
 export const getLiveListings = async (): Promise<ClassifiedListing[]> => {
-  const { data, error } = await (supabase as any).from("classified_listings").select("*").eq("status", "approved").order("created_at", { ascending: false });
-  if (!error && data) return data.map(mapListing);
+  try {
+    const { data, error } = await (supabase as any).from("classified_listings").select("*").eq("status", "approved").order("created_at", { ascending: false });
+    if (!error && data) return data.map(mapListing);
+  } catch { /* database unavailable; use local published listings */ }
 
   const local: ClassifiedListing[] = [];
   for (let i = 0; i < localStorage.length; i++) {
@@ -67,7 +80,7 @@ export const getLiveListings = async (): Promise<ClassifiedListing[]> => {
     if (!key.startsWith("crazy-classified:") || key === "crazy-classified:last") continue;
     try {
       const item = JSON.parse(localStorage.getItem(key) || "null");
-      if (item?.id) local.push(item);
+      if (item?.id && item?.status === "approved") local.push(item as ClassifiedListing);
     } catch { /* ignore malformed local entries */ }
   }
   return local.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
