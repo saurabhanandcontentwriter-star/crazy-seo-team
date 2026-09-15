@@ -8,6 +8,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import AdminWorkGate from "./AdminWorkGate";
 
 const NAV_GROUPS = [
   { label: "Overview", items: [
@@ -122,7 +123,7 @@ export default function AdminLayout() {
             </div>
           </div>
         </header>
-        <main className="p-4 md:p-6"><Outlet /></main>
+        <main className="p-4 md:p-6"><AdminWorkGate /></main>
       </div>
 
       <CommandDialog open={cmdOpen} onOpenChange={setCmdOpen}>
