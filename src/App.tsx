@@ -24,6 +24,7 @@ import AITools from "./pages/AITools.tsx";
 import News from "./pages/News.tsx";
 import AIChatbot from "./components/AIChatbot.tsx";
 import WebsiteTour from "./components/WebsiteTour.tsx";
+import WelcomeExperience from "./components/WelcomeExperience.tsx";
 import { useVisitorTracking } from "./hooks/useVisitorTracking.ts";
 const AdminLayout = lazy(() => import("./components/admin/AdminLayout.tsx"));
 const AdminHome = lazy(() => import("./pages/admin/Home.tsx"));
@@ -36,8 +37,8 @@ const AdminAnalytics = lazy(() => import("./pages/admin/Analytics.tsx"));
 const AdminReports = lazy(() => import("./pages/admin/Reports.tsx"));
 const AdminOperations = lazy(() => import("./pages/admin/Operations.tsx"));
 
-// CRM pages are real nested routes. Previously every /admin/crm/* URL rendered
-// only the dashboard, so the Add Lead button navigated but never opened the lead form.
+// CRM pages are real nested routes. The old route rendered only the dashboard
+// for every /admin/crm/* URL, so Add Lead navigated without showing the lead form.
 const CrmShell = lazy(() => import("./pages/admin/crm/CrmShell.tsx"));
 const AdminCrm = lazy(() => import("./pages/admin/crm/CrmDashboardPro.tsx"));
 const CrmLeads = lazy(() => import("./pages/admin/crm/CrmLeads.tsx"));
@@ -50,7 +51,7 @@ const CrmAnalytics = lazy(() => import("./pages/admin/crm/CrmAnalytics.tsx"));
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, gcTime: 5 * 60_000, refetchOnWindowFocus: false, retry: 1 } } });
 const AdminFallback = () => <div className="p-4 md:p-6"><AdminSkeleton /></div>;
 const TrackingLayer = () => { useVisitorTracking(); return null; };
-const PublicOverlays = () => { const { pathname } = useLocation(); if (pathname.startsWith("/admin")) return null; return <><AIChatbot /><WebsiteTour /></>; };
+const PublicOverlays = () => { const { pathname } = useLocation(); if (pathname.startsWith("/admin")) return null; return <><AIChatbot /><WelcomeExperience /><WebsiteTour /></>; };
 
 const CrmPage = () => (
   <Suspense fallback={<AdminFallback />}>
