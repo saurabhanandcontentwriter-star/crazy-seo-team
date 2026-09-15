@@ -23,7 +23,6 @@ import ServiceDetail from "./pages/ServiceDetail.tsx";
 import AITools from "./pages/AITools.tsx";
 import News from "./pages/News.tsx";
 import AIChatbot from "./components/AIChatbot.tsx";
-import WebsiteTour from "./components/WebsiteTour.tsx";
 import LeadQuickActions from "./components/crm/LeadQuickActions.tsx";
 import { useVisitorTracking } from "./hooks/useVisitorTracking.ts";
 const AdminLayout = lazy(() => import("./components/admin/AdminLayout.tsx"));
@@ -44,12 +43,12 @@ const CrmCalendar = lazy(() => import("./pages/admin/crm/CrmCalendar.tsx"));
 const CrmTeam = lazy(() => import("./pages/admin/crm/CrmTeam.tsx"));
 const CrmAnalytics = lazy(() => import("./pages/admin/crm/CrmAnalytics.tsx"));
 const CrmLeadProfile = lazy(() => import("./pages/admin/crm/CrmLeadProfile.tsx"));
+const WelcomeExperience = lazy(() => import("./components/WelcomeExperience.tsx"));
+const WebsiteTour = lazy(() => import("./components/WebsiteTour.tsx"));
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, gcTime: 5 * 60_000, refetchOnWindowFocus: false, retry: 1 } } });
 const AdminFallback = () => <div className="p-4 md:p-6"><AdminSkeleton /></div>;
 const TrackingLayer = () => { useVisitorTracking(); return null; };
 const PublicOverlays = () => { const { pathname } = useLocation(); if (pathname.startsWith("/admin")) return null; return <><AIChatbot /><WelcomeExperience /><WebsiteTour /></>; };
-const WelcomeExperience = lazy(() => import("./components/WelcomeExperience.tsx"));
-const WebsiteTour = lazy(() => import("./components/WebsiteTour.tsx"));
 const CrmPage = () => <div className="space-y-5"><AdminCrm /><LeadQuickActions /></div>;
 const Lazy = ({ children }: { children: React.ReactNode }) => <Suspense fallback={<AdminFallback />}>{children}</Suspense>;
 const App = () => <QueryClientProvider client={queryClient}><TooltipProvider><Toaster /><Sonner /><BrowserRouter><TrackingLayer /><Routes>
@@ -59,15 +58,9 @@ const App = () => <QueryClientProvider client={queryClient}><TooltipProvider><To
 <Route path="/admin" element={<AdminGuard><Suspense fallback={<AdminFallback />}><AdminLayout /></Suspense></AdminGuard>}>
 <Route index element={<Suspense fallback={<AdminSkeleton />}><AdminHome /></Suspense>} /><Route path="live" element={<Suspense fallback={<AdminSkeleton />}><AdminLive /></Suspense>} /><Route path="blog" element={<Suspense fallback={<AdminSkeleton />}><AdminDashboard /></Suspense>} /><Route path="news" element={<Suspense fallback={<AdminSkeleton />}><AdminNews /></Suspense>} /><Route path="users" element={<Suspense fallback={<AdminSkeleton />}><AdminUsers /></Suspense>} /><Route path="subscribers" element={<Suspense fallback={<AdminSkeleton />}><AdminSubscribers /></Suspense>} /><Route path="analytics" element={<Suspense fallback={<AdminSkeleton />}><AdminAnalytics /></Suspense>} /><Route path="reports" element={<Suspense fallback={<AdminSkeleton />}><AdminReports /></Suspense>} /><Route path="operations" element={<Suspense fallback={<AdminSkeleton />}><AdminOperations /></Suspense>} />
 <Route path="crm" element={<Lazy><CrmShell /></Lazy>}>
-  <Route index element={<Lazy><CrmPage /></Lazy>} />
-  <Route path="leads" element={<Lazy><CrmLeads /></Lazy>} />
-  <Route path="leads/:id" element={<Lazy><CrmLeadProfile /></Lazy>} />
-  <Route path="pipeline" element={<Lazy><CrmPipeline /></Lazy>} />
-  <Route path="calendar" element={<Lazy><CrmCalendar /></Lazy>} />
-  <Route path="follow-ups" element={<Lazy><CrmCalendar /></Lazy>} />
-  <Route path="team" element={<Lazy><CrmTeam /></Lazy>} />
-  <Route path="analytics" element={<Lazy><CrmAnalytics /></Lazy>} />
-</Route>
-</Route>
+<Route index element={<Lazy><CrmPage /></Lazy>} />
+<Route path="leads" element={<Lazy><CrmLeads /></Lazy>} /><Route path="leads/:id" element={<Lazy><CrmLeadProfile /></Lazy>} />
+<Route path="pipeline" element={<Lazy><CrmPipeline /></Lazy>} /><Route path="calendar" element={<Lazy><CrmCalendar /></Lazy>} /><Route path="follow-ups" element={<Lazy><CrmCalendar /></Lazy>} /><Route path="team" element={<Lazy><CrmTeam /></Lazy>} /><Route path="analytics" element={<Lazy><CrmAnalytics /></Lazy>} />
+</Route></Route>
 <Route path="*" element={<NotFound />} /></Routes><PublicOverlays /></BrowserRouter></TooltipProvider></QueryClientProvider>;
 export default App;
