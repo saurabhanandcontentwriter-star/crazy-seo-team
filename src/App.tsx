@@ -36,7 +36,7 @@ const AdminSubscribers = lazy(() => import("./pages/admin/Subscribers.tsx"));
 const AdminAnalytics = lazy(() => import("./pages/admin/Analytics.tsx"));
 const AdminReports = lazy(() => import("./pages/admin/Reports.tsx"));
 const AdminOperations = lazy(() => import("./pages/admin/Operations.tsx"));
-const AdminCrm = lazy(() => import("./pages/admin/crm/CrmDashboard.tsx"));
+const AdminCrm = lazy(() => import("./pages/admin/crm/CrmDashboardPro.tsx"));
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, gcTime: 5 * 60_000, refetchOnWindowFocus: false, retry: 1 } } });
 const AdminFallback = () => <div className="p-4 md:p-6"><AdminSkeleton /></div>;
 const TrackingLayer = () => { useVisitorTracking(); return null; };
