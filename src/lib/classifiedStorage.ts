@@ -1,8 +1,44 @@
-export type ClassifiedMedia = { id: string; kind: "photo" | "video"; name: string; type: string; size: number };
-export type ClassifiedListing = { id: string; title: string; description: string; category: string; price: string; location: string; seller: string; phone: string; photos: ClassifiedMedia[]; video?: ClassifiedMedia; createdAt: string };
+import { supabase } from "@/integrations/supabase/client";
+
+export type ClassifiedMedia = { id: string; kind: "photo" | "video"; name: string; type: string; size: number; url?: string };
+export type ClassifiedListing = { id: string; title: string; description: string; category: string; price: string; location: string; seller: string; phone: string; photos: ClassifiedMedia[]; video?: ClassifiedMedia; createdAt: string; source?: "mobile" | "web"; deviceType?: string; latitude?: number | null; longitude?: number | null; slug?: string; status?: string };
+
 const DB="crazy-classified-media", STORE="files";
 const openDb=()=>new Promise<IDBDatabase>((resolve,reject)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore(STORE);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
 export const saveMedia=async(listingId:string,files:File[])=>{const db=await openDb();await new Promise<void>((resolve,reject)=>{const tx=db.transaction(STORE,"readwrite");files.forEach((f,i)=>tx.objectStore(STORE).put(f,`${listingId}-${i}-${f.name}`));tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)});db.close()};
 export const getMedia=async(key:string)=>{const db=await openDb();return await new Promise<File|null>((resolve,reject)=>{const r=db.transaction(STORE).objectStore(STORE).get(key);r.onsuccess=()=>resolve(r.result||null);r.onerror=()=>reject(r.error)})};
 export const saveListing=(listing:ClassifiedListing)=>{localStorage.setItem(`crazy-classified:${listing.id}`,JSON.stringify(listing));localStorage.setItem("crazy-classified:last",listing.id)};
 export const getListing=(id:string):ClassifiedListing|null=>{try{return JSON.parse(localStorage.getItem(`crazy-classified:${id}`)||"null")}catch{return null}};
+
+export const uploadClassifiedMedia=async(listingId:string,files:File[])=>{
+  const uploaded:ClassifiedMedia[]=[];
+  for(let i=0;i<files.length;i++){
+    const file=files[i];
+    const safe=file.name.replace(/[^a-zA-Z0-9._-]/g,"-");
+    const path=`${listingId}/${crypto.randomUUID()}-${safe}`;
+    const {error}=await supabase.storage.from("classified-media").upload(path,file,{upsert:false,contentType:file.type});
+    if(error) throw error;
+    const {data}=supabase.storage.from("classified-media").getPublicUrl(path);
+    uploaded.push({id:path,kind:file.type.startsWith("video/")?"video":"photo",name:file.name,type:file.type,size:file.size,url:data.publicUrl});
+  }
+  return uploaded;
+};
+
+export const createLiveListing=async(listing:ClassifiedListing)=>{
+  const payload:any={id:listing.id,category:listing.category,title:listing.title,description:listing.description,price:listing.price,location:listing.location,seller_type:listing.seller,phone:listing.phone,photos:listing.photos,video_url:listing.video?.url||null,slug:listing.slug||listing.id,status:"approved",created_at:listing.createdAt,updated_at:listing.createdAt,source:listing.source||"web",device_type:listing.deviceType||"desktop",latitude:listing.latitude??null,longitude:listing.longitude??null};
+  const {data,error}=await (supabase as any).from("classified_listings").insert(payload).select().single();
+  if(error) throw error;
+  return data;
+};
+
+export const getLiveListing=async(idOrSlug:string):Promise<ClassifiedListing|null>=>{
+  const {data,error}=await (supabase as any).from("classified_listings").select("*").or(`id.eq.${idOrSlug},slug.eq.${idOrSlug}`).maybeSingle();
+  if(error||!data) return null;
+  return {id:data.id,title:data.title,description:data.description,category:data.category,price:data.price,location:data.location,seller:data.seller_type||"Individual",phone:data.phone,photos:Array.isArray(data.photos)?data.photos:[],video:data.video_url?{id:`${data.id}-video`,kind:"video",name:"Listing video",type:"video/mp4",size:0,url:data.video_url}:undefined,createdAt:data.created_at,source:data.source,deviceType:data.device_type,latitude:data.latitude,longitude:data.longitude,slug:data.slug,status:data.status};
+};
+
+export const getLiveListings=async()=>{
+  const {data,error}=await (supabase as any).from("classified_listings").select("*").eq("status","approved").order("created_at",{ascending:false});
+  if(error||!data) return [] as ClassifiedListing[];
+  return data.map((d:any)=>({id:d.id,title:d.title,description:d.description,category:d.category,price:d.price,location:d.location,seller:d.seller_type||"Individual",phone:d.phone,photos:Array.isArray(d.photos)?d.photos:[],video:d.video_url?{id:`${d.id}-video`,kind:"video",name:"Listing video",type:"video/mp4",size:0,url:d.video_url}:undefined,createdAt:d.created_at,source:d.source,deviceType:d.device_type,latitude:d.latitude,longitude:d.longitude,slug:d.slug,status:d.status})) as ClassifiedListing[];
+};
