@@ -35,3 +35,5 @@ jobs:
           git add src/components/SEOToolsSection.tsx .github/workflows/update-seo-audit-cta.yml
           git commit -m "Update SEO Audit CTA button"
           git push
+
+# Trigger the one-time CTA update on main.
