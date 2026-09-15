@@ -9,7 +9,7 @@ const SEOTools = () => (
   <div className="min-h-screen">
     <Helmet>
       <title>Free SEO, AEO & GEO Tools 2026 | Crazy SEO Team</title>
-      <meta name="description" content="Free public SEO, AEO, GEO and LLM checkers plus keyword, schema, robots, sitemap, SERP and NLP tools. Run checks without login and download results." />
+      <meta name="description" content="Talk to Our Team, AEO, GEO and LLM checkers plus keyword, schema, robots, sitemap, SERP and NLP tools. Run checks without login and download results." />
       <link rel="canonical" href="/seo-tools" />
     </Helmet>
     <Navbar />
