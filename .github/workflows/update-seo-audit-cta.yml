@@ -20,11 +20,18 @@ jobs:
           from pathlib import Path
           p = Path('src/components/SEOToolsSection.tsx')
           s = p.read_text(encoding='utf-8')
-          old = "Get Full Report — It's Free"
-          new = "Talk to Our Team"
-          if old not in s:
-              raise SystemExit('Target CTA text not found; no change made.')
-          p.write_text(s.replace(old, new), encoding='utf-8')
+          replacements = [
+              ("Get Full Report — It's Free", "Talk to Our Team"),
+              ("Get Full Report — Talk to Our Team", "Talk to Our Team"),
+          ]
+          changed = False
+          for old, new in replacements:
+              if old in s:
+                  s = s.replace(old, new, 1)
+                  changed = True
+          if not changed:
+              raise SystemExit('Target SEO Audit CTA text not found; no change made.')
+          p.write_text(s, encoding='utf-8')
           PY
 
       - name: Commit change and remove temporary workflow
@@ -35,5 +42,3 @@ jobs:
           git add src/components/SEOToolsSection.tsx .github/workflows/update-seo-audit-cta.yml
           git commit -m "Update SEO Audit CTA button"
           git push
-
-# Trigger the one-time CTA update on main.
