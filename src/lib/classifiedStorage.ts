@@ -8,7 +8,7 @@ const STORE = "files";
 const openDb = () => new Promise<IDBDatabase>((resolve, reject) => { const r = indexedDB.open(DB, 1); r.onupgradeneeded = () => r.result.createObjectStore(STORE); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error); });
 
 export const saveMedia = async (listingId: string, files: File[]) => { const db = await openDb(); await new Promise<void>((resolve, reject) => { const tx = db.transaction(STORE, "readwrite"); files.forEach((f, i) => tx.objectStore(STORE).put(f, `${listingId}-${i}-${f.name}`)); tx.oncomplete = () => resolve(); tx.onerror = () => reject(tx.error); }); db.close(); };
-export const getMedia = async (key: string) => { const db = await openDb(); const file = await new Promise<File | null>((resolve, reject) => { const r = db.transaction(STORE).objectStore(STORE).get(key); r.onsuccess = () => resolve(r.result || null); r.onerror = () => reject(r.error); }); db.close(); return file; };
+export const getMedia = async (key: string) => { const db = await openDb(); return await new Promise<File | null>((resolve, reject) => { const r = db.transaction(STORE).objectStore(STORE).get(key); r.onsuccess = () => resolve(r.result || null); r.onerror = () => reject(r.error); }); };
 export const saveListing = (listing: ClassifiedListing) => { localStorage.setItem(`crazy-classified:${listing.id}`, JSON.stringify(listing)); localStorage.setItem("crazy-classified:last", listing.id); };
 export const getListing = (id: string): ClassifiedListing | null => { try { return JSON.parse(localStorage.getItem(`crazy-classified:${id}`) || "null"); } catch { return null; } };
 
@@ -16,10 +16,16 @@ export const uploadClassifiedMedia = async (listingId: string, files: File[]): P
   const uploaded: ClassifiedMedia[] = [];
   for (const file of files) {
     const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-    const path = `${listingId}/${crypto.randomUUID()}-${safe}`;
-    const { error } = await supabase.storage.from("classified-media").upload(path, file, { upsert: false, contentType: file.type });
-    if (error) throw error;
-    const { data } = supabase.storage.from("classified-media").getPublicUrl(path);
+    const path = `classified/${listingId}/${crypto.randomUUID()}-${safe}`;
+    let bucket = "classified-media";
+    let result = await supabase.storage.from(bucket).upload(path, file, { upsert: false, contentType: file.type });
+    // Production may not yet have the dedicated bucket. blog-images already exists with public upload/read policies.
+    if (result.error && /bucket.*not found|not found/i.test(result.error.message || "")) {
+      bucket = "blog-images";
+      result = await supabase.storage.from(bucket).upload(path, file, { upsert: false, contentType: file.type });
+    }
+    if (result.error) throw result.error;
+    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
     uploaded.push({ id: path, kind: file.type.startsWith("video/") ? "video" : "photo", name: file.name, type: file.type, size: file.size, url: data.publicUrl });
   }
   return uploaded;
