@@ -40,22 +40,5 @@ jobs:
             git push
           fi
 
-      - name: Repair PublicToolsLab syntax
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          path = Path("src/components/PublicToolsLab.tsx")
-          text = path.read_text(encoding="utf-8")
-          fixed = text.replace('each”.split(" ")', 'each".split(" ")')
-          if fixed == text:
-            raise SystemExit("Expected PublicToolsLab syntax issue was not found")
-          path.write_text(fixed, encoding="utf-8")
-          PY
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/components/PublicToolsLab.tsx
-          git commit -m "fix: repair PublicToolsLab string syntax"
-          git push
-
       - name: Production build
         run: npm run build
