@@ -1,32 +1,24 @@
 import { useEffect, useState } from "react";
 import { LockKeyhole, ShieldCheck } from "lucide-react";
-import { Outlet, useLocation } from "react-router-dom";
 import { GlassCard } from "@/components/crm/CrmUI";
+import { Outlet, useLocation } from "react-router-dom";
 import PunchClock from "./PunchClock";
-import { getTodayAttendance, Attendance } from "@/lib/attendance";
+import { Attendance, getTodayAttendance } from "@/lib/attendance";
 
 export default function AdminWorkGate() {
   const location = useLocation();
   const [attendance, setAttendance] = useState<Attendance | null>(null);
-  const [refresh, setRefresh] = useState(0);
   const isCrm = location.pathname === "/admin/crm" || location.pathname.startsWith("/admin/crm/");
 
-  useEffect(() => {
-    getTodayAttendance().then(setAttendance).catch(() => setAttendance(null));
-    const id = window.setInterval(() => setRefresh((v) => v + 1), 3000);
-    return () => window.clearInterval(id);
-  }, [refresh]);
+  useEffect(() => { getTodayAttendance().then(setAttendance).catch(() => setAttendance(null)); }, []);
 
   const punchedIn = attendance?.status === "punched_in";
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/10 bg-primary/5 px-3 py-2.5">
-        <div>
-          <p className="text-xs font-bold">Staff Attendance</p>
-          <p className="text-[10px] text-muted-foreground">Punch In required before using AI CRM</p>
-        </div>
-        <PunchClock />
+        <div><p className="text-xs font-bold">Staff Attendance</p><p className="text-[10px] text-muted-foreground">Punch In required before using AI CRM</p></div>
+        <PunchClock onAttendanceChange={setAttendance} />
       </div>
       {isCrm && !punchedIn ? (
         <GlassCard className="p-8 md:p-12 text-center">
