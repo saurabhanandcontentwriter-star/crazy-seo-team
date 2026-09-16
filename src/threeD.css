@@ -10,10 +10,27 @@
 .cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.relative.glass{transform:translateZ(34px) rotateX(1deg);box-shadow:0 35px 90px -35px hsl(224 70% 35%/.45),0 0 55px hsl(217 91% 60%/.12)}
 .cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.absolute.glass{transform:translateZ(70px);animation:cstPillFloat 4.5s ease-in-out infinite}
 .cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.absolute.glass:last-child{animation-delay:1.3s}
-/* Removed the large blurred pseudo-element that appeared as a cursor-following circle over the hero/dashboard. */
 .cst-3d-site section.mesh-bg .container>div>div:nth-child(2)::after{content:none!important;display:none!important}
 }
 .cst-3d-site .cst-3d-float{transform-style:preserve-3d;animation:cst3dFloat 5s ease-in-out infinite}
+
+/* Premium homepage hero polish — adds depth, glow and motion without changing the existing brand palette. */
+.cst-3d-site section.mesh-bg{isolation:isolate;background-size:140% 140%;position:relative}
+.cst-3d-site section.mesh-bg::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(circle at 18% 18%,hsl(198 90% 65%/.13),transparent 28%),radial-gradient(circle at 82% 30%,hsl(270 85% 68%/.12),transparent 30%),linear-gradient(180deg,hsl(0 0% 100%/.2),transparent 55%)}
+.cst-3d-site section.mesh-bg>.container{position:relative;z-index:2}
+.cst-3d-site section.mesh-bg h1{text-wrap:balance;text-shadow:0 8px 34px hsl(224 50% 45%/.08)}
+.cst-3d-site section.mesh-bg .glass{backdrop-filter:blur(18px) saturate(1.18);-webkit-backdrop-filter:blur(18px) saturate(1.18)}
+.cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.relative.glass{border:1px solid hsl(0 0% 100%/.72);box-shadow:0 40px 100px -35px hsl(224 70% 35%/.42),0 0 0 1px hsl(217 91% 60%/.08),inset 0 1px 0 hsl(0 0% 100%/.8)}
+.cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.relative.glass::before{content:"";position:absolute;inset:1px;border-radius:1.5rem;pointer-events:none;background:linear-gradient(115deg,hsl(0 0% 100%/.42),transparent 32%,transparent 68%,hsl(217 91% 60%/.06));opacity:.8}
+.cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.relative.glass .rounded-2xl{transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease}
+.cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.relative.glass .rounded-2xl:hover{transform:translateY(-4px) scale(1.015);box-shadow:0 14px 30px -18px hsl(224 70% 35%/.35)}
+.cst-3d-site section.mesh-bg .particle{box-shadow:0 0 10px hsl(217 91% 60%/.55)}
+.cst-3d-site section.mesh-bg .container>div>div:first-child .glass.rounded-2xl{border:1px solid hsl(0 0% 100%/.72);box-shadow:0 18px 45px -28px hsl(224 70% 35%/.35);transition:transform .35s ease,box-shadow .35s ease}
+.cst-3d-site section.mesh-bg .container>div>div:first-child .glass.rounded-2xl:hover{transform:translateY(-5px);box-shadow:0 22px 55px -28px hsl(224 70% 35%/.45)}
+.cst-3d-site section.mesh-bg button{position:relative;overflow:hidden}
+.cst-3d-site section.mesh-bg button::after{content:"";position:absolute;top:0;bottom:0;left:-120%;width:70%;background:linear-gradient(100deg,transparent,hsl(0 0% 100%/.24),transparent);transform:skewX(-18deg);transition:left .65s ease;pointer-events:none}
+.cst-3d-site section.mesh-bg button:hover::after{left:140%}
+.cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.absolute.glass{border:1px solid hsl(0 0% 100%/.7);box-shadow:0 15px 35px -22px hsl(224 70% 35%/.42)}
 
 /* Use the original Crazy SEO Team logo for every existing spinning/loading indicator. */
 .cst-3d-site svg.animate-spin{display:block;width:30px!important;height:30px!important;flex:none;animation:cstLogoSpin 1.15s linear infinite!important;color:transparent!important;stroke:transparent!important;fill:none!important;background-image:url('./assets/logo.jpeg');background-repeat:no-repeat;background-position:center;background-size:contain;filter:drop-shadow(0 5px 14px hsl(221 83% 53%/.28));}
@@ -24,6 +41,7 @@
 @keyframes cstHeroFloat{0%,100%{transform:translate3d(0,0,0) rotateX(0deg) rotateY(0deg)}50%{transform:translate3d(0,-7px,10px) rotateX(.8deg) rotateY(-.8deg)}}
 @keyframes cstPillFloat{0%,100%{transform:translate3d(0,0,60px) rotateZ(0deg)}50%{transform:translate3d(0,-12px,75px) rotateZ(1deg)}}
 @media (max-width:1023px){.cst-3d-site section.mesh-bg .container>div>div:nth-child(2){animation:none}.cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.relative.glass{transform:translateZ(15px)}}
+@media (max-width:767px){.cst-3d-site section.mesh-bg{background-size:auto 140%}.cst-3d-site section.mesh-bg .container>div>div:nth-child(2){margin-top:1.25rem}.cst-3d-site section.mesh-bg .container>div>div:nth-child(2)>div.relative.glass{box-shadow:0 24px 55px -30px hsl(224 70% 35%/.4)}}
 @media (prefers-reduced-motion:reduce){.cst-3d-site *{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 
 /* Public header: fixed to the viewport, stable across scroll and route changes. */
