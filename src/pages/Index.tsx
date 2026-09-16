@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import ToolsMarquee from "@/components/ToolsMarquee";
@@ -31,6 +32,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen text-slate-900 cst-3d-site">
+      <Helmet>
+        <title>AI SEO Platform for Google &amp; AI Search | Crazy SEO Team</title>
+        <meta name="description" content="Boost visibility in Google, ChatGPT, Gemini and AI Search with AI SEO, GEO, AEO and LLM optimization from Crazy SEO Team." />
+        <link rel="canonical" href="https://crazyseoteam.in/" />
+      </Helmet>
       <Navbar />
       <HeroSection />
       <StatsBar />
