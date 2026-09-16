@@ -23,6 +23,12 @@ const ANY = "__any__";
 const UNASSIGNED = "__unassigned__";
 type Draft = Partial<CrmLead>;
 
+const phoneDigits = (value?: string | null) => (value ?? "").replace(/\D/g, "");
+const isValidPhone = (value?: string | null) => {
+  const digits = phoneDigits(value);
+  return digits.length >= 7 && digits.length <= 15;
+};
+
 export default function CrmLeads() {
   const [leads, setLeads] = useState<CrmLead[]>([]);
   const [team, setTeam] = useState<TeamMember[]>([]);
@@ -68,7 +74,12 @@ export default function CrmLeads() {
 
   const save = async () => {
     if (!draft) return;
-    if (!draft.full_name?.trim() || !draft.email?.trim() || !draft.phone?.trim()) return toast.error("Name, email and mobile are required");
+    if (!draft.full_name?.trim() || !draft.email?.trim() || !draft.phone?.trim()) {
+      return toast.error("Name, email and mobile are required");
+    }
+    if (!isValidPhone(draft.phone)) {
+      return toast.error("Enter a valid mobile number (7–15 digits)");
+    }
     setSaving(true);
     try {
       if (draft.id) {
@@ -99,12 +110,20 @@ export default function CrmLeads() {
   };
 
   const setStage = async (lead: CrmLead, next: string) => {
+    if (!isValidPhone(lead.phone)) {
+      toast.error("Add a valid mobile number before moving this lead forward");
+      return;
+    }
     setLeads((prev) => prev.map((l) => l.id === lead.id ? { ...l, status: next } : l));
     try { await updateLead(lead.id, { status: next }); toast.success(`Moved to ${stageLabel(next)}`); }
     catch (e: any) { toast.error(e.message ?? "Could not update status"); load(); }
   };
 
   const acceptLead = async (lead: CrmLead) => {
+    if (!isValidPhone(lead.phone)) {
+      toast.error("Add a valid mobile number before accepting this lead");
+      return;
+    }
     try {
       await updateLead(lead.id, { status: "qualified" });
       await logActivity({ lead_id: lead.id, type: "status", subject: "Lead Accepted", body: "Lead was accepted from the leads list.", outcome: "Accepted" });
@@ -114,6 +133,10 @@ export default function CrmLeads() {
   };
 
   const rejectLead = async (lead: CrmLead) => {
+    if (!isValidPhone(lead.phone)) {
+      toast.error("Add a valid mobile number before completing this lead");
+      return;
+    }
     try {
       await updateLead(lead.id, { status: "lost" });
       await logActivity({ lead_id: lead.id, type: "status", subject: "Lead Rejected", body: "Lead was rejected from the leads list.", outcome: "Rejected" });
@@ -123,6 +146,10 @@ export default function CrmLeads() {
   };
 
   const callConnected = async (lead: CrmLead) => {
+    if (!isValidPhone(lead.phone)) {
+      toast.error("Add a valid mobile number before completing the call action");
+      return;
+    }
     try {
       await logActivity({ lead_id: lead.id, type: "call", subject: "Call Connected", body: `Call connected with ${lead.full_name} on ${fullPhone(lead)}.`, outcome: "Connected" });
       await updateLead(lead.id, { status: "contacted", last_contact_at: new Date().toISOString() });
@@ -167,9 +194,9 @@ export default function CrmLeads() {
               <td className="px-4 py-3 font-bold tabular-nums">{l.score}</td><td className="px-4 py-3 text-xs tabular-nums">{inr(l.deal_value ?? 0)}</td><td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">{relativeTime(l.created_at)}</td>
               <td className="px-4 py-3"><div className="flex flex-wrap items-center gap-1">
                 <Button size="sm" variant="outline" className="h-8 px-2" asChild><a href={`tel:${fullPhone(l)}`} aria-label={`Call ${l.full_name}`}><PhoneCall size={13} className="mr-1" />Call</a></Button>
-                <Button size="sm" variant="outline" className="h-8 px-2" onClick={() => callConnected(l)} disabled={l.status === "lost"}><Phone size={13} className="mr-1" />Connected</Button>
-                <Button size="sm" className="h-8 px-2" onClick={() => acceptLead(l)} disabled={l.status === "qualified" || l.status === "won"}><CheckCircle2 size={13} className="mr-1" />Accept</Button>
-                <Button size="sm" variant="destructive" className="h-8 px-2" onClick={() => rejectLead(l)} disabled={l.status === "lost"}><XCircle size={13} className="mr-1" />Reject</Button>
+                <Button size="sm" variant="outline" className="h-8 px-2" onClick={() => callConnected(l)} disabled={l.status === "lost" || !isValidPhone(l.phone)}><Phone size={13} className="mr-1" />Connected</Button>
+                <Button size="sm" className="h-8 px-2" onClick={() => acceptLead(l)} disabled={l.status === "qualified" || l.status === "won" || !isValidPhone(l.phone)}><CheckCircle2 size={13} className="mr-1" />Accept</Button>
+                <Button size="sm" variant="destructive" className="h-8 px-2" onClick={() => rejectLead(l)} disabled={l.status === "lost" || !isValidPhone(l.phone)}><XCircle size={13} className="mr-1" />Reject</Button>
                 <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setDraft(l)} aria-label="Edit lead"><Pencil size={14} /></Button>
                 <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => setDeleting(l)} aria-label="Delete lead"><Trash2 size={14} /></Button>
               </div></td>
@@ -178,10 +205,22 @@ export default function CrmLeads() {
       </GlassCard>
 
       <Dialog open={!!draft} onOpenChange={(o) => !o && setDraft(null)}><DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{draft?.id ? "Edit lead" : "New lead"}</DialogTitle></DialogHeader>{draft && <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Full name *"><Input value={draft.full_name ?? ""} onChange={(e) => setDraft({ ...draft, full_name: e.target.value })} /></Field>
-        <Field label="Email *"><Input type="email" value={draft.email ?? ""} onChange={(e) => setDraft({ ...draft, email: e.target.value })} /></Field>
+        <Field label="Full name *"><Input required value={draft.full_name ?? ""} onChange={(e) => setDraft({ ...draft, full_name: e.target.value })} /></Field>
+        <Field label="Email *"><Input required type="email" value={draft.email ?? ""} onChange={(e) => setDraft({ ...draft, email: e.target.value })} /></Field>
         <Field label="Country code"><Input value={draft.phone_country ?? "+91"} onChange={(e) => setDraft({ ...draft, phone_country: e.target.value })} /></Field>
-        <Field label="Mobile *"><Input value={draft.phone ?? ""} onChange={(e) => setDraft({ ...draft, phone: e.target.value })} /></Field>
+        <Field label="Mobile *">
+          <Input
+            required
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            value={draft.phone ?? ""}
+            onChange={(e) => setDraft({ ...draft, phone: e.target.value })}
+            aria-invalid={!!draft.phone && !isValidPhone(draft.phone)}
+            placeholder="Enter mobile number"
+          />
+          {!draft.phone?.trim() ? <p className="text-xs text-destructive">Mobile number is required to complete the lead.</p> : !isValidPhone(draft.phone) ? <p className="text-xs text-destructive">Enter a valid mobile number (7–15 digits).</p> : null}
+        </Field>
         <Field label="Company"><Input value={draft.company ?? ""} onChange={(e) => setDraft({ ...draft, company: e.target.value })} /></Field>
         <Field label="Service"><Input value={draft.service ?? ""} onChange={(e) => setDraft({ ...draft, service: e.target.value })} /></Field>
         <Field label="City"><Input value={draft.city ?? ""} onChange={(e) => setDraft({ ...draft, city: e.target.value })} /></Field>
@@ -193,7 +232,7 @@ export default function CrmLeads() {
         <Field label="Lead score"><Input type="number" value={draft.score ?? 0} onChange={(e) => setDraft({ ...draft, score: Number(e.target.value) })} /></Field>
         <Field label="Deal value (INR)"><Input type="number" value={draft.deal_value ?? 0} onChange={(e) => setDraft({ ...draft, deal_value: Number(e.target.value) })} /></Field>
         <div className="sm:col-span-2"><Field label="Notes"><Textarea rows={3} value={draft.message ?? ""} onChange={(e) => setDraft({ ...draft, message: e.target.value })} /></Field></div>
-      </div>}<DialogFooter><Button variant="outline" onClick={() => setDraft(null)}>Cancel</Button><Button onClick={save} disabled={saving}>{saving ? "Saving…" : "Save lead"}</Button></DialogFooter></DialogContent></Dialog>
+      </div>}<DialogFooter><Button variant="outline" onClick={() => setDraft(null)}>Cancel</Button><Button onClick={save} disabled={saving || !draft || !draft.full_name?.trim() || !draft.email?.trim() || !isValidPhone(draft.phone)}>{saving ? "Saving…" : "Save lead"}</Button></DialogFooter></DialogContent></Dialog>
 
       <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete this lead?</AlertDialogTitle><AlertDialogDescription>{deleting?.full_name} and all related activities and follow-ups will be permanently removed.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={remove}>Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
     </div>
