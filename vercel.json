@@ -1,5 +1,33 @@
 {
   "installCommand": "npm install --force --legacy-peer-deps --ignore-scripts --no-audit --no-fund",
   "buildCommand": "npm run build",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/about", "destination": "/" },
+    { "source": "/services", "destination": "/" },
+    { "source": "/services/:slug", "destination": "/" },
+    { "source": "/seo-tools", "destination": "/" },
+    { "source": "/ai-tools", "destination": "/" },
+    { "source": "/results", "destination": "/" },
+    { "source": "/news", "destination": "/" },
+    { "source": "/blog", "destination": "/" },
+    { "source": "/blog/:slug", "destination": "/" },
+    { "source": "/faq", "destination": "/" },
+    { "source": "/pricing", "destination": "/" },
+    { "source": "/privacy-policy", "destination": "/" },
+    { "source": "/terms-and-conditions", "destination": "/" },
+    { "source": "/classifieds", "destination": "/" },
+    { "source": "/classifieds/:category", "destination": "/" },
+    { "source": "/listing/:id", "destination": "/" },
+    { "source": "/post-ad", "destination": "/" },
+    { "source": "/classified-profile", "destination": "/" },
+    { "source": "/business-directory", "destination": "/" },
+    { "source": "/classified-dashboard", "destination": "/" },
+    { "source": "/seller/:slug", "destination": "/" },
+    { "source": "/crm", "destination": "/" },
+    { "source": "/crm/:path*", "destination": "/" },
+    { "source": "/admin/login", "destination": "/" },
+    { "source": "/admin", "destination": "/" },
+    { "source": "/admin/:path*", "destination": "/" }
+  ]
 }
