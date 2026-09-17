@@ -3,8 +3,11 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 import { brokeredPreviewStorage } from './previewAuthStorage';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+// Prefer the configured Vite variables, but fall back to the connected
+// Crazy SEO Team Supabase project so production cannot silently connect to a
+// different project that does not contain the current database schema.
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://pbkyoszlgyhpygofemij.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_vEsFObkUZcIiVdxMoPo-7A_mFevsgwq';
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
