@@ -50,7 +50,6 @@ const Footer = () => (
             <li><Link to="/faq" className="cst-footer-link text-slate-500 hover:text-blue-600">FAQ</Link></li>
             <li><Link to="/privacy-policy" className="cst-footer-link text-slate-500 hover:text-blue-600">Privacy Policy</Link></li>
             <li><Link to="/terms-and-conditions" className="cst-footer-link text-slate-500 hover:text-blue-600">Terms & Conditions</Link></li>
-            <li><Link to="/payment-policy" className="cst-footer-link text-slate-500 hover:text-blue-600">Payment Policy</Link></li>
             <li><button onClick={startWebsiteTour} className="cst-footer-link text-slate-500 hover:text-blue-600">Restart website tour</button></li>
           </ul>
         </div>
