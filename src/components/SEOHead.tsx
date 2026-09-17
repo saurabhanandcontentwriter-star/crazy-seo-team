@@ -5,18 +5,19 @@ import { supabase } from "@/integrations/supabase/client";
 
 const SITE = "https://crazyseoteam.in";
 const BRAND = "Crazy SEO Team";
-const pageMeta: Record<string, { title: string; description: string }> = {
-  "/": { title: "AI SEO Platform for Google & AI Search | Crazy SEO Team", description: "Boost visibility in Google, ChatGPT, Gemini and AI Search with AI SEO, GEO, AEO and LLM optimization from Crazy SEO Team." },
-  "/about": { title: "About Crazy SEO Team | AI SEO & Digital Marketing", description: "Learn about Crazy SEO Team and our approach to AI SEO, GEO, AEO, LLM optimization, automation and digital growth." },
-  "/services": { title: "AI SEO & Digital Marketing Services | Crazy SEO Team", description: "Explore AI SEO, technical SEO, GEO, AEO, LLM SEO, content writing, automation and digital marketing services." },
-  "/seo-tools": { title: "Free SEO Tools, Audit & AEO GEO Checkers | Crazy SEO Team", description: "Use practical SEO, AEO, GEO, LLM, keyword, schema, sitemap and website audit tools from Crazy SEO Team." },
-  "/ai-tools": { title: "AI SEO Tools & AI Marketing Toolkit | Crazy SEO Team", description: "Explore AI-powered tools for content, SEO, visibility, automation and digital marketing optimization." },
-  "/results": { title: "SEO Results & Case Studies | Crazy SEO Team", description: "See SEO, AI visibility and digital growth results delivered by Crazy SEO Team." },
-  "/news": { title: "Latest SEO & AI News | Crazy SEO Team", description: "Follow the latest SEO, Google, AI, ChatGPT, Gemini and digital marketing updates from Crazy SEO Team." },
-  "/blog": { title: "SEO & AI SEO Blog | Crazy SEO Team", description: "Read practical guides and insights about SEO, AI SEO, GEO, AEO, LLM optimization, content and digital marketing." },
-  "/faq": { title: "SEO & AI SEO FAQs | Crazy SEO Team", description: "Answers to common questions about SEO, AI SEO, GEO, AEO, LLM optimization, audits and digital marketing." },
-  "/pricing": { title: "SEO & AI Services Pricing | Crazy SEO Team", description: "Explore Crazy SEO Team service options for SEO, AI SEO, content, automation and digital growth." },
-  "/classifieds": { title: "Classifieds Marketplace | Buy, Sell & Discover | Crazy SEO Team", description: "Browse approved classified listings for products, services, jobs, property, vehicles, businesses and more across India." },
+const CORE_TOPICS = "AI SEO, SEO, Generative Engine Optimization, GEO, Answer Engine Optimization, AEO, LLM optimization, semantic SEO, NLP, technical SEO, content optimization, AI automation, digital marketing";
+const pageMeta: Record<string, { title: string; description: string; keywords: string }> = {
+  "/": { title: "AI SEO Platform for Google & AI Search | Crazy SEO Team", description: "Boost visibility in Google, ChatGPT, Gemini and AI Search with AI SEO, GEO, AEO and LLM optimization from Crazy SEO Team.", keywords: "AI SEO, SEO agency, LLM SEO, GEO, AEO, NLP SEO, semantic SEO, AI search optimization" },
+  "/about": { title: "About Crazy SEO Team | AI SEO & Digital Marketing", description: "Learn about Crazy SEO Team and our approach to AI SEO, GEO, AEO, LLM optimization, automation and digital growth.", keywords: "Crazy SEO Team, AI SEO company, SEO experts, LLM optimization, digital marketing" },
+  "/services": { title: "AI SEO & Digital Marketing Services | Crazy SEO Team", description: "Explore AI SEO, technical SEO, GEO, AEO, LLM SEO, content writing, automation and digital marketing services.", keywords: "AI SEO services, technical SEO, GEO services, AEO, LLM SEO, content writing, digital marketing" },
+  "/seo-tools": { title: "Free SEO Tools, Audit & AEO GEO Checkers | Crazy SEO Team", description: "Use practical SEO, AEO, GEO, LLM, keyword, schema, sitemap and website audit tools from Crazy SEO Team.", keywords: "SEO tools, SEO audit, keyword research, NLP analyzer, schema generator, GEO checker, AEO checker, LLM checker" },
+  "/ai-tools": { title: "AI SEO Tools & AI Marketing Toolkit | Crazy SEO Team", description: "Explore AI-powered tools for content, SEO, visibility, automation and digital marketing optimization.", keywords: "AI SEO tools, AI marketing tools, content optimization, LLM tools, AI visibility" },
+  "/results": { title: "SEO Results & Case Studies | Crazy SEO Team", description: "See SEO, AI visibility and digital growth results delivered by Crazy SEO Team.", keywords: "SEO results, SEO case studies, AI visibility, organic growth, search optimization" },
+  "/news": { title: "Latest SEO & AI News | Crazy SEO Team", description: "Follow the latest SEO, Google, AI, ChatGPT, Gemini and digital marketing updates from Crazy SEO Team.", keywords: "SEO news, Google updates, AI SEO news, ChatGPT SEO, Gemini SEO, AI search" },
+  "/blog": { title: "SEO & AI SEO Blog | Crazy SEO Team", description: "Read practical guides and insights about SEO, AI SEO, GEO, AEO, LLM optimization, content and digital marketing.", keywords: "SEO blog, AI SEO blog, GEO, AEO, LLM optimization, NLP, content strategy" },
+  "/faq": { title: "SEO & AI SEO FAQs | Crazy SEO Team", description: "Answers to common questions about SEO, AI SEO, GEO, AEO, LLM optimization, audits and digital marketing.", keywords: "SEO FAQ, AI SEO FAQ, GEO FAQ, AEO FAQ, LLM SEO questions" },
+  "/pricing": { title: "SEO & AI Services Pricing | Crazy SEO Team", description: "Explore Crazy SEO Team service options for SEO, AI SEO, content, automation and digital growth.", keywords: "SEO pricing, AI SEO pricing, SEO services, AI automation services" },
+  "/classifieds": { title: "Classifieds Marketplace | Buy, Sell & Discover | Crazy SEO Team", description: "Browse approved classified listings for products, services, jobs, property, vehicles, businesses and more across India.", keywords: "classifieds, marketplace, buy sell India, local services, products, jobs, property" },
 };
 const faqSets: Record<string, Array<{ q: string; a: string }>> = {
   "/": [
@@ -66,7 +67,7 @@ export default function SEOHead() {
   const location = useLocation();
   const basePath = getBasePath(location.pathname);
   const [listing, setListing] = useState<any>(null);
-  const meta = pageMeta[basePath] ?? { title: `${BRAND} | AI SEO, GEO, AEO & Digital Growth`, description: "Crazy SEO Team helps businesses improve SEO, AI search visibility, content performance and digital growth." };
+  const meta = pageMeta[basePath] ?? { title: `${BRAND} | AI SEO, GEO, AEO & Digital Growth`, description: "Crazy SEO Team helps businesses improve SEO, AI search visibility, content performance and digital growth.", keywords: CORE_TOPICS };
   const canonical = `${SITE}${location.pathname === "/" ? "/" : location.pathname.replace(/\/$/, "")}`;
   const faqs = faqSets[basePath] ?? [];
   const breadcrumbs = location.pathname.split("/").filter(Boolean).map((part, index, arr) => ({ name: part.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()), item: `${SITE}/${arr.slice(0, index + 1).join("/")}` }));
@@ -96,28 +97,35 @@ export default function SEOHead() {
     return () => observer.disconnect();
   }, [location.pathname]);
 
-  const organization = { "@context": "https://schema.org", "@type": "Organization", name: BRAND, url: SITE, description: "AI SEO, GEO, AEO, LLM optimization and digital growth platform." };
+  const organization = { "@context": "https://schema.org", "@type": "Organization", "@id": `${SITE}/#organization`, name: BRAND, url: SITE, description: "AI SEO, GEO, AEO, LLM optimization, semantic SEO, NLP and digital growth platform.", knowsAbout: CORE_TOPICS.split(", ").map((x) => x.trim()) };
+  const websiteSchema = { "@context": "https://schema.org", "@type": "WebSite", "@id": `${SITE}/#website`, name: BRAND, url: SITE, description: "AI SEO, GEO, AEO, LLM optimization, semantic SEO and digital marketing platform.", publisher: { "@id": `${SITE}/#organization` }, inLanguage: "en-IN", potentialAction: { "@type": "SearchAction", target: `${SITE}/blog?search={search_term_string}`, "query-input": "required name=search_term_string" } };
+  const webPageSchema = { "@context": "https://schema.org", "@type": "WebPage", "@id": `${canonical}#webpage`, url: canonical, name: listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title, description: listing?.description?.slice(0, 160) || meta.description, isPartOf: { "@id": `${SITE}/#website` }, about: { "@id": `${SITE}/#organization` }, inLanguage: "en-IN", keywords: listing ? [listing.category, listing.city, listing.state].filter(Boolean).join(", ") : meta.keywords };
   const collectionSchema = useMemo(() => basePath === "/classifieds" ? { "@context": "https://schema.org", "@type": "CollectionPage", name: meta.title, url: canonical, description: meta.description, isPartOf: { "@type": "WebSite", name: BRAND, url: SITE } } : null, [basePath, canonical, meta.title, meta.description]);
   const listingSchema = useMemo(() => listing ? {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    "@id": `${SITE}/listing/${listing.id}#product`,
-    name: listing.title,
-    description: listing.description,
-    url: `${SITE}/listing/${listing.id}`,
-    category: listing.category,
+    "@context": "https://schema.org", "@type": "Product", "@id": `${SITE}/listing/${listing.id}#product`, name: listing.title, description: listing.description, url: `${SITE}/listing/${listing.id}`, category: listing.category,
     ...(listing.price != null ? { offers: { "@type": "Offer", price: Number(listing.price), priceCurrency: "INR", availability: "https://schema.org/InStock", url: `${SITE}/listing/${listing.id}` } } : {}),
-    ...(listing.seller_name ? { seller: { "@type": "Person", name: listing.seller_name } } : {}),
-    ...(listing.business_name ? { brand: { "@type": "Brand", name: listing.business_name } } : {}),
+    ...(listing.seller_name ? { seller: { "@type": "Person", name: listing.seller_name } } : {}), ...(listing.business_name ? { brand: { "@type": "Brand", name: listing.business_name } } : {}),
     ...(listing.city || listing.state ? { areaServed: { "@type": "Place", name: [listing.city, listing.state].filter(Boolean).join(", ") } } : {}),
   } : null, [listing]);
   const faqSchema = faqs.length ? { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) } : null;
   const breadcrumbSchema = breadcrumbs.length ? { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: SITE }, ...breadcrumbs.map((b, i) => ({ "@type": "ListItem", position: i + 2, name: b.name, item: b.item }))] } : null;
 
   return <Helmet>
-    <html lang="en" />
+    <html lang="en-IN" />
     <title>{listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title}</title>
     <meta name="description" content={listing?.description?.slice(0, 160) || meta.description} />
+    <meta name="keywords" content={listing ? `${listing.category || "classified"}, ${listing.city || "India"}, ${BRAND}` : meta.keywords} />
+    <meta name="subject" content={listing ? `${listing.category || "Classified listing"} on ${BRAND}` : CORE_TOPICS} />
+    <meta name="abstract" content={listing?.description?.slice(0, 300) || meta.description} />
+    <meta name="classification" content={CORE_TOPICS} />
+    <meta name="author" content={BRAND} />
+    <meta name="publisher" content={BRAND} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="ai-content-declaration" content="AI-assisted SEO and content optimization may be used; factual claims should be verified against cited or authoritative sources." />
+    <meta name="ai-topic" content={CORE_TOPICS} />
+    <meta name="content-language" content="en-IN" />
     <link rel="canonical" href={canonical} />
     <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta httpEquiv="Pragma" content="no-cache" />
@@ -133,6 +141,8 @@ export default function SEOHead() {
     {basePath === "/" && <link rel="preconnect" href="https://fonts.googleapis.com" />}
     {basePath === "/" && <link rel="dns-prefetch" href="https://fonts.googleapis.com" />}
     <script type="application/ld+json">{JSON.stringify(organization)}</script>
+    <script type="application/ld+json">{JSON.stringify(websiteSchema)}</script>
+    <script type="application/ld+json">{JSON.stringify(webPageSchema)}</script>
     {collectionSchema && <script type="application/ld+json">{JSON.stringify(collectionSchema)}</script>}
     {listingSchema && <script type="application/ld+json">{JSON.stringify(listingSchema)}</script>}
     {faqSchema && <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>}
