@@ -1,8 +1,5 @@
 {
   "installCommand": "npm install --force --legacy-peer-deps --ignore-scripts --no-audit --no-fund",
   "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
-  ]
+  "outputDirectory": "dist"
 }
