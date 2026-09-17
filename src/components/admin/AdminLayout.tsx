@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink, useNavigate, Command as CommandIcon } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { LayoutDashboard, FileText, Newspaper, Users, Mail, BarChart3, FileBarChart, LogOut, Menu, X, Search, ExternalLink, Bell, Sparkles, Radio, Activity, Store, Megaphone, PlusCircle, ShieldCheck, ClipboardCheck, CalendarCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
