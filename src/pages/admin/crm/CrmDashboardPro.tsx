@@ -8,6 +8,7 @@ import { GlassCard, Kpi, CrmSkeleton, EmptyState } from "@/components/crm/CrmUI"
 import { toast } from "@/hooks/use-toast";
 import { fetchLeads, fetchTeam, fetchFollowUps, exportCsv, exportExcel, exportPdf, logActivity, updateLead, stageLabel, CRM_STAGES, type CrmLead, type TeamMember, type FollowUp } from "@/lib/crm";
 import CrmAttendancePanel from "@/pages/admin/crm/CrmAttendancePanel";
+import CrmHolidayCalendar from "@/pages/admin/crm/CrmHolidayCalendar";
 
 export default function CrmDashboardPro() {
   const [leads, setLeads] = useState<CrmLead[]>([]);
