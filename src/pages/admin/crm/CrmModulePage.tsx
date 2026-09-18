@@ -1,41 +1,52 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowRight, BriefcaseBusiness, CheckSquare, Wallet, Cpu, GraduationCap, Lightbulb, Megaphone, FileBarChart, Bell, Bot, Settings, Users2 } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, CheckSquare, Wallet, Cpu, GraduationCap, Lightbulb, Megaphone, FileBarChart, Bell, Bot, Settings, Users2, Plus, Trash2, CheckCircle2, Clock3, RefreshCw } from "lucide-react";
 import { GlassCard } from "@/components/crm/CrmUI";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
+type Item={id:string;module:string;title:string;description:string|null;status:string;priority:string;due_date:string|null;amount:number|null;created_at:string;};
 const modules: Record<string,{title:string;description:string;icon:any;items:string[]}> = {
-  employees:{title:"Employees",description:"Company people directory and role structure.",icon:Users2,items:["Founder","Managers","CTO","Team Leaders","Developers","Accountants","Executives","Interns"]},
-  crm:{title:"CRM",description:"Manage the complete customer and sales lifecycle.",icon:BriefcaseBusiness,items:["Leads","Clients","Deals","Follow-ups","Meetings"]},
-  projects:{title:"Projects",description:"Track delivery work, ownership and deadlines.",icon:BriefcaseBusiness,items:["Active Projects","Completed Projects","Deadlines"]},
-  tasks:{title:"Tasks",description:"Central task workspace for company work.",icon:CheckSquare,items:["My Tasks","Team Tasks","Priority","Due Today","Overdue"]},
-  finance:{title:"Finance",description:"Finance workspace for revenue, expenses and payroll.",icon:Wallet,items:["Income","Expenses","Payments","Salary","Reports"]},
-  technology:{title:"Technology",description:"Technology and development operations.",icon:Cpu,items:["Software","Development","Bugs","Deployments","Infrastructure"]},
-  hr:{title:"HR",description:"Attendance, leave, holidays, profiles and income.",icon:GraduationCap,items:["Attendance","Work Calendar","Leave Requests","Leave Calendar","Employee Profile","Monthly Income"]},
-  ideas:{title:"Ideas",description:"Company ideas and innovation workspace.",icon:Lightbulb,items:["New Ideas","Review","Approved Ideas"]},
-  announcements:{title:"Announcements",description:"Company-wide communication and updates.",icon:Megaphone,items:["Company News","HR Updates","Project Updates","Holiday Notices"]},
-  reports:{title:"Reports",description:"Central reporting and business intelligence.",icon:FileBarChart,items:["CRM Reports","Project Reports","HR Reports","Finance Reports","Performance Reports"]},
-  notifications:{title:"Notifications",description:"Your company activity and alerts.",icon:Bell,items:["New Leads","Follow-ups","Tasks","Leave Updates","Announcements"]},
-  "ai-assistant":{title:"AI Assistant",description:"Ask questions about your CRM and company operations.",icon:Bot,items:["CRM Insights","Task Summary","Project Risks","HR Summary","Business Reports"]},
-  settings:{title:"Settings",description:"Company configuration, permissions and security.",icon:Settings,items:["Company Settings","Roles & Permissions","Departments","Notifications","Security","Audit Logs"]},
+ employees:{title:"Employees",description:"Company people directory and role structure.",icon:Users2,items:["Founder","Managers","CTO","Team Leaders","Developers","Accountants","Executives","Interns"]},
+ crm:{title:"CRM",description:"Manage the complete customer and sales lifecycle.",icon:BriefcaseBusiness,items:["Leads","Clients","Deals","Follow-ups","Meetings"]},
+ projects:{title:"Projects",description:"Track delivery work, ownership and deadlines.",icon:BriefcaseBusiness,items:["Active Projects","Completed Projects","Deadlines"]},
+ tasks:{title:"Tasks",description:"Central task workspace for company work.",icon:CheckSquare,items:["My Tasks","Team Tasks","Priority","Due Today","Overdue"]},
+ finance:{title:"Finance",description:"Finance workspace for revenue, expenses and payroll.",icon:Wallet,items:["Income","Expenses","Payments","Salary","Reports"]},
+ technology:{title:"Technology",description:"Technology and development operations.",icon:Cpu,items:["Software","Development","Bugs","Deployments","Infrastructure"]},
+ hr:{title:"HR",description:"Attendance, leave, holidays, profiles and income.",icon:GraduationCap,items:["Attendance","Work Calendar","Leave Requests","Leave Calendar","Employee Profile","Monthly Income"]},
+ ideas:{title:"Ideas",description:"Company ideas and innovation workspace.",icon:Lightbulb,items:["New Ideas","Review","Approved Ideas"]},
+ announcements:{title:"Announcements",description:"Company-wide communication and updates.",icon:Megaphone,items:["Company News","HR Updates","Project Updates","Holiday Notices"]},
+ reports:{title:"Reports",description:"Central reporting and business intelligence.",icon:FileBarChart,items:["CRM Reports","Project Reports","HR Reports","Finance Reports","Performance Reports"]},
+ notifications:{title:"Notifications",description:"Your company activity and alerts.",icon:Bell,items:["New Leads","Follow-ups","Tasks","Leave Updates","Announcements"]},
+ "ai-assistant":{title:"AI Assistant",description:"Ask questions about your CRM and company operations.",icon:Bot,items:["CRM Insights","Task Summary","Project Risks","HR Summary","Business Reports"]},
+ settings:{title:"Settings",description:"Company configuration, permissions and security.",icon:Settings,items:["Company Settings","Roles & Permissions","Departments","Notifications","Security","Audit Logs"]},
 };
 
 export default function CrmModulePage(){
- const {module="crm"}=useParams();
- const data=modules[module]||modules.crm;
- const Icon=data.icon;
+ const {module="crm"}=useParams(); const data=modules[module]||modules.crm; const Icon=data.icon;
+ const isDataModule=["projects","tasks","finance","technology","announcements","notifications","ideas"].includes(module);
+ const [items,setItems]=useState<Item[]>([]); const [loading,setLoading]=useState(isDataModule); const [title,setTitle]=useState(""); const [description,setDescription]=useState(""); const [status,setStatus]=useState("open"); const [priority,setPriority]=useState("medium"); const [dueDate,setDueDate]=useState(""); const [amount,setAmount]=useState(""); const [busy,setBusy]=useState(false);
+
+ const load=async()=>{if(!isDataModule)return;setLoading(true);const {data,error}=await supabase.from("crm_workspace_items").select("id,module,title,description,status,priority,due_date,amount,created_at").eq("module",module).order("created_at",{ascending:false});if(error)toast({title:"Could not load module",description:error.message,variant:"destructive"});else setItems((data||[]) as Item[]);setLoading(false)};
+ useEffect(()=>{void load()},[module]);
+ const counts=useMemo(()=>({open:items.filter(x=>!["completed","done","closed"].includes(x.status)).length,done:items.filter(x=>["completed","done","closed"].includes(x.status)).length}),[items]);
+ const add=async()=>{if(!title.trim())return toast({title:"Title required",description:"Enter a title first.",variant:"destructive"});setBusy(true);const {data:u}=await supabase.auth.getUser();if(!u.user){toast({title:"Login required",variant:"destructive"});setBusy(false);return}const {data:row,error}=await supabase.from("crm_workspace_items").insert({module,title:title.trim(),description:description.trim()||null,status,priority,due_date:dueDate||null,amount:amount?Number(amount):null,created_by:u.user.id}).select("id,module,title,description,status,priority,due_date,amount,created_at").single();if(error)toast({title:"Could not create",description:error.message,variant:"destructive"});else{setItems(v=>[row as Item,...v]);setTitle("");setDescription("");setDueDate("");setAmount("");toast({title:"Saved",description:`${data.title} added.`})}setBusy(false)};
+ const toggle=async(x:Item)=>{const next=["completed","done","closed"].includes(x.status)?"open":"completed";const {error}=await supabase.from("crm_workspace_items").update({status:next,updated_at:new Date().toISOString()}).eq("id",x.id);if(error)toast({title:"Update failed",description:error.message,variant:"destructive"});else setItems(v=>v.map(i=>i.id===x.id?{...i,status:next}:i))};
+ const remove=async(x:Item)=>{const {error}=await supabase.from("crm_workspace_items").delete().eq("id",x.id);if(error)toast({title:"Delete failed",description:error.message,variant:"destructive"});else setItems(v=>v.filter(i=>i.id!==x.id))};
+
  return <div className="space-y-5">
-   <GlassCard className="p-6">
-     <div className="flex items-start gap-4">
-       <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center"><Icon size={24}/></div>
-       <div><h2 className="text-2xl font-black">{data.title}</h2><p className="text-sm text-muted-foreground mt-1">{data.description}</p></div>
-     </div>
-   </GlassCard>
-   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-    {data.items.map((item)=><GlassCard key={item} className="p-5 hover:border-primary/30 transition-colors">
-      <div className="flex items-center justify-between gap-3"><div><p className="font-bold">{item}</p><p className="text-xs text-muted-foreground mt-1">Open {item.toLowerCase()} workspace</p></div><ArrowRight size={16} className="text-primary"/></div>
-    </GlassCard>)}
-   </div>
-   {module==="crm" && <div className="flex flex-wrap gap-2"><Link to="/admin/crm/leads" className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Leads</Link><Link to="/admin/crm/pipeline" className="rounded-xl border px-4 py-2 text-sm font-semibold">Deals / Pipeline</Link><Link to="/admin/crm/calendar" className="rounded-xl border px-4 py-2 text-sm font-semibold">Follow-ups & Meetings</Link></div>}
-   {module==="employees" && <Link to="/admin/crm/team" className="inline-flex rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Open Team Directory</Link>}
-   {module==="hr" && <Link to="/admin/crm" className="inline-flex rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Open HR Workspace</Link>}
+   <GlassCard className="p-6"><div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"><div className="flex items-start gap-4"><div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center"><Icon size={24}/></div><div><h2 className="text-2xl font-black">{data.title}</h2><p className="text-sm text-muted-foreground mt-1">{data.description}</p></div></div>{isDataModule&&<Button variant="outline" className="rounded-2xl" onClick={load}><RefreshCw size={14} className="mr-2"/>Refresh</Button>}</div></GlassCard>
+
+   {module==="employees"&&<GlassCard className="p-5"><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{data.items.map(item=><Link key={item} to="/admin/crm/team" className="rounded-2xl border p-4 hover:border-primary/30 hover:bg-muted/30 transition"><p className="font-bold">{item}</p><p className="text-xs text-muted-foreground mt-1">Open employee directory <ArrowRight size={12} className="inline"/></p></Link>)}</div></GlassCard>}
+   {module==="crm"&&<GlassCard className="p-5"><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">{data.items.map((item,i)=><Link key={item} to={i===0?"/admin/crm/leads":i===2?"/admin/crm/pipeline":"/admin/crm/calendar"} className="rounded-2xl border p-4 hover:border-primary/30 hover:bg-muted/30 transition"><p className="font-bold">{item}</p><p className="text-xs text-muted-foreground mt-1">Open workspace <ArrowRight size={12} className="inline"/></p></Link>)}</div></GlassCard>}
+   {module==="hr"&&<GlassCard className="p-5"><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{data.items.map(item=><Link key={item} to="/admin/crm" className="rounded-2xl border p-4 hover:border-primary/30 transition"><p className="font-bold">{item}</p><p className="text-xs text-muted-foreground mt-1">Open HR workspace <ArrowRight size={12} className="inline"/></p></Link>)}</div></GlassCard>}
+
+   {isDataModule&&<><GlassCard className="p-5"><div className="flex items-center justify-between mb-4"><div><p className="font-black">Create {data.title.slice(0,-1)||data.title}</p><p className="text-xs text-muted-foreground">Saved directly to your CRM workspace.</p></div><div className="flex gap-2 text-xs"><span className="rounded-full bg-primary/10 px-2 py-1">{counts.open} open</span><span className="rounded-full bg-emerald-500/10 text-emerald-700 px-2 py-1">{counts.done} completed</span></div></div><div className="grid gap-3 md:grid-cols-2"><Input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Title *" className="rounded-2xl"/><Input value={dueDate} onChange={e=>setDueDate(e.target.value)} type="date" className="rounded-2xl"/><Textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder="Description / notes" className="rounded-2xl md:col-span-2"/><Select value={status} onValueChange={setStatus}><SelectTrigger className="rounded-2xl"><SelectValue placeholder="Status"/></SelectTrigger><SelectContent><SelectItem value="open">Open</SelectItem><SelectItem value="in_progress">In progress</SelectItem><SelectItem value="completed">Completed</SelectItem><SelectItem value="cancelled">Cancelled</SelectItem></SelectContent></Select><Select value={priority} onValueChange={setPriority}><SelectTrigger className="rounded-2xl"><SelectValue placeholder="Priority"/></SelectTrigger><SelectContent><SelectItem value="low">Low</SelectItem><SelectItem value="medium">Medium</SelectItem><SelectItem value="high">High</SelectItem><SelectItem value="urgent">Urgent</SelectItem></SelectContent></Select>{module==="finance"&&<Input value={amount} onChange={e=>setAmount(e.target.value)} type="number" placeholder="Amount ₹" className="rounded-2xl"/>}</div><Button onClick={add} disabled={busy} className="mt-3 rounded-2xl"><Plus size={15} className="mr-2"/>{busy?"Saving…":"Add"}</Button></GlassCard>
+   <GlassCard className="p-5"><div className="flex items-center justify-between mb-4"><div><p className="font-black">Workspace items</p><p className="text-xs text-muted-foreground">{items.length} total records</p></div></div>{loading?<p className="text-sm text-muted-foreground">Loading…</p>:items.length===0?<p className="text-sm text-muted-foreground">No records yet. Create the first one above.</p>:<div className="space-y-2">{items.map(x=><div key={x.id} className="flex flex-col md:flex-row md:items-center gap-3 rounded-2xl border p-4"><div className="flex-1 min-w-0"><div className="flex items-center gap-2"><p className={`font-bold truncate ${["completed","done","closed"].includes(x.status)?"line-through text-muted-foreground":""}`}>{x.title}</p><span className="text-[10px] rounded-full bg-muted px-2 py-1">{x.priority}</span></div>{x.description&&<p className="text-xs text-muted-foreground mt-1">{x.description}</p>}<div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground mt-2">{x.due_date&&<span>Due: {x.due_date}</span>}{x.amount!==null&&<span>₹{Number(x.amount).toLocaleString("en-IN")}</span>}<span>{x.status}</span></div></div><div className="flex gap-2"><Button size="sm" variant="outline" className="rounded-xl" onClick={()=>toggle(x)}><CheckCircle2 size={14} className="mr-1"/>{["completed","done","closed"].includes(x.status)?"Reopen":"Complete"}</Button><Button size="sm" variant="ghost" className="rounded-xl text-destructive" onClick={()=>remove(x)}><Trash2 size={14}/></Button></div></div>)}</div>}</GlassCard></>}
+   {(module==="reports"||module==="ai-assistant"||module==="settings"||module==="ideas"||module==="announcements"||module==="notifications"||module==="technology")&&!isDataModule&&<GlassCard className="p-5"><p className="font-black text-lg">{data.title} tools</p><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 mt-4">{data.items.map(item=><div key={item} className="rounded-2xl border p-4"><p className="font-semibold">{item}</p><p className="text-xs text-muted-foreground mt-1">Workspace ready for configuration and live data.</p></div>)}</div></GlassCard>}
  </div>;
 }
