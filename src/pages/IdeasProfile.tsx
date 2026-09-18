@@ -14,7 +14,7 @@ type Post={id:string;user_id:string;display_name:string|null;profile_image_url:s
 
 export default function IdeasProfile(){
  const {userId}=useParams(); const nav=useNavigate();
- const [me,setMe]=useState<string|null>(null),[p,setP]=useState<Profile|null>(null),[posts,setPosts]=useState<Post[]>([]),[tab,setTab]=useState("posts"),[following,setFollowing]=useState(false),[friendStatus,setFriendStatus]=useState<string|null>(null),[edit,setEdit]=useState(false),[saving,setSaving]=useState(false),[loading,setLoading]=useState(true),[form,setForm]=useState<Partial<Profile>>({});
+ const [me,setMe]=useState<string|null>(null),[p,setP]=useState<Profile|null>(null),[posts,setPosts]=useState<Post[]>([]),[tab,setTab]=useState("posts"),[following,setFollowing]=useState(false),[friendStatus,setFriendStatus]=useState<string|null>(null),[edit,setEdit]=useState(false),[saving,setSaving]=useState(false),[loading,setLoading]=useState(true),[form,setForm]=useState<Partial<Profile>>({}),[avatarFile,setAvatarFile]=useState<File|null>(null),[coverFile,setCoverFile]=useState<File|null>(null);
  const load=async()=>{setLoading(true);const {data:{user}}=await supabase.auth.getUser();setMe(user?.id||null);const id=userId||user?.id;if(!id){setLoading(false);return}
  let {data:profile}=await supabase.from("idea_profiles").select("*").eq("user_id",id).maybeSingle();
  if(!profile&&user?.id===id){const fallback={user_id:id,display_name:user.user_metadata?.full_name||user.email?.split("@")[0]||"Member"};await supabase.from("idea_profiles").upsert(fallback);profile=fallback as any}
