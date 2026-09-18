@@ -34,7 +34,7 @@ export default function CrmShell() {
       supabase.rpc("has_role", { _user_id: data.user.id, _role: "admin" }).then(({ data: ok }) => setIsAdmin(ok === true));
     });
   }, []);
-  const tabs = isAdmin ? TABS : TABS.filter((t) => t.label !== "Team");
+  const tabs = TABS.filter((t) => isAdmin || t.label !== "Team");
   const groups = [
     { label: "WORKSPACE", items: ["Dashboard","Employees","CRM","Projects","Tasks"] },
     { label: "OPERATIONS", items: ["Finance","Technology","HR","Ideas"] },
