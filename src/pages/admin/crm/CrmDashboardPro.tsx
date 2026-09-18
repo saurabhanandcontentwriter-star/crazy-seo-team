@@ -10,6 +10,7 @@ import { fetchLeads, fetchTeam, fetchFollowUps, exportCsv, exportExcel, exportPd
 import CrmAttendancePanel from "@/pages/admin/crm/CrmAttendancePanel";
 import CrmHolidayCalendar from "@/pages/admin/crm/CrmHolidayCalendar";
 import CrmHrPanel from "@/pages/admin/crm/CrmHrPanel";
+import CrmLeaveCalendar from "@/pages/admin/crm/CrmLeaveCalendar";
 
 export default function CrmDashboardPro() {
   const [leads, setLeads] = useState<CrmLead[]>([]);
@@ -49,9 +50,10 @@ export default function CrmDashboardPro() {
   };
 
   if(loading)return <CrmSkeleton/>;
-  if(!leads.length)return <div className="space-y-5"><CrmAttendancePanel/><CrmHolidayCalendar/><GlassCard><EmptyState icon={Users} title="No leads yet" hint="Website forms, chatbot and SEO tools can feed leads into this CRM." action={<Link to="/admin/crm/leads"><Button className="rounded-2xl">Create your first lead</Button></Link>}/></GlassCard></div>;
+  if(!leads.length)return <div className="space-y-5"><CrmAttendancePanel/><CrmLeaveCalendar/><CrmHolidayCalendar/><GlassCard><EmptyState icon={Users} title="No leads yet" hint="Website forms, chatbot and SEO tools can feed leads into this CRM." action={<Link to="/admin/crm/leads"><Button className="rounded-2xl">Create your first lead</Button></Link>}/></GlassCard></div>;
   return <div className="space-y-5">
     <CrmAttendancePanel />
+    <CrmLeaveCalendar />
     <CrmHrPanel />
     <AlertDialog open={!!confirmLead} onOpenChange={(open)=>{ if(!open&&!actionBusy){setConfirmLead(null);setConfirmAction(null);} }}>
       <AlertDialogContent>
