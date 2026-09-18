@@ -25,7 +25,8 @@ export default function CrmHrPanel(){
   const [profiles,setProfiles]=useState<Profile[]>([]); const [holidays,setHolidays]=useState<Holiday[]>([]); const [leaves,setLeaves]=useState<Leave[]>([]);
   const [tab,setTab]=useState<"leave"|"profile"|"salary">("leave"); const [month,setMonth]=useState(indiaDate().slice(0,7)); const [loading,setLoading]=useState(true);
   const [form,setForm]=useState({type:"paid" as "paid"|"unpaid",start:indiaDate(),end:indiaDate(),reason:""});
-  const [saving,setSaving]=useState(false); const [salaryDraft,setSalaryDraft]=useState<Record<string,string>>({});\n  const [reviewNote,setReviewNote]=useState<Record<string,string>>({});
+  const [saving,setSaving]=useState(false); const [salaryDraft,setSalaryDraft]=useState<Record<string,string>>({});
+  const [reviewNote,setReviewNote]=useState<Record<string,string>>({});
 
   const load=async()=>{
     setLoading(true); try{
