@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { GlassCard, EmptyState, CrmSkeleton } from "@/components/crm/CrmUI";
 import {
-  CrmLead, TeamMember, WORKING_DAYS, deleteTeamMember, fetchLeads, fetchTeam, inr, saveTeamMember,
+  CrmLead, TeamMember, WORKING_DAYS, deleteTeamMemberAuth, fetchLeads, fetchTeam, inr, saveTeamMemberAuth,
 } from "@/lib/crm";
 
-type Draft = Partial<TeamMember>;
+type Draft = Partial<TeamMember> & { password?: string };
 
 export default function CrmTeam() {
   const [team, setTeam] = useState<TeamMember[]>([]);
@@ -51,9 +51,11 @@ export default function CrmTeam() {
 
   const save = async () => {
     if (!draft?.name?.trim() || !draft?.email?.trim()) return toast.error("Name and email are required");
+    if (!draft.id && (!draft.login_id?.trim() || !draft.password)) return toast.error("Login ID and password are required for a new member.");
+    if (draft.password && draft.password.length < 8) return toast.error("Password must be at least 8 characters.");
     setSaving(true);
     try {
-      await saveTeamMember(draft);
+      await saveTeamMemberAuth(draft);
       setDraft(null);
       await load();
       toast.success("Team member saved");
@@ -76,7 +78,7 @@ export default function CrmTeam() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
         <p className="text-sm text-muted-foreground">{team.length} team member(s)</p>
-        <Button size="sm" onClick={() => setDraft({ working_days: ["Mon", "Tue", "Wed", "Thu", "Fri"], working_hours: "10:00 - 19:00", position: "Sales Executive", status: "active" })}>
+        <Button size="sm" onClick={() => setDraft({ working_days: ["Mon", "Tue", "Wed", "Thu", "Fri"], working_hours: "10:00 - 19:00", position: "Sales Executive", status: "active", login_id: "", password: "" })}>
           <Plus size={15} className="mr-1" /> Add member
         </Button>
       </div>
@@ -110,6 +112,7 @@ export default function CrmTeam() {
 
                 <div className="mt-3 space-y-1 text-[12px]">
                   <p className="flex items-center gap-2 truncate"><Mail size={13} className="text-muted-foreground" />{m.email}</p>
+                  {m.login_id && <p className="text-[11px] font-semibold text-primary">Team ID: {m.login_id}</p>}
                   {m.mobile && <p className="flex items-center gap-2"><Phone size={13} className="text-muted-foreground" />{m.mobile}</p>}
                   <p className="text-muted-foreground">{(m.working_days ?? []).join(", ")} · {m.working_hours}</p>
                 </div>
@@ -141,6 +144,8 @@ export default function CrmTeam() {
             <div><Label>Name *</Label><Input className="mt-1" value={draft?.name ?? ""} onChange={(e) => setDraft({ ...draft, name: e.target.value })} /></div>
             <div><Label>Position</Label><Input className="mt-1" value={draft?.position ?? ""} onChange={(e) => setDraft({ ...draft, position: e.target.value })} /></div>
             <div><Label>Email *</Label><Input className="mt-1" type="email" value={draft?.email ?? ""} onChange={(e) => setDraft({ ...draft, email: e.target.value })} /></div>
+            <div><Label>Team ID *</Label><Input className="mt-1" value={draft?.login_id ?? ""} onChange={(e) => setDraft({ ...draft, login_id: e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, "") })} placeholder="e.g. cst_sales01" disabled={!!draft?.id} /></div>
+            <div><Label>{draft?.id ? "New password (optional)" : "Password *"}</Label><Input className="mt-1" type="password" value={draft?.password ?? ""} onChange={(e) => setDraft({ ...draft, password: e.target.value })} placeholder="Minimum 8 characters" /></div>
             <div><Label>Mobile</Label><Input className="mt-1" value={draft?.mobile ?? ""} onChange={(e) => setDraft({ ...draft, mobile: e.target.value })} /></div>
             <div><Label>Photo URL</Label><Input className="mt-1" value={draft?.photo_url ?? ""} onChange={(e) => setDraft({ ...draft, photo_url: e.target.value })} /></div>
             <div>
@@ -187,7 +192,7 @@ export default function CrmTeam() {
             <AlertDialogAction onClick={async () => {
               if (!removing) return;
               try {
-                await deleteTeamMember(removing.id);
+                await deleteTeamMemberAuth(removing.id);
                 setRemoving(null);
                 await load();
                 toast.success("Removed");
