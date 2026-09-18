@@ -51,16 +51,6 @@ const copy: Record<string, {title:string; intro:string; points:string[]}> = {
       "Use repeatable audits and reporting to turn findings into prioritized developer, content and marketing actions."
     ]
   },
-  blog: {
-    title: "SEO and AI search guides for marketers and website owners",
-    intro: "The Crazy SEO Team blog covers practical topics across technical SEO, AI SEO, GEO, AEO, LLM optimization, content strategy and digital growth. Articles are intended to answer specific questions clearly while connecting individual tactics to the wider structure of a search-friendly website. Readers should use current documentation and first-party sources when a topic involves a changing search product or platform.",
-    points: [
-      "Technical guides explain crawlability, metadata, canonicalization, structured data and performance concepts.",
-      "AI-search articles explore answer-oriented content, entities, citations, topical authority and measurement.",
-      "Content strategy guides cover search intent, internal linking, topic clusters and editorial optimization.",
-      "Each article can be strengthened with relevant internal links so readers can move from education to tools, services and related guides."
-    ]
-  },
   news: {
     title: "SEO and AI news with practical context",
     intro: "Search and AI platforms change quickly, so the Crazy SEO Team news section focuses on developments that can affect marketers, developers and website owners. News reporting should distinguish confirmed announcements from commentary, and readers should check the original source when a platform change could affect an important production website.",
