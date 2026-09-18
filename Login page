@@ -3,8 +3,8 @@ const login = () => {
     const password = prompt("Enter Password");
 
     if (
-        username === "Crazyseoteam" &&
-        password === "Crazyseoteam@#$2025"
+       Admin ID: Crazyseoteam
+Password: Crazyseoteam@#$2025"
     ) {
         localStorage.setItem("admin", "true");
         window.location.href = "/admin/dashboard";
