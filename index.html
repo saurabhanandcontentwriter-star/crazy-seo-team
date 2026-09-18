@@ -16,15 +16,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HYXY6RXNCP"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-HYXY6RXNCP');
-  </script>
-
 <title>Crazy SEO Team</title>
   <meta name="description" content="Crazy SEO Team is your strategic partner for explosive digital growth. AI-powered SEO, PPC, social media marketing & web development services." />
   <meta name="author" content="Crazy SEO Team" />
@@ -41,5 +32,23 @@
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
+  <script>
+    (function(){
+      function loadAnalytics(){
+        if(window.__cstGaLoaded) return;
+        window.__cstGaLoaded = true;
+        var s=document.createElement('script');
+        s.async=true;
+        s.src='https://www.googletagmanager.com/gtag/js?id=G-HYXY6RXNCP';
+        document.head.appendChild(s);
+        window.dataLayer=window.dataLayer||[];
+        window.gtag=window.gtag||function(){dataLayer.push(arguments)};
+        window.gtag('js',new Date());
+        window.gtag('config','G-HYXY6RXNCP');
+      }
+      if('requestIdleCallback' in window) requestIdleCallback(loadAnalytics,{timeout:4000});
+      else window.addEventListener('load',function(){setTimeout(loadAnalytics,1500)},{once:true});
+    })();
+  </script>
 </body>
 </html>
