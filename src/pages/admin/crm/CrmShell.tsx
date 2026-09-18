@@ -2,7 +2,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import { BarChart3, CalendarDays, KanbanSquare, LayoutDashboard, Users2, UsersRound, BriefcaseBusiness, CheckSquare, Wallet, Cpu, GraduationCap, Lightbulb, Megaphone, FileBarChart, Bell, Bot, Settings, UserCog, UserRound, UserRoundCog } from "lucide-react";
+import { BarChart3, CalendarDays, KanbanSquare, LayoutDashboard, Users2, UsersRound, BriefcaseBusiness, CheckSquare, Wallet, Cpu, GraduationCap, Lightbulb, Megaphone, FileBarChart, Bell, Bot, Settings, ChevronDown, Building2 } from "lucide-react";
 
 const TABS = [
   { to: "/admin/crm", label: "Dashboard", icon: LayoutDashboard, end: true },
@@ -35,6 +35,13 @@ export default function CrmShell() {
     });
   }, []);
   const tabs = isAdmin ? TABS : TABS.filter((t) => t.label !== "Team");
+  const groups = [
+    { label: "WORKSPACE", items: ["Dashboard","Employees","CRM","Projects","Tasks"] },
+    { label: "OPERATIONS", items: ["Finance","Technology","HR","Ideas","Announcements"] },
+    { label: "INSIGHTS", items: ["Reports","Notifications","AI Assistant"] },
+    { label: "SYSTEM", items: ["Settings","Leads","Pipeline","Follow-ups","Analytics",...(isAdmin ? ["Team"] : [])] },
+  ];
+  const [collapsed,setCollapsed]=useState<Record<string,boolean>>({});
   return (
     <div className="relative">
       {/* soft light-first background glow */}
@@ -55,29 +62,18 @@ export default function CrmShell() {
           </div>
         </motion.div>
 
-        <div className="overflow-x-auto -mx-1 px-1">
-          <nav className="inline-flex gap-1 rounded-2xl border border-white/60 bg-white/70 dark:bg-card/70 backdrop-blur-xl p-1 shadow-sm">
-            {tabs.map((t) => (
-              <NavLink
-                key={t.to}
-                to={t.to}
-                end={t.end}
-                className={({ isActive }) =>
-                  `flex items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2 text-sm font-semibold transition-all ${
-                    isActive
-                      ? "bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-md"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                  }`
-                }
-              >
-                <t.icon size={16} />
-                {t.label}
-              </NavLink>
-            ))}
-          </nav>
+        <div className="grid grid-cols-1 lg:grid-cols-[250px_minmax(0,1fr)] gap-5 items-start">
+          <aside className="lg:sticky lg:top-4 rounded-3xl border border-white/60 bg-white/80 dark:bg-card/80 backdrop-blur-xl p-3 shadow-sm">
+            <div className="flex items-center gap-2 px-3 py-3 mb-1"><Building2 size={18} className="text-primary"/><div><p className="font-black text-sm">Company CRM</p><p className="text-[10px] text-muted-foreground">Workspace</p></div></div>
+            <div className="space-y-2">
+              {groups.map(g => { const isOpen=collapsed[g.label]!==true; const groupItems=tabs.filter(t=>g.items.includes(t.label)); return <div key={g.label}>
+                <button type="button" onClick={()=>setCollapsed(v=>({...v,[g.label]:isOpen}))} className="w-full flex items-center justify-between px-3 py-2 text-[10px] font-black tracking-widest text-muted-foreground hover:text-foreground"><span>{g.label}</span><ChevronDown size={13} className={isOpen?"rotate-180 transition":"transition"}/></button>
+                {isOpen && <div className="space-y-0.5">{groupItems.map(t=><NavLink key={t.to} to={t.to} end={t.end} className={({isActive})=>`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${isActive?"bg-gradient-to-r from-blue-600 to-violet-600 text-white shadow-md":"text-muted-foreground hover:text-foreground hover:bg-muted/60"}`}><t.icon size={16}/><span>{t.label}</span></NavLink>)}</div>}
+              </div>})}
+            </div>
+          </aside>
+          <main className="min-w-0"><Outlet /></main>
         </div>
-
-        <Outlet />
       </div>
     </div>
   );
