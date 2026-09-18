@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import SEOToolsGrid from "@/components/SEOToolsGrid";
 import SEOToolsSection from "@/components/SEOToolsSection";
 import ToolsCloudRunner from "@/components/ToolsCloudRunner";
+import SEOContentBlock from "@/components/SEOContentBlock";
 
 const SEOTools = () => (
   <div className="min-h-screen">
@@ -19,6 +20,7 @@ const SEOTools = () => (
       <div id="seo-tools-interactive">
         <SEOToolsSection />
       </div>
+      <SEOContentBlock page="seo-tools" />
     </div>
     <Footer />
   </div>
