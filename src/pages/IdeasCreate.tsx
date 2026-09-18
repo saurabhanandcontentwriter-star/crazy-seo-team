@@ -12,7 +12,7 @@ import { ArrowLeft, ImagePlus, Lightbulb, Loader2, Sparkles, ShieldCheck, UserCi
 
 export default function IdeasCreate() {
  const navigate=useNavigate();
- const [subject,setSubject]=useState<"Tech"|"AI"|"SEO">("Tech");
+ const [subject,setSubject]=useState<"Tech"|"AI"|"SEO">("Tech"); const [postType,setPostType]=useState<"post"|"question">("post"); const [visibility,setVisibility]=useState<"public"|"friends">("public");
  const [title,setTitle]=useState(""); const [content,setContent]=useState("");
  const [name,setName]=useState(""); const [location,setLocation]=useState(""); const [device,setDevice]=useState("Unknown");
  const [profileFile,setProfileFile]=useState<File|null>(null); const [coverFile,setCoverFile]=useState<File|null>(null); const [saving,setSaving]=useState(false);
@@ -36,12 +36,12 @@ export default function IdeasCreate() {
      if(profileFile) profileImageUrl=await uploadImage(user.id,profileFile,"profile");
      if(coverFile) imageUrl=await uploadImage(user.id,coverFile,"cover");
      const{data:guard,error:guardError}=await supabase.functions.invoke("idea-content-guard",{body:{
-       name:name.trim(),subject,title:title.trim(),content:content.trim(),location:location.trim(),deviceType:device,
+       name:name.trim(),subject,title:title.trim(),content:content.trim(),location:location.trim(),deviceType:device,postType,visibility,
        profileImageUrl,imageUrl
      }});
      if(guardError) throw guardError;
      if(!guard?.accepted){toast.error(guard?.error||"AI-like content detected. Please rewrite it in your own words.");return}
-     toast.success("Idea passed the AI content check and was submitted for moderation."); navigate("/ideas");
+     toast.success(postType==="question"?"Question submitted for moderation.":"Post submitted for moderation."); navigate("/ideas");
    }catch(e:any){toast.error(e?.message||"Could not submit idea.")}finally{setSaving(false)}
  };
 
@@ -51,7 +51,7 @@ export default function IdeasCreate() {
   <Card className="overflow-hidden rounded-[30px] border-slate-200/80 bg-white/90 shadow-xl shadow-slate-200/40 backdrop-blur"><CardContent className="p-5 md:p-8">
    <div className="mb-7 rounded-2xl border border-violet-100 bg-violet-50/70 p-4"><div className="flex items-start gap-3"><Sparkles className="mt-0.5 text-violet-600"/><div><p className="font-bold">Keep it useful & original</p><p className="mt-1 text-sm text-muted-foreground">Choose one topic, explain the idea clearly, and add an image when it helps people understand it.</p></div></div></div>
    <div className="grid gap-6">
-    <div className="grid gap-2"><Label>Subject</Label><Select value={subject} onValueChange={v=>setSubject(v as any)}><SelectTrigger className="h-12 rounded-xl"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Tech">Tech</SelectItem><SelectItem value="AI">AI</SelectItem><SelectItem value="SEO">SEO</SelectItem></SelectContent></Select></div>
+    <div className="grid gap-6 md:grid-cols-3"><div className="grid gap-2"><Label>Type</Label><Select value={postType} onValueChange={v=>setPostType(v as any)}><SelectTrigger className="h-12 rounded-xl"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="post">Create Post</SelectItem><SelectItem value="question">Ask Question</SelectItem></SelectContent></Select></div><div className="grid gap-2"><Label>Visibility</Label><Select value={visibility} onValueChange={v=>setVisibility(v as any)}><SelectTrigger className="h-12 rounded-xl"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="public">Public</SelectItem><SelectItem value="friends">Friends only</SelectItem></SelectContent></Select></div><div className="grid gap-2"><Label>Subject</Label><Select value={subject} onValueChange={v=>setSubject(v as any)}><SelectTrigger className="h-12 rounded-xl"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Tech">Tech</SelectItem><SelectItem value="AI">AI</SelectItem><SelectItem value="SEO">SEO</SelectItem></SelectContent></Select></div>
     <div className="grid gap-2"><Label>Name *</Label><Input className="h-12 rounded-xl" value={name} onChange={e=>setName(e.target.value)} placeholder="Your public name"/></div>
     <div className="grid gap-2"><Label>Profile Image <span className="font-normal text-muted-foreground">(optional)</span></Label><label className="flex min-h-28 cursor-pointer items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-5 text-center text-sm text-muted-foreground transition hover:border-violet-300 hover:bg-violet-50/50">{profileFile?<img src={URL.createObjectURL(profileFile)} alt="Profile preview" className="size-16 rounded-full object-cover ring-2 ring-violet-200"/>:<UserCircle2 size={30}/>}<span>{profileFile?profileFile.name:"Add a profile photo • JPG, PNG or WEBP • max 5 MB"}</span><input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setProfileFile(e.target.files?.[0]||null)}/></label></div>
     <div className="grid gap-2"><Label>Title *</Label><Input className="h-12 rounded-xl text-base" maxLength={180} value={title} onChange={e=>setTitle(e.target.value)} placeholder="e.g. A smarter way to monitor AI search visibility"/></div>
