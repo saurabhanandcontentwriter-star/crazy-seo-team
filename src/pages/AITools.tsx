@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { auditPost } from "@/lib/seoAudit";
 import { analyzeReadability } from "@/lib/readability";
 import { supabase } from "@/integrations/supabase/client";
+import SEOContentBlock from "@/components/SEOContentBlock";
 
 
 const copy = (s: string) => { navigator.clipboard.writeText(s); toast.success("Copied"); };
@@ -436,6 +437,7 @@ const AITools = () => (
           <TabsContent value="audit"><SEOAuditor /></TabsContent>
         </Tabs>
       </div>
+      <SEOContentBlock page="ai-tools" />
     </div>
     <Footer />
     <WhatsAppButton />
