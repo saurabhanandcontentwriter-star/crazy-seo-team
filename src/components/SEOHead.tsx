@@ -20,6 +20,14 @@ const pageMeta: Record<string, { title: string; description: string; keywords: s
   "/classifieds": { title: "Classifieds Marketplace | Buy, Sell & Discover | Crazy SEO Team", description: "Browse approved classified listings for products, services, jobs, property, vehicles, businesses and more across India.", keywords: "classifieds, marketplace, buy sell India, local services, products, jobs, property" },
 };
 const faqSets: Record<string, Array<{ q: string; a: string }>> = {
+  "/faq": [
+    { q: "What is SEO and why does my business need it?", a: "SEO improves a website's visibility on search engines by combining technical accessibility, useful content, internal linking and authority signals." },
+    { q: "How long does it take to see results from SEO?", a: "SEO is a long-term process. Technical improvements can show earlier effects, while meaningful organic growth depends on competition, content quality, authority and implementation consistency." },
+    { q: "What is the difference between On-Page and Off-Page SEO?", a: "On-Page SEO covers content and technical elements on your site, while Off-Page SEO covers external signals such as relevant links, mentions and reputation." },
+    { q: "Do you guarantee a #1 ranking on Google?", a: "No ethical SEO process can guarantee a specific ranking because search systems change and results vary by query, competition, location and user context." },
+    { q: "How do you measure the success of an SEO campaign?", a: "Useful measurements include organic clicks, impressions, conversions, landing-page performance, technical health and relevant visibility trends." },
+  ],
+
   "/": [
     { q: "What is Crazy SEO Team?", a: "Crazy SEO Team is an AI-focused SEO and digital growth platform helping businesses improve Google and AI search visibility." },
     { q: "What is AI SEO?", a: "AI SEO combines technical SEO, semantic content, entity optimization and AI-search optimization to improve visibility across modern search experiences." },
@@ -107,7 +115,7 @@ export default function SEOHead() {
     ...(listing.seller_name ? { seller: { "@type": "Person", name: listing.seller_name } } : {}), ...(listing.business_name ? { brand: { "@type": "Brand", name: listing.business_name } } : {}),
     ...(listing.city || listing.state ? { areaServed: { "@type": "Place", name: [listing.city, listing.state].filter(Boolean).join(", ") } } : {}),
   } : null, [listing]);
-  const faqSchema = faqs.length ? { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) } : null;
+  const faqSchema = basePath === "/faq" && faqs.length ? { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) } : null;
   const breadcrumbSchema = breadcrumbs.length ? { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: SITE }, ...breadcrumbs.map((b, i) => ({ "@type": "ListItem", position: i + 2, name: b.name, item: b.item }))] } : null;
 
   return <Helmet>
