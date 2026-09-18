@@ -1,6 +1,7 @@
 -- Allow CRM team users to see today's attendance for all team members.
 -- Punch In/Out writes remain restricted to the signed-in user's own row.
 
+drop policy if exists "Admins and CRM team manage attendance" on public.crm_attendance;
 drop policy if exists "Users can read own attendance" on public.crm_attendance;
 drop policy if exists "Admins can read all attendance" on public.crm_attendance;
 create policy "CRM members can read all attendance" on public.crm_attendance for select to authenticated
