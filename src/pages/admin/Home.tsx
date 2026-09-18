@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import CrmFlashNotice from "@/pages/admin/crm/CrmFlashNotice";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -182,6 +183,7 @@ export default function AdminHome() {
 
   return (
     <div className="space-y-6">
+      <CrmFlashNotice />
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-black">Dashboard</h1>
