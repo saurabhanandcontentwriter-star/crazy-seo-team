@@ -47,6 +47,9 @@ export async function punchIn() {
   const user = await currentUser();
   const now = new Date().toISOString();
   const workDate = indiaDate();
+  const existing = await getTodayAttendance();
+  if (existing) throw new Error("Today Punch In is already recorded. Punch Out first.");
+
   const { data, error } = await db.from("crm_attendance").upsert({
     user_id: user.id,
     email: user.email ?? "",
