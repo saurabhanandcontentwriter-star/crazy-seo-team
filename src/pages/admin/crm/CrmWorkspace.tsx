@@ -1,0 +1,10 @@
+import { Link } from "react-router-dom";
+import { BriefcaseBusiness, Users, KanbanSquare, CalendarDays, ArrowRight } from "lucide-react";
+import { GlassCard } from "@/components/crm/CrmUI";
+export default function CrmWorkspace(){return <div className="space-y-5">
+<GlassCard className="p-6"><p className="text-xs font-bold uppercase tracking-wider text-primary">Customer Relationship Management</p><h2 className="text-2xl font-black mt-1">CRM Workspace</h2><p className="text-sm text-muted-foreground mt-1">Manage leads, clients, deals, meetings and follow-ups from one dedicated workspace.</p></GlassCard>
+<div className="grid gap-4 md:grid-cols-3">{[
+["Leads","Capture and manage prospects","/admin/crm/leads",Users],["Pipeline","Track deals through stages","/admin/crm/pipeline",KanbanSquare],["Follow-ups & Meetings","Plan customer conversations","/admin/crm/calendar",CalendarDays]
+].map(([t,d,u,I]:any)=><Link key={t} to={u}><GlassCard className="p-5 hover:border-primary/40 transition"><I className="text-primary" size={22}/><h3 className="font-black mt-3">{t}</h3><p className="text-xs text-muted-foreground mt-1">{d}</p><span className="inline-flex items-center gap-1 text-xs font-semibold text-primary mt-4">Open workspace <ArrowRight size={13}/></span></GlassCard></Link>)}</div>
+<GlassCard className="p-5"><div className="flex items-center gap-2"><BriefcaseBusiness className="text-primary" size={20}/><h3 className="font-black">CRM Workflow</h3></div><div className="grid gap-3 sm:grid-cols-5 mt-4">{["Lead","Qualified","Proposal","Deal","Client"].map((x,i)=><div key={x} className="rounded-2xl border p-4 text-center"><div className="mx-auto h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold">{i+1}</div><p className="font-semibold mt-2">{x}</p></div>)}</div></GlassCard>
+</div>}
