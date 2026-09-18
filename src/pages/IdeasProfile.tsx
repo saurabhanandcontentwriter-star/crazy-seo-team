@@ -30,13 +30,84 @@ export default function IdeasProfile(){
  const social=[["Website",p?.website_url],["LinkedIn",p?.linkedin_url],["GitHub",p?.github_url],["Instagram",p?.instagram_url],["X / Twitter",p?.twitter_url]].filter(x=>x[1]);
  if(loading)return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin"/></div>;
  if(!p)return <div className="container mx-auto max-w-3xl px-4 py-12"><Card><CardContent className="p-10 text-center">Profile not found.</CardContent></Card></div>;
- return <div className="min-h-screen bg-background"><div className="container mx-auto max-w-5xl px-4 py-6 md:py-10"><Button variant="ghost" onClick={()=>nav("/ideas")}><ArrowLeft className="mr-2 size-4"/>Ideas</Button>
- <Card className="mt-4 overflow-hidden rounded-[28px]"><div className="h-44 bg-gradient-to-r from-blue-600/80 via-violet-600/80 to-fuchsia-600/70">{p.cover_url&&<img src={p.cover_url} className="size-full object-cover"/>}</div><CardContent className="relative p-6"><div className="-mt-20 flex flex-col gap-4 md:flex-row md:items-end"><div className="size-28 overflow-hidden rounded-3xl border-4 border-background bg-muted">{p.avatar_url?<img src={p.avatar_url} className="size-full object-cover"/>:<UserCircle2 className="size-full p-5 text-muted-foreground"/>}</div><div className="flex-1"><h1 className="text-3xl font-black">{p.display_name}</h1><p className="text-sm text-muted-foreground">{p.location||"Ideas Community member"}</p></div>{me===p.user_id?<Button onClick={()=>setEdit(!edit)}>{edit?"Cancel":"Edit Profile"}</Button>:<div className="flex gap-2"><Button onClick={toggleFollow} variant={following?"outline":"default"}>{following?<UserCheck className="mr-2 size-4"/>:<UserPlus className="mr-2 size-4"/>}{following?"Following":"Follow"}</Button><Button variant="outline" onClick={friend}>{friendStatus==="accepted"?<UserCheck className="mr-2 size-4"/>:<Users className="mr-2 size-4"/>}{friendStatus==="accepted"?"Friends":friendStatus==="pending"?"Request Sent":"Add Friend"}</Button></div>}</div>{p.bio&&<p className="mt-4 text-muted-foreground">{p.bio}</p>}{social.length>0&&<div className="mt-4 flex flex-wrap gap-2">{social.map(([n,u])=><a key={n} href={String(u)} target="_blank" rel="noreferrer"><Badge variant="secondary" className="gap-1"><ExternalLink size={12}/>{n}</Badge></a>)}</div>}
- {edit&&me===p.user_id&&<div className="mt-6 grid gap-4 rounded-2xl border bg-muted/20 p-5 md:grid-cols-2"><Input placeholder="Name" value={String(form.display_name||"")} onChange={e=>setForm({...form,display_name:e.target.value})}/><Input placeholder="Location" value={String(form.location||"")} onChange={e=>setForm({...form,location:e.target.value})}/><Textarea className="md:col-span-2" placeholder="Bio" value={String(form.bio||"")} onChange={e=>setForm({...form,bio:e.target.value})}/>{["avatar_url","cover_url","website_url","linkedin_url","github_url","instagram_url","twitter_url"].map(k=><Input key={k} placeholder={k.replace("_url","").replace("_"," ")} value={String((form as any)[k]||"")} onChange={e=>setForm({...form,[k]:e.target.value})}/>)}<Button className="md:col-span-2" onClick={save} disabled={saving}>{saving?<Loader2 className="mr-2 size-4 animate-spin"/>:<Save className="mr-2 size-4"/>}Save Profile</Button></div>}
- </CardContent></Card>
- <div className="mt-6 flex flex-wrap gap-2">{[["posts","Posts",FileText],["activity","Activity",Activity],["friends","Friends",Users],["followers","Followers",Users],["following","Following",UserPlus],["questions","Questions",HelpCircle]].map(([k,n,I]:any)=><Button key={k} variant={tab===k?"default":"outline"} onClick={()=>setTab(k)}><I className="mr-2 size-4"/>{n}</Button>)}</div>
- <div className="mt-5 space-y-4">{tab==="posts"&&posts.filter(x=>x.post_type==="post").map(x=><PostCard key={x.id} x={x}/>)}{tab==="questions"&&posts.filter(x=>x.post_type==="question").map(x=><PostCard key={x.id} x={x}/>)}{tab==="activity"&&<Card><CardContent className="p-6 space-y-4">{posts.slice(0,20).map(x=><div key={x.id} className="flex gap-3 border-b pb-3"><Activity className="mt-1 size-4 text-primary"/><div><b>{x.post_type==="question"?"Asked a question":"Published a post"}</b><p className="text-sm text-muted-foreground">{x.title} • {new Date(x.created_at).toLocaleDateString()}</p></div></div>)}</CardContent></Card>}{(tab==="friends"||tab==="following"||tab==="followers")&&<RelationshipList userId={p.user_id} mode={tab}/>} {me===p.user_id&&requesters.length>0&&<Card><CardContent className="p-6"><h3 className="mb-4 text-lg font-bold">Friend Requests</h3>{requesters.map(r=><div key={r.user_id} className="flex items-center gap-3 border-b py-3"><div className="size-10 overflow-hidden rounded-full bg-muted">{r.avatar_url?<img src={r.avatar_url} className="size-full object-cover"/>:<UserCircle2 className="size-full p-2"/></div><div className="flex-1"><p className="font-bold">{r.display_name}</p><p className="text-xs text-muted-foreground">{r.location||"Ideas Community"}</p></div><Button size="sm" onClick={()=>respondFriend(r.user_id,"accepted")}>Accept</Button><Button size="sm" variant="outline" onClick={()=>respondFriend(r.user_id,"rejected")}>Reject</Button></div>)}</CardContent></Card>}</div>
- </div></div>;
-}
+ return (
+  <div className="min-h-screen bg-background">
+   <div className="container mx-auto max-w-5xl px-4 py-6 md:py-10">
+    <Button variant="ghost" onClick={()=>nav("/ideas")}><ArrowLeft className="mr-2 size-4"/>Ideas</Button>
+    <Card className="mt-4 overflow-hidden rounded-[28px]">
+     <div className="h-44 bg-gradient-to-r from-blue-600/80 via-violet-600/80 to-fuchsia-600/70">
+      {p.cover_url&&<img src={p.cover_url} className="size-full object-cover"/>}
+     </div>
+     <CardContent className="relative p-6">
+      <div className="-mt-20 flex flex-col gap-4 md:flex-row md:items-end">
+       <div className="size-28 overflow-hidden rounded-3xl border-4 border-background bg-muted">
+        {p.avatar_url?<img src={p.avatar_url} className="size-full object-cover"/>:<UserCircle2 className="size-full p-5 text-muted-foreground"/>}
+       </div>
+       <div className="flex-1">
+        <h1 className="text-3xl font-black">{p.display_name}</h1>
+        <p className="text-sm text-muted-foreground">{p.location||"Ideas Community member"}</p>
+       </div>
+       {me===p.user_id ? (
+        <Button onClick={()=>setEdit(!edit)}>{edit?"Cancel":"Edit Profile"}</Button>
+       ) : (
+        <div className="flex gap-2">
+         <Button onClick={toggleFollow} variant={following?"outline":"default"}>
+          {following?<UserCheck className="mr-2 size-4"/>:<UserPlus className="mr-2 size-4"/>}
+          {following?"Following":"Follow"}
+         </Button>
+         <Button variant="outline" onClick={friend}>
+          {friendStatus==="accepted"?<UserCheck className="mr-2 size-4"/>:<Users className="mr-2 size-4"/>}
+          {friendStatus==="accepted"?"Friends":friendStatus==="pending"?"Request Sent":"Add Friend"}
+         </Button>
+        </div>
+       )}
+      </div>
+      {p.bio&&<p className="mt-4 text-muted-foreground">{p.bio}</p>}
+      {social.length>0&&<div className="mt-4 flex flex-wrap gap-2">{social.map(([n,u])=><a key={n} href={String(u)} target="_blank" rel="noreferrer"><Badge variant="secondary" className="gap-1"><ExternalLink size={12}/>{n}</Badge></a>)}</div>}
+      {edit&&me===p.user_id&&(
+       <div className="mt-6 grid gap-4 rounded-2xl border bg-muted/20 p-5 md:grid-cols-2">
+        <Input placeholder="Name" value={String(form.display_name||"")} onChange={e=>setForm({...form,display_name:e.target.value})}/>
+        <Input placeholder="Location" value={String(form.location||"")} onChange={e=>setForm({...form,location:e.target.value})}/>
+        <Textarea className="md:col-span-2" placeholder="Bio" value={String(form.bio||"")} onChange={e=>setForm({...form,bio:e.target.value})}/>
+        {["avatar_url","cover_url","website_url","linkedin_url","github_url","instagram_url","twitter_url"].map(k=><Input key={k} placeholder={k.replace("_url","").replace("_"," ")} value={String((form as any)[k]||"")} onChange={e=>setForm({...form,[k]:e.target.value})}/>)}
+        <Button className="md:col-span-2" onClick={save} disabled={saving}>{saving?<Loader2 className="mr-2 size-4 animate-spin"/>:<Save className="mr-2 size-4"/>}Save Profile</Button>
+       </div>
+      )}
+     </CardContent>
+    </Card>
+    <div className="mt-6 flex flex-wrap gap-2">
+     {[["posts","Posts",FileText],["activity","Activity",Activity],["friends","Friends",Users],["followers","Followers",Users],["following","Following",UserPlus],["questions","Questions",HelpCircle]].map(([k,n,I]:any)=><Button key={k} variant={tab===k?"default":"outline"} onClick={()=>setTab(k)}><I className="mr-2 size-4"/>{n}</Button>)}
+    </div>
+    <div className="mt-5 space-y-4">
+     {tab==="posts"&&posts.filter(x=>x.post_type==="post").map(x=><PostCard key={x.id} x={x}/>)}
+     {tab==="questions"&&posts.filter(x=>x.post_type==="question").map(x=><PostCard key={x.id} x={x}/>)}
+     {tab==="activity"&&(
+      <Card><CardContent className="space-y-4 p-6">
+       {posts.slice(0,20).map(x=>(
+        <div key={x.id} className="flex gap-3 border-b pb-3">
+         <Activity className="mt-1 size-4 text-primary"/>
+         <div><b>{x.post_type==="question"?"Asked a question":"Published a post"}</b><p className="text-sm text-muted-foreground">{x.title} • {new Date(x.created_at).toLocaleDateString()}</p></div>
+        </div>
+       ))}
+      </CardContent></Card>
+     )}
+     {(tab==="friends"||tab==="following"||tab==="followers")&&<RelationshipList userId={p.user_id} mode={tab as "friends"|"following"|"followers"}/>}
+     {me===p.user_id&&requesters.length>0&&(
+      <Card><CardContent className="p-6">
+       <h3 className="mb-4 text-lg font-bold">Friend Requests</h3>
+       {requesters.map(r=>(
+        <div key={r.user_id} className="flex items-center gap-3 border-b py-3">
+         <div className="size-10 overflow-hidden rounded-full bg-muted">{r.avatar_url?<img src={r.avatar_url} className="size-full object-cover"/>:<UserCircle2 className="size-full p-2"/>}</div>
+         <div className="flex-1"><p className="font-bold">{r.display_name}</p><p className="text-xs text-muted-foreground">{r.location||"Ideas Community"}</p></div>
+         <Button size="sm" onClick={()=>respondFriend(r.user_id,"accepted")}>Accept</Button>
+         <Button size="sm" variant="outline" onClick={()=>respondFriend(r.user_id,"rejected")}>Reject</Button>
+        </div>
+       ))}
+      </CardContent></Card>
+     )}
+    </div>
+   </div>
+  </div>
+ );
 function PostCard({x}:{x:Post}){return <Card><CardContent className="p-5"><div className="mb-2 flex gap-2"><Badge>{x.post_type==="question"?"Question":x.subject}</Badge><Badge variant="outline">{x.visibility==="friends"?"Friends":"Public"}</Badge></div><h2 className="text-xl font-bold">{x.title}</h2><p className="mt-2 whitespace-pre-wrap text-muted-foreground">{x.content}</p>{x.image_url&&<img src={x.image_url} className="mt-4 max-h-96 rounded-2xl object-cover"/>}</CardContent></Card>}
 function RelationshipList({userId,mode}:{userId:string;mode:"friends"|"following"|"followers"}){const[items,setItems]=useState<any[]>([]);useEffect(()=>{(async()=>{if(mode==="following"){const {data}=await supabase.from("idea_follows").select("following_id").eq("follower_id",userId);const ids=(data||[]).map(x=>x.following_id);if(ids.length){const {data:p}=await supabase.from("idea_profiles").select("*").in("user_id",ids);setItems(p||[])}}else if(mode==="followers"){const {data}=await supabase.from("idea_follows").select("follower_id").eq("following_id",userId);const ids=(data||[]).map(x=>x.follower_id);if(ids.length){const {data:p}=await supabase.from("idea_profiles").select("*").in("user_id",ids);setItems(p||[])}}else{const {data}=await supabase.from("idea_friendships").select("requester_id,addressee_id").eq("status","accepted").or("requester_id.eq."+userId+",addressee_id.eq."+userId);const ids=(data||[]).map(x=>x.requester_id===userId?x.addressee_id:x.requester_id);if(ids.length){const {data:p}=await supabase.from("idea_profiles").select("*").in("user_id",ids);setItems(p||[])}}})()},[userId,mode]);return <Card><CardContent className="p-6">{items.length===0?<p className="text-muted-foreground">No {mode} yet.</p>:items.map(x=><div key={x.user_id} className="flex items-center gap-3 border-b py-3"><div className="size-10 overflow-hidden rounded-full bg-muted">{x.avatar_url?<img src={x.avatar_url} className="size-full object-cover"/>:<UserCircle2 className="size-full p-2"/></div><p className="font-bold">{x.display_name}</p></div>)}</CardContent></Card>}
