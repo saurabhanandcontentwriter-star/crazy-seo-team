@@ -47,8 +47,9 @@ export default function CrmDashboardPro() {
   };
 
   if(loading)return <CrmSkeleton/>;
-  if(!leads.length)return <div className="space-y-5"><CrmAttendancePanel/><GlassCard><EmptyState icon={Users} title="No leads yet" hint="Website forms, chatbot and SEO tools can feed leads into this CRM." action={<Link to="/admin/crm/leads"><Button className="rounded-2xl">Create your first lead</Button></Link>}/></GlassCard>;
+  if(!leads.length)return <div className="space-y-5"><CrmAttendancePanel/><GlassCard><EmptyState icon={Users} title="No leads yet" hint="Website forms, chatbot and SEO tools can feed leads into this CRM." action={<Link to="/admin/crm/leads"><Button className="rounded-2xl">Create your first lead</Button></Link>}/></GlassCard></div>;
   return <div className="space-y-5">
+    <CrmAttendancePanel />
     <AlertDialog open={!!confirmLead} onOpenChange={(open)=>{ if(!open&&!actionBusy){setConfirmLead(null);setConfirmAction(null);} }}>
       <AlertDialogContent>
         <AlertDialogHeader><AlertDialogTitle>{confirmAction === "accept" ? "Accept this lead?" : "Reject this lead?"}</AlertDialogTitle><AlertDialogDescription>{confirmLead ? `${confirmLead.full_name} (${confirmLead.email}) will be moved to ${confirmAction === "accept" ? "Qualified" : "Lost"}. After confirmation, a pre-filled client confirmation email will open.` : ""}</AlertDialogDescription></AlertDialogHeader>
