@@ -2,6 +2,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
+import CrmFlashNotice from "@/pages/admin/crm/CrmFlashNotice";
 import { BarChart3, CalendarDays, KanbanSquare, LayoutDashboard, Users2, UsersRound, BriefcaseBusiness, CheckSquare, Wallet, Cpu, GraduationCap, Lightbulb, Megaphone, FileBarChart, Bell, Bot, Settings, ChevronDown, Building2 } from "lucide-react";
 
 const TABS = [
@@ -14,8 +15,7 @@ const TABS = [
   { to: "/admin/crm/technology", label: "Technology", icon: Cpu },
   { to: "/admin/crm/hr", label: "HR", icon: GraduationCap },
   { to: "/admin/crm/ideas", label: "Ideas", icon: Lightbulb },
-  { to: "/admin/crm/announcements", label: "Announcements", icon: Megaphone },
-  { to: "/admin/crm/reports", label: "Reports", icon: FileBarChart },
+    { to: "/admin/crm/reports", label: "Reports", icon: FileBarChart },
   { to: "/admin/crm/notifications", label: "Notifications", icon: Bell },
   { to: "/admin/crm/ai-assistant", label: "AI Assistant", icon: Bot },
   { to: "/admin/crm/settings", label: "Settings", icon: Settings },
@@ -37,7 +37,7 @@ export default function CrmShell() {
   const tabs = isAdmin ? TABS : TABS.filter((t) => t.label !== "Team");
   const groups = [
     { label: "WORKSPACE", items: ["Dashboard","Employees","CRM","Projects","Tasks"] },
-    { label: "OPERATIONS", items: ["Finance","Technology","HR","Ideas","Announcements"] },
+    { label: "OPERATIONS", items: ["Finance","Technology","HR","Ideas"] },
     { label: "INSIGHTS", items: ["Reports","Notifications","AI Assistant"] },
     { label: "SYSTEM", items: ["Settings","Leads","Pipeline","Follow-ups","Analytics",...(isAdmin ? ["Team"] : [])] },
   ];
@@ -72,7 +72,7 @@ export default function CrmShell() {
               </div>})}
             </div>
           </aside>
-          <main className="min-w-0"><Outlet /></main>
+          <main className="min-w-0 space-y-4"><CrmFlashNotice /><Outlet /></main>
         </div>
       </div>
     </div>
