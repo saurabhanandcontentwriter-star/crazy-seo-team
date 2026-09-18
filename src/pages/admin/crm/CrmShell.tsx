@@ -2,10 +2,23 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
-import { BarChart3, CalendarDays, KanbanSquare, LayoutDashboard, Users2, UsersRound } from "lucide-react";
+import { BarChart3, CalendarDays, KanbanSquare, LayoutDashboard, Users2, UsersRound, BriefcaseBusiness, CheckSquare, Wallet, Cpu, GraduationCap, Lightbulb, Megaphone, FileBarChart, Bell, Bot, Settings, UserCog, UserRound, UserRoundCog } from "lucide-react";
 
 const TABS = [
   { to: "/admin/crm", label: "Dashboard", icon: LayoutDashboard, end: true },
+  { to: "/admin/crm/employees", label: "Employees", icon: Users2 },
+  { to: "/admin/crm/crm", label: "CRM", icon: BriefcaseBusiness },
+  { to: "/admin/crm/projects", label: "Projects", icon: BriefcaseBusiness },
+  { to: "/admin/crm/tasks", label: "Tasks", icon: CheckSquare },
+  { to: "/admin/crm/finance", label: "Finance", icon: Wallet },
+  { to: "/admin/crm/technology", label: "Technology", icon: Cpu },
+  { to: "/admin/crm/hr", label: "HR", icon: GraduationCap },
+  { to: "/admin/crm/ideas", label: "Ideas", icon: Lightbulb },
+  { to: "/admin/crm/announcements", label: "Announcements", icon: Megaphone },
+  { to: "/admin/crm/reports", label: "Reports", icon: FileBarChart },
+  { to: "/admin/crm/notifications", label: "Notifications", icon: Bell },
+  { to: "/admin/crm/ai-assistant", label: "AI Assistant", icon: Bot },
+  { to: "/admin/crm/settings", label: "Settings", icon: Settings },
   { to: "/admin/crm/leads", label: "Leads", icon: Users2 },
   { to: "/admin/crm/pipeline", label: "Pipeline", icon: KanbanSquare },
   { to: "/admin/crm/calendar", label: "Follow-ups", icon: CalendarDays },
