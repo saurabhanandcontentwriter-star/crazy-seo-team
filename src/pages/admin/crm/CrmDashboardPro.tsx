@@ -7,6 +7,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { GlassCard, Kpi, CrmSkeleton, EmptyState } from "@/components/crm/CrmUI";
 import { toast } from "@/hooks/use-toast";
 import { fetchLeads, fetchTeam, fetchFollowUps, exportCsv, exportExcel, exportPdf, logActivity, updateLead, stageLabel, CRM_STAGES, type CrmLead, type TeamMember, type FollowUp } from "@/lib/crm";
+import CrmAttendancePanel from "@/pages/admin/crm/CrmAttendancePanel";
 
 export default function CrmDashboardPro() {
   const [leads, setLeads] = useState<CrmLead[]>([]);
@@ -46,7 +47,7 @@ export default function CrmDashboardPro() {
   };
 
   if(loading)return <CrmSkeleton/>;
-  if(!leads.length)return <GlassCard><EmptyState icon={Users} title="No leads yet" hint="Website forms, chatbot and SEO tools can feed leads into this CRM." action={<Link to="/admin/crm/leads"><Button className="rounded-2xl">Create your first lead</Button></Link>}/></GlassCard>;
+  if(!leads.length)return <div className="space-y-5"><CrmAttendancePanel/><GlassCard><EmptyState icon={Users} title="No leads yet" hint="Website forms, chatbot and SEO tools can feed leads into this CRM." action={<Link to="/admin/crm/leads"><Button className="rounded-2xl">Create your first lead</Button></Link>}/></GlassCard>;
   return <div className="space-y-5">
     <AlertDialog open={!!confirmLead} onOpenChange={(open)=>{ if(!open&&!actionBusy){setConfirmLead(null);setConfirmAction(null);} }}>
       <AlertDialogContent>
