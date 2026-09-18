@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { fetchTeam, type TeamMember } from "@/lib/crm";
+import CrmTeam from "@/pages/admin/crm/CrmTeam";
 
 type Item={id:string;module:string;title:string;description:string|null;status:string;priority:string;due_date:string|null;amount:number|null;created_at:string;};
 const modules: Record<string,{title:string;description:string;icon:any;items:string[]}> = {
@@ -119,7 +120,7 @@ export default function CrmModulePage(){
 
    {module==="technology"&&<TechnologyOrgChart />}
 
-   {module==="employees"&&<GlassCard className="p-5"><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{data.items.map(item=><Link key={item} to="/admin/crm/team" className="rounded-2xl border p-4 hover:border-primary/30 hover:bg-muted/30 transition"><p className="font-bold">{item}</p><p className="text-xs text-muted-foreground mt-1">Open employee directory <ArrowRight size={12} className="inline"/></p></Link>)}</div></GlassCard>}
+   {module==="employees"&&<CrmTeam />}
    {module==="crm"&&<GlassCard className="p-5"><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">{data.items.map((item,i)=><Link key={item} to={i===0?"/admin/crm/leads":i===2?"/admin/crm/pipeline":"/admin/crm/calendar"} className="rounded-2xl border p-4 hover:border-primary/30 hover:bg-muted/30 transition"><p className="font-bold">{item}</p><p className="text-xs text-muted-foreground mt-1">Open workspace <ArrowRight size={12} className="inline"/></p></Link>)}</div></GlassCard>}
    {module==="hr"&&<GlassCard className="p-5"><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{data.items.map(item=><Link key={item} to="/admin/crm" className="rounded-2xl border p-4 hover:border-primary/30 transition"><p className="font-bold">{item}</p><p className="text-xs text-muted-foreground mt-1">Open HR workspace <ArrowRight size={12} className="inline"/></p></Link>)}</div></GlassCard>}
 
