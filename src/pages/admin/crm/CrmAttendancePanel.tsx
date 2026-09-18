@@ -5,6 +5,7 @@ import { GlassCard } from "@/components/crm/CrmUI";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { formatClock, formatDuration, indiaDate, punchIn, punchOut, type Attendance } from "@/lib/attendance";
+import { isWorkingDay } from "@/pages/admin/crm/CrmHolidayCalendar";
 
 type TeamMember = { id: string; auth_user_id: string | null; name: string; login_id: string | null; position: string | null; photo_url: string | null };
 type DisplayRow = Attendance & { member: TeamMember };
@@ -44,6 +45,7 @@ export default function CrmAttendancePanel() {
   useEffect(() => { void load(); }, [load]);
 
   const action = async (kind: "in" | "out") => {
+    if (kind === "in" && !isWorkingDay(new Date())) { toast.error("Today is a non-working day. Working days are Monday–Friday."); return; }
     setBusy(kind);
     try {
       if (kind === "in") { if (mine) return toast.error("Today attendance is already recorded."); setMine(await punchIn()); }
@@ -60,7 +62,7 @@ export default function CrmAttendancePanel() {
   return <GlassCard className="p-5">
     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
       <div><div className="flex items-center gap-2"><Clock3 size={19} className="text-primary" /><p className="font-black text-lg">Team Attendance</p></div><p className="text-xs text-muted-foreground mt-1">Today · {today} · All CRM members can see everyone attendance.</p></div>
-      <div className="flex gap-2"><Button variant="outline" size="sm" className="rounded-2xl" onClick={() => void load()} disabled={loading}><RefreshCw size={14} className="mr-1" /> Refresh</Button>{!mine ? <Button size="sm" className="rounded-2xl" onClick={() => void action("in")} disabled={busy !== null}><LogIn size={14} className="mr-1" />{busy === "in" ? "Punching…" : "Punch In"}</Button> : mine.status === "punched_in" ? <Button size="sm" variant="destructive" className="rounded-2xl" onClick={() => void action("out")} disabled={busy !== null}><LogOut size={14} className="mr-1" />{busy === "out" ? "Punching…" : "Punch Out"}</Button> : <span className="inline-flex items-center rounded-2xl border bg-muted px-3 py-2 text-xs font-bold text-muted-foreground">Today completed</span>}</div>
+      <div className="flex gap-2"><Button variant="outline" size="sm" className="rounded-2xl" onClick={() => void load()} disabled={loading}><RefreshCw size={14} className="mr-1" /> Refresh</Button>{!mine ? <Button size="sm" className="rounded-2xl" onClick={() => void action("in")} disabled={busy !== null || !isWorkingDay(new Date())}><LogIn size={14} className="mr-1" />{busy === "in" ? "Punching…" : "Punch In"}</Button> : mine.status === "punched_in" ? <Button size="sm" variant="destructive" className="rounded-2xl" onClick={() => void action("out")} disabled={busy !== null}><LogOut size={14} className="mr-1" />{busy === "out" ? "Punching…" : "Punch Out"}</Button> : <span className="inline-flex items-center rounded-2xl border bg-muted px-3 py-2 text-xs font-bold text-muted-foreground">Today completed</span>}</div>
     </div>
     {mine && <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2"><div className="rounded-2xl bg-muted/50 p-3"><p className="text-[10px] uppercase text-muted-foreground">My Punch In</p><p className="font-black">{formatClock(mine.punch_in)}</p></div><div className="rounded-2xl bg-muted/50 p-3"><p className="text-[10px] uppercase text-muted-foreground">My Punch Out</p><p className="font-black">{formatClock(mine.punch_out)}</p></div><div className="rounded-2xl bg-muted/50 p-3"><p className="text-[10px] uppercase text-muted-foreground">Working Time</p><p className="font-black">{formatDuration(currentSeconds)}</p></div><div className="rounded-2xl bg-muted/50 p-3"><p className="text-[10px] uppercase text-muted-foreground">My Status</p><p className="font-black">{mine.status === "punched_in" ? "Working" : "Completed"}</p></div></div>}
     <div className="mt-5 overflow-x-auto"><div className="min-w-[760px]"><div className="grid grid-cols-[1.4fr_1fr_1fr_1fr_1fr] gap-3 border-b px-3 pb-2 text-[10px] font-bold uppercase tracking-wide text-muted-foreground"><span>Member</span><span>Status</span><span>Punch In</span><span>Punch Out</span><span>Working Time</span></div>
