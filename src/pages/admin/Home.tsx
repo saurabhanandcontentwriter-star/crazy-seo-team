@@ -83,13 +83,16 @@ export default function AdminHome() {
       supabase.from("newsletter_subscribers").select("id", { count: "exact", head: true }),
       supabase.from("blog_posts").select("id,published,source,title,published_at").order("published_at", { ascending: false }),
       supabase.from("news_articles").select("id,title,published_at").order("published_at", { ascending: false }).limit(200),
-      supabase.from("page_views").select("created_at,session_id").gte("created_at", since14),
+      supabase.from("page_views").select("created_at,session_id").gte("created_at", since14).order("created_at", { ascending: true }),
       supabase.from("page_views").select("session_id").gte("created_at", todayStart.toISOString()),
       supabase.from("page_views").select("session_id").gte("created_at", since5m),
       supabase.from("tool_usage").select("tool_name,created_at").gte("created_at", since14),
       supabase.from("login_history").select("id,email,success,created_at").order("created_at", { ascending: false }).limit(8),
       supabase.from("news_articles").select("id", { count: "exact", head: true }),
     ]);
+
+    const queryErrors = [roles, subs, posts, news, views, viewsToday, online, tool, logins, newsAi].filter((q) => q.error);
+    if (queryErrors.length) console.error("Admin dashboard data errors:", queryErrors.map((q) => q.error));
 
     const postRows = posts.data ?? [];
     const viewRows = views.data ?? [];
