@@ -66,7 +66,10 @@ export default function AdminHome() {
   const [kpis, setKpis] = useState<Kpis>(EMPTY);
   const [series, setSeries] = useState<{ day: string; views: number; sessions: number }[]>([]);
   const [tools, setTools] = useState<{ tool: string; runs: number }[]>([]);
-  const [activity, setActivity] = useState<{ id: string; text: string; at: string }[]>([]);\n  const [holidays, setHolidays] = useState<any[]>([]);\n  const [loginCount, setLoginCount] = useState(0);\n  const [loginHistory, setLoginHistory] = useState<any[]>([]);
+  const [activity, setActivity] = useState<{ id: string; text: string; at: string }[]>([]);
+  const [holidays, setHolidays] = useState<any[]>([]);
+  const [loginCount, setLoginCount] = useState(0);
+  const [loginHistory, setLoginHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
@@ -88,7 +91,8 @@ export default function AdminHome() {
       supabase.from("page_views").select("session_id").gte("created_at", since5m),
       supabase.from("tool_usage").select("tool_name,created_at").gte("created_at", since14),
       supabase.from("login_history").select("id,email,success,created_at").order("created_at", { ascending: false }).limit(8),
-      supabase.from("news_articles").select("id", { count: "exact", head: true }),\n      supabase.from("crm_holidays").select("id,holiday_date,name,reason").gte("holiday_date", new Date().toISOString().slice(0,10)).order("holiday_date", { ascending: true }).limit(8),
+      supabase.from("news_articles").select("id", { count: "exact", head: true }),
+      supabase.from("crm_holidays").select("id,holiday_date,name,reason").gte("holiday_date", new Date().toISOString().slice(0,10)).order("holiday_date", { ascending: true }).limit(8),
     ]);
 
     const queryErrors = [roles, subs, posts, news, views, viewsToday, online, tool, logins, newsAi].filter((q) => q.error);
@@ -109,7 +113,11 @@ export default function AdminHome() {
     const returning = [...new Set((viewsToday.data ?? []).map((v) => v.session_id))]
       .filter((s) => (sessionFirstSeen.get(s) ?? "") < todayStart.toISOString()).length;
 
-    setLoginCount((logins.data ?? []).filter((l) => l.success).length);\n    setLoginHistory(logins.data ?? []);\n    setHolidays(holidaysRes.data ?? []);\n\n    setKpis({
+    setLoginCount((logins.data ?? []).filter((l) => l.success).length);
+    setLoginHistory(logins.data ?? []);
+    setHolidays(holidaysRes.data ?? []);
+
+    setKpis({
       totalUsers: uniq((roles.data ?? []).map((r) => r.user_id)),
       activeUsers: activeSessions,
       onlineUsers: uniq((online.data ?? []).map((v) => v.session_id)),
