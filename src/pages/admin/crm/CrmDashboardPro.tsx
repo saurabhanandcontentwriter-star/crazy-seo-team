@@ -48,7 +48,7 @@ export default function CrmDashboardPro() {
   };
 
   if(loading)return <CrmSkeleton/>;
-  if(!leads.length)return <div className="space-y-5"><CrmAttendancePanel/><GlassCard><EmptyState icon={Users} title="No leads yet" hint="Website forms, chatbot and SEO tools can feed leads into this CRM." action={<Link to="/admin/crm/leads"><Button className="rounded-2xl">Create your first lead</Button></Link>}/></GlassCard></div>;
+  if(!leads.length)return <div className="space-y-5"><CrmAttendancePanel/><CrmHolidayCalendar/><GlassCard><EmptyState icon={Users} title="No leads yet" hint="Website forms, chatbot and SEO tools can feed leads into this CRM." action={<Link to="/admin/crm/leads"><Button className="rounded-2xl">Create your first lead</Button></Link>}/></GlassCard></div>;
   return <div className="space-y-5">
     <CrmAttendancePanel />
     <AlertDialog open={!!confirmLead} onOpenChange={(open)=>{ if(!open&&!actionBusy){setConfirmLead(null);setConfirmAction(null);} }}>
