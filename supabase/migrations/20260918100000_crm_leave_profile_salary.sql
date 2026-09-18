@@ -47,3 +47,30 @@ drop policy if exists "CRM members apply own leave" on public.crm_leave_requests
 drop policy if exists "Admins manage leave" on public.crm_leave_requests;\ncreate policy "Admins manage leave" on public.crm_leave_requests for update to authenticated using (public.has_role(auth.uid(),'admin'::public.app_role)) with check (public.has_role(auth.uid(),'admin'::public.app_role));
 
 create index if not exists crm_leave_requests_user_date_idx on public.crm_leave_requests(user_id,start_date,end_date);
+
+
+insert into public.crm_holidays (holiday_date,name,reason) values
+('2026-01-26','Republic Day','National holiday'),
+('2026-03-04','Holi','Festival holiday'),
+('2026-03-21','Eid-ul-Fitr','Festival holiday'),
+('2026-03-26','Ram Navami','Festival holiday'),
+('2026-04-03','Good Friday','Religious holiday'),
+('2026-05-01','Buddha Purnima / Labour Day','Company holiday'),
+('2026-05-28','Bakrid','Festival holiday'),
+('2026-06-26','Muharram','Religious holiday'),
+('2026-08-15','Independence Day','National holiday'),
+('2026-08-26','Milad-un-Nabi','Festival holiday'),
+('2026-09-04','Janmashtami','Festival holiday'),
+('2026-10-02','Gandhi Jayanti','National holiday'),
+('2026-10-20','Dussehra','Festival holiday'),
+('2026-11-08','Diwali','Festival holiday'),
+('2026-11-15','Chhath Puja','Festival holiday'),
+('2026-11-24','Guru Nanak Jayanti','Festival holiday'),
+('2026-12-25','Christmas','Company holiday')
+on conflict (holiday_date) do update set name=excluded.name, reason=excluded.reason;
+
+insert into public.crm_employee_profiles(user_id,designation,department)
+select auth_user_id,coalesce(position,'Sales Executive'),'CRM'
+from public.crm_team_members
+where auth_user_id is not null
+on conflict (user_id) do nothing;
