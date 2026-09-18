@@ -71,7 +71,7 @@ export default function AdminLogin() {
       return;
     }
 
-    await logAttempt({ email: id, success: true });
+    await logAttempt({ email: id, success: true });\n    await supabase.from("login_history").insert({ email: id, success: true });
     toast.success("Welcome back, Admin");
     navigate("/admin", { replace: true });
   };
