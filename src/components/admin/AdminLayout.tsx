@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, FileText, Newspaper, Users, Mail, BarChart3, FileBarChart, LogOut, Menu, X, Search, ExternalLink, Bell, Sparkles, Radio, Activity, Store, Megaphone, PlusCircle, ShieldCheck, ClipboardCheck, CalendarCheck } from "lucide-react";
+import { LayoutDashboard, FileText, Newspaper, Users, Mail, BarChart3, FileBarChart, LogOut, Menu, X, Search, ExternalLink, Bell, Sparkles, Radio, Activity, Store, Megaphone, PlusCircle, ShieldCheck, ClipboardCheck, CalendarCheck, IndianRupee } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -8,7 +8,7 @@ import AdminWorkGate from "./AdminWorkGate";
 const NAV_GROUPS=[
 {label:"Overview",items:[{to:"/admin",label:"Dashboard",icon:LayoutDashboard,end:true},{to:"/admin/live",label:"Live Traffic",icon:Radio}]},
 {label:"Content & Growth",items:[{to:"/admin/blog",label:"Blog CMS",icon:FileText},{to:"/admin/news",label:"Live News",icon:Newspaper},{to:"/admin/analytics",label:"Analytics",icon:BarChart3},{to:"/admin/reports",label:"Reports",icon:FileBarChart},{to:"/admin/operations",label:"AI Operations",icon:Activity},{to:"/admin/crm",label:"AI CRM",icon:Users}]},
-{label:"HR & Attendance",items:[{to:"/admin/attendance",label:"Attendance",icon:CalendarCheck},{to:"/admin/crm/team",label:"Team Members",icon:Users}]},
+{label:"HR & Attendance",items:[{to:"/admin/attendance",label:"Attendance",icon:CalendarCheck},{to:"/admin/crm",label:"Work Calendar",icon:CalendarCheck},{to:"/admin/crm",label:"Leave Requests",icon:ClipboardCheck},{to:"/admin/crm",label:"Leave Calendar",icon:CalendarCheck},{to:"/admin/crm",label:"Employee Profile",icon:Users},{to:"/admin/crm",label:"Monthly Income",icon:IndianRupee},{to:"/admin/crm/team",label:"Team Members",icon:Users}]},
 {label:"Marketplace",items:[{to:"/admin/classifieds",label:"Classified Moderation",icon:ClipboardCheck},{to:"/classifieds",label:"All Classifieds",icon:Store},{to:"/post-ad",label:"Post New Ad",icon:PlusCircle},{to:"/business-directory",label:"Business Directory",icon:ShieldCheck}]},
 {label:"Management",items:[{to:"/admin/users",label:"Users & Roles",icon:Users},{to:"/admin/subscribers",label:"Newsletter",icon:Mail}]},];
 const NAV=NAV_GROUPS.flatMap(g=>g.items);
