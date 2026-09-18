@@ -1,0 +1,18 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
+import { Check, Loader2, X } from "lucide-react";
+type Idea={id:string;profile_id:string;location:string|null;mobile:string|null;subject:string;title:string;content:string;image_url:string|null;device_type:string;status:string;rejection_reason:string|null;created_at:string;};
+export default function IdeasAdmin(){
+ const [rows,setRows]=useState<Idea[]>([]),[loading,setLoading]=useState(true),[busy,setBusy]=useState<string|null>(null),[reason,setReason]=useState<Record<string,string>>({});
+ const load=async()=>{setLoading(true);const {data,error}=await supabase.from("idea_posts").select("*").order("created_at",{ascending:false}).limit(300);if(error)toast.error(error.message);else setRows((data as Idea[])||[]);setLoading(false);};
+ useEffect(()=>{load();},[]);
+ const review=async(id:string,status:"approved"|"rejected")=>{if(status==="rejected"&&!reason[id]?.trim()){toast.error("Add rejection reason.");return;}setBusy(id);const {error}=await supabase.from("idea_posts").update({status,rejection_reason:status==="rejected"?reason[id].trim():null}).eq("id",id);if(error)toast.error(error.message);else{toast.success(status==="approved"?"Idea approved":"Idea rejected");await load();}setBusy(null);};
+ return <div className="space-y-5"><div><h1 className="text-2xl font-black">Ideas Moderation</h1><p className="text-sm text-muted-foreground">Review community ideas. Only approved posts are public.</p></div>
+ {loading?<div className="flex justify-center py-16"><Loader2 className="animate-spin"/></div>:<div className="space-y-4">{rows.map(r=><Card key={r.id} className="rounded-[24px]"><CardHeader className="flex-row items-start justify-between gap-4"><div><CardTitle className="text-lg">{r.title}</CardTitle><p className="text-xs text-muted-foreground mt-1">Profile {r.profile_id} · {r.subject} · {r.device_type} · {new Date(r.created_at).toLocaleString()}</p></div><Badge variant={r.status==="approved"?"default":r.status==="rejected"?"destructive":"outline"}>{r.status}</Badge></CardHeader><CardContent className="space-y-3"><p className="whitespace-pre-wrap text-sm">{r.content}</p>{r.image_url&&<img src={r.image_url} alt={r.title} className="max-h-72 rounded-xl object-cover"/>}<p className="text-xs text-muted-foreground">{r.location||"No location"}{r.mobile?" · "+r.mobile:""}</p>{r.status==="pending"&&<><Textarea placeholder="Rejection reason (required only for reject)" value={reason[r.id]||""} onChange={e=>setReason(v=>({...v,[r.id]:e.target.value}))}/><div className="flex gap-2"><Button onClick={()=>review(r.id,"approved")} disabled={busy===r.id}><Check className="mr-2 size-4"/>Approve</Button><Button variant="destructive" onClick={()=>review(r.id,"rejected")} disabled={busy===r.id}><X className="mr-2 size-4"/>Reject</Button></div></>}</CardContent></Card>)}{rows.length===0&&<Card><CardContent className="py-12 text-center text-muted-foreground">No ideas submitted.</CardContent></Card>}</div>}
+ </div>;
+}
