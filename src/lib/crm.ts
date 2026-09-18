@@ -43,6 +43,8 @@ export type TeamMember = {
   photo_url: string | null;
   status: string;
   created_at: string;
+  auth_user_id?: string | null;
+  login_id?: string | null;
 };
 
 export type Activity = {
@@ -275,6 +277,38 @@ export async function saveFollowUp(input: Partial<FollowUp> & { lead_id: string 
 export async function deleteFollowUp(id: string) {
   const { error } = await supabase.from("crm_followups").delete().eq("id", id);
   if (error) throw error;
+}
+
+export async function saveTeamMemberAuth(input: Partial<TeamMember> & { login_id?: string; password?: string }) {
+  const action = input.id ? "update" : "create";
+  const { data, error } = await supabase.functions.invoke("crm-team-auth", {
+    body: {
+      action,
+      member_id: input.id,
+      name: input.name,
+      position: input.position,
+      email: input.email,
+      mobile: input.mobile ?? null,
+      working_days: input.working_days ?? ["Mon", "Tue", "Wed", "Thu", "Fri"],
+      working_hours: input.working_hours ?? "10:00 - 19:00",
+      photo_url: input.photo_url ?? null,
+      status: input.status ?? "active",
+      login_id: input.login_id ?? "",
+      password: input.password ?? "",
+    },
+  });
+  if (error) throw error;
+  if (data?.error) throw new Error(data.error);
+  return data;
+}
+
+export async function deleteTeamMemberAuth(id: string) {
+  const { data, error } = await supabase.functions.invoke("crm-team-auth", {
+    body: { action: "delete", member_id: id },
+  });
+  if (error) throw error;
+  if (data?.error) throw new Error(data.error);
+  return data;
 }
 
 export async function saveTeamMember(input: Partial<TeamMember>) {
