@@ -135,9 +135,6 @@ export default function SEOHead() {
     <meta name="ai-topic" content={CORE_TOPICS} />
     <meta name="content-language" content="en-IN" />
     <link rel="canonical" href={canonical} />
-    <meta httpEquiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta httpEquiv="Pragma" content="no-cache" />
-    <meta httpEquiv="Expires" content="0" />
     <meta property="og:title" content={listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title} />
     <meta property="og:description" content={listing?.description?.slice(0, 160) || meta.description} />
     <meta property="og:url" content={canonical} />
