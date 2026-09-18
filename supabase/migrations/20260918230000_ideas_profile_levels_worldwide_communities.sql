@@ -5,19 +5,27 @@ create unique index if not exists idea_profiles_public_id_key on public.idea_pro
 
 create table if not exists public.idea_badges (id uuid primary key default gen_random_uuid(), user_id uuid not null references auth.users(id) on delete cascade, badge_key text not null, badge_name text not null, badge_description text, created_at timestamptz not null default now(), unique(user_id,badge_key));
 alter table public.idea_badges enable row level security;
+drop policy if exists "Public can read idea badges" on public.idea_badges;
 create policy "Public can read idea badges" on public.idea_badges for select to anon, authenticated using (true);
+drop policy if exists "Users can earn own idea badges" on public.idea_badges;
 create policy "Users can earn own idea badges" on public.idea_badges for insert to authenticated with check ((select auth.uid())=user_id);
 
 create table if not exists public.idea_communities (id uuid primary key default gen_random_uuid(), owner_id uuid not null references auth.users(id) on delete cascade, slug text not null unique, name text not null, description text, cover_url text, visibility text not null default 'public' check (visibility in ('public','private')), created_at timestamptz not null default now());
 alter table public.idea_communities enable row level security;
+drop policy if exists "Public communities are readable" on public.idea_communities;
 create policy "Public communities are readable" on public.idea_communities for select to anon, authenticated using (visibility='public' or owner_id=(select auth.uid()));
+drop policy if exists "Users can create communities" on public.idea_communities;
 create policy "Users can create communities" on public.idea_communities for insert to authenticated with check (owner_id=(select auth.uid()));
+drop policy if exists "Owners can update communities" on public.idea_communities;
 create policy "Owners can update communities" on public.idea_communities for update to authenticated using (owner_id=(select auth.uid())) with check (owner_id=(select auth.uid()));
 
 create table if not exists public.idea_community_members (community_id uuid not null references public.idea_communities(id) on delete cascade, user_id uuid not null references auth.users(id) on delete cascade, role text not null default 'member' check (role in ('owner','leader','moderator','member')), created_at timestamptz not null default now(), primary key(community_id,user_id));
 alter table public.idea_community_members enable row level security;
+drop policy if exists "Members can read community membership" on public.idea_community_members;
 create policy "Members can read community membership" on public.idea_community_members for select to authenticated using (user_id=(select auth.uid()) or exists(select 1 from public.idea_communities c where c.id=community_id and c.visibility='public'));
+drop policy if exists "Users can join public communities" on public.idea_community_members;
 create policy "Users can join public communities" on public.idea_community_members for insert to authenticated with check (user_id=(select auth.uid()) and exists(select 1 from public.idea_communities c where c.id=community_id and c.visibility='public'));
+drop policy if exists "Users can leave communities" on public.idea_community_members;
 create policy "Users can leave communities" on public.idea_community_members for delete to authenticated using (user_id=(select auth.uid()));
 create index if not exists idea_community_members_user_idx on public.idea_community_members(user_id);
 create index if not exists idea_badges_user_idx on public.idea_badges(user_id);
