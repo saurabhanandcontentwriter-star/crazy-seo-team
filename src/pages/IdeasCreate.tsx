@@ -60,6 +60,8 @@ export default function IdeasCreate() {
     <div className="grid gap-2"><Label>Cover image <span className="font-normal text-muted-foreground">(optional)</span></Label><label className="flex min-h-28 cursor-pointer items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-5 text-center text-sm text-muted-foreground transition hover:border-violet-300 hover:bg-violet-50/50"><ImagePlus size={22}/><span>{coverFile?coverFile.name:"Add JPG, PNG or WEBP • maximum 5 MB"}</span><input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setCoverFile(e.target.files?.[0]||null)}/></label></div>
    </div>
    <div className="mt-8 flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-between"><div className="flex items-center gap-2 text-xs text-muted-foreground"><ShieldCheck size={15}/>Reviewed before public publishing</div><div className="flex gap-3"><Button variant="outline" className="rounded-xl" onClick={()=>navigate("/ideas")}>Cancel</Button><Button className="rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 px-6" onClick={submit} disabled={saving}>{saving&&<Loader2 className="mr-2 size-4 animate-spin"/>}Submit Idea</Button></div></div>
-  </CardContent></Card>
- </div></div>
+  </CardContent>
+  </Card>
+ </div>
+ </div>
 }
