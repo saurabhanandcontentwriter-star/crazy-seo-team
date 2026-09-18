@@ -66,7 +66,9 @@ export default function CrmHrPanel(){
   };
 
   const review=async(id:string,status:"approved"|"rejected")=>{
-    try{const {error}=await (supabase as any).from("crm_leave_requests").update({status,reviewed_by:user.id,reviewed_at:new Date().toISOString()}).eq("id",id); if(error) throw error; toast.success(`Leave ${status}.`); await load();}catch(e:any){toast.error(e?.message||"Could not update leave");}
+    const note=(reviewNote[id]??"").trim();
+    if(!note) return toast.error("HR message is required.");
+    try{const {error}=await (supabase as any).from("crm_leave_requests").update({status,reviewed_by:user.id,reviewed_at:new Date().toISOString(),review_note:note}).eq("id",id).eq("status","pending"); if(error) throw error; toast.success(status==="approved"?"Leave approved. CRM attendance is now green.":"Leave rejected."); setReviewNote(x=>({...x,[id]:""})); await load();}catch(e:any){toast.error(e?.message||"Could not update leave");}
   };
 
   const saveSalary=async(uid:string)=>{
