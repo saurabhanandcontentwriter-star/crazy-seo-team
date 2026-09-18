@@ -1,4 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { BarChart3, CalendarDays, KanbanSquare, LayoutDashboard, Users2, UsersRound } from "lucide-react";
 
@@ -12,6 +14,14 @@ const TABS = [
 ];
 
 export default function CrmShell() {
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return;
+      supabase.rpc("has_role", { _user_id: data.user.id, _role: "admin" }).then(({ data: ok }) => setIsAdmin(ok === true));
+    });
+  }, []);
+  const tabs = isAdmin ? TABS : TABS.filter((t) => t.label !== "Team");
   return (
     <div className="relative">
       {/* soft light-first background glow */}
@@ -34,7 +44,7 @@ export default function CrmShell() {
 
         <div className="overflow-x-auto -mx-1 px-1">
           <nav className="inline-flex gap-1 rounded-2xl border border-white/60 bg-white/70 dark:bg-card/70 backdrop-blur-xl p-1 shadow-sm">
-            {TABS.map((t) => (
+            {tabs.map((t) => (
               <NavLink
                 key={t.to}
                 to={t.to}
