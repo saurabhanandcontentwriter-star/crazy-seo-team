@@ -20,7 +20,7 @@ export default function CrmNotificationsWorkspace(){
  },[]);
  useEffect(()=>{void load(); const t=window.setInterval(()=>void load(),30000); return()=>window.clearInterval(t)},[load]);
 
- const visible=useMemo(()=>items.filter(x=>filter==="all" || (filter==="unread" && !["read","completed","closed","done"].includes(x.status)) || (filter==="announcements" && items.indexOf(x)>=-1 && true && false)),[items,filter]);
+ const visible=useMemo(()=>items.filter(x=>filter==="all" || (filter==="unread" && !["read","completed","closed","done"].includes(x.status)) || (filter==="announcements" && (x.title.toLowerCase().includes("announcement") || x.priority==="high"))),[items,filter]);
  const announcementCount=items.filter(x=>x.title.toLowerCase().includes("announcement")||x.priority==="high").length;
  const markRead=async(id:string)=>{
   const {error}=await supabase.from("crm_workspace_items").update({status:"read"}).eq("id",id);
