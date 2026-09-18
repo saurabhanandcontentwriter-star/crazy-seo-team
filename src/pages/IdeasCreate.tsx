@@ -35,13 +35,13 @@ export default function IdeasCreate() {
      let profileImageUrl:string|null=null, imageUrl:string|null=null;
      if(profileFile) profileImageUrl=await uploadImage(user.id,profileFile,"profile");
      if(coverFile) imageUrl=await uploadImage(user.id,coverFile,"cover");
-     const{error}=await supabase.from("idea_posts").insert({
-       user_id:user.id, profile_id:name.trim(), display_name:name.trim(), profile_image_url:profileImageUrl,
-       location:location.trim()||null, subject, title:title.trim(), content:content.trim(),
-       image_url:imageUrl, device_type:device, status:"pending"
-     });
-     if(error) throw error;
-     toast.success("Idea submitted for moderation."); navigate("/ideas");
+     const{data:guard,error:guardError}=await supabase.functions.invoke("idea-content-guard",{body:{
+       name:name.trim(),subject,title:title.trim(),content:content.trim(),location:location.trim(),deviceType:device,
+       profileImageUrl,imageUrl
+     }});
+     if(guardError) throw guardError;
+     if(!guard?.accepted){toast.error(guard?.error||"AI-like content detected. Please rewrite it in your own words.");return}
+     toast.success("Idea passed the AI content check and was submitted for moderation."); navigate("/ideas");
    }catch(e:any){toast.error(e?.message||"Could not submit idea.")}finally{setSaving(false)}
  };
 
