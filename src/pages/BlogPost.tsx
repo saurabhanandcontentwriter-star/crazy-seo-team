@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DOMPurify from "dompurify";
+import { Helmet } from "react-helmet-async";
 
 const BlogPost = () => {
   const { slug } = useParams();
@@ -208,8 +209,19 @@ const BlogPost = () => {
     });
   };
 
+  const canonicalUrl = `https://crazyseoteam.in/blog/${post.slug}`;
+  const metaDescription = post.meta_description || post.desc || post.description || "";
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{post.meta_title || post.title} | Crazy SEO Team Blog</title>
+        <meta name="description" content={metaDescription.slice(0, 160)} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={post.title} />
+        <meta property="og:description" content={metaDescription.slice(0, 160)} />
+      </Helmet>
       <Navbar />
       <article className="pt-24 pb-16 px-4">
         <div className="container mx-auto max-w-3xl">
