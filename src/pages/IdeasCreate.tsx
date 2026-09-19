@@ -8,18 +8,17 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ArrowLeft, ImagePlus, Video, CalendarDays, Lightbulb, Loader2, Sparkles, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ImagePlus , Video, CalendarDays, Lightbulb, Loader2, Sparkles, ShieldCheck } from "lucide-react";
 
 export default function IdeasCreate() {
  const navigate=useNavigate();
  const [subject,setSubject]=useState<"Tech"|"AI"|"SEO"|"Travel"|"Other">("Tech"); const [postType,setPostType]=useState<"post"|"question"|"event">("post"); const [visibility,setVisibility]=useState<"public"|"friends">("public");
  const [title,setTitle]=useState(""); const [content,setContent]=useState("");
  const [location,setLocation]=useState(""); const [device,setDevice]=useState("Unknown"); const [scheduleMode,setScheduleMode]=useState<"now"|"scheduled">("now"); const [scheduledFor,setScheduledFor]=useState("");
- const [coverFile,setCoverFile]=useState<File|null>(null); const [videoFile,setVideoFile]=useState<File|null>(null); const [eventStart,setEventStart]=useState(""); const [eventEnd,setEventEnd]=useState(""); const [eventLocation,setEventLocation]=useState(""); const [eventUrl,setEventUrl]=useState(""); const [eventMaxAttendees,setEventMaxAttendees]=useState(""); const [saving,setSaving]=useState(false);
+ const [coverFile,setCoverFile]=useState<File|null>(null); const [eventStart,setEventStart]=useState(""); const [eventEnd,setEventEnd]=useState(""); const [eventLocation,setEventLocation]=useState(""); const [eventUrl,setEventUrl]=useState(""); const [eventMaxAttendees,setEventMaxAttendees]=useState(""); const [saving,setSaving]=useState(false);
  useEffect(()=>{const ua=navigator.userAgent.toLowerCase();setDevice(/android|iphone|ipad|ipod|mobile/.test(ua)?"Mobile":/tablet/.test(ua)?"Mobile":/mac|win|linux/.test(ua)?"Desktop":"Unknown")},[]);
 
- const validateImage=(file:File)=>["image/jpeg","image/png","image/webp"].includes(file.type)&&file.size<=5*1024*1024; const validateVideo=(file:File)=>["video/mp4","video/webm","video/quicktime","video/ogg"].includes(file.type)&&file.size<=50*1024*1024;
- const uploadVideo=async(userId:string,file:File)=>{ if(!validateVideo(file)) throw new Error("Use MP4, WEBM, MOV or OGG up to 50 MB."); const ext=file.name.split(".").pop()||"mp4"; const path=`${userId}/video-${crypto.randomUUID()}.${ext}`; const upload=await supabase.storage.from("idea-videos").upload(path,file,{contentType:file.type,upsert:false}); if(upload.error) throw upload.error; return supabase.storage.from("idea-videos").getPublicUrl(path).data.publicUrl; };
+ const validateImage=(file:File)=>["image/jpeg","image/png","image/webp"].includes(file.type)&&file.size<=5*1024*1024;
 
  const uploadImage=async(userId:string,file:File,kind:"cover")=>{
    if(!validateImage(file)) throw new Error("Use JPG, PNG or WEBP up to 5 MB.");
@@ -47,10 +46,10 @@ export default function IdeasCreate() {
      const publicName=[p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ");
      const scheduledAt=scheduleMode==="scheduled"&&scheduledFor?new Date(scheduledFor).toISOString():null;
      if(scheduleMode==="scheduled"&&(!scheduledAt||new Date(scheduledAt).getTime()<=Date.now())){toast.error("Choose a future date and time.");return}
-     const imageUrl=coverFile?await uploadImage(user.id,coverFile,"cover"):null; const videoUrl=videoFile?await uploadVideo(user.id,videoFile):null; const eventStartAt=postType==="event"&&eventStart?new Date(eventStart).toISOString():null; const eventEndAt=postType==="event"&&eventEnd?new Date(eventEnd).toISOString():null; if(postType==="event"&&(!eventStartAt||new Date(eventStartAt).getTime()<=Date.now())){toast.error("Choose a future event date and time.");return} if(postType==="event"&&eventEndAt&&new Date(eventEndAt).getTime()<=new Date(eventStartAt!).getTime()){toast.error("Event end time must be after the start time.");return}
+     const imageUrl=coverFile?await uploadImage(user.id,coverFile,"cover"):null; const eventStartAt=postType==="event"&&eventStart?new Date(eventStart).toISOString():null; const eventEndAt=postType==="event"&&eventEnd?new Date(eventEnd).toISOString():null; if(postType==="event"&&(!eventStartAt||new Date(eventStartAt).getTime()<=Date.now())){toast.error("Choose a future event date and time.");return} if(postType==="event"&&eventEndAt&&new Date(eventEndAt).getTime()<=new Date(eventStartAt!).getTime()){toast.error("Event end time must be after the start time.");return}
      const{data:guard,error:guardError}=await supabase.functions.invoke("idea-content-guard",{body:{
        name:publicName,subject,title:title.trim(),content:content.trim(),location:location.trim(),deviceType:device,postType,visibility,
-       scheduledFor:scheduledAt,imageUrl,videoUrl,eventStart:eventStartAt,eventEnd:eventEndAt,eventLocation,eventUrl,eventMaxAttendees
+       scheduledFor:scheduledAt,imageUrl,eventStart:eventStartAt,eventEnd:eventEndAt,eventLocation,eventUrl,eventMaxAttendees
      }});
      if(guardError) throw guardError;
      if(!guard?.accepted){toast.error(guard?.error||"AI-like content detected. Please rewrite it in your own words.");return}
@@ -100,13 +99,6 @@ export default function IdeasCreate() {
                 <SelectContent><SelectItem value="now">Post Now</SelectItem><SelectItem value="scheduled">Schedule Post</SelectItem></SelectContent>
               </Select>
               {scheduleMode === "scheduled" && <div className="rounded-2xl border border-violet-200 bg-violet-50/60 p-4"><Label htmlFor="scheduled-for">Schedule date & time</Label><Input id="scheduled-for" type="datetime-local" className="mt-2 h-12 rounded-xl" value={scheduledFor} onChange={e => setScheduledFor(e.target.value)} min={new Date(Date.now() + 60000).toISOString().slice(0, 16)} /><p className="mt-2 text-xs text-muted-foreground">The post will stay hidden until this time and will appear automatically after approval.</p></div>}
-            </div>
-            <div className="grid gap-2">
-              <Label>Video <span className="font-normal text-muted-foreground">(optional • max 50 MB)</span></Label>
-              <label className="flex min-h-24 cursor-pointer items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-5 text-center text-sm text-muted-foreground transition hover:border-violet-300 hover:bg-violet-50/50">
-                <Video size={22}/><span>{videoFile ? videoFile.name : "Add MP4, WEBM, MOV or OGG video"}</span>
-                <input type="file" accept="video/mp4,video/webm,video/quicktime,video/ogg" className="hidden" onChange={e=>setVideoFile(e.target.files?.[0]||null)}/>
-              </label>
             </div>
             <div className="grid gap-2">
               <Label>Cover image <span className="font-normal text-muted-foreground">(optional)</span></Label>
