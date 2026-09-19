@@ -14,7 +14,7 @@ export default function IdeasCreate() {
  const navigate=useNavigate();
  const [subject,setSubject]=useState<"Tech"|"AI"|"SEO"|"Travel"|"Other">("Tech"); const [postType,setPostType]=useState<"post"|"question">("post"); const [visibility,setVisibility]=useState<"public"|"friends">("public");
  const [title,setTitle]=useState(""); const [content,setContent]=useState("");
- const [name,setName]=useState(""); const [location,setLocation]=useState(""); const [device,setDevice]=useState("Unknown");
+ const [location,setLocation]=useState(""); const [device,setDevice]=useState("Unknown"); const [scheduleMode,setScheduleMode]=useState<"now"|"scheduled">("now"); const [scheduledFor,setScheduledFor]=useState("");
  const [coverFile,setCoverFile]=useState<File|null>(null); const [saving,setSaving]=useState(false);
  useEffect(()=>{const ua=navigator.userAgent.toLowerCase();setDevice(/android|iphone|ipad|ipod|mobile/.test(ua)?"Mobile":/tablet/.test(ua)?"Mobile":/mac|win|linux/.test(ua)?"Desktop":"Unknown")},[]);
 
@@ -43,11 +43,12 @@ export default function IdeasCreate() {
        return;
      }
      const publicName=[p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ");
-     setName(publicName);
+     const scheduledAt=scheduleMode==="scheduled"&&scheduledFor?new Date(scheduledFor).toISOString():null;
+     if(scheduleMode==="scheduled"&&(!scheduledAt||new Date(scheduledAt).getTime()<=Date.now())){toast.error("Choose a future date and time.");return}
      const imageUrl=coverFile?await uploadImage(user.id,coverFile,"cover"):null;
      const{data:guard,error:guardError}=await supabase.functions.invoke("idea-content-guard",{body:{
-       name:name.trim(),subject,title:title.trim(),content:content.trim(),location:location.trim(),deviceType:device,postType,visibility,
-       imageUrl
+       name:publicName,subject,title:title.trim(),content:content.trim(),location:location.trim(),deviceType:device,postType,visibility,
+       scheduledFor:scheduledAt,imageUrl
      }});
      if(guardError) throw guardError;
      if(!guard?.accepted){toast.error(guard?.error||"AI-like content detected. Please rewrite it in your own words.");return}
@@ -65,10 +66,10 @@ export default function IdeasCreate() {
    <div className="grid gap-6">
     <div className="grid gap-6 md:grid-cols-3"><div className="grid gap-2"><Label>Type</Label><Select value={postType} onValueChange={v=>setPostType(v as any)}><SelectTrigger className="h-12 rounded-xl"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="post">Create Post</SelectItem><SelectItem value="question">Start a Discussion</SelectItem></SelectContent></Select></div><div className="grid gap-2"><Label>Visibility</Label><Select value={visibility} onValueChange={v=>setVisibility(v as any)}><SelectTrigger className="h-12 rounded-xl"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="public">Public</SelectItem><SelectItem value="friends">Friends only</SelectItem></SelectContent></Select></div><div className="grid gap-2"><Label>Subject</Label><Select value={subject} onValueChange={v=>setSubject(v as any)}><SelectTrigger className="h-12 rounded-xl"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Tech">Tech</SelectItem><SelectItem value="AI">AI</SelectItem><SelectItem value="SEO">SEO</SelectItem><SelectItem value="Travel">Travel</SelectItem><SelectItem value="Other">Other</SelectItem></SelectContent></Select></div>
     </div>
-    <div className="grid gap-2"><Label>Name *</Label><Input className="h-12 rounded-xl" value={name} onChange={e=>setName(e.target.value)} placeholder="Your public name"/></div>
     <div className="grid gap-2"><Label>Title *</Label><Input className="h-12 rounded-xl text-base" maxLength={180} value={title} onChange={e=>setTitle(e.target.value)} placeholder="e.g. A smarter way to monitor AI search visibility"/></div>
     <div className="grid gap-2"><Label>Idea *</Label><Textarea className="min-h-44 rounded-2xl text-base" maxLength={5000} value={content} onChange={e=>setContent(e.target.value)} placeholder="Explain your idea, problem, solution and why it matters..."/></div>
     <div className="grid gap-6 md:grid-cols-2"><div className="grid gap-2"><Label>Location <span className="font-normal text-muted-foreground">(optional)</span></Label><Input className="h-12 rounded-xl" value={location} onChange={e=>setLocation(e.target.value)} placeholder="City / Country"/></div><div className="grid gap-2"><Label>Posted from</Label><Input className="h-12 rounded-xl" value={device} readOnly aria-label="Automatically detected device"/></div></div>
+    <div className="grid gap-2"><Label>Publishing</Label><Select value={scheduleMode} onValueChange={v=>setScheduleMode(v as "now"|"scheduled")}><SelectTrigger className="h-12 rounded-xl"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="now">Post Now</SelectItem><SelectItem value="scheduled">Schedule Post</SelectItem></SelectContent></Select>{scheduleMode==="scheduled"&&<div className="rounded-2xl border border-violet-200 bg-violet-50/60 p-4"><Label htmlFor="scheduled-for">Schedule date & time</Label><Input id="scheduled-for" type="datetime-local" className="mt-2 h-12 rounded-xl" value={scheduledFor} onChange={e=>setScheduledFor(e.target.value)} min={new Date(Date.now()+60000).toISOString().slice(0,16)}/><p className="mt-2 text-xs text-muted-foreground">The post will stay hidden until this time and will appear automatically after approval.</p></div>}
     <div className="grid gap-2"><Label>Cover image <span className="font-normal text-muted-foreground">(optional)</span></Label><label className="flex min-h-28 cursor-pointer items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-5 text-center text-sm text-muted-foreground transition hover:border-violet-300 hover:bg-violet-50/50"><ImagePlus size={22}/><span>{coverFile?coverFile.name:"Add JPG, PNG or WEBP • maximum 5 MB"}</span><input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setCoverFile(e.target.files?.[0]||null)}/></label></div>
    </div>
    <div className="mt-8 flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-between"><div className="flex items-center gap-2 text-xs text-muted-foreground"><ShieldCheck size={15}/>Reviewed before public publishing</div><div className="flex gap-3"><Button variant="outline" className="rounded-xl" onClick={()=>navigate("/ideas")}>Cancel</Button><Button className="rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 px-6" onClick={submit} disabled={saving}>{saving&&<Loader2 className="mr-2 size-4 animate-spin"/>}Submit Idea</Button></div></div>
