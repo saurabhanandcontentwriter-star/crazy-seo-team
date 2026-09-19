@@ -19,7 +19,9 @@ export default function IdeasCreate() {
  useEffect(()=>{const ua=navigator.userAgent.toLowerCase();setDevice(/android|iphone|ipad|ipod|mobile/.test(ua)?"Mobile":/tablet/.test(ua)?"Mobile":/mac|win|linux/.test(ua)?"Desktop":"Unknown")},[]);
 
  const validateImage=(file:File)=>["image/jpeg","image/png","image/webp"].includes(file.type)&&file.size<=5*1024*1024; const validateVideo=(file:File)=>["video/mp4","video/webm","video/quicktime","video/ogg"].includes(file.type)&&file.size<=50*1024*1024;
- const uploadVideo=async(userId:string,file:File)=>{ if(!validateVideo(file)) throw new Error("Use MP4, WEBM, MOV or OGG up to 50 MB."); const ext=file.name.split(".").pop()||"mp4"; const path=`${userId}/video-${crypto.randomUUID()}.${ext}`; const upload=await supabase.storage.from("idea-videos").upload(path,file,{contentType:file.type,upsert:false}); if(upload.error) throw upload.error; return supabase.storage.from("idea-videos").getPublicUrl(path).data.publicUrl; };\n\n const uploadImage=async(userId:string,file:File,kind:"cover")=>{
+ const uploadVideo=async(userId:string,file:File)=>{ if(!validateVideo(file)) throw new Error("Use MP4, WEBM, MOV or OGG up to 50 MB."); const ext=file.name.split(".").pop()||"mp4"; const path=`${userId}/video-${crypto.randomUUID()}.${ext}`; const upload=await supabase.storage.from("idea-videos").upload(path,file,{contentType:file.type,upsert:false}); if(upload.error) throw upload.error; return supabase.storage.from("idea-videos").getPublicUrl(path).data.publicUrl; };
+
+ const uploadImage=async(userId:string,file:File,kind:"cover")=>{
    if(!validateImage(file)) throw new Error("Use JPG, PNG or WEBP up to 5 MB.");
    const ext=file.name.split(".").pop()||"jpg"; const path=`${userId}/${kind}-${crypto.randomUUID()}.${ext}`;
    const upload=await supabase.storage.from("idea-images").upload(path,file,{contentType:file.type,upsert:false});
@@ -79,6 +81,18 @@ export default function IdeasCreate() {
               <div className="grid gap-2"><Label>Location <span className="font-normal text-muted-foreground">(optional)</span></Label><Input className="h-12 rounded-xl" value={location} onChange={e => setLocation(e.target.value)} placeholder="City / Country" /></div>
               <div className="grid gap-2"><Label>Posted from</Label><Input className="h-12 rounded-xl" value={device} readOnly aria-label="Automatically detected device" /></div>
             </div>
+            {postType === "event" && <div className="rounded-2xl border border-violet-200 bg-violet-50/60 p-4 space-y-4">
+              <div className="flex items-center gap-2 font-bold"><CalendarDays size={18}/> Event details</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div><Label htmlFor="event-start">Start *</Label><Input id="event-start" type="datetime-local" className="mt-2 h-12 rounded-xl" value={eventStart} onChange={e=>setEventStart(e.target.value)} min={new Date(Date.now()+60000).toISOString().slice(0,16)}/></div>
+                <div><Label htmlFor="event-end">End</Label><Input id="event-end" type="datetime-local" className="mt-2 h-12 rounded-xl" value={eventEnd} onChange={e=>setEventEnd(e.target.value)}/></div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div><Label>Event location</Label><Input className="mt-2 h-12 rounded-xl" value={eventLocation} onChange={e=>setEventLocation(e.target.value)} placeholder="Venue / Online"/></div>
+                <div><Label>Event link</Label><Input className="mt-2 h-12 rounded-xl" value={eventUrl} onChange={e=>setEventUrl(e.target.value)} placeholder="https://..."/></div>
+              </div>
+              <div><Label>Maximum attendees</Label><Input type="number" min="1" className="mt-2 h-12 rounded-xl" value={eventMaxAttendees} onChange={e=>setEventMaxAttendees(e.target.value)} placeholder="Optional"/></div>
+            </div>}
             <div className="grid gap-2">
               <Label>Publishing</Label>
               <Select value={scheduleMode} onValueChange={v => setScheduleMode(v as "now" | "scheduled")}>
@@ -86,6 +100,13 @@ export default function IdeasCreate() {
                 <SelectContent><SelectItem value="now">Post Now</SelectItem><SelectItem value="scheduled">Schedule Post</SelectItem></SelectContent>
               </Select>
               {scheduleMode === "scheduled" && <div className="rounded-2xl border border-violet-200 bg-violet-50/60 p-4"><Label htmlFor="scheduled-for">Schedule date & time</Label><Input id="scheduled-for" type="datetime-local" className="mt-2 h-12 rounded-xl" value={scheduledFor} onChange={e => setScheduledFor(e.target.value)} min={new Date(Date.now() + 60000).toISOString().slice(0, 16)} /><p className="mt-2 text-xs text-muted-foreground">The post will stay hidden until this time and will appear automatically after approval.</p></div>}
+            </div>
+            <div className="grid gap-2">
+              <Label>Video <span className="font-normal text-muted-foreground">(optional • max 50 MB)</span></Label>
+              <label className="flex min-h-24 cursor-pointer items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-5 text-center text-sm text-muted-foreground transition hover:border-violet-300 hover:bg-violet-50/50">
+                <Video size={22}/><span>{videoFile ? videoFile.name : "Add MP4, WEBM, MOV or OGG video"}</span>
+                <input type="file" accept="video/mp4,video/webm,video/quicktime,video/ogg" className="hidden" onChange={e=>setVideoFile(e.target.files?.[0]||null)}/>
+              </label>
             </div>
             <div className="grid gap-2">
               <Label>Cover image <span className="font-normal text-muted-foreground">(optional)</span></Label>
