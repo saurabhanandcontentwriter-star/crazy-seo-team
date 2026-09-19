@@ -33,7 +33,7 @@ export default function IdeasCreate() {
    try{
      const{data:{user}}=await supabase.auth.getUser();
      if(!user){toast.error("Create your Ideas ID and complete your profile before posting.");navigate("/ideas/account");return}
-     const profile=await supabase.from("idea_profiles").select("id,first_name,middle_name,last_name,state,country,email").eq("user_id",user.id).maybeSingle();
+     const profile=await supabase.from("idea_profiles").select("id,first_name,middle_name,last_name,state,country,email,account_status,banned_until").eq("user_id",user.id).maybeSingle();
      if(profile.error) throw profile.error;
      const p=profile.data;
      if(!p || !p.first_name?.trim() || !p.last_name?.trim() || !p.state?.trim() || !p.country?.trim() || !p.email?.trim()){
