@@ -13,6 +13,8 @@ import { CrmLead, TeamMember, FollowUp, Activity, WORKING_DAYS, deleteTeamMember
 
 type Draft = Partial<TeamMember> & { password?: string };
 
+const TEAM_ROLES = ["Founder", "CTO", "Manager", "Vice President", "Accountant", "Sales", "Intern"] as const;
+
 export default function CrmTeam() {
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [leads, setLeads] = useState<CrmLead[]>([]);
@@ -115,7 +117,7 @@ export default function CrmTeam() {
             <h2 className="mt-1 text-2xl font-black">Employees & Employee Workspaces</h2>
             <p className="mt-1 text-sm text-muted-foreground">Manage employees from here and open a separate live workspace for every employee.</p>
           </div>
-          <Button onClick={() => setDraft({ working_days: ["Mon", "Tue", "Wed", "Thu", "Fri"], working_hours: "10:00 - 19:00", position: "Sales Executive", status: "active", login_id: "", password: "" })}>
+          <Button onClick={() => setDraft({ working_days: ["Mon", "Tue", "Wed", "Thu", "Fri"], working_hours: "10:00 - 19:00", position: "Sales", status: "active", login_id: "", password: "" })}>
             <Plus size={15} className="mr-1" /> Add employee
           </Button>
         </div>
@@ -141,7 +143,7 @@ export default function CrmTeam() {
                 <div className="flex items-start gap-3">
                   {m.photo_url ? <img src={m.photo_url} alt={m.name} className="h-12 w-12 rounded-2xl object-cover" /> : <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary text-lg font-black text-primary-foreground">{m.name.charAt(0).toUpperCase()}</span>}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-bold">{m.name}</p><p className="truncate text-[11px] text-muted-foreground">{m.position}</p>
+                    <p className="truncate font-bold">{m.name}</p><p className="truncate text-[11px] font-semibold text-primary">{m.position || "Unassigned role"}</p>
                     <p className="mt-1 flex items-center gap-2 truncate text-[11px]"><Mail size={12} />{m.email}</p>
                   </div>
                   <div className="flex shrink-0 gap-1">
@@ -200,7 +202,7 @@ export default function CrmTeam() {
           <DialogHeader><DialogTitle>{draft?.id ? "Edit employee" : "Add employee"}</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div><Label>Name *</Label><Input className="mt-1" value={draft?.name ?? ""} onChange={e => setDraft({ ...draft, name: e.target.value })} /></div>
-            <div><Label>Position</Label><Input className="mt-1" value={draft?.position ?? ""} onChange={e => setDraft({ ...draft, position: e.target.value })} /></div>
+            <div><Label>Role / Position</Label><Select value={draft?.position ?? "Sales"} onValueChange={v => setDraft({ ...draft, position: v })}><SelectTrigger className="mt-1"><SelectValue placeholder="Select role" /></SelectTrigger><SelectContent>{TEAM_ROLES.map(role => <SelectItem key={role} value={role}>{role}</SelectItem>)}</SelectContent></Select></div>
             <div><Label>Email *</Label><Input className="mt-1" type="email" value={draft?.email ?? ""} onChange={e => setDraft({ ...draft, email: e.target.value })} /></div>
             <div><Label>Team ID *</Label><Input className="mt-1" value={draft?.login_id ?? ""} onChange={e => setDraft({ ...draft, login_id: e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, "") })} disabled={!!draft?.id} /></div>
             <div><Label>{draft?.id ? "New password (optional)" : "Password *"}</Label><Input className="mt-1" type="password" value={draft?.password ?? ""} onChange={e => setDraft({ ...draft, password: e.target.value })} placeholder="Minimum 8 characters" /></div>
