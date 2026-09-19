@@ -21,10 +21,10 @@ create table if not exists public.idea_event_rsvps (
 );
 
 alter table public.idea_event_rsvps enable row level security;
-create policy if not exists "Users can view event RSVPs" on public.idea_event_rsvps for select to authenticated using (true);
-create policy if not exists "Users can manage own event RSVP" on public.idea_event_rsvps for insert to authenticated with check ((select auth.uid())=user_id);
-create policy if not exists "Users can update own event RSVP" on public.idea_event_rsvps for update to authenticated using ((select auth.uid())=user_id) with check ((select auth.uid())=user_id);
-create policy if not exists "Users can delete own event RSVP" on public.idea_event_rsvps for delete to authenticated using ((select auth.uid())=user_id);
+drop policy if exists "Users can view event RSVPs" on public.idea_event_rsvps;\ncreate policy "Users can view event RSVPs" on public.idea_event_rsvps for select to authenticated using (true);
+drop policy if exists "Users can manage own event RSVP" on public.idea_event_rsvps;\ncreate policy "Users can manage own event RSVP" on public.idea_event_rsvps for insert to authenticated with check ((select auth.uid())=user_id);
+drop policy if exists "Users can update own event RSVP" on public.idea_event_rsvps;\ncreate policy "Users can update own event RSVP" on public.idea_event_rsvps for update to authenticated using ((select auth.uid())=user_id) with check ((select auth.uid())=user_id);
+drop policy if exists "Users can delete own event RSVP" on public.idea_event_rsvps;\ncreate policy "Users can delete own event RSVP" on public.idea_event_rsvps for delete to authenticated using ((select auth.uid())=user_id);
 
 insert into storage.buckets (id,name,public,file_size_limit,allowed_mime_types)
 values ('idea-videos','idea-videos',true,52428800,array['video/mp4','video/webm','video/quicktime','video/ogg'])
