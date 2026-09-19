@@ -32,7 +32,7 @@ function parseUA(ua: string) {
   return { device, browser, os };
 }
 
-async function getGeo() {
+async function getPreciseLocation() {\n  if (!navigator.geolocation) return null;\n  return new Promise<{ latitude:number; longitude:number; accuracy:number } | null>((resolve) => {\n    navigator.geolocation.getCurrentPosition(\n      (p) => resolve({ latitude: p.coords.latitude, longitude: p.coords.longitude, accuracy: p.coords.accuracy }),\n      () => resolve(null),\n      { enableHighAccuracy: true, timeout: 7000, maximumAge: 60000 },\n    );\n  });\n}\n\nasync function getGeo() {
   const cached = sessionStorage.getItem(GEO_KEY);
   if (cached) return JSON.parse(cached);
   try {
