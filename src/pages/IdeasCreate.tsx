@@ -8,18 +8,18 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { ArrowLeft, ImagePlus, Lightbulb, Loader2, Sparkles, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ImagePlus, Video, CalendarDays, Lightbulb, Loader2, Sparkles, ShieldCheck } from "lucide-react";
 
 export default function IdeasCreate() {
  const navigate=useNavigate();
- const [subject,setSubject]=useState<"Tech"|"AI"|"SEO"|"Travel"|"Other">("Tech"); const [postType,setPostType]=useState<"post"|"question">("post"); const [visibility,setVisibility]=useState<"public"|"friends">("public");
+ const [subject,setSubject]=useState<"Tech"|"AI"|"SEO"|"Travel"|"Other">("Tech"); const [postType,setPostType]=useState<"post"|"question"|"event">("post"); const [visibility,setVisibility]=useState<"public"|"friends">("public");
  const [title,setTitle]=useState(""); const [content,setContent]=useState("");
  const [location,setLocation]=useState(""); const [device,setDevice]=useState("Unknown"); const [scheduleMode,setScheduleMode]=useState<"now"|"scheduled">("now"); const [scheduledFor,setScheduledFor]=useState("");
- const [coverFile,setCoverFile]=useState<File|null>(null); const [saving,setSaving]=useState(false);
+ const [coverFile,setCoverFile]=useState<File|null>(null); const [videoFile,setVideoFile]=useState<File|null>(null); const [eventStart,setEventStart]=useState(""); const [eventEnd,setEventEnd]=useState(""); const [eventLocation,setEventLocation]=useState(""); const [eventUrl,setEventUrl]=useState(""); const [eventMaxAttendees,setEventMaxAttendees]=useState(""); const [saving,setSaving]=useState(false);
  useEffect(()=>{const ua=navigator.userAgent.toLowerCase();setDevice(/android|iphone|ipad|ipod|mobile/.test(ua)?"Mobile":/tablet/.test(ua)?"Mobile":/mac|win|linux/.test(ua)?"Desktop":"Unknown")},[]);
 
- const validateImage=(file:File)=>["image/jpeg","image/png","image/webp"].includes(file.type)&&file.size<=5*1024*1024;
- const uploadImage=async(userId:string,file:File,kind:"cover")=>{
+ const validateImage=(file:File)=>["image/jpeg","image/png","image/webp"].includes(file.type)&&file.size<=5*1024*1024; const validateVideo=(file:File)=>["video/mp4","video/webm","video/quicktime","video/ogg"].includes(file.type)&&file.size<=50*1024*1024;
+ const uploadVideo=async(userId:string,file:File)=>{ if(!validateVideo(file)) throw new Error("Use MP4, WEBM, MOV or OGG up to 50 MB."); const ext=file.name.split(".").pop()||"mp4"; const path=`${userId}/video-${crypto.randomUUID()}.${ext}`; const upload=await supabase.storage.from("idea-videos").upload(path,file,{contentType:file.type,upsert:false}); if(upload.error) throw upload.error; return supabase.storage.from("idea-videos").getPublicUrl(path).data.publicUrl; };\n\n const uploadImage=async(userId:string,file:File,kind:"cover")=>{
    if(!validateImage(file)) throw new Error("Use JPG, PNG or WEBP up to 5 MB.");
    const ext=file.name.split(".").pop()||"jpg"; const path=`${userId}/${kind}-${crypto.randomUUID()}.${ext}`;
    const upload=await supabase.storage.from("idea-images").upload(path,file,{contentType:file.type,upsert:false});
@@ -45,10 +45,10 @@ export default function IdeasCreate() {
      const publicName=[p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ");
      const scheduledAt=scheduleMode==="scheduled"&&scheduledFor?new Date(scheduledFor).toISOString():null;
      if(scheduleMode==="scheduled"&&(!scheduledAt||new Date(scheduledAt).getTime()<=Date.now())){toast.error("Choose a future date and time.");return}
-     const imageUrl=coverFile?await uploadImage(user.id,coverFile,"cover"):null;
+     const imageUrl=coverFile?await uploadImage(user.id,coverFile,"cover"):null; const videoUrl=videoFile?await uploadVideo(user.id,videoFile):null; const eventStartAt=postType==="event"&&eventStart?new Date(eventStart).toISOString():null; const eventEndAt=postType==="event"&&eventEnd?new Date(eventEnd).toISOString():null; if(postType==="event"&&(!eventStartAt||new Date(eventStartAt).getTime()<=Date.now())){toast.error("Choose a future event date and time.");return} if(postType==="event"&&eventEndAt&&new Date(eventEndAt).getTime()<=new Date(eventStartAt!).getTime()){toast.error("Event end time must be after the start time.");return}
      const{data:guard,error:guardError}=await supabase.functions.invoke("idea-content-guard",{body:{
        name:publicName,subject,title:title.trim(),content:content.trim(),location:location.trim(),deviceType:device,postType,visibility,
-       scheduledFor:scheduledAt,imageUrl
+       scheduledFor:scheduledAt,imageUrl,videoUrl,eventStart:eventStartAt,eventEnd:eventEndAt,eventLocation,eventUrl,eventMaxAttendees
      }});
      if(guardError) throw guardError;
      if(!guard?.accepted){toast.error(guard?.error||"AI-like content detected. Please rewrite it in your own words.");return}
@@ -69,7 +69,7 @@ export default function IdeasCreate() {
           <div className="mb-7 rounded-2xl border border-violet-100 bg-violet-50/70 p-4"><div className="flex items-start gap-3"><Sparkles className="mt-0.5 text-violet-600" /><div><p className="font-bold">Keep it useful & original</p><p className="mt-1 text-sm text-muted-foreground">Choose one topic, explain the idea clearly, and add an image when it helps people understand it.</p></div></div></div>
           <div className="grid gap-6">
             <div className="grid gap-6 md:grid-cols-3">
-              <div className="grid gap-2"><Label>Type</Label><Select value={postType} onValueChange={v => setPostType(v as any)}><SelectTrigger className="h-12 rounded-xl"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="post">Create Post</SelectItem><SelectItem value="question">Start a Discussion</SelectItem></SelectContent></Select></div>
+              <div className="grid gap-2"><Label>Type</Label><Select value={postType} onValueChange={v => setPostType(v as any)}><SelectTrigger className="h-12 rounded-xl"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="post">Create Post</SelectItem><SelectItem value="question">Start a Discussion</SelectItem><SelectItem value="event">Create Event</SelectItem></SelectContent></Select></div>
               <div className="grid gap-2"><Label>Visibility</Label><Select value={visibility} onValueChange={v => setVisibility(v as any)}><SelectTrigger className="h-12 rounded-xl"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="public">Public</SelectItem><SelectItem value="friends">Friends only</SelectItem></SelectContent></Select></div>
               <div className="grid gap-2"><Label>Subject</Label><Select value={subject} onValueChange={v => setSubject(v as any)}><SelectTrigger className="h-12 rounded-xl"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Tech">Tech</SelectItem><SelectItem value="AI">AI</SelectItem><SelectItem value="SEO">SEO</SelectItem><SelectItem value="Travel">Travel</SelectItem><SelectItem value="Other">Other</SelectItem></SelectContent></Select></div>
             </div>
