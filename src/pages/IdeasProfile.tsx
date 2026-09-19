@@ -15,19 +15,51 @@ type Post={id:string;user_id:string;display_name:string|null;profile_image_url:s
 export default function IdeasProfile(){
  const {userId}=useParams(); const nav=useNavigate();
  const [me,setMe]=useState<string|null>(null),[p,setP]=useState<Profile|null>(null),[verification,setVerification]=useState<any>(null),[posts,setPosts]=useState<Post[]>([]),[tab,setTab]=useState("posts"),[reshares,setReshares]=useState<Post[]>([]),[following,setFollowing]=useState(false),[friendStatus,setFriendStatus]=useState<string|null>(null),[edit,setEdit]=useState(false),[saving,setSaving]=useState(false),[loading,setLoading]=useState(true),[form,setForm]=useState<Partial<Profile>>({}),[avatarFile,setAvatarFile]=useState<File|null>(null),[coverFile,setCoverFile]=useState<File|null>(null),[requesters,setRequesters]=useState<Profile[]>([]);
- const load=async()=>{setLoading(true);const {data:{user}}=await supabase.auth.getUser();setMe(user?.id||null);const id=!userId||userId==="me"?user?.id:userId;if(!id){setLoading(false);nav("/ideas/account",{replace:true});return}
- let {data:profile}=await supabase.from("idea_profiles").select("*").eq("user_id",id).maybeSingle();
- if(!profile&&user?.id===id){const fallback={user_id:id,display_name:user.user_metadata?.full_name||user.email?.split("@")[0]||"Member"};await supabase.from("idea_profiles").upsert(fallback);profile=fallback as any}
- setP(profile as Profile|null);setForm(profile||{}); if(user&&id===user.id){const {data:v}=await supabase.from("idea_verification_requests").select("id,status,rejection_reason,created_at").eq("user_id",id).maybeSingle();setVerification(v||null);} if(profile?.user_id===id && !profile.public_id){await supabase.from("idea_profiles").update({public_id:"CST-"+id.replace(/-/g,"").slice(0,10).toUpperCase()}).eq("user_id",id); profile.public_id="CST-"+id.replace(/-/g,"").slice(0,10).toUpperCase();}
- const {data:ps}=await supabase.from("idea_posts").select("*").eq("user_id",id).eq("status","approved").order("created_at",{ascending:false});setPosts((ps as Post[])||[]);
- const {data:shareRows}=await supabase.from("idea_post_reshares").select("post_id").eq("user_id",id).order("created_at",{ascending:false});
- const shareIds=(shareRows||[]).map(x=>x.post_id);
- if(shareIds.length){const {data:rp}=await supabase.from("idea_posts").select("*").in("id",shareIds).eq("status","approved"); const ordered=shareIds.map(sid=>(rp||[]).find(x=>x.id===sid)).filter(Boolean) as Post[]; setReshares(ordered);} else setReshares([]);
- if(user&&id===user.id){const {data:incoming}=await supabase.from("idea_friendships").select("requester_id").eq("addressee_id",user.id).eq("status","pending");const ids=(incoming||[]).map(x=>x.requester_id);if(ids.length){const {data:rp}=await supabase.from("idea_profiles").select("*").in("user_id",ids);setRequesters((rp as Profile[])||[])}}
- if(user&&id!==user.id){const f=await supabase.from("idea_follows").select("follower_id").eq("follower_id",user.id).eq("following_id",id).maybeSingle();setFollowing(!!f.data);
- const fr=await supabase.from("idea_friendships").select("requester_id,addressee_id,status").or("and(requester_id.eq."+user.id+",addressee_id.eq."+id+"),and(requester_id.eq."+id+",addressee_id.eq."+user.id+")").maybeSingle();setFriendStatus(fr.data?.status||null)}
- setLoading(false)};
- useEffect(()=>{load()},[userId]);
+ const load=async()=>{setLoading(true);
+ const {data:{user}}=await supabase.auth.getUser();
+ setMe(user?.id||null);
+ const id=!userId||userId==="me"?user?.id:userId;
+ if(!id){setLoading(false);nav("/ideas/account",{replace:true});return}
+ const {data:profile}=await supabase.from("idea_profiles").select("user_id,display_name,first_name,middle_name,last_name,state,country,bio,avatar_url,cover_url,location,website_url,linkedin_url,github_url,instagram_url,twitter_url,public_id,reputation_points,level,verified,account_status,banned_until").eq("user_id",id).maybeSingle();
+ if(!profile&&user?.id===id){
+  const fallback={user_id:id,display_name:user.user_metadata?.full_name||user.email?.split("@")[0]||"Member"};
+  const {data:created}=await supabase.from("idea_profiles").upsert(fallback).select("user_id,display_name").single();
+  setP((created||fallback) as Profile);setForm((created||fallback) as Profile);
+ }else{setP(profile as Profile|null);setForm((profile||{}) as Profile)}
+ if(!profile&&user?.id!==id){setLoading(false);return}
+ setLoading(false);
+ const [verificationResult,postsResult,resharesResult,incomingResult]=await Promise.all([
+  user&&id===user.id?supabase.from("idea_verification_requests").select("id,status,rejection_reason,created_at").eq("user_id",id).maybeSingle():Promise.resolve({data:null}),
+  supabase.from("idea_posts").select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status").eq("user_id",id).eq("status","approved").order("created_at",{ascending:false}),
+  supabase.from("idea_post_reshares").select("post_id").eq("user_id",id).order("created_at",{ascending:false}),
+  user&&id===user.id?supabase.from("idea_friendships").select("requester_id").eq("addressee_id",user.id).eq("status","pending"):Promise.resolve({data:[]})
+ ]);
+ setVerification(verificationResult.data||null);
+ setPosts((postsResult.data as Post[])||[]);
+ const shareIds=(resharesResult.data||[]).map((x:any)=>x.post_id);
+ if(shareIds.length){
+  const {data:rp}=await supabase.from("idea_posts").select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status").in("id",shareIds).eq("status","approved");
+  setReshares(shareIds.map((sid:string)=>(rp||[]).find((x:any)=>x.id===sid)).filter(Boolean) as Post[]);
+ }else setReshares([]);
+ const incomingIds=(incomingResult.data||[]).map((x:any)=>x.requester_id);
+ if(incomingIds.length){
+  const {data:rp}=await supabase.from("idea_profiles").select("user_id,display_name,avatar_url,location,state,country,verified,level,reputation_points").in("user_id",incomingIds);
+  setRequesters((rp as Profile[])||[]);
+ }else setRequesters([]);
+ if(user&&id!==user.id){
+  const [f,fr]=await Promise.all([
+   supabase.from("idea_follows").select("follower_id").eq("follower_id",user.id).eq("following_id",id).maybeSingle(),
+   supabase.from("idea_friendships").select("requester_id,addressee_id,status").or("and(requester_id.eq."+user.id+",addressee_id.eq."+id+"),and(requester_id.eq."+id+",addressee_id.eq."+user.id+")").maybeSingle()
+  ]);
+  setFollowing(!!f.data);setFriendStatus(fr.data?.status||null);
+ }
+ if(profile?.user_id===id&&!profile.public_id){
+  const publicId="CST-"+id.replace(/-/g,"").slice(0,10).toUpperCase();
+  setP(prev=>prev?{...prev,public_id:publicId}:prev);
+  void supabase.from("idea_profiles").update({public_id:publicId}).eq("user_id",id);
+ }
+};
+ useEffect(()=>{const saved=localStorage.getItem("ideas-draft-count");setDraftCount(saved?Number(saved)||0:0);setDarkMode(localStorage.getItem("ideas-dark-mode")==="true");setLanguage(localStorage.getItem("ideas-language")||"English");setRegion(localStorage.getItem("ideas-region")||"Global");document.documentElement.classList.toggle("dark",localStorage.getItem("ideas-dark-mode")==="true");load();return()=>{document.documentElement.classList.remove("dark")}},[userId]);
  const toggleFollow=async()=>{if(!me||!p)return toast.error("Please sign in first.");if(following){const {error}=await supabase.from("idea_follows").delete().eq("follower_id",me).eq("following_id",p.user_id);if(error)toast.error(error.message);else{setFollowing(false);toast.success("Unfollowed.")}}else{const {error}=await supabase.from("idea_follows").insert({follower_id:me,following_id:p.user_id});if(error)toast.error(error.message);else{setFollowing(true);toast.success("Following.")}}};
  const respondFriend=async(requester:string,status:"accepted"|"rejected")=>{if(!me)return;const {error}=await supabase.from("idea_friendships").update({status,updated_at:new Date().toISOString()}).eq("requester_id",requester).eq("addressee_id",me);if(error)toast.error(error.message);else{setRequesters(x=>x.filter(y=>y.user_id!==requester));toast.success(status==="accepted"?"Friend request accepted.":"Friend request rejected.");}};
  const friend=async()=>{if(!me||!p)return toast.error("Please sign in first.");if(friendStatus==="accepted"||friendStatus==="pending")return;const {error}=await supabase.from("idea_friendships").insert({requester_id:me,addressee_id:p.user_id});if(error)toast.error(error.message);else{setFriendStatus("pending");toast.success("Friend request sent.")}};
