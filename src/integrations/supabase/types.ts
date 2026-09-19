@@ -516,6 +516,10 @@ export type Database = {
           created_at: string
           device: string | null
           id: string
+          is_heartbeat: boolean
+          latitude: number | null
+          location_accuracy_m: number | null
+          longitude: number | null
           os: string | null
           path: string
           referrer: string | null
@@ -531,6 +535,10 @@ export type Database = {
           created_at?: string
           device?: string | null
           id?: string
+          is_heartbeat?: boolean
+          latitude?: number | null
+          location_accuracy_m?: number | null
+          longitude?: number | null
           os?: string | null
           path: string
           referrer?: string | null
@@ -546,6 +554,10 @@ export type Database = {
           created_at?: string
           device?: string | null
           id?: string
+          is_heartbeat?: boolean
+          latitude?: number | null
+          location_accuracy_m?: number | null
+          longitude?: number | null
           os?: string | null
           path?: string
           referrer?: string | null
