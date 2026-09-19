@@ -26,6 +26,10 @@ type View = {
   browser: string | null;
   os: string | null;
   created_at: string;
+  latitude: number | null;
+  longitude: number | null;
+  location_accuracy_m: number | null;
+  is_heartbeat: boolean;
 };
 
 /* ---------------- helpers ---------------- */
