@@ -156,7 +156,7 @@ export default function AdminLive() {
     const [recent, month] = await Promise.all([
       supabase
         .from("page_views")
-        .select("id,session_id,path,referrer,country,country_code,region,city,device,browser,os,created_at")
+        .select("id,session_id,path,referrer,country,country_code,region,city,device,browser,os,created_at,latitude,longitude,location_accuracy_m,is_heartbeat")
         .gte("created_at", since)
         .order("created_at", { ascending: false })
         .limit(3000),
@@ -221,11 +221,11 @@ export default function AdminLive() {
     const todayStart = startOf(0);
     const yStart = startOf(1);
 
-    const online = rows.filter((r) => r.created_at >= iso(5 * 60_000));
+    const views = rows.filter((r) => !r.is_heartbeat);\n    const online = rows.filter((r) => r.created_at >= iso(2 * 60_000));
     const active = rows.filter((r) => r.created_at >= iso(30 * 60_000));
-    const today = rows.filter((r) => r.created_at >= todayStart);
-    const yesterday = rows.filter((r) => r.created_at >= yStart && r.created_at < todayStart);
-    const week = rows.filter((r) => r.created_at >= iso(7 * 864e5));
+    const today = views.filter((r) => r.created_at >= todayStart);
+    const yesterday = views.filter((r) => r.created_at >= yStart && r.created_at < todayStart);
+    const week = views.filter((r) => r.created_at >= iso(7 * 864e5));
 
     // sources
     const smap = new Map<string, number>();
@@ -288,12 +288,12 @@ export default function AdminLive() {
       sources,
       series,
       live,
-      countries: rank(rows, "country"),
-      regions: rank(rows, "region"),
-      cities: rank(rows, "city"),
-      pages: rank(rows, "path"),
-      devices: rank(rows, "device", 4),
-      browsers: rank(rows, "browser", 4),
+      countries: rank(views, "country"),
+      regions: rank(views, "region"),
+      cities: rank(views, "city"),
+      pages: rank(views, "path"),
+      devices: rank(views, "device", 4),
+      browsers: rank(views, "browser", 4),
     };
   }, [rows, now]);
 
@@ -486,9 +486,9 @@ export default function AdminLive() {
                       </span>
                     </td>
                     <td className="py-2 pr-3 whitespace-nowrap">
-                      {flag(v.last.country_code)} {v.last.city ?? v.last.region ?? v.last.country ?? "Unknown"}
+                      {flag(v.last.country_code)} {v.last.latitude != null && v.last.longitude != null ? <a href={`https://www.google.com/maps?q=${v.last.latitude},${v.last.longitude}`} target="_blank" rel="noreferrer" className="hover:text-primary hover:underline">{v.last.city ?? v.last.region ?? v.last.country ?? "Exact GPS"}</a> : (v.last.city ?? v.last.region ?? v.last.country ?? "Unknown")}
                       {v.last.region && <span className="text-muted-foreground"> · {v.last.region}</span>}
-                      {v.last.country && <span className="text-muted-foreground"> · {v.last.country}</span>}
+                      {v.last.country && <span className="text-muted-foreground"> · {v.last.country}</span>}\n                      {v.last.location_accuracy_m != null && <span className="text-emerald-600 text-[10px]"> · GPS ±{Math.round(v.last.location_accuracy_m)}m</span>}
                     </td>
                     <td className="py-2 pr-3 max-w-[200px] truncate">{v.last.path}</td>
                     <td className="py-2 pr-3 max-w-[180px] truncate text-muted-foreground">{v.entry}</td>
