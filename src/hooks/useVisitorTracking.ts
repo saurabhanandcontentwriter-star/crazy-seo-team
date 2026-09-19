@@ -32,7 +32,18 @@ function parseUA(ua: string) {
   return { device, browser, os };
 }
 
-async function getPreciseLocation() {\n  if (!navigator.geolocation) return null;\n  return new Promise<{ latitude:number; longitude:number; accuracy:number } | null>((resolve) => {\n    navigator.geolocation.getCurrentPosition(\n      (p) => resolve({ latitude: p.coords.latitude, longitude: p.coords.longitude, accuracy: p.coords.accuracy }),\n      () => resolve(null),\n      { enableHighAccuracy: true, timeout: 7000, maximumAge: 60000 },\n    );\n  });\n}\n\nasync function getGeo() {
+async function getPreciseLocation() {
+  if (!navigator.geolocation) return null;
+  return new Promise<{ latitude: number; longitude: number; accuracy: number } | null>((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      (p) => resolve({ latitude: p.coords.latitude, longitude: p.coords.longitude, accuracy: p.coords.accuracy }),
+      () => resolve(null),
+      { enableHighAccuracy: true, timeout: 7000, maximumAge: 60000 },
+    );
+  });
+}
+
+async function getGeo() {
   const cached = sessionStorage.getItem(GEO_KEY);
   if (cached) return JSON.parse(cached);
   try {
@@ -52,19 +63,25 @@ async function getPreciseLocation() {\n  if (!navigator.geolocation) return null
   }
 }
 
+async function collectLocation() {
+  const [geo, precise] = await Promise.all([getGeo(), getPreciseLocation()]);
+  return { geo, precise };
+}
+
 export const useVisitorTracking = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Don't track admin pages
     if (location.pathname.startsWith("/admin")) return;
 
     let cancelled = false;
-    (async () => {
+
+    const record = async (heartbeat = false) => {
       const ua = navigator.userAgent;
       const { device, browser, os } = parseUA(ua);
-      const geo = await getGeo();
+      const { geo, precise } = await collectLocation();
       if (cancelled) return;
+
       await supabase.from("page_views").insert({
         session_id: getSessionId(),
         path: location.pathname,
@@ -73,14 +90,26 @@ export const useVisitorTracking = () => {
         country_code: geo?.country_code ?? null,
         region: geo?.region ?? null,
         city: geo?.city ?? null,
+        latitude: precise?.latitude ?? null,
+        longitude: precise?.longitude ?? null,
+        location_accuracy_m: precise?.accuracy ?? null,
         device,
         browser,
         os,
         user_agent: ua.slice(0, 500),
+        is_heartbeat: heartbeat,
       });
-    })();
+    };
+
+    void record(false);
+
+    const heartbeat = window.setInterval(() => {
+      if (document.visibilityState === "visible") void record(true);
+    }, 60_000);
+
     return () => {
       cancelled = true;
+      window.clearInterval(heartbeat);
     };
   }, [location.pathname]);
 };
