@@ -221,7 +221,8 @@ export default function AdminLive() {
     const todayStart = startOf(0);
     const yStart = startOf(1);
 
-    const views = rows.filter((r) => !r.is_heartbeat);\n    const online = rows.filter((r) => r.created_at >= iso(2 * 60_000));
+    const views = rows.filter((r) => !r.is_heartbeat);
+    const online = rows.filter((r) => r.created_at >= iso(2 * 60_000));
     const active = rows.filter((r) => r.created_at >= iso(30 * 60_000));
     const today = views.filter((r) => r.created_at >= todayStart);
     const yesterday = views.filter((r) => r.created_at >= yStart && r.created_at < todayStart);
@@ -488,7 +489,8 @@ export default function AdminLive() {
                     <td className="py-2 pr-3 whitespace-nowrap">
                       {flag(v.last.country_code)} {v.last.latitude != null && v.last.longitude != null ? <a href={`https://www.google.com/maps?q=${v.last.latitude},${v.last.longitude}`} target="_blank" rel="noreferrer" className="hover:text-primary hover:underline">{v.last.city ?? v.last.region ?? v.last.country ?? "Exact GPS"}</a> : (v.last.city ?? v.last.region ?? v.last.country ?? "Unknown")}
                       {v.last.region && <span className="text-muted-foreground"> · {v.last.region}</span>}
-                      {v.last.country && <span className="text-muted-foreground"> · {v.last.country}</span>}\n                      {v.last.location_accuracy_m != null && <span className="text-emerald-600 text-[10px]"> · GPS ±{Math.round(v.last.location_accuracy_m)}m</span>}
+                      {v.last.country && <span className="text-muted-foreground"> · {v.last.country}</span>}
+                      {v.last.location_accuracy_m != null && <span className="text-emerald-600 text-[10px]"> · GPS ±{Math.round(v.last.location_accuracy_m)}m</span>}
                     </td>
                     <td className="py-2 pr-3 max-w-[200px] truncate">{v.last.path}</td>
                     <td className="py-2 pr-3 max-w-[180px] truncate text-muted-foreground">{v.entry}</td>
