@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Mail, Pencil, Phone, Plus, Trash2, UsersRound } from "lucide-react";
-import { toast } from "sonner";
+import { Mail, Pencil, Phone, Plus, Trash2, UsersRound, Search, UserCheck, Clock3, BriefcaseBusiness, WalletCards, CalendarDays } from "lucide-react";
+import { toast } from "sonner";\nimport { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +23,7 @@ export default function CrmTeam() {
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [saving, setSaving] = useState(false);
-  const [removing, setRemoving] = useState<TeamMember | null>(null);
+  const [removing, setRemoving] = useState<TeamMember | null>(null);\n  const [query, setQuery] = useState("");\n  const [statusFilter, setStatusFilter] = useState("all");\n  const [attendance, setAttendance] = useState<any[]>([]);\n  const [profiles, setProfiles] = useState<any[]>([]);
 
   const load = async () => {
     try {
@@ -72,7 +72,7 @@ export default function CrmTeam() {
     setDraft({ ...draft, working_days: WORKING_DAYS.filter((x) => days.has(x)) });
   };
 
-  if (loading) return <CrmSkeleton />;
+  const visibleTeam = team.filter((m) => { const q = query.trim().toLowerCase(); const matches = !q || [m.name,m.email,m.position,m.login_id].some(v => (v || "").toLowerCase().includes(q)); return matches && (statusFilter === "all" || m.status === statusFilter); });\n  const activeCount = team.filter(m => m.status === "active").length;\n  const workingNow = attendance.filter(a => a.punch_in && !a.punch_out).length;\n  const totalPayroll = profiles.reduce((sum,p) => sum + Number(p.monthly_salary || 0), 0);\n  const profileFor = (m: TeamMember) => profiles.find(p => p.user_id === m.auth_user_id);\n  const attendanceFor = (m: TeamMember) => attendance.find(a => a.user_id === m.auth_user_id);\n  const formatDuration = (seconds=0) => { const h=Math.floor(seconds/3600); const min=Math.floor((seconds%3600)/60); return h ? h+"h "+min+"m" : min+"m"; };\n\n  if (loading) return <CrmSkeleton />;
 
   return (
     <div className="space-y-4">
@@ -85,7 +85,7 @@ export default function CrmTeam() {
 
       {team.length ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {team.map((m, i) => {
+          {visibleTeam.map((m, i) => {
             const p = perf[m.id] ?? { total: 0, won: 0, value: 0 };
             return (
               <GlassCard key={m.id} delay={i * 0.04} className="p-4">
@@ -114,7 +114,7 @@ export default function CrmTeam() {
                   <p className="flex items-center gap-2 truncate"><Mail size={13} className="text-muted-foreground" />{m.email}</p>
                   {m.login_id && <p className="text-[11px] font-semibold text-primary">Team ID: {m.login_id}</p>}
                   {m.mobile && <p className="flex items-center gap-2"><Phone size={13} className="text-muted-foreground" />{m.mobile}</p>}
-                  <p className="text-muted-foreground">{(m.working_days ?? []).join(", ")} · {m.working_hours}</p>
+                  <p className="text-muted-foreground">{(m.working_days ?? []).join(", ")} · {m.working_hours}</p>{profileFor(m)&&<p className="text-muted-foreground">{profileFor(m).department||"Department"} · {profileFor(m).designation||m.position}</p>}{profileFor(m)?.monthly_salary!=null&&<p className="font-semibold">Monthly salary: {inr(Number(profileFor(m).monthly_salary))}</p>}{attendanceFor(m)&&<p className={attendanceFor(m).punch_out?"text-emerald-600 font-semibold":"text-amber-600 font-semibold"}><CalendarDays size={12} className="inline mr-1"/>{attendanceFor(m).punch_in?"Punch In":"Not punched"}{attendanceFor(m).punch_out?" · Completed":" · Working"} · {formatDuration(attendanceFor(m).total_seconds||0)}</p>}
                 </div>
 
                 <div className="mt-3 grid grid-cols-3 gap-2 text-center">
