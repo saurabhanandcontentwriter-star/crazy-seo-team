@@ -30,24 +30,12 @@ export default function IdeasAccount(){
     try{
       const existing=await supabase.auth.getUser();
       if(existing.data.user) return toast.error("You are already logged in. Use Account/Profile to edit your details.");
-      const password=generatePassword();
-      const {data,error}=await supabase.auth.signUp({
-        email:mail,
-        password,
-        options:{data:{first_name:first,middle_name:middle,last_name:last,full_name:[first,middle,last].filter(Boolean).join(" "),state:state.trim(),country:country.trim()}}
-      });
+      const {data,error}=await supabase.functions.invoke("idea-create-account",{body:{firstName:first,middleName:middle,lastName:last,state:state.trim(),country:country.trim(),email:mail}});
       if(error) throw error;
-      const user=data.user;
-      if(!user) throw new Error("Account could not be created.");
-      if(!data.session){
-        const login=await supabase.auth.signInWithPassword({email:mail,password});
-        if(login.error) throw new Error("Account created, but automatic login was blocked. Please check email confirmation settings.");
-      }
-      const current=(await supabase.auth.getUser()).data.user;
-      if(!current) throw new Error("Automatic login failed.");
-      const profile={user_id:current.id,display_name:[first,middle,last].filter(Boolean).join(" "),first_name:first,middle_name:middle,last_name:last,state:state.trim(),country:country.trim(),location:[state.trim(),country.trim()].filter(Boolean).join(", "),updated_at:new Date().toISOString()};
-      const {error:profileError}=await supabase.from("idea_profiles").upsert(profile);
-      if(profileError) throw profileError;
+      if(data?.error) throw new Error(data.error);
+      if(!data?.password) throw new Error("Account was created but automatic login credentials were not returned.");
+      const login=await supabase.auth.signInWithPassword({email:mail,password:data.password});
+      if(login.error) throw login.error;
       toast.success("Account created and logged in successfully.");
       nav("/ideas/profile/me",{replace:true});
     }catch(e:any){toast.error(e?.message||"Could not create account.")}finally{setSaving(false)}
