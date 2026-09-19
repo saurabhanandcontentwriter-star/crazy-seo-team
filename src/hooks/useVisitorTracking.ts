@@ -36,18 +36,24 @@ async function getPreciseLocation() {
   if (!navigator.geolocation) return null;
   return new Promise<{ latitude: number; longitude: number; accuracy: number } | null>((resolve) => {
     navigator.geolocation.getCurrentPosition(
-      (p) => resolve({ latitude: p.coords.latitude, longitude: p.coords.longitude, accuracy: p.coords.accuracy }),
+      (p) => resolve({
+        latitude: p.coords.latitude,
+        longitude: p.coords.longitude,
+        accuracy: p.coords.accuracy,
+      }),
       () => resolve(null),
-      { enableHighAccuracy: true, timeout: 7000, maximumAge: 60000 },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
     );
   });
 }
 
 async function getGeo() {
   const cached = sessionStorage.getItem(GEO_KEY);
-  if (cached) return JSON.parse(cached);
+  if (cached) {
+    try { return JSON.parse(cached); } catch { sessionStorage.removeItem(GEO_KEY); }
+  }
   try {
-    const res = await fetch("https://ipapi.co/json/");
+    const res = await fetch("https://ipapi.co/json/", { cache: "no-store" });
     if (!res.ok) return null;
     const data = await res.json();
     const geo = {
@@ -63,26 +69,20 @@ async function getGeo() {
   }
 }
 
-async function collectLocation() {
-  const [geo, precise] = await Promise.all([getGeo(), getPreciseLocation()]);
-  return { geo, precise };
-}
-
 export const useVisitorTracking = () => {
   const location = useLocation();
 
   useEffect(() => {
     if (location.pathname.startsWith("/admin")) return;
-
     let cancelled = false;
 
     const record = async (heartbeat = false) => {
       const ua = navigator.userAgent;
       const { device, browser, os } = parseUA(ua);
-      const { geo, precise } = await collectLocation();
+      const [precise, geo] = await Promise.all([getPreciseLocation(), getGeo()]);
       if (cancelled) return;
 
-      await supabase.from("page_views").insert({
+      const { error } = await supabase.from("page_views").insert({
         session_id: getSessionId(),
         path: location.pathname,
         referrer: document.referrer || null,
@@ -99,22 +99,19 @@ export const useVisitorTracking = () => {
         user_agent: ua.slice(0, 500),
         is_heartbeat: heartbeat,
       });
+
+      if (error) console.warn("Visitor tracking:", error.message);
     };
 
     void record(false);
 
     const heartbeat = window.setInterval(() => {
       if (document.visibilityState === "visible") void record(true);
-    }, 60_000);
+    }, 30_000);
 
     return () => {
       cancelled = true;
       window.clearInterval(heartbeat);
     };
   }, [location.pathname]);
-};
-
-export const logToolUsage = (toolName: string) => {
-  const sessionId = getSessionId();
-  return supabase.from("tool_usage").insert({ tool_name: toolName, session_id: sessionId });
 };
