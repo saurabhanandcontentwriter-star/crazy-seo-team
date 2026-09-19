@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Mail, Pencil, Phone, Plus, Trash2, UsersRound, Search, UserCheck, Clock3, BriefcaseBusiness, WalletCards, CalendarDays } from "lucide-react";
-import { toast } from "sonner";\nimport { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +24,11 @@ export default function CrmTeam() {
   const [loading, setLoading] = useState(true);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [saving, setSaving] = useState(false);
-  const [removing, setRemoving] = useState<TeamMember | null>(null);\n  const [query, setQuery] = useState("");\n  const [statusFilter, setStatusFilter] = useState("all");\n  const [attendance, setAttendance] = useState<any[]>([]);\n  const [profiles, setProfiles] = useState<any[]>([]);
+  const [removing, setRemoving] = useState<TeamMember | null>(null);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [attendance, setAttendance] = useState<any[]>([]);
+  const [profiles, setProfiles] = useState<any[]>([]);
 
   const load = async () => {
     try {
@@ -72,7 +77,15 @@ export default function CrmTeam() {
     setDraft({ ...draft, working_days: WORKING_DAYS.filter((x) => days.has(x)) });
   };
 
-  const visibleTeam = team.filter((m) => { const q = query.trim().toLowerCase(); const matches = !q || [m.name,m.email,m.position,m.login_id].some(v => (v || "").toLowerCase().includes(q)); return matches && (statusFilter === "all" || m.status === statusFilter); });\n  const activeCount = team.filter(m => m.status === "active").length;\n  const workingNow = attendance.filter(a => a.punch_in && !a.punch_out).length;\n  const totalPayroll = profiles.reduce((sum,p) => sum + Number(p.monthly_salary || 0), 0);\n  const profileFor = (m: TeamMember) => profiles.find(p => p.user_id === m.auth_user_id);\n  const attendanceFor = (m: TeamMember) => attendance.find(a => a.user_id === m.auth_user_id);\n  const formatDuration = (seconds=0) => { const h=Math.floor(seconds/3600); const min=Math.floor((seconds%3600)/60); return h ? h+"h "+min+"m" : min+"m"; };\n\n  if (loading) return <CrmSkeleton />;
+  const visibleTeam = team.filter((m) => { const q = query.trim().toLowerCase(); const matches = !q || [m.name,m.email,m.position,m.login_id].some(v => (v || "").toLowerCase().includes(q)); return matches && (statusFilter === "all" || m.status === statusFilter); });
+  const activeCount = team.filter(m => m.status === "active").length;
+  const workingNow = attendance.filter(a => a.punch_in && !a.punch_out).length;
+  const totalPayroll = profiles.reduce((sum,p) => sum + Number(p.monthly_salary || 0), 0);
+  const profileFor = (m: TeamMember) => profiles.find(p => p.user_id === m.auth_user_id);
+  const attendanceFor = (m: TeamMember) => attendance.find(a => a.user_id === m.auth_user_id);
+  const formatDuration = (seconds=0) => { const h=Math.floor(seconds/3600); const min=Math.floor((seconds%3600)/60); return h ? h+"h "+min+"m" : min+"m"; };
+
+  if (loading) return <CrmSkeleton />;
 
   return (
     <div className="space-y-4">
