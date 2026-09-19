@@ -27,11 +27,21 @@ export default function IdeasCreate() {
  };
 
  const submit=async()=>{
-   if(!name.trim()||!title.trim()||!content.trim()){toast.error("Name, title and idea content are required.");return}
+   if(!title.trim()||!content.trim()){toast.error("Title and idea content are required.");return}
    if(title.length>180||content.length>5000){toast.error("Title/content is too long.");return}
    setSaving(true);
    try{
-     const{data:{user}}=await supabase.auth.getUser(); if(!user){toast.error("Please sign in before posting an idea.");return}
+     const{data:{user}}=await supabase.auth.getUser();
+     if(!user){toast.error("Create your Ideas ID and complete your profile before posting.");navigate("/ideas/account");return}
+     const profile=await supabase.from("idea_profiles").select("id,first_name,middle_name,last_name,state,country,email").eq("user_id",user.id).maybeSingle();
+     if(profile.error) throw profile.error;
+     const p=profile.data;
+     if(!p || !p.first_name?.trim() || !p.last_name?.trim() || !p.state?.trim() || !p.country?.trim() || !p.email?.trim()){
+       toast.error("Complete your full Ideas profile before posting.");
+       navigate("/ideas/profile/me");
+       return;
+     }
+     setName([p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" "));
      let profileImageUrl:string|null=null, imageUrl:string|null=null;
      if(profileFile) profileImageUrl=await uploadImage(user.id,profileFile,"profile");
      if(coverFile) imageUrl=await uploadImage(user.id,coverFile,"cover");
