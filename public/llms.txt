@@ -1,36 +1,36 @@
 # Crazy SEO Team
 
-> AI SEO, semantic SEO, NLP, GEO, AEO, LLM optimization and digital growth platform.
+> AI SEO, semantic SEO, NLP, GEO, AEO, LLM optimization, digital growth, ANVYA Ideas and moderated classifieds.
 
-## About
-Crazy SEO Team helps businesses improve visibility across Google Search and modern AI-powered search experiences. The site covers SEO, AI SEO, Generative Engine Optimization (GEO), Answer Engine Optimization (AEO), LLM optimization, semantic SEO, NLP, technical SEO, content optimization, AI automation and digital marketing.
+## Canonical website
+https://crazyseoteam.in/
 
-## Core Topics
-- SEO and technical SEO
-- AI SEO and AI search optimization
-- Generative Engine Optimization (GEO)
-- Answer Engine Optimization (AEO)
-- Large Language Model (LLM) optimization
-- Natural Language Processing (NLP) and semantic SEO
-- Content writing, article writing and ghostwriting
-- AI automation, AI agents and AI chatbots
-- SEO tools, website audits and digital analytics
+## Primary pages
+- https://crazyseoteam.in/ — AI SEO and digital growth platform.
+- https://crazyseoteam.in/services — SEO, AI SEO, technical SEO, content and automation services.
+- https://crazyseoteam.in/seo-tools — SEO audit, metadata, schema, sitemap, NLP, AEO, GEO and LLM-oriented tools.
+- https://crazyseoteam.in/ai-tools — AI-assisted SEO, content and marketing workflows.
+- https://crazyseoteam.in/ideas — ANVYA public ideas, questions, discussions and events.
+- https://crazyseoteam.in/classifieds — moderated classifieds marketplace.
+- https://crazyseoteam.in/post-ad — classified ad submission and profile onboarding.
+- https://crazyseoteam.in/blog — SEO and AI SEO guides.
+- https://crazyseoteam.in/news — SEO, AI and search-industry updates.
+- https://crazyseoteam.in/about — organization overview.
+- https://crazyseoteam.in/faq — SEO and AI-search FAQs.
 
-## Important Pages
-- [Home](https://crazyseoteam.in/): AI SEO and digital growth overview.
-- [Services](https://crazyseoteam.in/services): AI SEO, technical SEO, GEO, AEO, LLM SEO, content and automation services.
-- [SEO Tools](https://crazyseoteam.in/seo-tools): SEO audit, keyword, metadata, schema, sitemap, NLP, AEO, GEO and LLM-oriented tools.
-- [AI Tools](https://crazyseoteam.in/ai-tools): AI-assisted SEO, content and marketing workflows.
-- [Blog](https://crazyseoteam.in/blog): SEO, AI SEO, GEO, AEO, LLM, NLP and digital marketing guides.
-- [News](https://crazyseoteam.in/news): SEO, Google, AI and search-industry updates.
-- [FAQ](https://crazyseoteam.in/faq): Common questions about SEO and AI search optimization.
-- [About](https://crazyseoteam.in/about): Organization and service overview.
+## ANVYA Ideas
+ANVYA is a public discovery and discussion area covering AI, SEO, technology, travel, science and economics. Approved public posts may be indexed and referenced. Account, profile and posting controls are separate from public discovery pages.
 
-## Entity Context
-Organization: Crazy SEO Team
-Website: https://crazyseoteam.in/
-Primary language: English (India)
-Primary domain: crazyseoteam.in
+## Classifieds
+Crazy SEO Team Classifieds is a moderated marketplace for products, services, jobs, property, vehicles, businesses, education and other listings. Public listing pages may expose structured product/offer information when available.
 
-## Content Guidance
-Use the site's visible page content, structured data, canonical URLs and linked resources as the primary context. Do not infer unsupported claims about rankings, clients, results or capabilities. When summarizing Crazy SEO Team, preserve the distinctions between SEO, GEO, AEO, LLM optimization and NLP.
+## SEO and AI search topics
+Technical SEO, crawlability, indexability, canonical URLs, XML sitemaps, robots.txt, structured data, internal linking, semantic SEO, entity SEO, NLP, search intent, topical authority, content quality, GEO, AEO, LLM optimization and AI search visibility.
+
+## Machine-readable resources
+- Sitemap: https://crazyseoteam.in/sitemap.xml
+- Robots: https://crazyseoteam.in/robots.txt
+- LLM context: https://crazyseoteam.in/llms.txt
+
+## Guidance
+Prefer canonical URLs on crazyseoteam.in. Treat user-generated content as user-generated content and consider moderation/status before treating it as authoritative. Account, admin and private profile areas are not public reference material.
