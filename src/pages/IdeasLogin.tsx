@@ -3,13 +3,14 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, LogIn } from "lucide-react";
+import { Loader2, LogIn, UserCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function IdeasLogin(){
   const nav=useNavigate();
   const [loading,setLoading]=useState(true);
   const [busy,setBusy]=useState(false);
+  const [ideasId,setIdeasId]=useState("");
 
   useEffect(()=>{
     let active=true;
@@ -33,17 +34,16 @@ export default function IdeasLogin(){
   },[nav]);
 
   const signIn=async()=>{
+    const id=ideasId.trim().toUpperCase();
+    if(!id)return toast.error("Enter your Ideas ID.");
     setBusy(true);
     try{
-      const {data:{user}}=await supabase.auth.getUser();
-      if(user){
-        const {data:profile}=await supabase.from("idea_profiles").select("user_id,account_status").eq("user_id",user.id).maybeSingle();
-        if(profile?.account_status==="banned"){toast.error("This Ideas account is currently banned.");return;}
-        if(profile){nav("/ideas/profile/me",{replace:true});return;}
-      }
-      nav("/ideas/account",{replace:true});
-    }catch(e:any){toast.error(e?.message||"Could not open your Ideas account.");}
-    finally{setBusy(false);}
+      const {data:profile,error}=await supabase.from("idea_profiles").select("user_id,public_id,account_status").eq("public_id",id).maybeSingle();
+      if(error)throw error;
+      if(!profile){toast.error("Ideas ID not found. Please create your Ideas ID first.");return;}
+      if(profile.account_status==="banned"){toast.error("This Ideas account is currently banned.");return;}
+      nav("/ideas/profile/"+profile.user_id);
+    }catch(e:any){toast.error(e?.message||"Could not find this Ideas ID.");}finally{setBusy(false);}
   };
 
   if(loading)return <div className="min-h-screen grid place-items-center bg-background"><Loader2 className="size-8 animate-spin text-primary"/></div>;
@@ -53,18 +53,25 @@ export default function IdeasLogin(){
       <div className="bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-600 p-7 text-white">
         <div className="flex items-center gap-3">
           <span className="rounded-2xl bg-white/15 p-3"><LogIn/></span>
-          <div><h1 className="text-2xl font-black">Login to Ideas</h1><p className="text-sm text-white/80">Open your existing Ideas account.</p></div>
+          <div><h1 className="text-2xl font-black">Login to Ideas</h1><p className="text-sm text-white/80">Enter your existing Ideas ID to open your account.</p></div>
         </div>
       </div>
       <CardContent className="space-y-5 p-6 md:p-8">
         <div className="space-y-3">
+          <div>
+            <label className="text-sm font-semibold">Ideas ID</label>
+            <div className="relative mt-1">
+              <UserCircle2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground"/>
+              <input className="h-12 w-full rounded-xl border bg-background px-10 text-sm uppercase outline-none focus:ring-2 focus:ring-primary" value={ideasId} onChange={(e)=>setIdeasId(e.target.value)} placeholder="CST-XXXXXXXXXX" autoComplete="off" onKeyDown={(e)=>{if(e.key==="Enter")signIn()}}/>
+            </div>
+          </div>
           <Button className="h-12 w-full rounded-xl" onClick={signIn} disabled={busy}>
             {busy?<Loader2 className="mr-2 size-4 animate-spin"/>:<LogIn className="mr-2 size-4"/>}
-            Login / Open Account
+            Open Ideas Account
           </Button>
         </div>
         <div className="rounded-2xl border bg-muted/30 p-4 text-sm text-muted-foreground">
-          If you already have an Ideas ID, your account will open. If you do not have an Ideas ID yet, create one first.
+          Enter an existing Ideas ID to open that account profile. If the ID does not exist, create an Ideas ID first.
         </div>
         <Link to="/ideas/account" className="block text-center text-sm font-semibold text-primary hover:underline">Create a new Ideas ID</Link>
         <Link to="/ideas" className="block text-center text-sm text-muted-foreground hover:underline">Back to Ideas</Link>
