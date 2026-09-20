@@ -12,7 +12,7 @@ export default function IdeasAccount(){
   const nav=useNavigate();
   const [firstName,setFirstName]=useState(""),[middleName,setMiddleName]=useState(""),[lastName,setLastName]=useState("");
   const [state,setState]=useState(""),[country,setCountry]=useState(""),[email,setEmail]=useState("");
-  const [saving,setSaving]=useState(false),[deleting,setDeleting]=useState(false);
+  const [saving,setSaving]=useState(false),[deleting,setDeleting]=useState(false),[createdId,setCreatedId]=useState("");
   const [checking,setChecking]=useState(true);
   const [banned,setBanned]=useState<{reason:string}|null>(null);
 
@@ -43,8 +43,11 @@ export default function IdeasAccount(){
       if(!data?.password)throw new Error("Account was created but automatic login credentials were not returned.");
       const login=await supabase.auth.signInWithPassword({email:mail,password:data.password});
       if(login.error)throw login.error;
-      toast.success("Account created and logged in successfully.");
-      nav("/ideas/profile/me",{replace:true});
+      const {data:createdProfile}=await supabase.from("idea_profiles").select("public_id").eq("user_id",login.data.user.id).maybeSingle();
+      const publicId=createdProfile?.public_id||"";
+      if(!publicId)throw new Error("Account created, but your unique Ideas ID could not be generated. Please contact support.");
+      setCreatedId(publicId);
+      toast.success("Account created successfully. Save your unique Ideas ID.");
     }catch(e:any){toast.error(e?.message||"Could not create account.")}finally{setSaving(false)}
   };
 
@@ -72,7 +75,9 @@ export default function IdeasAccount(){
 
   if(checking)return <div className="min-h-screen bg-background grid place-items-center"><Loader2 className="size-8 animate-spin text-primary"/></div>;
 
-  if(banned)return <div className="min-h-screen bg-background"><div className="container mx-auto max-w-2xl px-4 py-8 md:py-14"><Card className="rounded-[28px] border-destructive/30"><CardContent className="space-y-5 p-6 md:p-8"><div className="flex items-start gap-3"><AlertTriangle className="mt-1 text-destructive"/><div><h1 className="text-3xl font-black">Ideas Account Banned</h1><p className="mt-2 text-muted-foreground">Your Ideas account is currently banned and cannot be used for community activity.</p>{banned.reason&&<p className="mt-3 rounded-xl bg-muted p-3 text-sm"><strong>Reason:</strong> {banned.reason}</p>}</div></div><Button variant="destructive" onClick={permanentlyDelete} disabled={deleting}>{deleting?<Loader2 className="mr-2 size-4 animate-spin"/>:<Trash2 className="mr-2 size-4"/>}{deleting?"Deleting Permanently...":"Delete Account Permanently"}</Button><Button variant="ghost" className="w-full" onClick={()=>nav("/ideas")}>Back to Ideas</Button></CardContent></Card></div></div>;
+  if(banned)return <div className="min-h-screen bg-background"><div className="container mx-auto max-w-2xl px-4 py-8 md:py-14"><Card className="rounded-[28px] border-destructive/30"><CardContent className="space-y-5 p-6 md:p-8"><div className="flex items-start gap-3"><AlertTriangle className="mt-1 text-destructive"/><div><h1 className="text-3xl font-black">Ideas Account Banned</h1><p className="mt-2 text-muted-foreground">Your Ideas account is currently banned and cannot be used for community activity.</p>{banned.reason&&<p className="mt-3 rounded-xl bg-muted p-3 text-sm"><strong>Reason:</strong> {banned.reason}</p>}</div></div><Button variant="destructive" onClick={permanentlyDelete} disabled={deleting}>{deleting?<Loader2 className="mr-2 size-4 animate-spin"/>:<Trash2 className="mr-2 size-4"/>}{deleting?"Deleting Permanently...":"Delete Account Permanently"}</Button><Button variant="ghost" className="w-full" onClick={()=>nav("/ideas")}>Back to Ideas</Button></CardContent></Card></div></div>;\n\n  if(createdId)return <div className="min-h-screen bg-background"><div className="container mx-auto max-w-2xl px-4 py-8 md:py-14"><Card className="overflow-hidden rounded-[28px]"><div className="bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-600 p-7 text-white"><h1 className="text-3xl font-black">Your Ideas ID is Ready</h1><p className="mt-2 text-white/80">Save this unique ID. You will need it to open your Ideas account in the future.</p></div><CardContent className="space-y-5 p-6 md:p-8"><div className="rounded-2xl border-2 border-primary/30 bg-primary/5 p-5 text-center"><p className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground">Your Unique Ideas ID</p><p className="mt-3 break-all text-3xl font-black tracking-wider">{createdId}</p></div><div className="rounded-2xl border bg-muted/30 p-4 text-sm text-muted-foreground"><strong className="text-foreground">Important:</strong> Please save or screenshot this ID now. Keep it private and do not lose it.</div><div className="grid gap-3 sm:grid-cols-2"><Button variant="outline" className="rounded-xl" onClick={async()=>{await navigator.clipboard.writeText(createdId);toast.success("Ideas ID copied.");}}>Copy Ideas ID</Button><Button className="rounded-xl" onClick={()=>nav("/ideas/profile/me",{replace:true})}>Continue to Profile</Button></div></CardContent></Card></div></div>;
+
+
 
   return <div className="min-h-screen bg-background"><div className="container mx-auto max-w-2xl px-4 py-8 md:py-14"><Card className="overflow-hidden rounded-[28px]"><div className="bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-600 p-7 text-white"><div className="flex items-center gap-3"><span className="rounded-2xl bg-white/15 p-3"><UserPlus/></span><div><h1 className="text-3xl font-black">Create Ideas Account</h1><p className="mt-1 text-white/80">Create your public community profile in one step.</p></div></div></div><CardContent className="space-y-5 p-6 md:p-8">
     <div className="grid gap-4 md:grid-cols-3"><div className="grid gap-2"><Label>First Name *</Label><Input value={firstName} onChange={e=>setFirstName(e.target.value)} placeholder="First name"/></div><div className="grid gap-2"><Label>Middle Name</Label><Input value={middleName} onChange={e=>setMiddleName(e.target.value)} placeholder="Middle name"/></div><div className="grid gap-2"><Label>Last Name *</Label><Input value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="Last name"/></div></div>
