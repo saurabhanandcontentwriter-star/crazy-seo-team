@@ -30,8 +30,6 @@ export default function IdeasAccount(){
     try{
       const existing=await supabase.auth.getUser();
       if(existing.data.user) return toast.error("You already have an Ideas ID. Open your Profile to edit it.");
-      const {data:existingProfile}=await supabase.from("idea_profiles").select("user_id,display_name,public_id").eq("user_id","00000000-0000-0000-0000-000000000000").maybeSingle();
-      void existingProfile;
       const {data,error}=await supabase.functions.invoke("idea-create-account",{body:{firstName:first,middleName:middle,lastName:last,state:state.trim(),country:country.trim(),email:mail}});
       if(error) throw error;
       if(data?.error) throw new Error(data.error);
