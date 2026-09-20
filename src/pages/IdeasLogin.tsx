@@ -41,7 +41,17 @@ export default function IdeasLogin(){
       const result=await signInWithPopup(firebaseAuth,googleProvider);
       const idToken=await result.user.getIdToken(true);
       const {data,error}=await supabase.functions.invoke("firebase-ideas-login",{body:{idToken}});
-      if(error) throw error;
+      if(error){
+        let message=error.message||"Google login service failed.";
+        try{
+          const response=(error as any).context;
+          if(response && typeof response.clone==="function"){
+            const payload=await response.clone().json().catch(()=>null);
+            if(payload?.error) message=payload.error;
+          }
+        }catch{}
+        throw new Error(message);
+      }
       if(data?.error) throw new Error(data.error);
       if(!data?.session?.access_token||!data?.session?.refresh_token) throw new Error("Google login completed, but the Ideas session could not be created.");
       const session=await supabase.auth.setSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token});
