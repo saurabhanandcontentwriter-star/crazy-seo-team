@@ -39,7 +39,7 @@ export default function IdeasLogin(){
     setBusy(true);
     const {error}=await supabase.auth.signInWithOtp({
       email:mail,
-      options:{emailRedirectTo:window.location.origin+"/ideas/login"}
+      options:{shouldCreateUser:false,emailRedirectTo:window.location.origin+"/ideas/login"}
     });
     if(error)toast.error(error.message);
     else toast.success("Login link sent. Check your email and open the link to continue.");
