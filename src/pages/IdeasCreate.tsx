@@ -17,6 +17,9 @@ export default function IdeasCreate() {
  const editorRef=useRef<HTMLDivElement|null>(null); const [coverFile,setCoverFile]=useState<File|null>(null); const [imageAlt,setImageAlt]=useState(""); const [eventStart,setEventStart]=useState(""); const [eventEnd,setEventEnd]=useState(""); const [eventLocation,setEventLocation]=useState(""); const [eventUrl,setEventUrl]=useState(""); const [eventMaxAttendees,setEventMaxAttendees]=useState(""); const [saving,setSaving]=useState(false);
  useEffect(()=>{const ua=navigator.userAgent.toLowerCase();setDevice(/android|iphone|ipad|ipod|mobile/.test(ua)?"Mobile":/tablet/.test(ua)?"Mobile":/mac|win|linux/.test(ua)?"Desktop":"Unknown")},[]);
 
+ const sanitizeRichHtml=(html:string)=>{const doc=new DOMParser().parseFromString(html,"text/html");doc.querySelectorAll("script,style,iframe,object,embed").forEach(n=>n.remove());doc.querySelectorAll("*").forEach((el)=>{Array.from(el.attributes).forEach((a)=>{if(a.name.toLowerCase().startsWith("on"))el.removeAttribute(a.name);if(a.name.toLowerCase()==="href"&&!/^https:\/\//i.test(a.value))el.removeAttribute(a.name)})});return doc.body.innerHTML};
+ const format=(command:string,value?:string)=>{document.execCommand(command,false,value);if(editorRef.current)setContent(editorRef.current.innerHTML)};
+ const addLink=()=>{const url=window.prompt("Enter HTTPS link");if(url&&/^https:\/\//i.test(url)){format("createLink",url)}else if(url){toast.error("Only HTTPS links are allowed.")}};
  const validateImage=(file:File)=>["image/jpeg","image/png","image/webp"].includes(file.type)&&file.size<=5*1024*1024;
 
  const uploadImage=async(userId:string,file:File,kind:"cover")=>{
@@ -28,8 +31,8 @@ export default function IdeasCreate() {
  };
 
  const submit=async()=>{
-   if(!title.trim()||!content.trim()){toast.error("Title and idea content are required.");return}
-   if(title.length>180||content.length>5000){toast.error("Title/content is too long.");return}
+   const plainContent=editorRef.current?.innerText?.trim()||""; const richContent=sanitizeRichHtml(editorRef.current?.innerHTML||content);\n   if(!title.trim()||!plainContent){toast.error("Title and idea content are required.");return}
+   if(title.length>180||plainContent.length>5000){toast.error("Title/content is too long.");return}\n   if(coverFile&&!imageAlt.trim()){toast.error("Add descriptive alt text for the cover image.");return}
    setSaving(true);
    try{
      const{data:{user}}=await supabase.auth.getUser();
