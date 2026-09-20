@@ -16,11 +16,11 @@ export default function CrmTeamLogin() {
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     const id = loginId.trim().toLowerCase();
-    if (!id || !password) return toast.error("Login ID and password are required.");
+    if (!id || !password) return toast.error("Email / Team ID and password are required.");
     setBusy(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email: `${id}@crazyseoteam.in`,
+        email: id.includes("@") ? id : `${id}@crazyseoteam.in`,
         password,
       });
       if (error) throw error;
@@ -57,10 +57,10 @@ export default function CrmTeamLogin() {
         </div>
         <form onSubmit={submit} className="mt-6 space-y-4">
           <div>
-            <label className="text-sm font-semibold">Team ID</label>
+            <label className="text-sm font-semibold">Admin Email / Team ID</label>
             <div className="relative mt-1">
               <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input className="pl-9" value={loginId} onChange={(e) => setLoginId(e.target.value)} placeholder="e.g. cst_sales01" autoComplete="username" />
+              <Input className="pl-9" value={loginId} onChange={(e) => setLoginId(e.target.value)} placeholder="Admin email or e.g. cst_sales01" autoComplete="username" />
             </div>
           </div>
           <div>
