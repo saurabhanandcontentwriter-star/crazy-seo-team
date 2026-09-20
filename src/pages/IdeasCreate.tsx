@@ -117,6 +117,7 @@ export default function IdeasCreate() {
                 <p className="text-xs text-muted-foreground">Used for accessibility and image SEO.</p>
               </div>}
             </div>
+          </div>
           <div className="mt-8 flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-between">
             <div className="flex items-center gap-2 text-xs text-muted-foreground"><ShieldCheck size={15} /> Reviewed before public publishing</div>
             <div className="flex gap-3"><Button variant="outline" className="rounded-xl" onClick={() => navigate("/ideas")}>Cancel</Button><Button className="rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 px-6" onClick={submit} disabled={saving}>{saving && <Loader2 className="mr-2 size-4 animate-spin" />}Submit Idea</Button></div>
