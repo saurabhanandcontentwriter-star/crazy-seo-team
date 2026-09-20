@@ -57,7 +57,7 @@ export default function IdeasCreate() {
      }});
      if(guardError) throw guardError;
      if(!guard?.accepted){toast.error(guard?.error||"AI-like content detected. Please rewrite it in your own words.");return}
-     toast.success(postType==="question"?"Discussion submitted for moderation.":"Post submitted for moderation."); navigate("/ideas");
+     if(guard?.status==="approved"){toast.success("Post approved automatically and is now public.");navigate("/ideas");}else{toast.error("Post rejected by automatic content checks. It is visible in your profile with the rejection reason.");navigate("/ideas/profile/me");}
    }catch(e:any){toast.error(e?.message||"Could not submit idea.")}finally{setSaving(false)}
  };
 
