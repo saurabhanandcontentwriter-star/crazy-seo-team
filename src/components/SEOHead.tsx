@@ -113,7 +113,9 @@ export default function SEOHead() {
   const websiteSchema = { "@context": "https://schema.org", "@type": "WebSite", "@id": `${SITE}/#website`, name: BRAND, url: SITE, description: "AI SEO, GEO, AEO, LLM optimization, semantic SEO and digital marketing platform.", publisher: { "@id": `${SITE}/#organization` }, inLanguage: "en-IN", potentialAction: { "@type": "SearchAction", target: `${SITE}/blog?search={search_term_string}`, "query-input": "required name=search_term_string" } };
   const webPageSchema = { "@context": "https://schema.org", "@type": "WebPage", "@id": `${canonical}#webpage`, url: canonical, name: listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title, description: listing?.description?.slice(0, 160) || meta.description, isPartOf: { "@id": `${SITE}/#website` }, about: { "@id": `${SITE}/#organization` }, inLanguage: "en-IN", keywords: listing ? [listing.category, listing.city, listing.state].filter(Boolean).join(", ") : meta.keywords };
   const collectionSchema = useMemo(() => (basePath === "/classifieds" || isIdeas) ? { "@context": "https://schema.org", "@type": "CollectionPage", name: meta.title, url: canonical, description: meta.description, isPartOf: { "@type": "WebSite", name: BRAND, url: SITE } } : null, [basePath, canonical, meta.title, meta.description, isIdeas]);
-  const ideasSchema = isIdeas ? { "@context": "https://schema.org", "@type": "CollectionPage", "@id": `${SITE}/ideas#collection`, name: meta.title, url: canonical, description: meta.description, about: ["AI", "SEO", "Technology", "Travel", "Science", "Economics"], isPartOf: { "@id": `${SITE}/#website` }, publisher: { "@id": `${SITE}/#organization` } } : null;\n  const postAdSchema = isPostAd ? { "@context": "https://schema.org", "@type": "WebPage", "@id": `${SITE}/post-ad#webpage`, name: meta.title, url: canonical, description: meta.description, about: { "@type": "Thing", name: "Classified advertising" }, isPartOf: { "@id": `${SITE}/#website` } } : null;\n  const listingSchema = useMemo(() => listing ? {
+  const ideasSchema = isIdeas ? { "@context": "https://schema.org", "@type": "CollectionPage", "@id": `${SITE}/ideas#collection`, name: meta.title, url: canonical, description: meta.description, about: ["AI", "SEO", "Technology", "Travel", "Science", "Economics"], isPartOf: { "@id": `${SITE}/#website` }, publisher: { "@id": `${SITE}/#organization` } } : null;
+  const postAdSchema = isPostAd ? { "@context": "https://schema.org", "@type": "WebPage", "@id": `${SITE}/post-ad#webpage`, name: meta.title, url: canonical, description: meta.description, about: { "@type": "Thing", name: "Classified advertising" }, isPartOf: { "@id": `${SITE}/#website` } } : null;
+  const listingSchema = useMemo(() => listing ? {
     "@context": "https://schema.org", "@type": "Product", "@id": `${SITE}/listing/${listing.id}#product`, name: listing.title, description: listing.description, url: `${SITE}/listing/${listing.id}`, category: listing.category,
     ...(listing.price != null ? { offers: { "@type": "Offer", price: Number(listing.price), priceCurrency: "INR", availability: "https://schema.org/InStock", url: `${SITE}/listing/${listing.id}` } } : {}),
     ...(listing.seller_name ? { seller: { "@type": "Person", name: listing.seller_name } } : {}), ...(listing.business_name ? { brand: { "@type": "Brand", name: listing.business_name } } : {}),
@@ -137,7 +139,10 @@ export default function SEOHead() {
     <meta name="bingbot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="ai-content-declaration" content="AI-assisted SEO and content optimization may be used; factual claims should be verified against cited or authoritative sources." />
     <meta name="ai-topic" content={CORE_TOPICS} />
-    <meta name="content-language" content="en-IN" />\n    <meta name="geo.region" content="IN" />\n    <meta name="theme-color" content="#ffffff" />\n    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="content-language" content="en-IN" />
+    <meta name="geo.region" content="IN" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
     <link rel="canonical" href={canonical} />
     <meta property="og:title" content={listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title} />
     <meta property="og:description" content={listing?.description?.slice(0, 160) || meta.description} />
@@ -152,7 +157,9 @@ export default function SEOHead() {
     <script type="application/ld+json">{JSON.stringify(organization)}</script>
     <script type="application/ld+json">{JSON.stringify(websiteSchema)}</script>
     <script type="application/ld+json">{JSON.stringify(webPageSchema)}</script>
-{collectionSchema && <script type="application/ld+json">{JSON.stringify(collectionSchema)}</script>}\n    {ideasSchema && <script type="application/ld+json">{JSON.stringify(ideasSchema)}</script>}\n    {postAdSchema && <script type="application/ld+json">{JSON.stringify(postAdSchema)}</script>}
+{collectionSchema && <script type="application/ld+json">{JSON.stringify(collectionSchema)}</script>}
+    {ideasSchema && <script type="application/ld+json">{JSON.stringify(ideasSchema)}</script>}
+    {postAdSchema && <script type="application/ld+json">{JSON.stringify(postAdSchema)}</script>}
     {listingSchema && <script type="application/ld+json">{JSON.stringify(listingSchema)}</script>}
     {faqSchema && <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>}
     {breadcrumbSchema && <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>}
