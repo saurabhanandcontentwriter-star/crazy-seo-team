@@ -17,7 +17,7 @@ export default function IdeasAccount(){
   const nav=useNavigate();
   const [firstName,setFirstName]=useState(""),[middleName,setMiddleName]=useState(""),[lastName,setLastName]=useState("");
   const [state,setState]=useState(""),[country,setCountry]=useState(""),[email,setEmail]=useState("");
-  const [saving,setSaving]=useState(false),[deleting,setDeleting]=useState(false);
+  const [saving,setSaving]=useState(false),[deleting,setDeleting]=useState(false);\n  const [banned,setBanned]=useState<{reason:string}|null>(null);
 
   const submit=async()=>{
     const first=firstName.trim(),middle=middleName.trim(),last=lastName.trim(),mail=email.trim().toLowerCase();
@@ -83,7 +83,42 @@ export default function IdeasAccount(){
       </Card>
     </div>
   </div>;
-}          </>}
+  }
+  const checkAccount = async()=>{
+    const {data:{user}}=await supabase.auth.getUser();
+    if(!user)return;
+    const {data:profile}=await supabase.from("idea_profiles").select("account_status,ban_reason").eq("user_id",user.id).maybeSingle();
+    if(profile?.account_status==="banned") return setBanned({reason:profile.ban_reason||""});
+    nav("/ideas/profile/me",{replace:true});
+  };
+  // keep create form for users who have no Ideas profile; redirect existing active users.
+  useState(()=>{ void checkAccount(); });
+
+
+  if(banned){
+    return <div className="min-h-screen bg-background"><div className="container mx-auto max-w-2xl px-4 py-8 md:py-14"><Card className="rounded-[28px] border-destructive/30"><CardContent className="space-y-5 p-6 md:p-8"><div className="flex items-start gap-3"><AlertTriangle className="mt-1 text-destructive"/><div><h1 className="text-3xl font-black">Ideas Account Banned</h1><p className="mt-2 text-muted-foreground">Your Ideas account is currently banned and cannot be used for community activity.</p>{banned.reason&&<p className="mt-3 rounded-xl bg-muted p-3 text-sm"><strong>Reason:</strong> {banned.reason}</p>}</div></div><Button variant="destructive" onClick={permanentlyDelete} disabled={deleting}>{deleting?<Loader2 className="mr-2 size-4 animate-spin"/>:<Trash2 className="mr-2 size-4"/>}{deleting?"Deleting Permanently...":"Delete Account Permanently"}</Button><Button variant="ghost" className="w-full" onClick={()=>nav("/ideas")}>Back to Ideas</Button></CardContent></Card></div></div>;
+  }
+
+  return <div className="min-h-screen bg-background">
+    <div className="container mx-auto max-w-2xl px-4 py-8 md:py-14">
+      <Card className="overflow-hidden rounded-[28px]">
+        <div className="bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-600 p-7 text-white">
+          <div className="flex items-center gap-3"><span className="rounded-2xl bg-white/15 p-3"><UserPlus/></span><div><h1 className="text-3xl font-black">Create Ideas Account</h1><p className="mt-1 text-white/80">Create your public community profile in one step.</p></div></div>
+        </div>
+        <CardContent className="space-y-5 p-6 md:p-8">
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-2"><Label>First Name *</Label><Input value={firstName} onChange={e=>setFirstName(e.target.value)} placeholder="First name"/></div>
+            <div className="grid gap-2"><Label>Middle Name</Label><Input value={middleName} onChange={e=>setMiddleName(e.target.value)} placeholder="Middle name"/></div>
+            <div className="grid gap-2"><Label>Last Name *</Label><Input value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="Last name"/></div>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-2"><Label>State *</Label><Input value={state} onChange={e=>setState(e.target.value)} placeholder="State"/></div>
+            <div className="grid gap-2"><Label>Country *</Label><Input value={country} onChange={e=>setCountry(e.target.value)} placeholder="Country"/></div>
+          </div>
+          <div className="grid gap-2"><Label>Email *</Label><Input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></div>
+          <div className="rounded-2xl border bg-muted/30 p-4 text-sm text-muted-foreground"><ShieldCheck className="mr-2 inline size-4 text-primary"/>No password field is required. A secure random password is generated automatically and the account is logged in after submission.</div>
+          <Button className="w-full rounded-xl" onClick={submit} disabled={saving||deleting}>{saving?<Loader2 className="mr-2 size-4 animate-spin"/>:<UserPlus className="mr-2 size-4"/>}Create Account & Continue</Button>
+          <Button variant="ghost" className="w-full" onClick={()=>nav("/ideas")}>Back to Ideas</Button>
         </CardContent>
       </Card>
     </div>
