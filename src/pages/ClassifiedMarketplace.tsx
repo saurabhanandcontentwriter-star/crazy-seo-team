@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Search, MapPin, Plus, Image as ImageIcon, Upload, X, ShieldCheck, MessageCircle, Heart, Store, ArrowLeft, Sparkles, UserRound, ExternalLink, Navigation, Mail, Phone, Building2 } from "lucide-react";
+import { Search, MapPin, Plus, Image as ImageIcon, Upload, X, ShieldCheck, MessageCircle, Heart, Store, ArrowLeft, Sparkles, UserRound, ExternalLink, Navigation, Mail, Phone, Building2, Loader2 } from "lucide-react";
 
 const CATEGORIES = [["cars","Cars & Vehicles"],["property","Real Estate"],["mobiles","Mobiles & Electronics"],["jobs","Jobs"],["business","Business & Industrial"],["services","Services"],["furniture","Furniture & Home"],["fashion","Fashion"],["education","Education"],["agriculture","Agriculture"],["pets","Animals & Pets"],["construction","Construction"],["other","Other"]] as const;
 type Media={id:string;type:"image"|"video";url:string;name:string;path?:string};
