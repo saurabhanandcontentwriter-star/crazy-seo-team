@@ -77,7 +77,9 @@ export default function SEOHead() {
   const location = useLocation();
   const basePath = getBasePath(location.pathname);
   const [listing, setListing] = useState<any>(null);
-  const isIdeas = basePath === "/ideas";\n  const isPostAd = basePath === "/post-ad";\n  const meta = pageMeta[basePath] ?? { title: `${BRAND} | AI SEO, GEO, AEO & Digital Growth`, description: "Crazy SEO Team helps businesses improve SEO, AI search visibility, content performance and digital growth.", keywords: CORE_TOPICS };
+  const isIdeas = basePath === "/ideas";
+  const isPostAd = basePath === "/post-ad";
+  const meta = pageMeta[basePath] ?? { title: `${BRAND} | AI SEO, GEO, AEO & Digital Growth`, description: "Crazy SEO Team helps businesses improve SEO, AI search visibility, content performance and digital growth.", keywords: CORE_TOPICS };
   const canonical = `${SITE}${location.pathname === "/" ? "/" : location.pathname.replace(/\/$/, "")}`;
   const faqs = faqSets[basePath] ?? [];
   const breadcrumbs = location.pathname.split("/").filter(Boolean).map((part, index, arr) => ({ name: part.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()), item: `${SITE}/${arr.slice(0, index + 1).join("/")}` }));
