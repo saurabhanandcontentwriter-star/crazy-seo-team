@@ -17,7 +17,7 @@ const sanitizeRichHtml=(html:string)=>{
  doc.body.querySelectorAll("*").forEach(el=>{
   if(!allowed.includes(el.tagName)){el.replaceWith(...Array.from(el.childNodes));return}
   Array.from(el.attributes).forEach(attr=>{
-   if(el.tagName==="A"&&attr.name.toLowerCase()==="href"&&/^https:\\/\\/i.test(attr.value)) return;
+   if(el.tagName==="A"&&attr.name.toLowerCase()==="href"&&/^https:\/\//i.test(attr.value)) return;
    el.removeAttribute(attr.name);
   });
   if(el.tagName==="A"){el.setAttribute("target","_blank");el.setAttribute("rel","noopener noreferrer");}
