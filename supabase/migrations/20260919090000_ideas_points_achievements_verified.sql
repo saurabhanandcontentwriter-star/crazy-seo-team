@@ -18,8 +18,9 @@ create policy "Public can read post achievements" on public.idea_post_achievemen
 create or replace function public.award_idea_post_points()
 returns trigger
 language plpgsql
-security invoker
-as $$
+security definer
+set search_path = pg_catalog, public
+as $
 declare
   awarded integer;
 begin
@@ -58,7 +59,9 @@ begin
   end if;
   return new;
 end;
-$$;
+$;
+
+revoke all on function public.award_idea_post_points() from public, anon, authenticated;
 
 drop trigger if exists ideas_post_points_trigger on public.idea_posts;
 create trigger ideas_post_points_trigger
