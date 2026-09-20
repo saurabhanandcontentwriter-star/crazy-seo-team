@@ -47,6 +47,7 @@ export default function IdeasAccount(){
       const publicId=createdProfile?.public_id||"";
       if(!publicId)throw new Error("Account created, but your unique Ideas ID could not be generated. Please contact support.");
       setCreatedId(publicId);
+      window.alert(`SAVE YOUR UNIQUE IDEAS ID\n\n${publicId}\n\nPlease save or screenshot this ID now. You will need it to open your Ideas account in the future.`);
       toast.success("Account created successfully. Save your unique Ideas ID.");
     }catch(e:any){toast.error(e?.message||"Could not create account.")}finally{setSaving(false)}
   };
