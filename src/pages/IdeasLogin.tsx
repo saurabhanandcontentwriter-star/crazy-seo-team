@@ -3,13 +3,14 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, LogIn, ShieldCheck } from "lucide-react";
+import { Loader2, LogIn, Mail, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 export default function IdeasLogin(){
   const nav=useNavigate();
   const [loading,setLoading]=useState(true);
   const [busy,setBusy]=useState(false);
+  const [email,setEmail]=useState("");
 
   useEffect(()=>{
     let active=true;
@@ -33,12 +34,16 @@ export default function IdeasLogin(){
   },[nav]);
 
   const signIn=async()=>{
+    const mail=email.trim().toLowerCase();
+    if(!mail)return toast.error("Enter your Ideas account email.");
     setBusy(true);
-    const {error}=await supabase.auth.signInWithOAuth({
-      provider:"google",
-      options:{redirectTo:window.location.origin+"/ideas/login"}
+    const {error}=await supabase.auth.signInWithOtp({
+      email:mail,
+      options:{emailRedirectTo:window.location.origin+"/ideas/login"}
     });
-    if(error){toast.error(error.message);setBusy(false)}
+    if(error)toast.error(error.message);
+    else toast.success("Login link sent. Check your email and open the link to continue.");
+    setBusy(false);
   };
 
   if(loading)return <div className="min-h-screen grid place-items-center bg-background"><Loader2 className="size-8 animate-spin text-primary"/></div>;
@@ -52,13 +57,22 @@ export default function IdeasLogin(){
         </div>
       </div>
       <CardContent className="space-y-5 p-6 md:p-8">
-        <Button className="h-12 w-full rounded-xl" onClick={signIn} disabled={busy}>
-          {busy?<Loader2 className="mr-2 size-4 animate-spin"/>:<LogIn className="mr-2 size-4"/>}
-          Continue with Google
-        </Button>
+        <div className="space-y-3">
+          <div>
+            <label className="text-sm font-semibold">Ideas Account Email</label>
+            <div className="relative mt-1">
+              <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground"/>
+              <input className="h-12 w-full rounded-xl border bg-background px-10 text-sm outline-none focus:ring-2 focus:ring-primary" type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email"/>
+            </div>
+          </div>
+          <Button className="h-12 w-full rounded-xl" onClick={signIn} disabled={busy}>
+            {busy?<Loader2 className="mr-2 size-4 animate-spin"/>:<LogIn className="mr-2 size-4"/>}
+            Send Login Link
+          </Button>
+        </div>
         <div className="rounded-2xl border bg-muted/30 p-4 text-sm text-muted-foreground">
           <ShieldCheck className="mr-2 inline size-4 text-primary"/>
-          Your Ideas account uses secure Supabase authentication. Your community profile is linked to your signed-in account.
+          Your Ideas account uses secure Supabase email authentication. Enter the email used for your Ideas ID and we will send a secure login link. No password is required.
         </div>
         <Link to="/ideas/account" className="block text-center text-sm font-semibold text-primary hover:underline">Create a new Ideas ID</Link>
         <Link to="/ideas" className="block text-center text-sm text-muted-foreground hover:underline">Back to Ideas</Link>
