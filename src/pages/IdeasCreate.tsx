@@ -31,8 +31,10 @@ export default function IdeasCreate() {
  };
 
  const submit=async()=>{
-   const plainContent=editorRef.current?.innerText?.trim()||""; const richContent=sanitizeRichHtml(editorRef.current?.innerHTML||content);\n   if(!title.trim()||!plainContent){toast.error("Title and idea content are required.");return}
-   if(title.length>180||plainContent.length>5000){toast.error("Title/content is too long.");return}\n   if(coverFile&&!imageAlt.trim()){toast.error("Add descriptive alt text for the cover image.");return}
+   const plainContent=editorRef.current?.innerText?.trim()||""; const richContent=sanitizeRichHtml(editorRef.current?.innerHTML||content);
+   if(!title.trim()||!plainContent){toast.error("Title and idea content are required.");return}
+   if(title.length>180||plainContent.length>5000){toast.error("Title/content is too long.");return}
+   if(coverFile&&!imageAlt.trim()){toast.error("Add descriptive alt text for the cover image.");return}
    setSaving(true);
    try{
      const{data:{user}}=await supabase.auth.getUser();
