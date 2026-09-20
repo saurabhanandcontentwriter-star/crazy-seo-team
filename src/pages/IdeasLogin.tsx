@@ -3,14 +3,14 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, LogIn, Mail, ShieldCheck } from "lucide-react";
+import { Loader2, LogIn, UserCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function IdeasLogin(){
   const nav=useNavigate();
   const [loading,setLoading]=useState(true);
   const [busy,setBusy]=useState(false);
-  const [email,setEmail]=useState("");
+  const [ideasId,setIdeasId]=useState("");
 
   useEffect(()=>{
     let active=true;
@@ -34,16 +34,16 @@ export default function IdeasLogin(){
   },[nav]);
 
   const signIn=async()=>{
-    const mail=email.trim().toLowerCase();
-    if(!mail)return toast.error("Enter your Ideas account email.");
+    const id=ideasId.trim().toUpperCase();
+    if(!id)return toast.error("Enter your Ideas ID.");
     setBusy(true);
-    const {error}=await supabase.auth.signInWithOtp({
-      email:mail,
-      options:{shouldCreateUser:false,emailRedirectTo:window.location.origin+"/ideas/login"}
-    });
-    if(error)toast.error(error.message);
-    else toast.success("Login link sent. Check your email and open the link to continue.");
-    setBusy(false);
+    try{
+      const {data:profile,error}=await supabase.from("idea_profiles").select("user_id,public_id,account_status").eq("public_id",id).maybeSingle();
+      if(error)throw error;
+      if(!profile){toast.error("Ideas ID not found. Please create your Ideas ID first.");return;}
+      if(profile.account_status==="banned"){toast.error("This Ideas account is currently banned.");return;}
+      nav("/ideas/profile/"+profile.user_id);
+    }catch(e:any){toast.error(e?.message||"Could not find this Ideas ID.");}finally{setBusy(false);}
   };
 
   if(loading)return <div className="min-h-screen grid place-items-center bg-background"><Loader2 className="size-8 animate-spin text-primary"/></div>;
@@ -53,26 +53,25 @@ export default function IdeasLogin(){
       <div className="bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-600 p-7 text-white">
         <div className="flex items-center gap-3">
           <span className="rounded-2xl bg-white/15 p-3"><LogIn/></span>
-          <div><h1 className="text-2xl font-black">Login to Ideas</h1><p className="text-sm text-white/80">Sign in to post, comment, like and join discussions.</p></div>
+          <div><h1 className="text-2xl font-black">Login to Ideas</h1><p className="text-sm text-white/80">Enter your existing Ideas ID to open your account.</p></div>
         </div>
       </div>
       <CardContent className="space-y-5 p-6 md:p-8">
         <div className="space-y-3">
           <div>
-            <label className="text-sm font-semibold">Ideas Account Email</label>
+            <label className="text-sm font-semibold">Ideas ID</label>
             <div className="relative mt-1">
-              <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground"/>
-              <input className="h-12 w-full rounded-xl border bg-background px-10 text-sm outline-none focus:ring-2 focus:ring-primary" type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="you@example.com" autoComplete="email"/>
+              <UserCircle2 className="absolute left-3 top-3 h-4 w-4 text-muted-foreground"/>
+              <input className="h-12 w-full rounded-xl border bg-background px-10 text-sm uppercase outline-none focus:ring-2 focus:ring-primary" value={ideasId} onChange={(e)=>setIdeasId(e.target.value)} placeholder="CST-XXXXXXXXXX" autoComplete="off" onKeyDown={(e)=>{if(e.key==="Enter")signIn()}}/>
             </div>
           </div>
           <Button className="h-12 w-full rounded-xl" onClick={signIn} disabled={busy}>
             {busy?<Loader2 className="mr-2 size-4 animate-spin"/>:<LogIn className="mr-2 size-4"/>}
-            Send Login Link
+            Open Ideas Account
           </Button>
         </div>
         <div className="rounded-2xl border bg-muted/30 p-4 text-sm text-muted-foreground">
-          <ShieldCheck className="mr-2 inline size-4 text-primary"/>
-          Your Ideas account uses secure Supabase email authentication. Enter the email used for your Ideas ID and we will send a secure login link. No password is required.
+          Enter an existing Ideas ID to open that account profile. If the ID does not exist, create an Ideas ID first.
         </div>
         <Link to="/ideas/account" className="block text-center text-sm font-semibold text-primary hover:underline">Create a new Ideas ID</Link>
         <Link to="/ideas" className="block text-center text-sm text-muted-foreground hover:underline">Back to Ideas</Link>
