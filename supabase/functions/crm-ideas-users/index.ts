@@ -113,11 +113,21 @@ Deno.serve(async (req) => {
 
       // Remove CRM membership instead of blocking deletion. This is what makes the
       // same account disappear from both Ideas and the CRM.
+      // Clear CRM references first so the team-member row can be removed safely.
+      const crmCleanup = [
+        admin.from("crm_activities").update({ team_member_id: null }).eq("team_member_id", id),
+        admin.from("crm_followups").update({ team_member_id: null }).eq("team_member_id", id),
+        admin.from("leads").update({ assigned_to: null }).eq("assigned_to", id),
+      ];
+      const crmResults = await Promise.all(crmCleanup);
+      const crmError = crmResults.find((r: any) => r.error)?.error;
+      if (crmError) return fail("CRM cleanup failed: " + crmError.message, 500);
+
       const { error: teamDeleteError } = await admin
         .from("crm_team_members")
         .delete()
         .eq("auth_user_id", id);
-      if (teamDeleteError) return fail("CRM cleanup failed: " + teamDeleteError.message, 500);
+      if (teamDeleteError) return fail("CRM membership deletion failed: " + teamDeleteError.message, 500);
 
       // Clear nullable references that should remain in history.
       const cleanup = [
