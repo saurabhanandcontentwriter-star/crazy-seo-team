@@ -1,6 +1,8 @@
 import {useEffect,useRef,useState} from "react";
 import {useNavigate,useParams} from "react-router-dom";
 import {supabase} from "@/integrations/supabase/client";
+import { firebaseAuth } from "@/integrations/firebase";
+import { signOut as firebaseSignOut } from "firebase/auth";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
@@ -85,7 +87,7 @@ export default function IdeasProfile(){
   load();
   return()=>{media.removeEventListener?.("change",onSystemChange);};
  },[userId]);
- const handleAuth=async()=>{if(me){const profileId=p?.user_id;const {error}=await supabase.auth.signOut();if(error){toast.error(error.message);return}setMe(null);toast.success("Logged out successfully.");if(profileId)nav("/ideas/profile/"+profileId,{replace:true});}else{nav("/ideas/login");}};
+ const handleAuth=async()=>{if(me){const profileId=p?.user_id;const {error}=await supabase.auth.signOut();if(error){toast.error(error.message);return}await firebaseSignOut(firebaseAuth).catch(()=>{});setMe(null);toast.success("Logged out successfully.");if(profileId)nav("/ideas/profile/"+profileId,{replace:true});}else{nav("/ideas/login");}};
  const toggleFollow=async()=>{if(!me||!p)return toast.error("Please sign in first.");if(following){const {error}=await supabase.from("idea_follows").delete().eq("follower_id",me).eq("following_id",p.user_id);if(error)toast.error(error.message);else{setFollowing(false);toast.success("Unfollowed.")}}else{const {error}=await supabase.from("idea_follows").insert({follower_id:me,following_id:p.user_id});if(error)toast.error(error.message);else{setFollowing(true);toast.success("Following.")}}};
  const respondFriend=async(requester:string,status:"accepted"|"rejected")=>{if(!me)return;const {error}=await supabase.from("idea_friendships").update({status,updated_at:new Date().toISOString()}).eq("requester_id",requester).eq("addressee_id",me);if(error)toast.error(error.message);else{setRequesters(x=>x.filter(y=>y.user_id!==requester));toast.success(status==="accepted"?"Friend request accepted.":"Friend request rejected.");}};
  const friend=async()=>{if(!me||!p)return toast.error("Please sign in first.");if(friendStatus==="accepted"||friendStatus==="pending")return;const {error}=await supabase.from("idea_friendships").insert({requester_id:me,addressee_id:p.user_id});if(error)toast.error(error.message);else{setFriendStatus("pending");toast.success("Friend request sent.")}};
