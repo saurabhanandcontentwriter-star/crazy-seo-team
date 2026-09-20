@@ -45,7 +45,7 @@ export default function IdeasProfile(){
  setLoading(false);
  const [verificationResult,postsResult,resharesResult,incomingResult]=await Promise.all([
   user&&id===user.id?supabase.from("idea_verification_requests").select("id,status,rejection_reason,created_at").eq("user_id",id).maybeSingle():Promise.resolve({data:null}),
-  supabase.from("idea_posts").select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status").eq("user_id",id).in("status",user&&id===user.id?["approved","pending"]:["approved"]).order("created_at",{ascending:false}),
+  supabase.from("idea_posts").select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status").eq("user_id",id).in("status",user&&id===user.id?["approved","pending","rejected"]:["approved"]).order("created_at",{ascending:false}),
   supabase.from("idea_post_reshares").select("post_id").eq("user_id",id).order("created_at",{ascending:false}),
   user&&id===user.id?supabase.from("idea_friendships").select("requester_id").eq("addressee_id",user.id).eq("status","pending"):Promise.resolve({data:[]})
  ]);
