@@ -13,7 +13,7 @@ export default function IdeasAccount(){
   const [firstName,setFirstName]=useState(""),[middleName,setMiddleName]=useState(""),[lastName,setLastName]=useState("");
   const [state,setState]=useState(""),[country,setCountry]=useState(""),[email,setEmail]=useState("");
   const [saving,setSaving]=useState(false),[deleting,setDeleting]=useState(false),[createdId,setCreatedId]=useState("");
-  const [checking,setChecking]=useState(true);
+  const [checking,setChecking]=useState(true),[currentUserId,setCurrentUserId]=useState("");
   const [banned,setBanned]=useState<{reason:string}|null>(null);
 
   useEffect(()=>{
@@ -21,10 +21,15 @@ export default function IdeasAccount(){
     (async()=>{
       const {data:{user}}=await supabase.auth.getUser();
       if(!user){if(active)setChecking(false);return}
-      const {data:profile}=await supabase.from("idea_profiles").select("account_status,ban_reason").eq("user_id",user.id).maybeSingle();
+      if(active){setCurrentUserId(user.id);setEmail(user.email||"");}
+      const {data:profile}=await supabase.from("idea_profiles").select("user_id,public_id,account_status,ban_reason,first_name,middle_name,last_name,state,country").eq("user_id",user.id).maybeSingle();
       if(!active)return;
       if(profile?.account_status==="banned") setBanned({reason:profile.ban_reason||""});
-      else if(profile) nav("/ideas/profile/me",{replace:true});
+      else if(profile){
+        setFirstName(profile.first_name||""); setMiddleName(profile.middle_name||""); setLastName(profile.last_name||""); setState(profile.state||""); setCountry(profile.country||"");
+        const complete=Boolean(profile.first_name?.trim()&&profile.last_name?.trim()&&profile.state?.trim()&&profile.country?.trim());
+        if(complete) nav("/ideas/profile/me",{replace:true});
+      }
       setChecking(false);
     })();
     return()=>{active=false};
@@ -36,7 +41,19 @@ export default function IdeasAccount(){
     setSaving(true);
     try{
       const existing=await supabase.auth.getUser();
-      if(existing.data.user)return toast.error("You already have an Ideas ID. Open your Profile to edit it.");
+      if(existing.data.user){
+        const profile=await supabase.from("idea_profiles").select("public_id").eq("user_id",existing.data.user.id).maybeSingle();
+        if(profile.error)throw profile.error;
+        if(!profile.data)throw new Error("Ideas profile is not ready yet. Please try Google login again.");
+        const update=await supabase.from("idea_profiles").update({
+          display_name:[first,middle,last].filter(Boolean).join(" "),
+          first_name:first,middle_name:middle,last_name:last,state:state.trim(),country:country.trim()
+        }).eq("user_id",existing.data.user.id);
+        if(update.error)throw update.error;
+        setCreatedId(profile.data.public_id||"");
+        toast.success("Ideas profile completed successfully.");
+        return;
+      }
       const {data,error}=await supabase.functions.invoke("idea-create-account",{body:{firstName:first,middleName:middle,lastName:last,state:state.trim(),country:country.trim(),email:mail}});
       if(error)throw error;
       if(data?.error)throw new Error(data.error);
