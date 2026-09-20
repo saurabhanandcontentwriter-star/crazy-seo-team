@@ -83,4 +83,9 @@ export default function IdeasAccount(){
       </Card>
     </div>
   </div>;
+}          </>}
+        </CardContent>
+      </Card>
+    </div>
+  </div>;
 }
