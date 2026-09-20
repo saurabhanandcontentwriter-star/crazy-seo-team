@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { firebaseAuth, googleProvider } from "@/integrations/firebase";
+import { signInWithPopup, signOut as firebaseSignOut } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, LogIn, UserCircle2 } from "lucide-react";
+import { Loader2, LogIn, UserCircle2, Mail } from "lucide-react";
 import { toast } from "sonner";
 
 export default function IdeasLogin(){
@@ -18,11 +20,11 @@ export default function IdeasLogin(){
       const {data:{user}}=await supabase.auth.getUser();
       if(!active)return;
       if(user){
-        const {data:profile}=await supabase.from("idea_profiles").select("user_id,account_status").eq("user_id",user.id).maybeSingle();
+        const {data:profile}=await supabase.from("idea_profiles").select("user_id,account_status,first_name,last_name,state,country").eq("user_id",user.id).maybeSingle();
         if(profile?.account_status==="banned"){
           toast.error("Your Ideas account is currently banned.");
           nav("/ideas/account",{replace:true});
-        }else if(profile){
+        }else if(profile && profile.first_name?.trim() && profile.last_name?.trim() && profile.state?.trim() && profile.country?.trim()){
           nav("/ideas/profile/me",{replace:true});
         }else{
           nav("/ideas/account",{replace:true});
@@ -32,6 +34,26 @@ export default function IdeasLogin(){
     })();
     return()=>{active=false};
   },[nav]);
+
+  const googleLogin=async()=>{
+    setBusy(true);
+    try{
+      const result=await signInWithPopup(firebaseAuth,googleProvider);
+      const idToken=await result.user.getIdToken(true);
+      const {data,error}=await supabase.functions.invoke("firebase-ideas-login",{body:{idToken}});
+      if(error) throw error;
+      if(data?.error) throw new Error(data.error);
+      if(!data?.session?.access_token||!data?.session?.refresh_token) throw new Error("Google login completed, but the Ideas session could not be created.");
+      const session=await supabase.auth.setSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token});
+      if(session.error) throw session.error;
+      toast.success("Google login successful.");
+      if(data.needsProfileCompletion) nav("/ideas/account",{replace:true});
+      else nav("/ideas/profile/me",{replace:true});
+    }catch(e:any){
+      await firebaseSignOut(firebaseAuth).catch(()=>{});
+      toast.error(e?.message||"Google login failed.");
+    }finally{setBusy(false)}
+  };
 
   const signIn=async()=>{
     const id=ideasId.trim().toUpperCase();
@@ -43,7 +65,7 @@ export default function IdeasLogin(){
       if(!profile){toast.error("Ideas ID not found. Please create your Ideas ID first.");return;}
       if(profile.account_status==="banned"){toast.error("This Ideas account is currently banned.");return;}
       nav("/ideas/profile/"+profile.user_id);
-    }catch(e:any){toast.error(e?.message||"Could not find this Ideas ID.");}finally{setBusy(false);}
+    }catch(e:any){toast.error(e?.message||"Could not find this Ideas ID.");}finally{setBusy(false)}
   };
 
   if(loading)return <div className="min-h-screen grid place-items-center bg-background"><Loader2 className="size-8 animate-spin text-primary"/></div>;
@@ -53,10 +75,15 @@ export default function IdeasLogin(){
       <div className="bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-600 p-7 text-white">
         <div className="flex items-center gap-3">
           <span className="rounded-2xl bg-white/15 p-3"><LogIn/></span>
-          <div><h1 className="text-2xl font-black">Login to Ideas</h1><p className="text-sm text-white/80">Enter your existing Ideas ID to open your account.</p></div>
+          <div><h1 className="text-2xl font-black">Login to Ideas</h1><p className="text-sm text-white/80">Sign in with Google or use your existing Ideas ID.</p></div>
         </div>
       </div>
       <CardContent className="space-y-5 p-6 md:p-8">
+        <Button className="h-12 w-full rounded-xl bg-white text-slate-900 shadow-sm hover:bg-slate-50" variant="outline" onClick={googleLogin} disabled={busy}>
+          {busy?<Loader2 className="mr-2 size-4 animate-spin"/>:<Mail className="mr-2 size-4"/>}
+          Continue with Google
+        </Button>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border"/><span>OR</span><span className="h-px flex-1 bg-border"/></div>
         <div className="space-y-3">
           <div>
             <label className="text-sm font-semibold">Ideas ID</label>
@@ -71,7 +98,7 @@ export default function IdeasLogin(){
           </Button>
         </div>
         <div className="rounded-2xl border bg-muted/30 p-4 text-sm text-muted-foreground">
-          Enter an existing Ideas ID to open that account profile. If the ID does not exist, create an Ideas ID first.
+          Google login securely connects your Google identity to the existing Crazy SEO Team Ideas account and keeps your Ideas posts in Supabase.
         </div>
         <Link to="/ideas/account" className="block text-center text-sm font-semibold text-primary hover:underline">Create a new Ideas ID</Link>
         <Link to="/ideas" className="block text-center text-sm text-muted-foreground hover:underline">Back to Ideas</Link>
