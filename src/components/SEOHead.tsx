@@ -17,7 +17,9 @@ const pageMeta: Record<string, { title: string; description: string; keywords: s
   "/blog": { title: "SEO & AI SEO Blog | Crazy SEO Team", description: "Read practical guides and insights about SEO, AI SEO, GEO, AEO, LLM optimization, content and digital marketing.", keywords: "SEO blog, AI SEO blog, GEO, AEO, LLM optimization, NLP, content strategy" },
   "/faq": { title: "SEO & AI SEO FAQs | Crazy SEO Team", description: "Answers to common questions about SEO, AI SEO, GEO, AEO, LLM optimization, audits and digital marketing.", keywords: "SEO FAQ, AI SEO FAQ, GEO FAQ, AEO FAQ, LLM SEO questions" },
   "/pricing": { title: "SEO & AI Services Pricing | Crazy SEO Team", description: "Explore Crazy SEO Team service options for SEO, AI SEO, content, automation and digital growth.", keywords: "SEO pricing, AI SEO pricing, SEO services, AI automation services" },
-  "/classifieds": { title: "Classifieds Marketplace | Buy, Sell & Discover | Crazy SEO Team", description: "Browse approved classified listings for products, services, jobs, property, vehicles, businesses and more across India.", keywords: "classifieds, marketplace, buy sell India, local services, products, jobs, property" },
+  "/classifieds": { title: "Classifieds Marketplace India | Buy, Sell, Jobs, Property & Services | Crazy SEO Team", description: "Browse approved classifieds across India for products, services, jobs, property, vehicles, businesses, education and more on Crazy SEO Team.", keywords: "classifieds India, online marketplace, buy sell India, jobs, property, cars, mobiles, services, business listings" },
+  "/ideas": { title: "ANVYA Ideas | Discover AI, SEO, Tech, Travel & Business Ideas | Crazy SEO Team", description: "Explore public ideas, questions, discussions and events across AI, SEO, technology, travel, science and economics on ANVYA by Crazy SEO Team.", keywords: "ANVYA Ideas, ideas platform, AI ideas, SEO ideas, technology ideas, travel ideas, business ideas, public discussions, questions, events" },
+  "/post-ad": { title: "Post an Ad in India | Classifieds Marketplace | Crazy SEO Team", description: "Create an account, complete your profile and submit a moderated classified ad for products, services, jobs, property, vehicles and businesses on Crazy SEO Team.", keywords: "post ad India, submit classified ad, free classified listing, sell online India, business listing, property listing, jobs listing" },
 };
 const faqSets: Record<string, Array<{ q: string; a: string }>> = {
   "/faq": [
@@ -75,7 +77,7 @@ export default function SEOHead() {
   const location = useLocation();
   const basePath = getBasePath(location.pathname);
   const [listing, setListing] = useState<any>(null);
-  const meta = pageMeta[basePath] ?? { title: `${BRAND} | AI SEO, GEO, AEO & Digital Growth`, description: "Crazy SEO Team helps businesses improve SEO, AI search visibility, content performance and digital growth.", keywords: CORE_TOPICS };
+  const isIdeas = basePath === "/ideas";\n  const isPostAd = basePath === "/post-ad";\n  const meta = pageMeta[basePath] ?? { title: `${BRAND} | AI SEO, GEO, AEO & Digital Growth`, description: "Crazy SEO Team helps businesses improve SEO, AI search visibility, content performance and digital growth.", keywords: CORE_TOPICS };
   const canonical = `${SITE}${location.pathname === "/" ? "/" : location.pathname.replace(/\/$/, "")}`;
   const faqs = faqSets[basePath] ?? [];
   const breadcrumbs = location.pathname.split("/").filter(Boolean).map((part, index, arr) => ({ name: part.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()), item: `${SITE}/${arr.slice(0, index + 1).join("/")}` }));
@@ -108,8 +110,8 @@ export default function SEOHead() {
   const organization = { "@context": "https://schema.org", "@type": "Organization", "@id": `${SITE}/#organization`, name: BRAND, url: SITE, description: "AI SEO, GEO, AEO, LLM optimization, semantic SEO, NLP and digital growth platform.", knowsAbout: CORE_TOPICS.split(", ").map((x) => x.trim()) };
   const websiteSchema = { "@context": "https://schema.org", "@type": "WebSite", "@id": `${SITE}/#website`, name: BRAND, url: SITE, description: "AI SEO, GEO, AEO, LLM optimization, semantic SEO and digital marketing platform.", publisher: { "@id": `${SITE}/#organization` }, inLanguage: "en-IN", potentialAction: { "@type": "SearchAction", target: `${SITE}/blog?search={search_term_string}`, "query-input": "required name=search_term_string" } };
   const webPageSchema = { "@context": "https://schema.org", "@type": "WebPage", "@id": `${canonical}#webpage`, url: canonical, name: listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title, description: listing?.description?.slice(0, 160) || meta.description, isPartOf: { "@id": `${SITE}/#website` }, about: { "@id": `${SITE}/#organization` }, inLanguage: "en-IN", keywords: listing ? [listing.category, listing.city, listing.state].filter(Boolean).join(", ") : meta.keywords };
-  const collectionSchema = useMemo(() => basePath === "/classifieds" ? { "@context": "https://schema.org", "@type": "CollectionPage", name: meta.title, url: canonical, description: meta.description, isPartOf: { "@type": "WebSite", name: BRAND, url: SITE } } : null, [basePath, canonical, meta.title, meta.description]);
-  const listingSchema = useMemo(() => listing ? {
+  const collectionSchema = useMemo(() => (basePath === "/classifieds" || isIdeas) ? { "@context": "https://schema.org", "@type": "CollectionPage", name: meta.title, url: canonical, description: meta.description, isPartOf: { "@type": "WebSite", name: BRAND, url: SITE } } : null, [basePath, canonical, meta.title, meta.description, isIdeas]);
+  const ideasSchema = isIdeas ? { "@context": "https://schema.org", "@type": "CollectionPage", "@id": `${SITE}/ideas#collection`, name: meta.title, url: canonical, description: meta.description, about: ["AI", "SEO", "Technology", "Travel", "Science", "Economics"], isPartOf: { "@id": `${SITE}/#website` }, publisher: { "@id": `${SITE}/#organization` } } : null;\n  const postAdSchema = isPostAd ? { "@context": "https://schema.org", "@type": "WebPage", "@id": `${SITE}/post-ad#webpage`, name: meta.title, url: canonical, description: meta.description, about: { "@type": "Thing", name: "Classified advertising" }, isPartOf: { "@id": `${SITE}/#website` } } : null;\n  const listingSchema = useMemo(() => listing ? {
     "@context": "https://schema.org", "@type": "Product", "@id": `${SITE}/listing/${listing.id}#product`, name: listing.title, description: listing.description, url: `${SITE}/listing/${listing.id}`, category: listing.category,
     ...(listing.price != null ? { offers: { "@type": "Offer", price: Number(listing.price), priceCurrency: "INR", availability: "https://schema.org/InStock", url: `${SITE}/listing/${listing.id}` } } : {}),
     ...(listing.seller_name ? { seller: { "@type": "Person", name: listing.seller_name } } : {}), ...(listing.business_name ? { brand: { "@type": "Brand", name: listing.business_name } } : {}),
@@ -133,7 +135,7 @@ export default function SEOHead() {
     <meta name="bingbot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="ai-content-declaration" content="AI-assisted SEO and content optimization may be used; factual claims should be verified against cited or authoritative sources." />
     <meta name="ai-topic" content={CORE_TOPICS} />
-    <meta name="content-language" content="en-IN" />
+    <meta name="content-language" content="en-IN" />\n    <meta name="geo.region" content="IN" />\n    <meta name="theme-color" content="#ffffff" />\n    <meta name="referrer" content="strict-origin-when-cross-origin" />
     <link rel="canonical" href={canonical} />
     <meta property="og:title" content={listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title} />
     <meta property="og:description" content={listing?.description?.slice(0, 160) || meta.description} />
@@ -148,7 +150,7 @@ export default function SEOHead() {
     <script type="application/ld+json">{JSON.stringify(organization)}</script>
     <script type="application/ld+json">{JSON.stringify(websiteSchema)}</script>
     <script type="application/ld+json">{JSON.stringify(webPageSchema)}</script>
-    {collectionSchema && <script type="application/ld+json">{JSON.stringify(collectionSchema)}</script>}
+{collectionSchema && <script type="application/ld+json">{JSON.stringify(collectionSchema)}</script>}\n    {ideasSchema && <script type="application/ld+json">{JSON.stringify(ideasSchema)}</script>}\n    {postAdSchema && <script type="application/ld+json">{JSON.stringify(postAdSchema)}</script>}
     {listingSchema && <script type="application/ld+json">{JSON.stringify(listingSchema)}</script>}
     {faqSchema && <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>}
     {breadcrumbSchema && <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>}
