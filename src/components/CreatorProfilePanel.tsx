@@ -76,15 +76,7 @@ export default function CreatorProfilePanel({
         data: { user },
       } = await supabase.auth.getUser();
 
-      // creator_applications was added in Supabase after the generated
-      // Database type file, so keep this isolated until types are regenerated.
-      const creatorDb = supabase as unknown as {
-        from: (table: string) => {
-          insert: (values: Record<string, unknown>) => Promise<{ error: { message: string } | null }>;
-        };
-      };
-
-      const { error } = await creatorDb.from("creator_applications").insert({
+      const { error } = await (supabase as any).from("creator_applications").insert({
         user_id: user?.id ?? null,
         name: name.trim(),
         email: email.trim(),
