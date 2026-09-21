@@ -35,7 +35,7 @@ export default function IdeasLogin(){
       if(!existing)throw new Error("No existing Ideas account was found for this Gmail. Please create an Ideas account first.");
       sessionStorage.setItem(sessionKey,JSON.stringify(existing));
       toast.success("Ideas account opened.");
-      nav("/ideas/profile/direct",{replace:true});
+      nav("/ideas/account",{replace:true});
     }catch(e:any){toast.error(e?.message||"Could not open Ideas account.");}
     finally{setBusy(false)}
   };
