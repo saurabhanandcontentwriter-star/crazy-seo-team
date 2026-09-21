@@ -25,7 +25,7 @@ function sanitizeRichHtml(input:string){
 export default function IdeasProfile(){
  const {userId}=useParams(); const nav=useNavigate();
  const [me,setMe]=useState<string|null>(null),[p,setP]=useState<Profile|null>(null),[verification,setVerification]=useState<any>(null),[posts,setPosts]=useState<Post[]>([]),[tab,setTab]=useState("posts"),[reshares,setReshares]=useState<Post[]>([]),[following,setFollowing]=useState(false),[friendStatus,setFriendStatus]=useState<string|null>(null),[edit,setEdit]=useState(false),[saving,setSaving]=useState(false),[loading,setLoading]=useState(true),[form,setForm]=useState<Partial<Profile>>({}),[avatarFile,setAvatarFile]=useState<File|null>(null),[coverFile,setCoverFile]=useState<File|null>(null),[requesters,setRequesters]=useState<Profile[]>([]);
- const [section,setSection]=useState("content"),[darkMode,setDarkMode]=useState(false),[language,setLanguage]=useState("English"),[region,setRegion]=useState("Global"),[draftCount,setDraftCount]=useState(0);
+ const [section,setSection]=useState("content"),[darkMode,setDarkMode]=useState(false),[language,setLanguage]=useState("English"),[region,setRegion]=useState("Global"),[draftCount,setDraftCount]=useState(0),[hasActiveStory,setHasActiveStory]=useState(false);
  const applyTheme=(mode:"light"|"dark"|"system")=>{
   const isDark=mode==="dark"||(mode==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);
   document.documentElement.classList.toggle("dark",isDark);
@@ -106,6 +106,12 @@ export default function IdeasProfile(){
  }
 };
  useEffect(()=>{
+  if(!p?.user_id){setHasActiveStory(false);return;}
+  let cancelled=false;
+  (async()=>{const {data}=await supabase.from("idea_stories").select("id").eq("user_id",p.user_id).gt("expires_at",new Date().toISOString()).limit(1);if(!cancelled)setHasActiveStory(!!data?.length)})();
+  return()=>{cancelled=true};
+ },[p?.user_id]);
+ useEffect(()=>{
   const saved=localStorage.getItem("ideas-draft-count");setDraftCount(saved?Number(saved)||0:0);
   setLanguage(localStorage.getItem("ideas-language")||"English");setRegion(localStorage.getItem("ideas-region")||"Global");
   const savedTheme=(localStorage.getItem("ideas-theme")||"system") as "light"|"dark"|"system";
@@ -133,7 +139,7 @@ export default function IdeasProfile(){
      <div className="relative h-44 bg-gradient-to-r from-blue-600/80 via-violet-600/80 to-fuchsia-600/70">{p.cover_url&&<img src={p.cover_url} className="size-full object-cover" alt="Cover"/>}{me===p.user_id&&edit&&<label className="absolute right-4 top-4 cursor-pointer rounded-xl bg-black/60 px-3 py-2 text-sm text-white"><Camera className="mr-2 inline size-4"/>Change Cover<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setCoverFile(e.target.files?.[0]||null)}/></label>}</div>
      <CardContent className="relative p-6">
       <div className="-mt-20 flex flex-col gap-4 md:flex-row md:items-end">
-       <div className="relative size-28 overflow-hidden rounded-3xl border-4 border-background bg-muted">
+       <div className={"relative size-28 overflow-hidden rounded-3xl border-4 border-background bg-muted "+(hasActiveStory?"ring-4 ring-pink-500 ring-offset-2 ring-offset-background":"")}>
         {p.avatar_url?<img src={p.avatar_url} className="size-full object-cover" alt={p.display_name}/>:<UserCircle2 className="size-full p-5 text-muted-foreground"/>}
         {me===p.user_id&&edit&&<label className="absolute inset-x-0 bottom-0 cursor-pointer bg-black/60 py-2 text-center text-xs text-white">Change<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setAvatarFile(e.target.files?.[0]||null)}/></label>}
         </div>
