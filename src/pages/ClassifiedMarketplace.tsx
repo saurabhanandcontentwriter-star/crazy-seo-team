@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { firebaseAuth, googleProvider } from "@/integrations/firebase";
-import { signInWithPopup } from "firebase/auth";
+import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,29 +22,16 @@ const BLOCKED_COUNTRIES=["pk","pakistan","bd","bangladesh","tr","turkey","türki
 const normalizeCountry=(v:string)=>v.trim().toLowerCase().replace(/\s+/g," ");
 const isBlockedCountry=(v:string)=>BLOCKED_COUNTRIES.includes(normalizeCountry(v));
 async function signInClassifiedWithGoogle(){
-  const result = await signInWithPopup(firebaseAuth, googleProvider);
-  const idToken = await result.user.getIdToken(true);
-  const { data, error } = await supabase.functions.invoke("firebase-ideas-login", { body: { idToken } });
-  if(error){
-    let message = error.message || "Google login failed.";
-    try{
-      const response = (error as any).context;
-      if(response && typeof response.clone === "function"){
-        const payload = await response.clone().json().catch(()=>null);
-        if(payload?.error) message = payload.error;
-      }
-    }catch{}
-    throw new Error(message);
+  const result=await lovable.auth.signInWithOAuth("google",{
+    redirect_uri: window.location.origin + "/post-ad",
+    extraParams:{prompt:"select_account"},
+  });
+  if(result?.error) throw result.error;
+  if(!result?.redirected){
+    const {data:{session}}=await supabase.auth.getSession();
+    if(!session) throw new Error("Google login did not create a session.");
   }
-  if(data?.error) throw new Error(data.error);
-  if(data?.session){
-    const { error: sessionError } = await supabase.auth.setSession({
-      access_token: data.session.access_token,
-      refresh_token: data.session.refresh_token,
-    });
-    if(sessionError) throw sessionError;
-  }
-  return data;
+  return result;
 }
 
 
