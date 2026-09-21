@@ -38,6 +38,13 @@ export default function IdeasAccount(){
   const [code,setCode]=useState("");
   const [codeSent,setCodeSent]=useState(false);
   const [verifying,setVerifying]=useState(false);
+  const [resendCooldown,setResendCooldown]=useState(0);
+
+  useEffect(()=>{
+    if(resendCooldown<=0)return;
+    const timer=window.setInterval(()=>setResendCooldown(v=>Math.max(0,v-1)),1000);
+    return()=>window.clearInterval(timer);
+  },[resendCooldown]);
 
   const makeIdeasId=()=>`CST-${Math.random().toString(36).slice(2,12).toUpperCase()}`;
 
@@ -45,6 +52,7 @@ export default function IdeasAccount(){
     const first=firstName.trim(),last=lastName.trim(),mail=email.trim().toLowerCase();
     if(!first||!last||!state.trim()||!country.trim()||!mail)return toast.error("First name, last name, state, country and email are required.");
     if(!/^[^\s@]+@gmail\.com$/i.test(mail))return toast.error("Please use a valid Gmail address.");
+    if(resendCooldown>0)return toast.info(`Please wait ${resendCooldown}s before requesting another code.`);
     setSaving(true);
     try{
       const existing=await supabase.from("idea_profiles").select("user_id").eq("email",mail).maybeSingle();
@@ -53,8 +61,13 @@ export default function IdeasAccount(){
       const {error}=await supabase.auth.signInWithOtp({email:mail,options:{shouldCreateUser:true,emailRedirectTo:"https://crazyseoteam.in/ideas/account"}});
       if(error)throw error;
       setCodeSent(true);
+      setResendCooldown(60);
       toast.success("Verification code sent to your Gmail.");
-    }catch(e:any){toast.error(e?.message||"Could not send verification code.");}
+    }catch(e:any){
+      const message=String(e?.message||"");
+      if(/rate limit|too many|email rate/i.test(message)) toast.error("Email rate limit reached. Please wait a few minutes before requesting another code.");
+      else toast.error(message||"Could not send verification code.");
+    }
     finally{setSaving(false);}
   };
 
@@ -124,7 +137,7 @@ export default function IdeasAccount(){
       <div className="space-y-3">
         <div className="grid gap-2"><Label>Gmail Verification Code *</Label><Input inputMode="numeric" maxLength={6} value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,"").slice(0,6))} placeholder="Enter 6-digit code"/></div>
         <Button className="w-full rounded-xl" onClick={submit} disabled={verifying}>{verifying?<Loader2 className="mr-2 size-4 animate-spin"/>:<ShieldCheck className="mr-2 size-4"/>}Verify Code & Create Account</Button>
-        <Button variant="outline" className="w-full rounded-xl" onClick={sendCode} disabled={saving}>Resend Code</Button>
+        <Button variant="outline" className="w-full rounded-xl" onClick={sendCode} disabled={saving||resendCooldown>0}>{resendCooldown>0?`Resend Code (${resendCooldown}s)`:"Resend Code"}</Button>
       </div>}
     <Button variant="ghost" className="w-full" onClick={()=>nav("/ideas")}>Back to Ideas</Button>
   </CardContent></Card></div></div>;
