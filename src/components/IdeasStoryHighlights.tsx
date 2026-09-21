@@ -32,6 +32,13 @@ export default function IdeasStoryHighlights({profileUserId,avatarUrl,displayNam
   if(storyMode==="text"&&!storyText.trim())return toast.error("Write something for your story.");
   setBusy(true);
   try{
+   let {data:{user}}=await supabase.auth.getUser();
+   if(!user){
+    const {data:anonData,error:anonError}=await supabase.auth.signInAnonymously();
+    if(anonError||!anonData.user)throw new Error("Secure Ideas session could not be created. Please log in again.");
+    user=anonData.user;
+   }
+   if(user.id!==profileUserId)throw new Error("Your Ideas session does not match this profile. Please log in again.");
    let mediaUrl:string|null=null;
    if(storyMode==="image"){
     if(!["image/jpeg","image/png","image/webp"].includes(storyFile!.type)||storyFile!.size>10*1024*1024)throw new Error("Use JPG, PNG or WEBP up to 10 MB.");
