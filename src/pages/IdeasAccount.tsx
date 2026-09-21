@@ -35,38 +35,54 @@ export default function IdeasAccount(){
     return()=>{active=false};
   },[nav]);
 
-  const submit=async()=>{
-    const first=firstName.trim(),middle=middleName.trim(),last=lastName.trim(),mail=email.trim().toLowerCase();
+  const [code,setCode]=useState("");
+  const [codeSent,setCodeSent]=useState(false);
+  const [verifying,setVerifying]=useState(false);
+
+  const makeIdeasId=()=>`CST-${Math.random().toString(36).slice(2,12).toUpperCase()}`;
+
+  const sendCode=async()=>{
+    const first=firstName.trim(),last=lastName.trim(),mail=email.trim().toLowerCase();
     if(!first||!last||!state.trim()||!country.trim()||!mail)return toast.error("First name, last name, state, country and email are required.");
+    if(!/^[^\\s@]+@gmail\\.com$/i.test(mail))return toast.error("Please use a valid Gmail address.");
     setSaving(true);
     try{
-      const existing=await supabase.auth.getUser();
-      if(existing.data.user){
-        const profile=await supabase.from("idea_profiles").select("public_id").eq("user_id",existing.data.user.id).maybeSingle();
-        if(profile.error)throw profile.error;
-        if(!profile.data)throw new Error("Ideas profile is not ready yet. Please try Google login again.");
-        const update=await supabase.from("idea_profiles").update({
-          display_name:[first,middle,last].filter(Boolean).join(" "),
-          first_name:first,middle_name:middle,last_name:last,state:state.trim(),country:country.trim()
-        }).eq("user_id",existing.data.user.id);
-        if(update.error)throw update.error;
-        setCreatedId(profile.data.public_id||"");
-        toast.success("Ideas profile completed successfully.");
-        return;
-      }
-      const {data,error}=await supabase.functions.invoke("idea-create-account",{body:{firstName:first,middleName:middle,lastName:last,state:state.trim(),country:country.trim(),email:mail}});
+      const existing=await supabase.from("idea_profiles").select("user_id").eq("email",mail).maybeSingle();
+      if(existing.error)throw existing.error;
+      if(existing.data)return toast.error("An Ideas account already exists for this Gmail. Please login with Gmail Code.");
+      const {error}=await supabase.auth.signInWithOtp({email:mail,options:{shouldCreateUser:true}});
       if(error)throw error;
-      if(data?.error)throw new Error(data.error);
-      if(!data?.password)throw new Error("Account was created but automatic login credentials were not returned.");
-      const login=await supabase.auth.signInWithPassword({email:mail,password:data.password});
-      if(login.error)throw login.error;
-      const {data:createdProfile}=await supabase.from("idea_profiles").select("public_id").eq("user_id",login.data.user.id).maybeSingle();
-      const publicId=createdProfile?.public_id||"";
-      if(!publicId)throw new Error("Account created, but your unique Ideas ID could not be generated. Please contact support.");
+      setCodeSent(true);
+      toast.success("Verification code sent to your Gmail.");
+    }catch(e:any){toast.error(e?.message||"Could not send verification code.");}
+    finally{setSaving(false);}
+  };
+
+  const submit=async()=>{
+    const first=firstName.trim(),middle=middleName.trim(),last=lastName.trim(),mail=email.trim().toLowerCase(),otp=code.trim();
+    if(!otp||otp.length!==6)return toast.error("Enter the 6-digit Gmail verification code.");
+    setVerifying(true);
+    try{
+      const {data,error}=await supabase.auth.verifyOtp({email:mail,token:otp,type:"email"});
+      if(error)throw error;
+      if(!data.user)throw new Error("Gmail verification failed. Please request a new code.");
+      const publicId=makeIdeasId();
+      const profile=await supabase.from("idea_profiles").insert({
+        user_id:data.user.id,email:mail,public_id:publicId,
+        display_name:[first,middle,last].filter(Boolean).join(" "),
+        first_name:first,middle_name:middle,last_name:last,
+        state:state.trim(),country:country.trim(),location:state.trim()+", "+country.trim(),
+        updated_at:new Date().toISOString()
+      });
+      if(profile.error){
+        await supabase.auth.signOut();
+        throw profile.error;
+      }
       setCreatedId(publicId);
-      window.alert(`SAVE YOUR UNIQUE IDEAS ID\n\n${publicId}\n\nPlease save or screenshot this ID now. You will need it to open your Ideas account in the future.`);
-      toast.success("Account created successfully. Save your unique Ideas ID.");
-    }catch(e:any){toast.error(e?.message||"Could not create account.")}finally{setSaving(false)}
+      window.alert(`SAVE YOUR UNIQUE IDEAS ID\\n\\n${publicId}\\n\\nPlease save or screenshot this ID now.`);
+      toast.success("Gmail verified and Ideas account created successfully.");
+    }catch(e:any){toast.error(e?.message||"Could not verify Gmail code.");}
+    finally{setVerifying(false);}
   };
 
   const permanentlyDelete=async()=>{
