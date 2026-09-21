@@ -46,9 +46,12 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
   };
   heartbeat();
   const timer=window.setInterval(heartbeat,30_000);
-  const offline=()=>{void supabase.from("idea_presence").update({online:false,last_seen_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("user_id",me)};
-  window.addEventListener("beforeunload",offline);
-  return()=>{active=false;window.clearInterval(timer);window.removeEventListener("beforeunload",offline);if(active)void supabase.from("idea_presence").update({online:false,last_seen_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("user_id",me)};
+  const setOffline=()=>{void supabase.from("idea_presence").update({online:false,last_seen_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("user_id",me)};
+  const setOnline=()=>{void heartbeat()};
+  const onVisibility=()=>{if(document.visibilityState==="visible")setOnline();else setOffline()};
+  window.addEventListener("beforeunload",setOffline);
+  document.addEventListener("visibilitychange",onVisibility);
+  return()=>{window.clearInterval(timer);window.removeEventListener("beforeunload",setOffline);document.removeEventListener("visibilitychange",onVisibility);setOffline()};
  },[me]);
 
  useEffect(()=>{
