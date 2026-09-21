@@ -55,9 +55,14 @@ export default function IdeasProfile(){
  if(!id){setLoading(false);nav("/ideas/account",{replace:true});return}
  const {data:profile}=await supabase.from("idea_profiles").select("user_id,display_name,first_name,middle_name,last_name,state,country,bio,avatar_url,cover_url,location,website_url,linkedin_url,github_url,instagram_url,twitter_url,date_of_birth,working,company,education,public_id,reputation_points,level,verified,account_status,banned_until").eq("user_id",id).maybeSingle();
  if(!profile&&user?.id===id){
-  const fallback={user_id:id,display_name:user.user_metadata?.full_name||user.email?.split("@")[0]||"Member"};
-  const {data:created}=await supabase.from("idea_profiles").upsert(fallback).select("user_id,display_name").single();
-  setP((created||fallback) as Profile);setForm((created||fallback) as Profile);
+  const fallback={user_id:user.id,display_name:user.user_metadata?.full_name||user.email?.split("@")[0]||"Member"};
+  const {data:created,error:createError}=await supabase.from("idea_profiles").insert(fallback).select("user_id,display_name").single();
+  if(createError){
+   console.warn("Ideas profile auto-create skipped:",createError.message);
+   setP(fallback as Profile);setForm(fallback as Profile);
+  }else{
+   setP((created||fallback) as Profile);setForm((created||fallback) as Profile);
+  }
  }else{setP(profile as Profile|null);setForm((profile||{}) as Profile)}
  if(!profile&&user?.id!==id){setLoading(false);return}
  setLoading(false);
