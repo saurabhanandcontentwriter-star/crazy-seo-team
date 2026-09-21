@@ -17,7 +17,9 @@ export default function IdeasAccount() {
   const [saving,setSaving]=useState(false),[deleting,setDeleting]=useState(false),[createdId,setCreatedId]=useState("");
   const [checking,setChecking]=useState(true),[banned,setBanned]=useState<{reason:string}|null>(null);
 
-  useEffect(()=>{(async()=>{\n    const direct=sessionStorage.getItem(sessionKey);\n    if(direct){try{const p=JSON.parse(direct);if(p?.public_id){setCreatedId(p.public_id);setEmail(p.email||"");setChecking(false);return;}}catch{sessionStorage.removeItem(sessionKey)}}
+  useEffect(()=>{(async()=>{
+const direct=sessionStorage.getItem(sessionKey);
+if(direct){try{const p=JSON.parse(direct);if(p?.public_id){setCreatedId(p.public_id);setEmail(p.email||"");setChecking(false);return;}}catch{sessionStorage.removeItem(sessionKey)}}
     const {data:{user}}=await supabase.auth.getUser();
     if(user){
       const {data:profile}=await supabase.from("idea_profiles").select("account_status").eq("user_id",user.id).maybeSingle();
