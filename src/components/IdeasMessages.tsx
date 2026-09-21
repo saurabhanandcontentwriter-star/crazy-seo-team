@@ -79,8 +79,8 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
   if(!q){setResults([]);return}
   let cancelled=false;
   const t=window.setTimeout(async()=>{
-   const {data}=await supabase.from("idea_profiles").select("user_id,display_name,avatar_url,public_id").neq("user_id",me).or("display_name.ilike.%"+q+"%,public_id.ilike.%"+q+"%").limit(8);
-   if(!cancelled)setResults((data as MsgProfile[])||[]);
+   const {data,error}=await supabase.rpc("search_ideas_directory",{p_query:q});
+   if(!cancelled){if(error){console.error("Ideas directory search failed:",error);setResults([])}else setResults(((data||[]) as any[]).filter(r=>r.user_id!==me).map(r=>({user_id:r.user_id,display_name:r.display_name||"Ideas Member",avatar_url:null,public_id:r.public_id,last_seen_at:r.last_seen_at})));}
   },250);
   return()=>{cancelled=true;window.clearTimeout(t)};
  },[search,me]);
