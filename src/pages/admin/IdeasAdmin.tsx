@@ -29,6 +29,7 @@ type Idea = {
   moderation_checked_at: string | null;
   moderation_links: any[] | null;
 };
+type CreatorApplication = { id: string; user_id: string | null; name: string; email: string; creator_types: string[]; bio: string | null; website_url: string | null; status: string; created_at: string; };
 
 const sanitizeRichHtml = (html: string) => {
   const doc = new DOMParser().parseFromString(html, "text/html");
@@ -57,6 +58,8 @@ export default function IdeasAdmin() {
   const [reason, setReason] = useState<Record<string, string>>({});
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
+  const [creatorApps, setCreatorApps] = useState<CreatorApplication[]>([]);
+  const [creatorBusy, setCreatorBusy] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -67,10 +70,32 @@ export default function IdeasAdmin() {
       .limit(300);
     if (error) toast.error(error.message);
     else setRows((data as Idea[]) || []);
+    const ca = await supabase.from("creator_applications").select("*").order("created_at", { ascending: false });
+    if (ca.error) toast.error(`Creator applications: ${ca.error.message}`);
+    setCreatorApps((ca.data || []) as CreatorApplication[]);
     setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
+
+  const reviewCreator = async (app: CreatorApplication, status: "approved" | "rejected") => {
+    setCreatorBusy(app.id);
+    const { error } = await supabase.from("creator_applications").update({ status, updated_at: new Date().toISOString() }).eq("id", app.id);
+    if (error) { toast.error(error.message); setCreatorBusy(null); return; }
+    if (status === "approved" && app.user_id) {
+      const { error: profileError } = await supabase.from("idea_profiles").update({
+        is_creator: true,
+        creator_types: app.creator_types || [],
+        creator_since: new Date().toISOString().slice(0, 10),
+        creator_rules_accepted_at: new Date().toISOString(),
+      }).eq("user_id", app.user_id);
+      if (profileError) { toast.error(`Application approved, but creator profile could not be activated: ${profileError.message}`); }
+      else toast.success("Creator approved and profile activated.");
+    } else if (status === "approved") toast.success("Creator approved. No linked Ideas account was found, so profile activation is pending account link.");
+    else toast.success("Creator application rejected.");
+    await load();
+    setCreatorBusy(null);
+  };
 
   const counts = {
     all: rows.length,
@@ -132,6 +157,36 @@ export default function IdeasAdmin() {
             </p>
           </div>
           <Button variant="outline" onClick={load}>Refresh</Button>
+        </div>
+      </Card>
+
+      <Card className="rounded-[24px] border bg-card p-5 md:p-6">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-primary"><ShieldCheck size={18} /> Creator Applications</div>
+            <h2 className="mt-1 text-2xl font-black">Creator Approval Queue</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Review creator subjects and approve or reject applications. Approved linked users become Creator profiles.</p>
+          </div>
+          <Badge variant="secondary">{creatorApps.filter(a => a.status === "pending").length} pending</Badge>
+        </div>
+        <div className="mt-4 space-y-3">
+          {creatorApps.length === 0 ? <div className="rounded-2xl border border-dashed p-5 text-center text-sm text-muted-foreground">No creator applications yet.</div> :
+            creatorApps.map(a => <div key={a.id} className="rounded-2xl border p-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-black">{a.name}</span>
+                <Badge variant={a.status === "approved" ? "default" : a.status === "rejected" ? "destructive" : "outline"}>{a.status}</Badge>
+                <span className="text-xs text-muted-foreground">{a.email}</span>
+                <span className="ml-auto text-xs text-muted-foreground">{new Date(a.created_at).toLocaleString()}</span>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">{(a.creator_types || []).map(t => <Badge key={t} variant="secondary">{t}</Badge>)}</div>
+              {a.bio && <p className="mt-3 text-sm text-muted-foreground whitespace-pre-wrap">{a.bio}</p>}
+              {a.website_url && <a href={a.website_url} target="_blank" rel="noreferrer" className="mt-2 inline-block text-sm text-primary underline">Portfolio ↗</a>}
+              {a.status === "pending" && <div className="mt-4 flex flex-wrap gap-2">
+                <Button onClick={() => reviewCreator(a, "approved")} disabled={creatorBusy === a.id}><Check className="mr-2 size-4" />Accept / Approve Creator</Button>
+                <Button variant="destructive" onClick={() => reviewCreator(a, "rejected")} disabled={creatorBusy === a.id}><X className="mr-2 size-4" />Reject Creator</Button>
+              </div>}
+            </div>)
+          }
         </div>
       </Card>
 
