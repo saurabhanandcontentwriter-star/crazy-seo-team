@@ -16,31 +16,7 @@ export default function IdeasAccount(){
   const [checking,setChecking]=useState(true),[currentUserId,setCurrentUserId]=useState("");
   const [banned,setBanned]=useState<{reason:string}|null>(null);
 
-  useEffect(()=>{
-    let active=true;
-    (async()=>{
-      const {data:{user}}=await supabase.auth.getUser();
-      if(!user){if(active)setChecking(false);return}
-      if(active){setCurrentUserId(user.id);setEmail(user.email||"");}
-      const {data:profile}=await supabase.from("idea_profiles").select("user_id,public_id,account_status,ban_reason,first_name,middle_name,last_name,state,country").eq("user_id",user.id).maybeSingle();
-      if(!active)return;
-      if(profile?.account_status==="banned") setBanned({reason:profile.ban_reason||""});
-      else if(profile){
-        setFirstName(profile.first_name||""); setMiddleName(profile.middle_name||""); setLastName(profile.last_name||""); setState(profile.state||""); setCountry(profile.country||"");
-        const complete=Boolean(profile.first_name?.trim()&&profile.last_name?.trim()&&profile.state?.trim()&&profile.country?.trim());
-        if(complete) nav("/ideas/profile/me",{replace:true});
-      }
-      setChecking(false);
-    })();
-    return()=>{active=false};
-  },[nav]);
-
-  const [code,setCode]=useState("");
-  const [codeSent,setCodeSent]=useState(false);
-  const [verifying,setVerifying]=useState(false);
-  const [resendCooldown,setResendCooldown]=useState(0);
-  const [otpFailures,setOtpFailures]=useState(0);
-  const [lockedUntil,setLockedUntil]=useState(0);
+  useEffect(()=>{\n    let active=true;\n    (async()=>{\n      const {data:{user}}=await supabase.auth.getUser();\n      if(!user){if(active)setChecking(false);return}\n      const pending=JSON.parse(sessionStorage.getItem("ideas_pending_signup")||"null");\n      if(pending?.email && user.email?.toLowerCase()===pending.email.toLowerCase()){\n        const existing=await supabase.from("idea_profiles").select("user_id").eq("user_id",user.id).maybeSingle();\n        if(!existing.data){\n          const publicId=`CST-${Math.random().toString(36).slice(2,12).toUpperCase()}`;\n          const profile=await supabase.from("idea_profiles").insert({user_id:user.id,email:user.email.toLowerCase(),public_id:publicId,display_name:[pending.firstName,pending.middleName,pending.lastName].filter(Boolean).join(" "),first_name:pending.firstName,middle_name:pending.middleName,last_name:pending.lastName,state:pending.state,country:pending.country,location:pending.state+", "+pending.country,updated_at:new Date().toISOString()});\n          if(!profile.error){sessionStorage.removeItem("ideas_pending_signup");setCreatedId(publicId);setCurrentUserId(user.id);setEmail(user.email||"");setChecking(false);return;}\n        }\n      }\n      if(active){setCurrentUserId(user.id);setEmail(user.email||"");}\n      const {data:profile}=await supabase.from("idea_profiles").select("user_id,public_id,account_status,ban_reason,first_name,middle_name,last_name,state,country").eq("user_id",user.id).maybeSingle();\n      if(!active)return;\n      if(profile?.account_status==="banned") setBanned({reason:profile.ban_reason||""});\n      else if(profile) nav("/ideas/profile/me",{replace:true});\n      setChecking(false);\n    })();\n    return()=>{active=false};\n  },[nav]);
 
   useEffect(()=>{
     const mail=email.trim().toLowerCase();
@@ -70,7 +46,8 @@ export default function IdeasAccount(){
       const existing=await supabase.from("idea_profiles").select("user_id").eq("email",mail).maybeSingle();
       if(existing.error)throw existing.error;
       if(existing.data)return toast.error("An Ideas account already exists for this Gmail. Please login with Gmail Code.");
-      const {error}=await supabase.auth.signInWithOtp({email:mail,options:{shouldCreateUser:true}});
+      sessionStorage.setItem("ideas_pending_signup",JSON.stringify({firstName:first,middleName,lastName,state:state.trim(),country:country.trim(),email:mail}));
+      const {error}=await supabase.auth.signInWithOtp({email:mail,options:{shouldCreateUser:true,emailRedirectTo:"https://crazyseoteam.in/ideas/account"}});
       if(error)throw error;
       setCodeSent(true);
       setResendCooldown(60);
@@ -81,39 +58,6 @@ export default function IdeasAccount(){
       else toast.error(message||"Could not send verification code.");
     }
     finally{setSaving(false);}
-  };
-
-  const submit=async()=>{
-    const first=firstName.trim(),middle=middleName.trim(),last=lastName.trim(),mail=email.trim().toLowerCase(),otp=code.trim();
-    if(!otp||otp.length!==6)return toast.error("Enter the 6-digit Gmail verification code.");
-    setVerifying(true);
-    try{
-      const {data,error}=await supabase.auth.verifyOtp({email:mail,token:otp,type:"email"});
-      if(error){
-        const next=otpFailures+1;
-        if(next>=3){const until=Date.now()+3*60*60*1000;localStorage.setItem(`ideas_otp_lock_${mail}`,String(until));setLockedUntil(until);setOtpFailures(next);localStorage.setItem(`ideas_otp_failures_${mail}`,String(next));throw new Error("3 incorrect verification attempts. Login/Create Account is locked for 3 hours.");}
-        setOtpFailures(next);localStorage.setItem(`ideas_otp_failures_${mail}`,String(next));
-        throw new Error(`Invalid verification code. ${3-next} attempt${3-next===1?"":"s"} remaining.`);
-      }
-      if(!data.user)throw new Error("Gmail verification failed. Please request a new code.");
-      localStorage.removeItem(`ideas_otp_failures_${mail}`);localStorage.removeItem(`ideas_otp_lock_${mail}`);setOtpFailures(0);setLockedUntil(0);
-      const publicId=makeIdeasId();
-      const profile=await supabase.from("idea_profiles").insert({
-        user_id:data.user.id,email:mail,public_id:publicId,
-        display_name:[first,middle,last].filter(Boolean).join(" "),
-        first_name:first,middle_name:middle,last_name:last,
-        state:state.trim(),country:country.trim(),location:state.trim()+", "+country.trim(),
-        updated_at:new Date().toISOString()
-      });
-      if(profile.error){
-        await supabase.auth.signOut();
-        throw profile.error;
-      }
-      setCreatedId(publicId);
-      window.alert(`SAVE YOUR UNIQUE IDEAS ID\\n\\n${publicId}\\n\\nPlease save or screenshot this ID now.`);
-      toast.success("Gmail verified and Ideas account created successfully.");
-    }catch(e:any){toast.error(e?.message||"Could not verify Gmail code.");}
-    finally{setVerifying(false);}
   };
 
   const permanentlyDelete=async()=>{
@@ -151,12 +95,8 @@ export default function IdeasAccount(){
     <div className="grid gap-4 md:grid-cols-2"><div className="grid gap-2"><Label>State *</Label><Input value={state} onChange={e=>setState(e.target.value)} placeholder="State"/></div><div className="grid gap-2"><Label>Country *</Label><Input value={country} onChange={e=>setCountry(e.target.value)} placeholder="Country"/></div></div>
     <div className="grid gap-2"><Label>Email *</Label><Input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></div>
     <div className="rounded-2xl border bg-muted/30 p-4 text-sm text-muted-foreground"><ShieldCheck className="mr-2 inline size-4 text-primary"/>A 6-digit verification code will be sent to your Gmail. Your Ideas account is created only after the code is verified.</div>
-    {!codeSent ? <Button className="w-full rounded-xl" onClick={sendCode} disabled={saving}>{saving?<Loader2 className="mr-2 size-4 animate-spin"/>:<ShieldCheck className="mr-2 size-4"/>}Send Gmail Verification Code</Button> :
-      <div className="space-y-3">
-        <div className="grid gap-2"><Label>Gmail Verification Code *</Label><Input inputMode="numeric" maxLength={6} value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,"").slice(0,6))} placeholder="Enter 6-digit code"/></div>
-        <Button className="w-full rounded-xl" onClick={submit} disabled={verifying||lockedUntil>Date.now()}>{verifying?<Loader2 className="mr-2 size-4 animate-spin"/>:<ShieldCheck className="mr-2 size-4"/>}Verify Code & Create Account</Button>
-        <Button variant="outline" className="w-full rounded-xl" onClick={sendCode} disabled={saving||resendCooldown>0||lockedUntil>Date.now()}>{lockedUntil>Date.now()?"Locked for 3 hours":resendCooldown>0?`Resend Code (${resendCooldown}s)`:"Resend Code"}</Button>
-      </div>}
+    {!codeSent ? <Button className="w-full rounded-xl" onClick={sendCode} disabled={saving}>{saving?<Loader2 className="mr-2 size-4 animate-spin"/>:<ShieldCheck className="mr-2 size-4"/>}Send Gmail Login Link</Button> :
+      <div className="rounded-2xl border bg-muted/30 p-4 text-sm text-muted-foreground">Check your Gmail and click the verification link. After you click it, your Ideas account will be created automatically.</div>}
     <Button variant="ghost" className="w-full" onClick={()=>nav("/ideas")}>Back to Ideas</Button>
   </CardContent></Card></div></div>;
 }
