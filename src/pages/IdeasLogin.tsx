@@ -42,11 +42,15 @@ export default function IdeasLogin(){
         extraParams:{prompt:"select_account"},
       });
       if(result?.error) throw result.error;
-      // When OAuth is configured, the browser is redirected to Google and then
-      // back to this page. Lovable auth syncs the Supabase session automatically.
       if(!result?.redirected){
         const {data:{session}}=await supabase.auth.getSession();
         if(!session) throw new Error("Google login did not create a session.");
+        const {data:profile,error}=await supabase.from("idea_profiles").select("user_id,account_status").eq("user_id",session.user.id).maybeSingle();
+        if(error) throw error;
+        if(!profile){
+          await supabase.auth.signOut();
+          throw new Error("No existing Ideas account was found for this Gmail. Please create an Ideas account first.");
+        }
       }
     }catch(e:any){
       toast.error(e?.message||"Google login failed.");
@@ -97,7 +101,7 @@ export default function IdeasLogin(){
           </Button>
         </div>
         <div className="rounded-2xl border bg-muted/30 p-4 text-sm text-muted-foreground">
-          Google login securely connects your Google identity to the existing Crazy SEO Team Ideas account and keeps your Ideas posts in Supabase.
+          Google login is only for existing Ideas accounts. A Gmail address cannot create a new Ideas account from this login screen.
         </div>
         <Link to="/ideas/account" className="block text-center text-sm font-semibold text-primary hover:underline">Create a new Ideas ID</Link>
         <Link to="/ideas" className="block text-center text-sm text-muted-foreground hover:underline">Back to Ideas</Link>
