@@ -29,7 +29,7 @@ type Idea = {
   moderation_checked_at: string | null;
   moderation_links: any[] | null;
 };
-type CreatorApplication = { id: string; user_id: string | null; name: string; email: string; creator_types: string[]; bio: string | null; website_url: string | null; status: string; created_at: string; };
+type CreatorApplication = { id: string; user_id: string | null; name: string; email: string; creator_types: string[]; bio: string | null; website_url: string | null; linkedin_url: string | null; github_url: string | null; medium_url: string | null; reddit_url: string | null; anvya_id: string | null; country: string | null; state: string | null; district: string | null; gender: string | null; date_of_birth: string | null; status: string; created_at: string; };
 
 const sanitizeRichHtml = (html: string) => {
   const doc = new DOMParser().parseFromString(html, "text/html");
@@ -180,7 +180,7 @@ export default function IdeasAdmin() {
               </div>
               <div className="mt-3 flex flex-wrap gap-2">{(a.creator_types || []).map(t => <Badge key={t} variant="secondary">{t}</Badge>)}</div>
               {a.bio && <p className="mt-3 text-sm text-muted-foreground whitespace-pre-wrap">{a.bio}</p>}
-              {a.website_url && <a href={a.website_url} target="_blank" rel="noreferrer" className="mt-2 inline-block text-sm text-primary underline">Portfolio ↗</a>}
+              {a.website_url && <a href={a.website_url} target="_blank" rel="noreferrer" className="mt-2 inline-block text-sm text-primary underline">Portfolio ↗</a>}<div className="mt-3 grid gap-2 text-sm md:grid-cols-2"><p><b>Location:</b> {[a.district,a.state,a.country].filter(Boolean).join(", ") || "Not shared"}</p><p><b>Gender:</b> {a.gender || "Not shared"}</p><p><b>Date of birth:</b> {a.date_of_birth ? new Date(a.date_of_birth + "T00:00:00").toLocaleDateString() : "Not shared"}</p><p><b>ANVYA ID:</b> {a.anvya_id || "Not shared"}</p></div><div className="mt-3 flex flex-wrap gap-3 text-sm">{a.linkedin_url && <a href={a.linkedin_url} target="_blank" rel="noreferrer" className="text-primary underline">LinkedIn ↗</a>}{a.github_url && <a href={a.github_url} target="_blank" rel="noreferrer" className="text-primary underline">GitHub ↗</a>}{a.medium_url && <a href={a.medium_url} target="_blank" rel="noreferrer" className="text-primary underline">Medium ↗</a>}{a.reddit_url && <a href={a.reddit_url} target="_blank" rel="noreferrer" className="text-primary underline">Reddit ↗</a>}</div>
               {a.status === "pending" && <div className="mt-4 flex flex-wrap gap-2">
                 <Button onClick={() => reviewCreator(a, "approved")} disabled={creatorBusy === a.id}><Check className="mr-2 size-4" />Accept / Approve Creator</Button>
                 <Button variant="destructive" onClick={() => reviewCreator(a, "rejected")} disabled={creatorBusy === a.id}><X className="mr-2 size-4" />Reject Creator</Button>
