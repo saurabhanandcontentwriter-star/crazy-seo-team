@@ -44,7 +44,9 @@ if(direct){try{const p=JSON.parse(direct);if(p?.public_id){setCreatedId(p.public
       if(registryError)throw registryError;
       sessionStorage.setItem(sessionKey,JSON.stringify(directProfile));
       setCreatedId(publicId);
-      toast.success("Ideas account created.");
+      sessionStorage.setItem("ideas_congratulations",JSON.stringify({public_id:publicId,display_name:directProfile.display_name}));
+      toast.success("🎉 Congratulations! Your Ideas ID is ready.");
+      nav("/ideas",{replace:true});
     }catch(e:any){toast.error(e?.message||"Could not create Ideas account.");}
     finally{setSaving(false)}
   };
