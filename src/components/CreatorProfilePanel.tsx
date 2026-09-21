@@ -64,7 +64,28 @@ export default function CreatorProfilePanel({profile,onUpdated}:{profile:Profile
     </div>
    </div>}
   </CardContent>
-  <Dialog open={formOpen} onOpenChange={setFormOpen}><DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>Become a Creator</DialogTitle></DialogHeader><div className="space-y-4"><p className="text-sm text-muted-foreground">Complete this creator application. It will be sent to the CRM Admin for review.</p><div className="grid gap-3 md:grid-cols-2"><Input value={name} onChange={e=>setName(e.target.value)} placeholder="Full name *"/><Input value={email} onChange={e=>setEmail(e.target.value)} placeholder="Email address *" type="email"/><Input value={country} onChange={e=>setCountry(e.target.value)} placeholder="Country *"/><Input value={state} onChange={e=>setState(e.target.value)} placeholder="State *"/><Input value={district} onChange={e=>setDistrict(e.target.value)} placeholder="District *"/><select value={gender} onChange={e=>setGender(e.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm"><option value="">Gender *</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option><option value="prefer_not_to_say">Prefer not to say</option></select><Input value={dob} onChange={e=>setDob(e.target.value)} type="date" aria-label="Date of birth *"/><Input value={anvyaId} onChange={e=>setAnvyaId(e.target.value)} placeholder="ANVYA ID (optional)"/></div><Input value={website} onChange={e=>setWebsite(e.target.value)} placeholder="Website / portfolio URL (optional)"/><div><p className="mb-2 text-sm font-bold">Social media profiles</p><div className="grid gap-3 md:grid-cols-2"><Input value={linkedin} onChange={e=>setLinkedin(e.target.value)} placeholder="LinkedIn URL (optional)"/><Input value={github} onChange={e=>setGithub(e.target.value)} placeholder="GitHub URL (optional)"/><Input value={medium} onChange={e=>setMedium(e.target.value)} placeholder="Medium URL (optional)"/><Input value={reddit} onChange={e=>setReddit(e.target.value)} placeholder="Reddit profile URL (optional)"/></div></div><Textarea value={bio} onChange={e=>setBio(e.target.value)} placeholder="Tell us about your creator work..." className="min-h-28"/><div className="rounded-xl border bg-muted/20 p-3 text-xs text-muted-foreground">By submitting, you agree to the Creator Rules shown on your profile. Admin review is required before creator status is activated.</div><Button className="w-full" onClick={submitApplication} disabled={saving}>{saving?"Sending to CRM Admin...":"Submit Creator Application"}</Button></div></DialogContent></Dialog>
- </CardContent>
+  <Dialog open={formOpen} onOpenChange={setFormOpen}>
+   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <DialogHeader><DialogTitle>Become a Creator</DialogTitle></DialogHeader>
+    <div className="space-y-4">
+     <p className="text-sm text-muted-foreground">Complete this creator application. It will be sent to the CRM Admin for review.</p>
+     <div className="grid gap-3 md:grid-cols-2">
+      <Input value={name} onChange={e=>setName(e.target.value)} placeholder="Full name *"/>
+      <Input value={email} onChange={e=>setEmail(e.target.value)} placeholder="Email address *" type="email"/>
+      <Input value={country} onChange={e=>setCountry(e.target.value)} placeholder="Country *"/>
+      <Input value={state} onChange={e=>setState(e.target.value)} placeholder="State *"/>
+      <Input value={district} onChange={e=>setDistrict(e.target.value)} placeholder="District *"/>
+      <select value={gender} onChange={e=>setGender(e.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm"><option value="">Gender *</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option><option value="prefer_not_to_say">Prefer not to say</option></select>
+      <Input value={dob} onChange={e=>setDob(e.target.value)} type="date" aria-label="Date of birth *"/>
+      <Input value={anvyaId} onChange={e=>setAnvyaId(e.target.value)} placeholder="ANVYA ID (optional)"/>
+     </div>
+     <Input value={website} onChange={e=>setWebsite(e.target.value)} placeholder="Website / portfolio URL (optional)"/>
+     <div><p className="mb-2 text-sm font-bold">Social media profiles</p><div className="grid gap-3 md:grid-cols-2"><Input value={linkedin} onChange={e=>setLinkedin(e.target.value)} placeholder="LinkedIn URL (optional)"/><Input value={github} onChange={e=>setGithub(e.target.value)} placeholder="GitHub URL (optional)"/><Input value={medium} onChange={e=>setMedium(e.target.value)} placeholder="Medium URL (optional)"/><Input value={reddit} onChange={e=>setReddit(e.target.value)} placeholder="Reddit profile URL (optional)"/></div></div>
+     <Textarea value={bio} onChange={e=>setBio(e.target.value)} placeholder="Tell us about your creator work..." className="min-h-28"/>
+     <div className="rounded-xl border bg-muted/20 p-3 text-xs text-muted-foreground">By submitting, you agree to the Creator Rules shown on your profile. Admin review is required before creator status is activated.</div>
+     <Button className="w-full" onClick={submitApplication} disabled={saving}>{saving?"Sending to CRM Admin...":"Submit Creator Application"}</Button>
+    </div>
+   </DialogContent>
+  </Dialog>
  </Card>;
 }
