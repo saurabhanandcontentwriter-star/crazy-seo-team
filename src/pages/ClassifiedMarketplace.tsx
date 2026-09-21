@@ -20,9 +20,6 @@ const HISTORY_KEY="cst_classified_my_posts";
 const BLOCKED_COUNTRIES=["pk","pakistan","bd","bangladesh","tr","turkey","türkiye","turkiye","ca","canada"];
 const normalizeCountry=(v:string)=>v.trim().toLowerCase().replace(/\s+/g," ");
 const isBlockedCountry=(v:string)=>BLOCKED_COUNTRIES.includes(normalizeCountry(v));
-  }
-  return result;
-}
 
 
 function useListings(){const[items,setItems]=useState<Listing[]>([]);const[loading,setLoading]=useState(true);const load=useCallback(async()=>{setLoading(true);try{const db=supabase as any;const{data,error}=await db.from("classified_listings").select("*").eq("status","active").order("created_at",{ascending:false}).limit(100);if(error)throw error;const ids=(data||[]).map((x:Listing)=>x.id);let media:any[]=[];if(ids.length){const r=await db.from("classified_media").select("*").in("listing_id",ids).order("sort_order");media=r.data||[]}setItems((data||[]).map((x:Listing)=>({...x,media:media.filter(m=>m.listing_id===x.id).map(m=>({id:m.id,type:m.media_type,url:m.public_url,name:m.storage_path}))})));}catch{setItems([])}finally{setLoading(false)}},[]);useEffect(()=>{load()},[load]);return{items,loading,reload:load}}
