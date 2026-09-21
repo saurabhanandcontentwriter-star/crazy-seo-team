@@ -34,9 +34,8 @@ export default function IdeasStoryHighlights({profileUserId,avatarUrl,displayNam
   try{
    let {data:{user}}=await supabase.auth.getUser();
    if(!user){
-    const {data:anonData,error:anonError}=await supabase.auth.signInAnonymously();
-    if(anonError||!anonData.user)throw new Error("Secure Ideas session could not be created. Please log in again.");
-    user=anonData.user;
+    // Stories are read-only for visitors; never block profile loading on anonymous auth.
+    return;
    }
    if(user.id!==profileUserId)throw new Error("Your Ideas session does not match this profile. Please log in again.");
    let mediaUrl:string|null=null;
