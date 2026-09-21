@@ -76,7 +76,7 @@ export default function CreatorProfilePanel({
         data: { user },
       } = await supabase.auth.getUser();
 
-      const { error } = await (supabase as any).from("creator_applications").insert({
+      const { error } = await supabase.from("creator_applications").insert({
         user_id: user?.id ?? null,
         name: name.trim(),
         email: email.trim(),
