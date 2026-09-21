@@ -68,7 +68,7 @@ export default function IdeasCreate() {
       <Link to="/ideas" className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground"><ArrowLeft size={16} /> Back to Ideas</Link>
       <div className="mb-7 flex items-start gap-4">
         <div className="rounded-2xl bg-gradient-to-br from-violet-600 to-blue-600 p-3 text-white shadow-lg"><Lightbulb /></div>
-        <div><p className="mb-1 text-xs font-bold uppercase tracking-[.18em] text-violet-600">Community • Ideas</p><h1 className="text-3xl font-black tracking-tight md:text-4xl">Share something worth building.</h1><p className="mt-2 max-w-2xl text-muted-foreground">Share ideas, questions and experiences across Technology, AI, SEO, Economics, Business, Science and more. Choose a normal Ideas subject for every post. Every submission is reviewed before it becomes public.</p></div>
+        <div><p className="mb-1 text-xs font-bold uppercase tracking-[.18em] text-violet-600">Community • Ideas</p><h1 className="text-3xl font-black tracking-tight md:text-4xl">Share something worth building.</h1><p className="mt-2 max-w-2xl text-muted-foreground">Share ideas, questions and experiences across Technology, AI, SEO, Economics, Business, Science and more. Every submission is reviewed before it becomes public.</p></div>
       </div>
       <Card className="overflow-hidden rounded-[30px] border-slate-200/80 bg-white/90 shadow-xl shadow-slate-200/40 backdrop-blur">
         <CardContent className="p-5 md:p-8">
