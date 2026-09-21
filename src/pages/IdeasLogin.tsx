@@ -30,23 +30,25 @@ export default function IdeasLogin(){
     if(!/^[^\s@]+@gmail\.com$/i.test(mail))return toast.error("Please use a valid Gmail address.");
     setBusy(true);
     try{
-      let {data:{user:sessionUser}}=await supabase.auth.getUser();
-      if(!sessionUser){
-        const {data:anonData,error:anonError}=await supabase.auth.signInAnonymously();
-        if(anonError)throw new Error("Ideas secure session could not be created. Please try again.");
-        sessionUser=anonData.user;
-      }
-      const {data:profile,error:profileError}=await supabase.from("idea_profiles").select("public_id,email,display_name,first_name,middle_name,last_name,state,country,location").eq("email",mail).maybeSingle();
+      const {data:profile,error:profileError}=await supabase.from("idea_profiles").select("user_id,public_id,email,display_name,first_name,middle_name,last_name,state,country,location").eq("email",mail).maybeSingle();
       if(profileError)throw profileError;
-      let existing=profile;
+      let existing:any=profile;
       if(!existing){
-        const {data:registry,error:registryLookupError}=await supabase.from("idea_account_registry").select("public_id,email,display_name,first_name,middle_name,last_name,state,country,location").eq("email",mail).maybeSingle();
+        const {data:registry,error:registryLookupError}=await supabase.from("idea_account_registry").select("user_id,public_id,email,display_name,first_name,middle_name,last_name,state,country,location").eq("email",mail).maybeSingle();
         if(registryLookupError)throw registryLookupError;
         existing=registry;
       }
       if(!existing)throw new Error("No Ideas account found for this Gmail. Create an Ideas ID first.");
-      const {error:registryError}=await supabase.from("idea_account_registry").update({user_id:sessionUser.id,last_seen_at:new Date().toISOString()}).eq("email",existing.email||mail);
-      if(registryError && !/duplicate key|already exists/i.test(registryError.message)) throw registryError;
+      let {data:{user:sessionUser}}=await supabase.auth.getUser();
+      if(!sessionUser){
+        const {data:anonData}=await supabase.auth.signInAnonymously();
+        sessionUser=anonData?.user||null;
+      }
+      if(sessionUser){
+        const {error:registryError}=await supabase.from("idea_account_registry").update({user_id:sessionUser.id,last_seen_at:new Date().toISOString()}).eq("email",existing.email||mail);
+        if(registryError && !/duplicate key|already exists/i.test(registryError.message)) throw registryError;
+        existing={...existing,user_id:sessionUser.id};
+      }
       sessionStorage.setItem(sessionKey,JSON.stringify(existing));
       toast.success("Ideas account opened.");
       nav("/ideas/profile/me",{replace:true});
