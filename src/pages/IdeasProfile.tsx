@@ -33,6 +33,17 @@ export default function IdeasProfile(){
  };
  const saveTheme=(mode:"light"|"dark"|"system")=>{localStorage.setItem("ideas-theme",mode);applyTheme(mode);};
  const load=async()=>{setLoading(true);
+ const directRaw=sessionStorage.getItem("ideas_direct_profile");
+ if((!userId||userId==="me")&&directRaw){
+  try{
+   const d=JSON.parse(directRaw);
+   if(d?.public_id){
+    const directId="00000000-0000-0000-0000-000000000001";
+    const directProfile={user_id:directId,display_name:d.display_name||"Ideas Member",first_name:d.first_name||null,middle_name:d.middle_name||null,last_name:d.last_name||null,state:d.state||null,country:d.country||null,bio:null,avatar_url:null,cover_url:null,location:d.location||[d.state,d.country].filter(Boolean).join(", "),website_url:null,linkedin_url:null,github_url:null,instagram_url:null,twitter_url:null,public_id:d.public_id,reputation_points:0,level:1,verified:false};
+    setMe(directId);setP(directProfile as Profile);setForm(directProfile as Profile);setPosts([]);setReshares([]);setRequesters([]);setVerification(null);setLoading(false);return;
+   }
+  }catch{sessionStorage.removeItem("ideas_direct_profile")}
+ }
  const {data:{user}}=await supabase.auth.getUser();
  setMe(user?.id||null);
  const id=!userId||userId==="me"?user?.id:userId;
