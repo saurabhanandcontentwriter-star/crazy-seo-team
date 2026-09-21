@@ -25,6 +25,7 @@ type ProfileLike = {
   creator_since?: string | null;
   creator_rules_accepted_at?: string | null;
   verified?: boolean | null;
+  reputation_points?: number | null;
 };
 
 export default function CreatorProfilePanel({
@@ -77,7 +78,11 @@ export default function CreatorProfilePanel({
 
       // creator_applications was added in Supabase after the generated
       // Database type file, so keep this isolated until types are regenerated.
-      const creatorDb = supabase as any;
+      const creatorDb = supabase as unknown as {
+        from: (table: string) => {
+          insert: (values: Record<string, unknown>) => Promise<{ error: { message: string } | null }>;
+        };
+      };
 
       const { error } = await creatorDb.from("creator_applications").insert({
         user_id: user?.id ?? null,
@@ -115,7 +120,7 @@ export default function CreatorProfilePanel({
   };
 
   const creatorStatusBadges = () => {
-    const points = Number((profile as ProfileLike & { reputation_points?: number }).reputation_points ?? 0);
+    const points = Number(profile.reputation_points ?? 0);
     const out: string[] = [creatorBadges[0][1]];
 
     if (profile.verified) out.push(creatorBadges[5][1]);
