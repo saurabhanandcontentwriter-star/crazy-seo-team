@@ -46,11 +46,7 @@ export default function IdeasProfile(){
       const {data:existingProfile}=await supabase.from("idea_profiles").select("*").eq("email",d.email).maybeSingle();
       storedProfile=existingProfile;
     }
-    if(!directUser){
-      const {data:anonData}=await supabase.auth.signInAnonymously();
-      directUser=anonData?.user||null;
-    }
-    const directId=storedProfile?.user_id||directUser?.id||d.user_id||crypto.randomUUID();
+    const directId=storedProfile?.user_id||d.user_id||directUser?.id||crypto.randomUUID();
     if(directUser&&d.email) void supabase.from("idea_account_registry").update({user_id:directId,last_seen_at:new Date().toISOString()}).eq("email",d.email);
     const directProfile={...(storedProfile||{}),user_id:directId,display_name:storedProfile?.display_name||d.display_name||"Ideas Member",first_name:storedProfile?.first_name||d.first_name||null,middle_name:storedProfile?.middle_name||d.middle_name||null,last_name:storedProfile?.last_name||d.last_name||null,state:storedProfile?.state||d.state||null,country:storedProfile?.country||d.country||null,bio:storedProfile?.bio||null,avatar_url:storedProfile?.avatar_url||null,cover_url:storedProfile?.cover_url||null,location:storedProfile?.location||d.location||[d.state,d.country].filter(Boolean).join(", "),website_url:storedProfile?.website_url||null,linkedin_url:storedProfile?.linkedin_url||null,github_url:storedProfile?.github_url||null,instagram_url:storedProfile?.instagram_url||null,twitter_url:storedProfile?.twitter_url||null,public_id:storedProfile?.public_id||d.public_id,reputation_points:storedProfile?.reputation_points||0,level:storedProfile?.level||1,verified:storedProfile?.verified||false};
     setMe(directId);setP(directProfile as Profile);setForm(directProfile as Profile);setPosts([]);setReshares([]);setRequesters([]);setVerification(null);setLoading(false);return;
