@@ -119,8 +119,13 @@ export default function IdeasAccount(){
     <div className="grid gap-4 md:grid-cols-3"><div className="grid gap-2"><Label>First Name *</Label><Input value={firstName} onChange={e=>setFirstName(e.target.value)} placeholder="First name"/></div><div className="grid gap-2"><Label>Middle Name</Label><Input value={middleName} onChange={e=>setMiddleName(e.target.value)} placeholder="Middle name"/></div><div className="grid gap-2"><Label>Last Name *</Label><Input value={lastName} onChange={e=>setLastName(e.target.value)} placeholder="Last name"/></div></div>
     <div className="grid gap-4 md:grid-cols-2"><div className="grid gap-2"><Label>State *</Label><Input value={state} onChange={e=>setState(e.target.value)} placeholder="State"/></div><div className="grid gap-2"><Label>Country *</Label><Input value={country} onChange={e=>setCountry(e.target.value)} placeholder="Country"/></div></div>
     <div className="grid gap-2"><Label>Email *</Label><Input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/></div>
-    <div className="rounded-2xl border bg-muted/30 p-4 text-sm text-muted-foreground"><ShieldCheck className="mr-2 inline size-4 text-primary"/>No password field is required. A secure random password is generated automatically and the account is logged in after submission.</div>
-    <Button className="w-full rounded-xl" onClick={submit} disabled={saving}>{saving?<Loader2 className="mr-2 size-4 animate-spin"/>:<UserPlus className="mr-2 size-4"/>}Create Account & Continue</Button>
+    <div className="rounded-2xl border bg-muted/30 p-4 text-sm text-muted-foreground"><ShieldCheck className="mr-2 inline size-4 text-primary"/>A 6-digit verification code will be sent to your Gmail. Your Ideas account is created only after the code is verified.</div>
+    {!codeSent ? <Button className="w-full rounded-xl" onClick={sendCode} disabled={saving}>{saving?<Loader2 className="mr-2 size-4 animate-spin"/>:<ShieldCheck className="mr-2 size-4"/>}Send Gmail Verification Code</Button> :
+      <div className="space-y-3">
+        <div className="grid gap-2"><Label>Gmail Verification Code *</Label><Input inputMode="numeric" maxLength={6} value={code} onChange={e=>setCode(e.target.value.replace(/\\D/g,"").slice(0,6))} placeholder="Enter 6-digit code"/></div>
+        <Button className="w-full rounded-xl" onClick={submit} disabled={verifying}>{verifying?<Loader2 className="mr-2 size-4 animate-spin"/>:<ShieldCheck className="mr-2 size-4"/>}Verify Code & Create Account</Button>
+        <Button variant="outline" className="w-full rounded-xl" onClick={sendCode} disabled={saving}>Resend Code</Button>
+      </div>
     <Button variant="ghost" className="w-full" onClick={()=>nav("/ideas")}>Back to Ideas</Button>
   </CardContent></Card></div></div>;
 }
