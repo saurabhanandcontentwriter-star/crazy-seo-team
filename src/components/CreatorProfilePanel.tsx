@@ -172,8 +172,6 @@ export default function CreatorProfilePanel({
         {!profile.is_creator && (
           <div className="mt-5 rounded-2xl border bg-muted/20 p-4">
             <p className="text-sm font-bold">Creator application</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-            </p>
             <blockquote className="mt-3 border-l-2 border-primary/40 pl-3 text-sm italic text-muted-foreground">
               “Your ideas can inspire the next big thing. Create with purpose, share with confidence, and let your voice make an impact.”
             </blockquote>
