@@ -39,11 +39,7 @@ export default function IdeasLogin(){
         existing=registry;
       }
       if(!existing)throw new Error("No Ideas account found for this Gmail. Create an Ideas ID first.");
-      let {data:{user:sessionUser}}=await supabase.auth.getUser();
-      if(!sessionUser){
-        const {data:anonData}=await supabase.auth.signInAnonymously();
-        sessionUser=anonData?.user||null;
-      }
+      const {data:{user:sessionUser}}=await supabase.auth.getUser();
       if(sessionUser){
         const {error:registryError}=await supabase.from("idea_account_registry").update({user_id:sessionUser.id,last_seen_at:new Date().toISOString()}).eq("email",existing.email||mail);
         if(registryError && !/duplicate key|already exists/i.test(registryError.message)) throw registryError;
