@@ -33,6 +33,8 @@ export default function IdeasLogin(){
       const {data:existing,error}=await supabase.from("idea_profiles").select("public_id,email,display_name,first_name,middle_name,last_name,state,country,location").eq("email",mail).maybeSingle();
       if(error)throw error;
       if(!existing)throw new Error("No existing Ideas account was found for this Gmail. Please create an Ideas account first.");
+      const {data:authUser}=await supabase.auth.getUser();
+      await supabase.from("idea_account_registry").upsert({public_id:existing.public_id,email:existing.email||mail,display_name:existing.display_name,first_name:existing.first_name,middle_name:existing.middle_name,last_name:existing.last_name,state:existing.state,country:existing.country,location:existing.location,user_id:authUser.user?.id||null,last_seen_at:new Date().toISOString()},{onConflict:"email"});
       sessionStorage.setItem(sessionKey,JSON.stringify(existing));
       toast.success("Ideas account opened.");
       nav("/ideas/account",{replace:true});
