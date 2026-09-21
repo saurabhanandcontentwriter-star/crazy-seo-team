@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { firebaseAuth, googleProvider } from "@/integrations/firebase";
-import { signInWithPopup, signOut as firebaseSignOut } from "firebase/auth";
+import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, LogIn, UserCircle2, Mail } from "lucide-react";
@@ -38,31 +37,21 @@ export default function IdeasLogin(){
   const googleLogin=async()=>{
     setBusy(true);
     try{
-      const result=await signInWithPopup(firebaseAuth,googleProvider);
-      const idToken=await result.user.getIdToken(true);
-      const {data,error}=await supabase.functions.invoke("firebase-ideas-login",{body:{idToken}});
-      if(error){
-        let message=error.message||"Google login service failed.";
-        try{
-          const response=(error as any).context;
-          if(response && typeof response.clone==="function"){
-            const payload=await response.clone().json().catch(()=>null);
-            if(payload?.error) message=payload.error;
-          }
-        }catch{}
-        throw new Error(message);
+      const result=await lovable.auth.signInWithOAuth("google",{
+        redirect_uri: window.location.origin + "/ideas/login",
+        extraParams:{prompt:"select_account"},
+      });
+      if(result?.error) throw result.error;
+      // When OAuth is configured, the browser is redirected to Google and then
+      // back to this page. Lovable auth syncs the Supabase session automatically.
+      if(!result?.redirected){
+        const {data:{session}}=await supabase.auth.getSession();
+        if(!session) throw new Error("Google login did not create a session.");
       }
-      if(data?.error) throw new Error(data.error);
-      if(!data?.session?.access_token||!data?.session?.refresh_token) throw new Error("Google login completed, but the Ideas session could not be created.");
-      const session=await supabase.auth.setSession({access_token:data.session.access_token,refresh_token:data.session.refresh_token});
-      if(session.error) throw session.error;
-      toast.success("Google login successful.");
-      if(data.needsProfileCompletion) nav("/ideas/account",{replace:true});
-      else nav("/ideas/profile/me",{replace:true});
     }catch(e:any){
-      await firebaseSignOut(firebaseAuth).catch(()=>{});
       toast.error(e?.message||"Google login failed.");
-    }finally{setBusy(false)}
+      setBusy(false);
+    }
   };
 
   const signIn=async()=>{
