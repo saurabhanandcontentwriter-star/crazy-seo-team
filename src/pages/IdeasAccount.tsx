@@ -56,13 +56,6 @@ export default function IdeasAccount(){
     const timer=window.setInterval(()=>setResendCooldown(v=>Math.max(0,v-1)),1000);
     return()=>window.clearInterval(timer);
   },[resendCooldown]);
-  const [resendCooldown,setResendCooldown]=useState(0);
-
-  useEffect(()=>{
-    if(resendCooldown<=0)return;
-    const timer=window.setInterval(()=>setResendCooldown(v=>Math.max(0,v-1)),1000);
-    return()=>window.clearInterval(timer);
-  },[resendCooldown]);
 
   const makeIdeasId=()=>`CST-${Math.random().toString(36).slice(2,12).toUpperCase()}`;
 
