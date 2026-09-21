@@ -39,7 +39,14 @@ export default function IdeasProfile(){
   try{
    const d=JSON.parse(directRaw);
    if(d?.public_id){
-    const directId="00000000-0000-0000-0000-000000000001";
+    let {data:{user:directUser}}=await supabase.auth.getUser();
+    if(!directUser){
+      const {data:anonData,error:anonError}=await supabase.auth.signInAnonymously();
+      if(anonError||!anonData.user){setLoading(false);toast.error("Secure Ideas session could not be created. Please log in again.");return;}
+      directUser=anonData.user;
+    }
+    const directId=directUser.id;
+    void supabase.from("idea_account_registry").update({user_id:directId,last_seen_at:new Date().toISOString()}).eq("email",d.email);
     const directProfile={user_id:directId,display_name:d.display_name||"Ideas Member",first_name:d.first_name||null,middle_name:d.middle_name||null,last_name:d.last_name||null,state:d.state||null,country:d.country||null,bio:null,avatar_url:null,cover_url:null,location:d.location||[d.state,d.country].filter(Boolean).join(", "),website_url:null,linkedin_url:null,github_url:null,instagram_url:null,twitter_url:null,public_id:d.public_id,reputation_points:0,level:1,verified:false};
     setMe(directId);setP(directProfile as Profile);setForm(directProfile as Profile);setPosts([]);setReshares([]);setRequesters([]);setVerification(null);setLoading(false);return;
    }
