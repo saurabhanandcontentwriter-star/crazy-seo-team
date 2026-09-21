@@ -46,7 +46,12 @@ export default function IdeasProfile(){
  }
  const {data:{user}}=await supabase.auth.getUser();
  setMe(user?.id||null);
- const id=!userId||userId==="me"?user?.id:userId;
+ let id:string|undefined=!userId||userId==="me"?user?.id:userId;
+ if(userId&&userId!=="me"&&!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(userId)){
+  const slug=decodeURIComponent(userId).trim().toLowerCase();
+  const {data:slugProfile}=await supabase.from("idea_profiles").select("user_id,display_name,first_name,middle_name,last_name,state,country,bio,avatar_url,cover_url,location,website_url,linkedin_url,github_url,instagram_url,twitter_url,date_of_birth,working,company,education,public_id,reputation_points,level,verified,account_status,banned_until,email").or(`public_id.eq.${slug.toUpperCase()},email.ilike.${slug}@gmail.com`).maybeSingle();
+  if(slugProfile?.user_id) id=slugProfile.user_id;
+ }
  if(!id){setLoading(false);nav("/ideas/account",{replace:true});return}
  const {data:profile}=await supabase.from("idea_profiles").select("user_id,display_name,first_name,middle_name,last_name,state,country,bio,avatar_url,cover_url,location,website_url,linkedin_url,github_url,instagram_url,twitter_url,date_of_birth,working,company,education,public_id,reputation_points,level,verified,account_status,banned_until").eq("user_id",id).maybeSingle();
  if(!profile&&user?.id===id){
