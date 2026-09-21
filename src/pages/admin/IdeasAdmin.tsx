@@ -32,7 +32,7 @@ type Idea = {
 type CreatorApplication = { id: string; user_id: string | null; name: string; email: string; creator_types: string[] | null; bio: string | null; website_url: string | null; linkedin_url: string | null; github_url: string | null; medium_url: string | null; reddit_url: string | null; anvya_id: string | null; country: string | null; state: string | null; district: string | null; gender: string | null; date_of_birth: string | null; status: string; created_at: string; };
 
 const sanitizeRichHtml = (html: string) => {
-  const doc = new DOMParser().parseFromString(html, "text/html");
+  const doc = new DOMParser().parseFromString(String(html ?? ""), "text/html");
   const allowed = ["P", "H1", "H2", "H3", "STRONG", "EM", "UL", "OL", "LI", "A", "BR"];
   doc.body.querySelectorAll("*").forEach((el) => {
     if (!allowed.includes(el.tagName)) {
@@ -69,14 +69,14 @@ export default function IdeasAdmin() {
       .order("created_at", { ascending: false })
       .limit(300);
     if (error) toast.error(error.message);
-    else setRows((data as Idea[]) || []);
+    else setRows(Array.isArray(data) ? (data as Idea[]) : []);
     const ca = await supabase.from("creator_applications").select("*").order("created_at", { ascending: false });
     if (ca.error) toast.error(`Creator applications: ${ca.error.message}`);
-    setCreatorApps((ca.data || []) as CreatorApplication[]);
+    setCreatorApps(Array.isArray(ca.data) ? (ca.data as CreatorApplication[]) : []);
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { void load(); }, []);
 
   const reviewCreator = async (app: CreatorApplication, status: "approved" | "rejected") => {
     setCreatorBusy(app.id);
