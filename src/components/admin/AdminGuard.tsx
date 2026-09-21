@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
 
 type State = "checking" | "allowed" | "denied";
 
@@ -84,11 +83,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
   }, []);
 
   if (state === "checking") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <Loader2 className="animate-spin text-blue-600" size={28} />
-      </div>
-    );
+    return <div className="min-h-screen bg-background" aria-busy="true" />;
   }
   if (state === "denied") {
     return <Navigate to="/admin/login" replace state={{ from: location.pathname }} />;
