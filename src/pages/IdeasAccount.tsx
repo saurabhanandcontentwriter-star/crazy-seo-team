@@ -39,6 +39,24 @@ export default function IdeasAccount(){
   const [codeSent,setCodeSent]=useState(false);
   const [verifying,setVerifying]=useState(false);
   const [resendCooldown,setResendCooldown]=useState(0);
+  const [otpFailures,setOtpFailures]=useState(0);
+  const [lockedUntil,setLockedUntil]=useState(0);
+
+  useEffect(()=>{
+    const mail=email.trim().toLowerCase();
+    if(!mail)return;
+    const raw=localStorage.getItem(`ideas_otp_lock_${mail}`);
+    if(raw){const until=Number(raw);if(until>Date.now())setLockedUntil(until);else localStorage.removeItem(`ideas_otp_lock_${mail}`);}
+    const failures=Number(localStorage.getItem(`ideas_otp_failures_${mail}`)||0);
+    setOtpFailures(failures);
+  },[email]);
+
+  useEffect(()=>{
+    if(resendCooldown<=0)return;
+    const timer=window.setInterval(()=>setResendCooldown(v=>Math.max(0,v-1)),1000);
+    return()=>window.clearInterval(timer);
+  },[resendCooldown]);
+  const [resendCooldown,setResendCooldown]=useState(0);
 
   useEffect(()=>{
     if(resendCooldown<=0)return;
@@ -52,6 +70,7 @@ export default function IdeasAccount(){
     const first=firstName.trim(),last=lastName.trim(),mail=email.trim().toLowerCase();
     if(!first||!last||!state.trim()||!country.trim()||!mail)return toast.error("First name, last name, state, country and email are required.");
     if(!/^[^\s@]+@gmail\.com$/i.test(mail))return toast.error("Please use a valid Gmail address.");
+    if(lockedUntil>Date.now())return toast.error(`Too many incorrect codes. Please try again after ${new Date(lockedUntil).toLocaleString()}.`);
     if(resendCooldown>0)return toast.info(`Please wait ${resendCooldown}s before requesting another code.`);
     setSaving(true);
     try{
@@ -77,8 +96,14 @@ export default function IdeasAccount(){
     setVerifying(true);
     try{
       const {data,error}=await supabase.auth.verifyOtp({email:mail,token:otp,type:"email"});
-      if(error)throw error;
+      if(error){
+        const next=otpFailures+1;
+        if(next>=3){const until=Date.now()+3*60*60*1000;localStorage.setItem(`ideas_otp_lock_${mail}`,String(until));setLockedUntil(until);setOtpFailures(next);localStorage.setItem(`ideas_otp_failures_${mail}`,String(next));throw new Error("3 incorrect verification attempts. Login/Create Account is locked for 3 hours.");}
+        setOtpFailures(next);localStorage.setItem(`ideas_otp_failures_${mail}`,String(next));
+        throw new Error(`Invalid verification code. ${3-next} attempt${3-next===1?"":"s"} remaining.`);
+      }
       if(!data.user)throw new Error("Gmail verification failed. Please request a new code.");
+      localStorage.removeItem(`ideas_otp_failures_${mail}`);localStorage.removeItem(`ideas_otp_lock_${mail}`);setOtpFailures(0);setLockedUntil(0);
       const publicId=makeIdeasId();
       const profile=await supabase.from("idea_profiles").insert({
         user_id:data.user.id,email:mail,public_id:publicId,
@@ -136,8 +161,8 @@ export default function IdeasAccount(){
     {!codeSent ? <Button className="w-full rounded-xl" onClick={sendCode} disabled={saving}>{saving?<Loader2 className="mr-2 size-4 animate-spin"/>:<ShieldCheck className="mr-2 size-4"/>}Send Gmail Verification Code</Button> :
       <div className="space-y-3">
         <div className="grid gap-2"><Label>Gmail Verification Code *</Label><Input inputMode="numeric" maxLength={6} value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,"").slice(0,6))} placeholder="Enter 6-digit code"/></div>
-        <Button className="w-full rounded-xl" onClick={submit} disabled={verifying}>{verifying?<Loader2 className="mr-2 size-4 animate-spin"/>:<ShieldCheck className="mr-2 size-4"/>}Verify Code & Create Account</Button>
-        <Button variant="outline" className="w-full rounded-xl" onClick={sendCode} disabled={saving||resendCooldown>0}>{resendCooldown>0?`Resend Code (${resendCooldown}s)`:"Resend Code"}</Button>
+        <Button className="w-full rounded-xl" onClick={submit} disabled={verifying||lockedUntil>Date.now()}>{verifying?<Loader2 className="mr-2 size-4 animate-spin"/>:<ShieldCheck className="mr-2 size-4"/>}Verify Code & Create Account</Button>
+        <Button variant="outline" className="w-full rounded-xl" onClick={sendCode} disabled={saving||resendCooldown>0||lockedUntil>Date.now()}>{lockedUntil>Date.now()?"Locked for 3 hours":resendCooldown>0?`Resend Code (${resendCooldown}s)`:"Resend Code"}</Button>
       </div>}
     <Button variant="ghost" className="w-full" onClick={()=>nav("/ideas")}>Back to Ideas</Button>
   </CardContent></Card></div></div>;
