@@ -50,7 +50,7 @@ export default function IdeasAccount(){
       const existing=await supabase.from("idea_profiles").select("user_id").eq("email",mail).maybeSingle();
       if(existing.error)throw existing.error;
       if(existing.data)return toast.error("An Ideas account already exists for this Gmail. Please login with Gmail Code.");
-      const {error}=await supabase.auth.signInWithOtp({email:mail,options:{shouldCreateUser:true}});
+      const {error}=await supabase.auth.signInWithOtp({email:mail,options:{shouldCreateUser:true,emailRedirectTo:"https://crazyseoteam.in/ideas/account"}});
       if(error)throw error;
       setCodeSent(true);
       toast.success("Verification code sent to your Gmail.");
