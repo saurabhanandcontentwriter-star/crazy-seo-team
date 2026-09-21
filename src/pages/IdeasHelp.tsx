@@ -10,7 +10,7 @@ type Msg={id?:string;sender_type:"customer"|"ai"|"admin";message:string;created_
 export default function IdeasHelp(){
  const [me,setMe]=useState<any>(null),[text,setText]=useState(""),[messages,setMessages]=useState<Msg[]>([]),[conversationId,setConversationId]=useState<string|null>(null),[busy,setBusy]=useState(false);
  const welcome="Hi! I’m the Crazy SEO Team Help Centre AI 👋\nI can help you with Ideas login, profile, profile links, posts, verification, communities and Crazy SEO Team services.\n\nAap apna question simple words mein pooch sakte hain — main step-by-step answer dunga.";
- const fallbackReply="Your support request has been received and saved successfully. I’m temporarily unable to generate the full AI response. Please try again in a moment — your conversation will remain available, so you won’t need to explain the issue again.";
+ const fallbackReply="Main aapki help karne ke liye yahan hoon. Apna issue simple words mein bataiye — main step-by-step solution dunga.";
  const sendWithRetry=async(body:any)=>{
   let lastError:any=null;
   for(let attempt=0;attempt<2;attempt++){
@@ -28,7 +28,7 @@ export default function IdeasHelp(){
  try{
   const data=await sendWithRetry({action:"chat",message,conversation_id:conversationId,email:me?.email,public_id:me?.public_id});
   setConversationId(data.conversation_id||conversationId);
-  setMessages(v=>[...v,{sender_type:"ai",message:data.reply||"I’m here to help."}]);
+  setMessages(v=>[...v,{sender_type:"ai",message:String(data.reply||"I’m here to help.").replace(/\*\*/g,"").replace(/\*/g,"")}]);
  }catch(e:any){
   setMessages(v=>[...v,{sender_type:"ai",message:fallbackReply}]);
  }
