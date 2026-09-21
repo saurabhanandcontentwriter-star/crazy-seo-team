@@ -3,55 +3,195 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, LogIn, Mail } from "lucide-react";
+import { Loader2, LogIn } from "lucide-react";
 import { toast } from "sonner";
 
 const sessionKey = "ideas_direct_profile";
 
-export default function IdeasLogin(){
-  const nav=useNavigate();
-  const [loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[email,setEmail]=useState("");
+function googleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
+      <path fill="#4285F4" d="M21.35 12.23c0-.71-.06-1.4-.18-2.05H12v3.88h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.7 2.91-4.2 2.91-7.22Z"/>
+      <path fill="#34A853" d="M12 21.75c2.63 0 4.84-.87 6.45-2.35l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.7-1.72-5.47-4.04H3.29v2.53A9.74 9.74 0 0 0 12 21.75Z"/>
+      <path fill="#FBBC05" d="M6.53 13.83A5.85 5.85 0 0 1 6.22 12c0-.64.11-1.26.31-1.83V7.64H3.29A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.05 1.04 4.36l3.24-2.53Z"/>
+      <path fill="#EA4335" d="M12 6.13c1.43 0 2.71.49 3.72 1.46l2.79-2.79C16.84 3.16 14.63 2.25 12 2.25a9.74 9.74 0 0 0-8.71 5.39l3.24 2.53C6.83 7.85 9 6.13 12 6.13Z"/>
+    </svg>
+  );
+}
 
-  useEffect(()=>{(async()=>{
-    const {data:{user}}=await supabase.auth.getUser();
-    if(user){
-      const {data:profile}=await supabase.from("idea_profiles").select("account_status").eq("user_id",user.id).maybeSingle();
-      if(profile?.account_status==="banned"){await supabase.auth.signOut();toast.error("Your Ideas account is banned.");}
-      else if(profile){nav("/ideas/profile/me",{replace:true});return}
+async function ensureIdeasProfile(user: { id: string; email?: string | null; user_metadata?: Record<string, any> }) {
+  const { data: existing, error: lookupError } = await supabase
+    .from("idea_profiles")
+    .select("user_id,public_id,display_name,email,avatar_url,account_status")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (lookupError) throw lookupError;
+  if (existing) {
+    if (existing.account_status === "banned") {
+      await supabase.auth.signOut();
+      throw new Error("Your Ideas account is banned.");
     }
-    const raw=sessionStorage.getItem(sessionKey);
-    if(raw){try{const p=JSON.parse(raw);if(p?.email) setEmail(p.email)}catch{}}
-    setLoading(false);
-  })()},[nav]);
+    return { profile: existing, created: false };
+  }
 
-  const login=async()=>{
-    const mail=email.trim().toLowerCase();
-    if(!mail)return toast.error("Enter your Gmail address.");
-    if(!/^[^\s@]+@gmail\.com$/i.test(mail))return toast.error("Please use a valid Gmail address.");
+  const metadata = user.user_metadata || {};
+  const displayName =
+    metadata.full_name ||
+    metadata.name ||
+    user.email?.split("@")[0] ||
+    "Ideas Member";
+  const firstName = metadata.first_name || metadata.given_name || displayName.split(" ")[0] || null;
+  const lastName = metadata.last_name || metadata.family_name || displayName.split(" ").slice(1).join(" ") || null;
+  const avatarUrl = metadata.avatar_url || metadata.picture || null;
+  const publicId = `CST-${user.id.replace(/-/g, "").slice(0, 10).toUpperCase()}`;
+
+  const { data: created, error: createError } = await supabase
+    .from("idea_profiles")
+    .insert({
+      user_id: user.id,
+      public_id: publicId,
+      display_name: displayName,
+      first_name: firstName,
+      last_name: lastName,
+      email: user.email || null,
+      avatar_url: avatarUrl,
+    })
+    .select("user_id,public_id,display_name,email,avatar_url,account_status")
+    .single();
+
+  if (createError) {
+    const { data: retry } = await supabase
+      .from("idea_profiles")
+      .select("user_id,public_id,display_name,email,avatar_url,account_status")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (retry) return { profile: retry, created: false };
+    throw createError;
+  }
+
+  return { profile: created, created: true };
+}
+
+export default function IdeasLogin() {
+  const nav = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!active) return;
+
+        if (user) {
+          const result = await ensureIdeasProfile(user);
+
+          if (!active) return;
+
+          sessionStorage.removeItem(sessionKey);
+          toast.success(result.created ? "Account created successfully!" : "Welcome back!");
+          nav("/ideas", { replace: true });
+          return;
+        }
+      } catch (error) {
+        if (active) toast.error(error instanceof Error ? error.message : "Could not open your Ideas account.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event !== "SIGNED_IN" || !session?.user) return;
+
+      window.setTimeout(async () => {
+        try {
+          const result = await ensureIdeasProfile(session.user);
+          toast.success(result.created ? "Account created successfully!" : "Welcome back!");
+          nav("/ideas", { replace: true });
+        } catch (error) {
+          toast.error(error instanceof Error ? error.message : "Could not create your Ideas profile.");
+        }
+      }, 0);
+    });
+
+    return () => {
+      active = false;
+      listener.subscription.unsubscribe();
+    };
+  }, [nav]);
+
+  const continueWithGoogle = async () => {
     setBusy(true);
-    try{
-      const {data:profile,error:profileError}=await supabase.from("idea_profiles").select("user_id,public_id,email,display_name,first_name,middle_name,last_name,state,country,location").eq("email",mail).maybeSingle();
-      if(profileError)throw profileError;
-      let existing:any=profile;
-      if(!existing){
-        const {data:registry,error:registryLookupError}=await supabase.from("idea_account_registry").select("user_id,public_id,email,display_name,first_name,middle_name,last_name,state,country,location").eq("email",mail).maybeSingle();
-        if(registryLookupError)throw registryLookupError;
-        existing=registry;
-      }
-      if(!existing)throw new Error("No Ideas account found for this Gmail. Create an Ideas ID first.");
-      const {data:{user:sessionUser}}=await supabase.auth.getUser();
-      if(sessionUser){
-        const {error:registryError}=await supabase.from("idea_account_registry").update({user_id:sessionUser.id,last_seen_at:new Date().toISOString()}).eq("email",existing.email||mail);
-        if(registryError && !/duplicate key|already exists/i.test(registryError.message)) throw registryError;
-        existing={...existing,user_id:sessionUser.id};
-      }
-      sessionStorage.setItem(sessionKey,JSON.stringify(existing));
-      toast.success("Ideas account opened.");
-      nav("/ideas/profile/me",{replace:true});
-    }catch(e:any){toast.error(e?.message||"Could not open Ideas account.");}
-    finally{setBusy(false)}
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/ideas/login`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "select_account",
+          },
+        },
+      });
+
+      if (error) throw error;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Google sign-in failed. Please try again.");
+      setBusy(false);
+    }
   };
 
-  if(loading)return <div className="min-h-screen grid place-items-center bg-background"><Loader2 className="size-8 animate-spin text-primary"/></div>;
-  return <div className="min-h-screen bg-gradient-to-b from-background via-background to-violet-50/50 grid place-items-center px-4"><Card className="w-full max-w-md overflow-hidden rounded-[28px] shadow-xl"><div className="bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-600 p-7 text-white"><h1 className="text-2xl font-black">Login to Ideas</h1><p className="mt-1 text-sm text-white/80">Enter your Gmail and open your Ideas account directly.</p></div><CardContent className="space-y-5 p-6 md:p-8"><div><label className="text-sm font-semibold">Gmail address</label><div className="relative mt-1"><Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground"/><input type="email" className="h-12 w-full rounded-xl border bg-background pl-10 pr-3 outline-none focus:ring-2 focus:ring-primary" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@gmail.com"/></div></div><div className="rounded-2xl border bg-muted/30 p-4 text-sm text-muted-foreground">Direct mode: no OTP, no verification email and no magic link.</div><Button className="h-12 w-full rounded-xl" onClick={login} disabled={busy}>{busy?<Loader2 className="mr-2 size-4 animate-spin"/>:<LogIn className="mr-2 size-4"/>}Open Ideas Account</Button><Link to="/ideas/account" className="block text-center text-sm font-semibold text-primary hover:underline">Create a new Ideas ID</Link><Link to="/ideas/help" className="block text-center text-sm font-semibold text-primary hover:underline">Help Centre</Link><Link to="/ideas" className="block text-center text-sm text-muted-foreground hover:underline">Back to Ideas</Link></CardContent></Card></div>
+  if (loading) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-background">
+        <Loader2 className="size-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-background via-background to-violet-50/50 grid place-items-center px-4 py-10">
+      <Card className="w-full max-w-md overflow-hidden rounded-[28px] shadow-xl">
+        <div className="bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-600 p-7 text-white">
+          <h1 className="text-2xl font-black">Welcome to Crazy SEO Team Ideas</h1>
+          <p className="mt-2 text-sm text-white/80">
+            Sign in or create your Ideas account in seconds.
+          </p>
+        </div>
+
+        <CardContent className="space-y-5 p-6 md:p-8">
+          <Button
+            type="button"
+            variant="outline"
+            className="h-12 w-full rounded-xl border-2 bg-background text-base font-semibold shadow-sm hover:bg-muted"
+            onClick={continueWithGoogle}
+            disabled={busy}
+          >
+            {busy ? <Loader2 className="mr-3 size-5 animate-spin" /> : <span className="mr-3">{googleIcon()}</span>}
+            {busy ? "Signing in…" : "Continue with Google"}
+          </Button>
+
+          <div className="rounded-2xl border bg-muted/30 p-4 text-center text-sm text-muted-foreground">
+            No password required. Your Google account securely handles sign-in.
+          </div>
+
+          <div className="flex items-center justify-center gap-4 text-sm">
+            <Link to="/ideas/help" className="font-semibold text-primary hover:underline">Help Centre</Link>
+            <span className="text-muted-foreground">•</span>
+            <Link to="/ideas" className="text-muted-foreground hover:underline">Back to Ideas</Link>
+          </div>
+
+          <p className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <LogIn className="size-3.5" />
+            Returning users keep the same Ideas ID.
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
