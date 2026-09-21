@@ -19,7 +19,14 @@ export default function IdeasLogin(){
       const {data:{user}}=await supabase.auth.getUser();
       if(!active)return;
       if(user){
+        const googleAttempt=new URLSearchParams(window.location.search).get("google")==="1";
         const {data:profile}=await supabase.from("idea_profiles").select("user_id,account_status,first_name,last_name,state,country").eq("user_id",user.id).maybeSingle();
+        if(googleAttempt && !profile){
+          await supabase.auth.signOut();
+          toast.error("No existing Ideas account was found for this Gmail. Please create an Ideas account first.");
+          setLoading(false);
+          return;
+        }
         if(profile?.account_status==="banned"){
           toast.error("Your Ideas account is currently banned.");
           nav("/ideas/account",{replace:true});
@@ -38,7 +45,7 @@ export default function IdeasLogin(){
     setBusy(true);
     try{
       const result=await lovable.auth.signInWithOAuth("google",{
-        redirect_uri: window.location.origin + "/ideas/login",
+        redirect_uri: window.location.origin + "/ideas/login?google=1",
         extraParams:{prompt:"select_account"},
       });
       if(result?.error) throw result.error;
