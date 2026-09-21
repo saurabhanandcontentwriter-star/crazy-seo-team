@@ -78,7 +78,7 @@ export default function CreatorProfilePanel({profile,onUpdated}:{profile:Profile
       <p className="mt-1 text-sm text-muted-foreground">{profile.is_creator?"Share your knowledge, ideas and original work with the Crazy SEO Team community.":"Turn your Ideas profile into a creator profile and choose the subjects you create about."}</p>
      </div>
     </div>
-    {profile.is_creator?<Button variant="outline" onClick={()=>setOpen(v=>!v)}>{open?<ChevronUp className="mr-2 size-4"/>:<ChevronDown className="mr-2 size-4"/>}{open?"Hide Creator Setup":"Manage Creator Profile"}</Button>:<Button onClick={()=>{setName(profile.user_id===profile.user_id?"":name);setEmail(email);setTypes(types.length?types:["tech"]);setFormOpen(true)}}>Become a Creator</Button>}
+    {profile.is_creator?<Button variant="outline" onClick={()=>setOpen(v=>!v)}>{open?<ChevronUp className="mr-2 size-4"/>:<ChevronDown className="mr-2 size-4"/>}{open?"Hide Creator Setup":"Manage Creator Profile"}</Button>:<Button onClick={()=>{setName(name);setEmail(email);setTypes(types.length?types:["tech"]);setFormOpen(true)}}>Become a Creator</Button>}
    </div>
    {profile.is_creator&&<div className="mt-4 flex flex-wrap gap-2">{creatorStatusBadges().map(x=><Badge key={x} variant="secondary">{x}</Badge>)}{types.map(k=>{const t=CREATOR_TYPES.find(x=>x.key===k);return t?<Badge key={k} variant="outline">{t.icon} {t.label}</Badge>:null})}</div>}
    {!profile.is_creator&&<div className="mt-5 rounded-2xl border bg-muted/20 p-4"><p className="text-sm font-bold">Creator application</p><p className="mt-1 text-xs text-muted-foreground">Choose your subjects and submit your creator profile. Your application will go directly to the CRM Admin review queue.</p></div>}
