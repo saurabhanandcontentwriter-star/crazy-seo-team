@@ -44,7 +44,7 @@ export default function IdeasAccount(){
   const sendCode=async()=>{
     const first=firstName.trim(),last=lastName.trim(),mail=email.trim().toLowerCase();
     if(!first||!last||!state.trim()||!country.trim()||!mail)return toast.error("First name, last name, state, country and email are required.");
-    if(!/^[^\\s@]+@gmail\\.com$/i.test(mail))return toast.error("Please use a valid Gmail address.");
+    if(!/^[^\s@]+@gmail\.com$/i.test(mail))return toast.error("Please use a valid Gmail address.");
     setSaving(true);
     try{
       const existing=await supabase.from("idea_profiles").select("user_id").eq("email",mail).maybeSingle();
@@ -122,10 +122,10 @@ export default function IdeasAccount(){
     <div className="rounded-2xl border bg-muted/30 p-4 text-sm text-muted-foreground"><ShieldCheck className="mr-2 inline size-4 text-primary"/>A 6-digit verification code will be sent to your Gmail. Your Ideas account is created only after the code is verified.</div>
     {!codeSent ? <Button className="w-full rounded-xl" onClick={sendCode} disabled={saving}>{saving?<Loader2 className="mr-2 size-4 animate-spin"/>:<ShieldCheck className="mr-2 size-4"/>}Send Gmail Verification Code</Button> :
       <div className="space-y-3">
-        <div className="grid gap-2"><Label>Gmail Verification Code *</Label><Input inputMode="numeric" maxLength={6} value={code} onChange={e=>setCode(e.target.value.replace(/\\D/g,"").slice(0,6))} placeholder="Enter 6-digit code"/></div>
+        <div className="grid gap-2"><Label>Gmail Verification Code *</Label><Input inputMode="numeric" maxLength={6} value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,"").slice(0,6))} placeholder="Enter 6-digit code"/></div>
         <Button className="w-full rounded-xl" onClick={submit} disabled={verifying}>{verifying?<Loader2 className="mr-2 size-4 animate-spin"/>:<ShieldCheck className="mr-2 size-4"/>}Verify Code & Create Account</Button>
         <Button variant="outline" className="w-full rounded-xl" onClick={sendCode} disabled={saving}>Resend Code</Button>
-      </div>
+      </div>}
     <Button variant="ghost" className="w-full" onClick={()=>nav("/ideas")}>Back to Ideas</Button>
   </CardContent></Card></div></div>;
 }
