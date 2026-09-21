@@ -21,7 +21,7 @@ export default function IdeasLogin(){
       const {data:existing,error:lookupError}=await supabase.from("idea_profiles").select("user_id").eq("email",mail).maybeSingle();
       if(lookupError)throw lookupError;
       if(!existing)throw new Error("No existing Ideas account was found for this Gmail. Please create an Ideas account first.");
-      const {error}=await supabase.auth.signInWithOtp({email:mail,options:{shouldCreateUser:false}});
+      const {error}=await supabase.auth.signInWithOtp({email:mail,options:{shouldCreateUser:false,emailRedirectTo:"https://crazyseoteam.in/ideas/login"}});
       if(error)throw error;
       setSent(true);toast.success("Verification code sent to your Gmail.");
     }catch(e:any){toast.error(e?.message||"Could not send verification code.");}finally{setBusy(false)}
