@@ -40,7 +40,7 @@ if(direct){try{const p=JSON.parse(direct);if(p?.public_id){setCreatedId(p.public
       if(existing)return toast.error("An Ideas account already exists for this Gmail. Please use Login.");
       const publicId=`CST-${Math.random().toString(36).slice(2,12).toUpperCase()}`;
       const directProfile={public_id:publicId,email:mail,display_name:[first,middle,last].filter(Boolean).join(" "),first_name:first,middle_name:middle,last_name:last,state:st,country:co,location:`${st}, ${co}`};
-      const {error:registryError}=await supabase.from("idea_account_registry").upsert({...directProfile,last_seen_at:new Date().toISOString()},{onConflict:"email"});
+      const {error:registryError}=await supabase.from("idea_account_registry").insert({...directProfile,last_seen_at:new Date().toISOString()});
       if(registryError)throw registryError;
       sessionStorage.setItem(sessionKey,JSON.stringify(directProfile));
       setCreatedId(publicId);
