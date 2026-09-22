@@ -56,7 +56,7 @@ export function PostAd(){
     if(lookupError) throw lookupError;
     if(existing){
       if(existing.status==="blocked") throw new Error("This Marketplace account is blocked by admin.");
-      const updates:any={user_id:user.id,last_seen_at:new Date().toISOString()};
+      const updates:any={last_seen_at:new Date().toISOString()};
       if(!existing.name) updates.name=name;
       if(!existing.profile_photo_url&&avatarUrl) updates.profile_photo_url=avatarUrl;
       const {error:updateError}=await db.from("classified_account_registry").update(updates).eq("id",existing.id);
@@ -70,7 +70,7 @@ export function PostAd(){
       setSignedIn(true);
       return merged;
     }
-    const record={user_id:user.id,public_id:makeId(),email,name,phone:"",profile_photo_url:avatarUrl,status:"approved"};
+    const record={public_id:makeId(),email,name,phone:"",profile_photo_url:avatarUrl,status:"approved"};
     const {data:created,error:createError}=await db.from("classified_account_registry").insert(record).select("id,public_id,name,email,phone,profile_photo_url,status").single();
     if(createError) throw createError;
     setAccountId(created.public_id);
