@@ -93,17 +93,17 @@ body:has(.cst-public-nav) .cst-3d-site :is(a,button,input,textarea,select):focus
   inset: 0;
   background: linear-gradient(100deg, transparent 20%, hsl(0 0% 100% / .72) 50%, transparent 80%);
   transform: translateX(-100%);
-  animation: cstAnnouncementSweep 7s ease-in-out infinite;
+  animation: none;
   pointer-events: none;
 }
 @keyframes cstAnnouncementSweep { 0%,45%{transform:translateX(-100%)} 65%,100%{transform:translateX(100%)} }
 
 /* International navbar */
-.cst-public-nav { box-shadow: 0 14px 45px -30px hsl(224 60% 20% / .38); }
+.cst-public-nav { box-shadow: 0 14px 45px -30px hsl(224 60% 20% / .38); transform: translateZ(0); backface-visibility: hidden; }
 .cst-public-nav .cst-nav-inner {
   background: hsl(0 0% 100% / .84);
-  backdrop-filter: blur(26px) saturate(175%);
-  -webkit-backdrop-filter: blur(26px) saturate(175%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border-bottom: 1px solid hsl(218 40% 92% / .72);
 }
 .cst-public-nav .cst-nav-pill {
@@ -112,9 +112,12 @@ body:has(.cst-public-nav) .cst-3d-site :is(a,button,input,textarea,select):focus
   min-width: 0;
   box-shadow: 0 10px 34px -24px hsl(224 60% 20% / .42), inset 0 1px 0 hsl(0 0% 100% / .9);
 }
-/* Keep the main navigation toolbar visible on desktop. The utility CTA area stays separate. */
-@media (max-width: 1023px) {
-  .cst-public-nav .cst-nav-pill { display: none; }
+/* Stable navigation toolbar: no flashing, layout reflow, or breakpoint toggling. */
+@media (min-width: 768px) {
+  .cst-public-nav .cst-nav-pill { display: flex !important; }
+}
+@media (max-width: 767px) {
+  .cst-public-nav .cst-nav-pill { display: none !important; }
 }
 .cst-public-nav .cst-nav-link { position: relative; }
 .cst-public-nav .cst-nav-link::after {
@@ -226,7 +229,7 @@ body:has(.cst-public-nav) ::-webkit-scrollbar-thumb {
 /* Mobile: retain clean international spacing */
 @media (max-width: 767px) {
   body:has(.cst-public-nav) .cst-3d-site h1 { letter-spacing: -.038em; }
-  .cst-public-nav .cst-nav-inner { min-height: 62px; }
+  .cst-public-nav .cst-nav-inner { min-height: 62px; backdrop-filter: none; -webkit-backdrop-filter: none; }
   body:has(.cst-public-nav) .cst-3d-site .rounded-2xl:hover,
   body:has(.cst-public-nav) .cst-3d-site .rounded-3xl:hover { transform: none; }
   body:has(.cst-public-nav) .cst-3d-site section:first-of-type::after { width: 260px; height: 260px; right: -130px; }
