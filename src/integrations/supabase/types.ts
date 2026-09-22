@@ -1503,6 +1503,35 @@ export type Database = {
         }
         Relationships: []
       }
+      idea_story_views: {
+        Row: {
+          id: string
+          story_id: string
+          viewer_id: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          story_id: string
+          viewer_id: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          story_id?: string
+          viewer_id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idea_story_views_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "idea_stories"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       idea_story_highlight_items: {
         Row: {
           created_at: string
