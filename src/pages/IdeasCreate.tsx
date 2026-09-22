@@ -11,6 +11,9 @@ import { ArrowLeft, ImagePlus, CalendarDays, Lightbulb, Loader2, Sparkles, Shiel
 
 export default function IdeasCreate() {
  const navigate=useNavigate();
+ const [authChecked,setAuthChecked]=useState(false);
+ const [currentUser,setCurrentUser]=useState<any>(null);
+ useEffect(()=>{supabase.auth.getUser().then(({data})=>{setCurrentUser(data.user||null);setAuthChecked(true);if(!data.user)navigate("/anvya/login?next=/anvya/create",{replace:true});});},[navigate]);
  const [subject,setSubject]=useState<string>("Technology");
  const [postType,setPostType]=useState<"post"|"question"|"event">("post"); const [visibility,setVisibility]=useState<"public"|"friends">("public");
  const [title,setTitle]=useState(""); const [content,setContent]=useState("");
@@ -74,6 +77,8 @@ export default function IdeasCreate() {
    }catch(e:any){toast.error(e?.message||"Could not submit idea.")}finally{setSaving(false)}
  };
 
+ if(!authChecked) return <div className="min-h-screen grid place-items-center"><Loader2 className="size-6 animate-spin"/></div>;
+ if(!currentUser) return null;
  return (
   <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-violet-50/40">
     <div className="container mx-auto max-w-4xl px-4 py-8 md:py-12">
