@@ -12,6 +12,7 @@ export type Attendance = {
   punch_out: string | null;
   total_seconds: number;
   status: "punched_in" | "punched_out";
+  work_status: "red" | "green";
   created_at: string;
   updated_at: string;
 };
