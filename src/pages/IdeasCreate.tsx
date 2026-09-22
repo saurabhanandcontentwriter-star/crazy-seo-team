@@ -40,10 +40,14 @@ export default function IdeasCreate() {
 
  const uploadImage=async(userId:string,file:File,kind:"cover")=>{
    if(!validateImage(file)) throw new Error("Use JPG, PNG or WEBP up to 5 MB.");
-   const ext=file.name.split(".").pop()||"jpg"; const path=`${userId}/${kind}-${crypto.randomUUID()}.${ext}`;
-   const upload=await supabase.storage.from("idea-images").upload(path,file,{contentType:file.type,upsert:false});
-   if(upload.error) throw upload.error;
-   return supabase.storage.from("idea-images").getPublicUrl(path).data.publicUrl;
+   const ext=(file.name.split(".").pop()||"jpg").toLowerCase();
+   const path=userId+"/"+kind+"-"+crypto.randomUUID()+"."+ext;
+   const storage=supabase.storage.from("idea-images");
+   const upload=await storage.upload(path,file,{contentType:file.type,cacheControl:"3600",upsert:false});
+   if(upload.error){console.error("ANVYA thumbnail upload failed",upload.error);throw new Error(upload.error.message||"Thumbnail upload failed. Please try again.");}
+   const url=storage.getPublicUrl(path).data.publicUrl;
+   if(!url) throw new Error("Thumbnail URL could not be created.");
+   return url;
  };
 
  const submit=async()=>{
