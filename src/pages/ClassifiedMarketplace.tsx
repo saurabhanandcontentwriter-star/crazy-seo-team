@@ -48,7 +48,7 @@ export function PostAd(){
   const ensureMarketplaceAccount=async(user:any)=>{
     const db=supabase as any;
     const email=String(user?.email||"").trim().toLowerCase();
-    if(!email||!/^[^\\s@]+@gmail\\.com$/i.test(email)) throw new Error("Please continue with a valid Gmail account.");
+    if(!email||!/^[^\s@]+@gmail\.com$/i.test(email)) throw new Error("Please continue with a valid Gmail account.");
     const metadata=user.user_metadata||{};
     const name=metadata.full_name||metadata.name||email.split("@")[0]||"Marketplace Member";
     const avatarUrl=metadata.avatar_url||metadata.picture||"";
