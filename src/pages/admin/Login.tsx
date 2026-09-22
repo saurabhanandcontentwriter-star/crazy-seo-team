@@ -30,12 +30,28 @@ export default function AdminLogin() {
   const [showPwd, setShowPwd] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  // If a valid session already exists, go straight to the dashboard.
+  // Only redirect an existing session when it is actually an admin.
+  // Redirecting every authenticated user to /admin causes a login <-> guard
+  // redirect loop when a normal user has a Supabase session but no admin role.
   useEffect(() => {
     let cancelled = false;
-    supabase.auth.getSession().then(({ data }) => {
-      if (!cancelled && data.session) navigate("/admin", { replace: true });
-    });
+
+    const checkAdminSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      const user = data.session?.user;
+      if (!user || cancelled) return;
+
+      const { data: isAdmin, error } = await supabase.rpc("has_role", {
+        _user_id: user.id,
+        _role: "admin",
+      });
+
+      if (!cancelled && !error && isAdmin === true) {
+        navigate("/admin", { replace: true });
+      }
+    };
+
+    checkAdminSession();
     return () => {
       cancelled = true;
     };
