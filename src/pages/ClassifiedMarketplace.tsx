@@ -87,7 +87,7 @@ export function PostAd(){
     try{
       const {error}=await supabase.auth.signInWithOAuth({
         provider:"google",
-        options:{redirectTo:`${window.location.origin}/post-ad`,queryParams:{access_type:"offline",prompt:"select_account"}}
+        options:{redirectTo:`${window.location.hostname==="localhost"||window.location.hostname==="127.0.0.1"?window.location.origin:"https://www.crazyseoteam.in"}/post-ad`,queryParams:{access_type:"offline",prompt:"select_account"}}
       });
       if(error) throw error;
     }catch(e:any){
