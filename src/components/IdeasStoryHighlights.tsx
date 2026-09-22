@@ -1,7 +1,7 @@
 import {useEffect,useMemo,useState} from "react";
 import {supabase} from "@/integrations/supabase/client";
 import {toast} from "sonner";
-import {Camera,ChevronLeft,ChevronRight,Eye,ImagePlus,Lock,Plus,Trash2,Users,X} from "lucide-react";
+import {Camera,ChevronLeft,ChevronRight,Eye,ImagePlus,Lock,Plus,Trash2,Users,X,UserCircle2} from "lucide-react";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
@@ -12,13 +12,33 @@ type HighlightItem={id:string;highlight_id:string;story_id:string|null;media_typ
 
 export default function IdeasStoryHighlights({profileUserId,avatarUrl,displayName,isOwner}:{profileUserId:string;avatarUrl?:string|null;displayName:string;isOwner:boolean}){
  const [stories,setStories]=useState<Story[]>([]),[highlights,setHighlights]=useState<Highlight[]>([]),[highlightItems,setHighlightItems]=useState<Record<string,HighlightItem[]>>({});
+ const [storyViews,setStoryViews]=useState<Record<string,{count:number;users:any[]}>>({});
  const [viewer,setViewer]=useState<{items:any[];index:number;title:string;storyId?:string}|null>(null);
  const [creator,setCreator]=useState(false),[storyMode,setStoryMode]=useState<"image"|"text">("image"),[storyFile,setStoryFile]=useState<File|null>(null),[storyPreview,setStoryPreview]=useState(""),[storyText,setStoryText]=useState(""),[visibility,setVisibility]=useState<Story["visibility"]>("public"),[busy,setBusy]=useState(false);
 
  const load=async()=>{
   const now=new Date().toISOString();
   const {data:s}=await supabase.from("idea_stories").select("id,user_id,media_type,media_url,text_content,visibility,created_at,expires_at").eq("user_id",profileUserId).gt("expires_at",now).order("created_at",{ascending:true});
-  setStories((s as Story[])||[]);
+  const storyRows=(s as Story[])||[];
+  setStories(storyRows);
+  if(isOwner&&storyRows.length){
+   const {data:v}=await (supabase as any).from("idea_story_views").select("story_id,viewer_id,viewed_at").in("story_id",storyRows.map(x=>x.id)).order("viewed_at",{ascending:false});
+   const rows=(v||[]) as any[];
+   const viewerIds=[...new Set(rows.map(x=>x.viewer_id))] as string[];
+   let profiles:any[]=[];
+   if(viewerIds.length){
+    const {data:vp}=await supabase.from("idea_profiles").select("user_id,display_name,public_id,avatar_url").in("user_id",viewerIds);
+    profiles=vp||[];
+   }
+   const pm=new Map(profiles.map(x=>[x.user_id,x]));
+   const grouped:Record<string,{count:number;users:any[]}>= {};
+   for(const row of rows){
+    const g=grouped[row.story_id]??={count:0,users:[]};
+    g.count++;
+    if(!g.users.some((u:any)=>u.user_id===row.viewer_id)) g.users.push({...row,profile:pm.get(row.viewer_id)});
+   }
+   setStoryViews(grouped);
+  }else setStoryViews({});
   const {data:h}=await supabase.from("idea_story_highlights").select("id,user_id,name,cover_url,created_at").eq("user_id",profileUserId).order("created_at",{ascending:true});
   const hs=(h as Highlight[])||[];setHighlights(hs);
   if(hs.length){const {data:items}=await supabase.from("idea_story_highlight_items").select("id,highlight_id,story_id,media_type,media_url,text_content,created_at").in("highlight_id",hs.map(x=>x.id)).order("created_at",{ascending:true});const grouped:Record<string,HighlightItem[]>={};for(const x of (items||[]) as HighlightItem[])(grouped[x.highlight_id]??=[]).push(x);setHighlightItems(grouped)}else setHighlightItems({});
@@ -26,6 +46,28 @@ export default function IdeasStoryHighlights({profileUserId,avatarUrl,displayNam
  useEffect(()=>{load()},[profileUserId]);
 
  const activeStory=stories.length>0;
+ const recordView=async(storyId:string)=>{
+  if(!isOwner){
+   const {data:{user}}=await supabase.auth.getUser();
+   if(user?.id) await (supabase as any).from("idea_story_views").upsert({story_id:storyId,viewer_id:user.id,viewed_at:new Date().toISOString()},{onConflict:"story_id,viewer_id"});
+  }
+ };
+ const openStoryAt=(index:number)=>{
+  if(!stories.length)return;
+  const safe=Math.max(0,Math.min(stories.length-1,index));
+  const story=stories[safe];
+  void recordView(story.id);
+  setViewer({items:stories,index:safe,title:displayName});
+ };
+ const moveStory=(delta:number)=>{
+  setViewer(v=>{
+   if(!v)return v;
+   const next=Math.max(0,Math.min(v.items.length-1,v.index+delta));
+   const item=v.items[next];
+   if(item?.id)void recordView(item.id);
+   return {...v,index:next};
+  });
+ };
  const createStory=async()=>{
   if(!isOwner)return;
   if(storyMode==="image"&&!storyFile)return toast.error("Choose a photo first.");
@@ -67,7 +109,7 @@ export default function IdeasStoryHighlights({profileUserId,avatarUrl,displayNam
   if(error&&!String(error.message).toLowerCase().includes("duplicate"))toast.error(error.message);else{toast.success("Added to "+h.name);await load()}
  };
  const deleteStory=async(id:string)=>{if(!isOwner)return;const {error}=await supabase.from("idea_stories").delete().eq("id",id).eq("user_id",profileUserId);if(error)toast.error(error.message);else{toast.success("Story deleted.");setViewer(null);await load()}};
- const openStories=()=>{if(stories.length)setViewer({items:stories,index:0,title:displayName})};
+ const openStories=()=>openStoryAt(0);
  const openHighlight=(h:Highlight)=>{const items=highlightItems[h.id]||[];if(items.length)setViewer({items,index:0,title:h.name})};
 
  return <div className="mt-5 rounded-2xl border bg-muted/10 p-4">
@@ -81,6 +123,21 @@ export default function IdeasStoryHighlights({profileUserId,avatarUrl,displayNam
 
   {creator&&<div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4" onClick={()=>setCreator(false)}><div className="w-full max-w-lg rounded-3xl bg-background p-5 shadow-2xl" onClick={e=>e.stopPropagation()}><div className="flex items-center justify-between"><h3 className="text-xl font-black">Create Story</h3><Button variant="ghost" size="icon" onClick={()=>setCreator(false)}><X/></Button></div><div className="mt-4 flex gap-2"><Button variant={storyMode==="image"?"default":"outline"} onClick={()=>setStoryMode("image")}><Camera className="mr-2 size-4"/>Photo</Button><Button variant={storyMode==="text"?"default":"outline"} onClick={()=>setStoryMode("text")}>Text Only</Button></div>{storyMode==="image"?<div className="mt-4 space-y-3"><label className="flex cursor-pointer items-center justify-center rounded-2xl border border-dashed p-8 text-sm"><ImagePlus className="mr-2"/>Choose photo<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>{const f=e.target.files?.[0]||null;setStoryFile(f);if(f)setStoryPreview(URL.createObjectURL(f))}}/></label>{storyPreview&&<img src={storyPreview} className="mx-auto max-h-72 rounded-2xl object-contain" alt="Preview"/>}</div>:<Textarea value={storyText} onChange={e=>setStoryText(e.target.value)} maxLength={1000} rows={8} className="mt-4" placeholder="Write your story..."/>}<div className="mt-4"><p className="mb-2 text-sm font-semibold">Privacy</p><div className="grid grid-cols-3 gap-2"><Button type="button" size="sm" variant={visibility==="public"?"default":"outline"} onClick={()=>setVisibility("public")}><Eye className="mr-1 size-3"/>Public</Button><Button type="button" size="sm" variant={visibility==="followers"?"default":"outline"} onClick={()=>setVisibility("followers")}><Users className="mr-1 size-3"/>Followers</Button><Button type="button" size="sm" variant={visibility==="private"?"default":"outline"} onClick={()=>setVisibility("private")}><Lock className="mr-1 size-3"/>Only me</Button></div></div><Button className="mt-5 w-full" onClick={createStory} disabled={busy}>{busy?"Publishing...":"Publish Story"}</Button></div></div>}
 
-  {viewer&&<div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/95 p-3" onClick={()=>setViewer(null)}><div className="relative flex h-[88vh] w-full max-w-md items-center justify-center" onClick={e=>e.stopPropagation()}>{viewer.items.length>1&&<Button variant="ghost" size="icon" className="absolute left-0 z-10 text-white hover:bg-white/10" onClick={()=>setViewer(v=>v&&{...v,index:Math.max(0,v.index-1)})}><ChevronLeft/></Button>}<div className="relative h-full w-full overflow-hidden rounded-3xl bg-neutral-900">{(()=>{const x=viewer.items[viewer.index];return x.media_type==="image"&&x.media_url?<img src={x.media_url} className="size-full object-contain" alt="Story"/>:<div className="flex size-full items-center justify-center bg-gradient-to-br from-violet-500/80 via-fuchsia-500/70 to-orange-400/80 p-10 text-center text-2xl font-black text-white">{x.text_content}</div>})()}<div className="absolute inset-x-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/70 to-transparent p-4 text-white"><div><p className="font-bold">{viewer.title}</p><p className="text-xs opacity-80">{new Date(viewer.items[viewer.index].created_at).toLocaleString()}</p></div><Button variant="ghost" size="icon" className="text-white hover:bg-white/10" onClick={()=>setViewer(null)}><X/></Button></div>{isOwner&&viewer.items[viewer.index]?.id&&viewer.title===displayName&&<div className="absolute inset-x-0 bottom-0 flex justify-center gap-2 bg-gradient-to-t from-black/70 to-transparent p-4"><Button size="sm" variant="secondary" onClick={()=>addToHighlight(viewer.items[viewer.index])}>Add to Highlight</Button><Button size="sm" variant="destructive" onClick={()=>deleteStory(viewer.items[viewer.index].id)}><Trash2 className="mr-1 size-4"/>Delete</Button></div>}</div>{viewer.items.length>1&&<Button variant="ghost" size="icon" className="absolute right-0 z-10 text-white hover:bg-white/10" onClick={()=>setViewer(v=>v&&{...v,index:Math.min(v.items.length-1,v.index+1)})}><ChevronRight/></Button>}</div></div>}
+  {viewer&&<div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/95 p-3" onClick={()=>setViewer(null)}><div className="relative flex h-[88vh] w-full max-w-md items-center justify-center" onClick={e=>e.stopPropagation()}>{viewer.items.length>1&&<Button variant="ghost" size="icon" className="absolute left-0 z-10 text-white hover:bg-white/10" onClick={()=>moveStory(-1)}><ChevronLeft/></Button>}<div className="relative h-full w-full overflow-hidden rounded-3xl bg-neutral-900">{(()=>{const x=viewer.items[viewer.index];return x.media_type==="image"&&x.media_url?<img src={x.media_url} className="size-full object-contain" alt="Story"/>:<div className="flex size-full items-center justify-center bg-gradient-to-br from-violet-500/80 via-fuchsia-500/70 to-orange-400/80 p-10 text-center text-2xl font-black text-white">{x.text_content}</div>})()}<div className="absolute inset-x-0 top-0 flex items-center justify-between bg-gradient-to-b from-black/70 to-transparent p-4 text-white"><div><p className="font-bold">{viewer.title}</p><p className="text-xs opacity-80">{new Date(viewer.items[viewer.index].created_at).toLocaleString()}</p></div><Button variant="ghost" size="icon" className="text-white hover:bg-white/10" onClick={()=>setViewer(null)}><X/></Button></div>{isOwner&&viewer.items[viewer.index]?.id&&viewer.title===displayName&&<div className="absolute inset-x-0 bottom-0 space-y-2 bg-gradient-to-t from-black/80 to-transparent p-4">
+ <div className="flex flex-wrap items-center justify-center gap-2">
+  {isOwner&&<Button size="sm" variant="secondary" onClick={()=>addToHighlight(viewer.items[viewer.index])}>Add to Highlight</Button>}
+  {isOwner&&<Button size="sm" variant="destructive" onClick={()=>deleteStory(viewer.items[viewer.index].id)}><Trash2 className="mr-1 size-4"/>Delete</Button>}
+ </div>
+ {isOwner&&storyViews[viewer.items[viewer.index]?.id]?.count>0&&<details className="mx-auto max-w-sm rounded-2xl bg-black/60 p-3 text-white backdrop-blur">
+  <summary className="flex cursor-pointer items-center justify-center gap-2 text-sm font-bold"><Eye className="size-4"/> {storyViews[viewer.items[viewer.index].id].count} {storyViews[viewer.items[viewer.index].id].count===1?"View":"Views"}</summary>
+  <div className="mt-3 max-h-40 space-y-2 overflow-y-auto">
+   {storyViews[viewer.items[viewer.index].id].users.map((u:any)=><div key={u.viewer_id} className="flex items-center gap-2 text-xs">
+    <span className="size-7 overflow-hidden rounded-full bg-white/20">{u.profile?.avatar_url?<img src={u.profile.avatar_url} alt="" className="size-full object-cover"/>:<UserCircle2 className="size-full p-1 text-white/80"/>}</span>
+    <span className="font-semibold">{u.profile?.display_name||u.profile?.public_id||"ANVYA User"}</span>
+    <span className="ml-auto opacity-70">{new Date(u.viewed_at).toLocaleString()}</span>
+   </div>)}
+  </div>
+ </details>}
+ </div>}</div>{viewer.items.length>1&&<Button variant="ghost" size="icon" className="absolute right-0 z-10 text-white hover:bg-white/10" onClick={()=>moveStory(1)}><ChevronRight/></Button>}</div></div>}
  </div>;
 }
