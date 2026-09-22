@@ -124,16 +124,24 @@ export default function IdeasLogin() {
     };
   }, [nav]);
 
+  // ANVYA authentication is permanently handled by Supabase Google OAuth.
+  // Keep this as the single login/create-account entry point for ANVYA.
   const continueWithGoogle = async () => {
+    if (busy) return;
     setBusy(true);
 
     try {
+      const productionOrigin = "https://www.crazyseoteam.in";
+      const isLocal =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1";
+      const redirectTo = `${isLocal ? window.location.origin : productionOrigin}/anvya/login`;
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/anvya/login`,
+          redirectTo,
           queryParams: {
-            access_type: "offline",
             prompt: "select_account",
           },
         },
@@ -173,11 +181,11 @@ export default function IdeasLogin() {
             disabled={busy}
           >
             {busy ? <Loader2 className="mr-3 size-5 animate-spin" /> : <span className="mr-3">{googleIcon()}</span>}
-            {busy ? "Connecting…" : "Create account / Log in with Gmail"}
+            {busy ? "Connecting to Google…" : "Create Account / Log In with Gmail"}
           </Button>
 
           <div className="rounded-2xl border bg-muted/30 p-4 text-center text-sm text-muted-foreground">
-            No separate password is required. Your Gmail / Google account securely handles ANVYA sign-in and account creation.
+            Use your Gmail / Google account to securely create or access your ANVYA account.
           </div>
 
           <div className="flex items-center justify-center gap-4 text-sm">
