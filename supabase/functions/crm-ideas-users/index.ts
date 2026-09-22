@@ -106,6 +106,22 @@ Deno.serve(async (req) => {
       return ok({ users: out, total: out.length });
     }
 
+    if (body.action === "delete_creator_application") {
+      const applicationId = String(body.application_id ?? "").trim();
+      if (!applicationId) return fail("Creator application ID required.");
+
+      const { error: deleteApplicationError } = await admin
+        .from("creator_applications")
+        .delete()
+        .eq("id", applicationId);
+
+      if (deleteApplicationError) {
+        return fail("Creator application deletion failed: " + deleteApplicationError.message, 500);
+      }
+
+      return ok({ success: true, deletedApplicationId: applicationId });
+    }
+
     if (body.action === "delete" || selfDelete) {
       const id = selfDelete ? actor.id : String(body.user_id ?? "").trim();
       if (!id) return fail("User ID required.");
