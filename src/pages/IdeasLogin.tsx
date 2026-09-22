@@ -160,7 +160,7 @@ export default function IdeasLogin() {
         <div className="bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-600 p-7 text-white">
           <h1 className="text-2xl font-black">Welcome to Crazy SEO Team Ideas</h1>
           <p className="mt-2 text-sm text-white/80">
-            Sign in or create your ANVYA account in seconds.
+            Sign in or create your ANVYA account securely with Gmail / Google.
           </p>
         </div>
 
@@ -173,11 +173,11 @@ export default function IdeasLogin() {
             disabled={busy}
           >
             {busy ? <Loader2 className="mr-3 size-5 animate-spin" /> : <span className="mr-3">{googleIcon()}</span>}
-            {busy ? "Signing in…" : "Continue with Google"}
+            {busy ? "Connecting…" : "Create account / Log in with Gmail"}
           </Button>
 
           <div className="rounded-2xl border bg-muted/30 p-4 text-center text-sm text-muted-foreground">
-            No password required. Your Google account securely handles sign-in.
+            No separate password is required. Your Gmail / Google account securely handles ANVYA sign-in and account creation.
           </div>
 
           <div className="flex items-center justify-center gap-4 text-sm">
