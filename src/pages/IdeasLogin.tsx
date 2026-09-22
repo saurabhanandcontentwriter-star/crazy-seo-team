@@ -30,7 +30,7 @@ async function ensureIdeasProfile(user: { id: string; email?: string | null; use
   if (existing) {
     if (existing.account_status === "banned") {
       await supabase.auth.signOut();
-      throw new Error("Your Ideas account is banned.");
+      throw new Error("Your ANVYA account is banned.");
     }
     return { profile: existing, created: false };
   }
@@ -94,11 +94,11 @@ export default function IdeasLogin() {
 
           sessionStorage.removeItem(sessionKey);
           toast.success(result.created ? "Account created successfully!" : "Welcome back!");
-          nav("/ideas", { replace: true });
+          nav("/anvya", { replace: true });
           return;
         }
       } catch (error) {
-        if (active) toast.error(error instanceof Error ? error.message : "Could not open your Ideas account.");
+        if (active) toast.error(error instanceof Error ? error.message : "Could not open your ANVYA account.");
       } finally {
         if (active) setLoading(false);
       }
@@ -111,9 +111,9 @@ export default function IdeasLogin() {
         try {
           const result = await ensureIdeasProfile(session.user);
           toast.success(result.created ? "Account created successfully!" : "Welcome back!");
-          nav("/ideas", { replace: true });
+          nav("/anvya", { replace: true });
         } catch (error) {
-          toast.error(error instanceof Error ? error.message : "Could not create your Ideas profile.");
+          toast.error(error instanceof Error ? error.message : "Could not create your ANVYA profile.");
         }
       }, 0);
     });
@@ -131,7 +131,7 @@ export default function IdeasLogin() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/ideas/login`,
+          redirectTo: `${window.location.origin}/anvya/login`,
           queryParams: {
             access_type: "offline",
             prompt: "select_account",
@@ -160,7 +160,7 @@ export default function IdeasLogin() {
         <div className="bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-600 p-7 text-white">
           <h1 className="text-2xl font-black">Welcome to Crazy SEO Team Ideas</h1>
           <p className="mt-2 text-sm text-white/80">
-            Sign in or create your Ideas account in seconds.
+            Sign in or create your ANVYA account in seconds.
           </p>
         </div>
 
@@ -181,14 +181,14 @@ export default function IdeasLogin() {
           </div>
 
           <div className="flex items-center justify-center gap-4 text-sm">
-            <Link to="/ideas/help" className="font-semibold text-primary hover:underline">Help Centre</Link>
+            <Link to="/anvya/help" className="font-semibold text-primary hover:underline">Help Centre</Link>
             <span className="text-muted-foreground">•</span>
-            <Link to="/ideas" className="text-muted-foreground hover:underline">Back to Ideas</Link>
+            <Link to="/anvya" className="text-muted-foreground hover:underline">Back to Ideas</Link>
           </div>
 
           <p className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <LogIn className="size-3.5" />
-            Returning users keep the same Ideas ID.
+            Returning users keep the same ANVYA ID.
           </p>
         </CardContent>
       </Card>
