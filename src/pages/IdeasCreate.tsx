@@ -55,12 +55,12 @@ export default function IdeasCreate() {
    try{
      const{data:{user}}=await supabase.auth.getUser();
      if(!user){toast.error("Create your Ideas ID and complete your profile before posting.");navigate("/anvya/account");return}
-     const profile=await supabase.from("idea_profiles").select("user_id,first_name,middle_name,last_name,state,country,account_status,banned_until,is_creator,creator_types").eq("user_id",user.id).maybeSingle();
+     const profile=await supabase.from("idea_profiles").select("user_id,public_id,first_name,middle_name,last_name,state,country,account_status,banned_until,is_creator,creator_types").eq("user_id",user.id).maybeSingle();
      if(profile.error) throw profile.error;
      const p=profile.data;
      if(!p || !p.first_name?.trim() || !p.last_name?.trim() || !p.state?.trim() || !p.country?.trim() || !user.email?.trim()){
        toast.error("Complete your full Ideas profile before posting.");
-       navigate("/anvya/profile/me");
+       navigate("/anvya/profile/"+(p.public_id||p.user_id));
        return;
      }
      const publicName=[p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ");
@@ -73,7 +73,7 @@ export default function IdeasCreate() {
      }});
      if(guardError) throw guardError;
      if(!guard?.accepted){toast.error(guard?.error||"AI-like content detected. Please rewrite it in your own words.");return}
-     if(guard?.status==="pending"){toast.success("Content detector check completed. Your post is now pending admin approval.");navigate("/anvya/profile/me");}else{toast.success("Post submitted for review.");navigate("/anvya/profile/me");}
+     if(guard?.status==="pending"){toast.success("Content detector check completed. Your post is now pending admin approval.");navigate("/anvya/profile/"+(p.public_id||p.user_id));}else{toast.success("Post submitted for review.");navigate("/anvya/profile/"+(p.public_id||p.user_id));}
    }catch(e:any){toast.error(e?.message||"Could not submit idea.")}finally{setSaving(false)}
  };
 
