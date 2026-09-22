@@ -42,7 +42,7 @@ export default function CrmAttendancePanel() {
       const uid = userData.user?.id ?? null;
       const attendanceMap = new Map(((attendance ?? []) as Attendance[]).map(row => [row.user_id, row]));
       const displayRows = ((team ?? []) as TeamMember[]).filter(member => member.auth_user_id).map(member => ({
-        ...(attendanceMap.get(member.auth_user_id!) ?? { id: "missing-" + member.auth_user_id, user_id: member.auth_user_id!, email: "", work_date: indiaDate(), punch_in: null, punch_out: null, total_seconds: 0, status: "punched_out" as const, created_at: "", updated_at: "" }),
+        ...(attendanceMap.get(member.auth_user_id!) ?? { id: "missing-" + member.auth_user_id, user_id: member.auth_user_id!, email: "", work_date: indiaDate(), punch_in: null, punch_out: null, total_seconds: 0, status: "punched_out" as const, work_status: "red" as const, created_at: "", updated_at: "" }),
         member
       }));
       setRows(displayRows);
