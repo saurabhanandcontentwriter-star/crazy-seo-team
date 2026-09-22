@@ -107,7 +107,14 @@ body:has(.cst-public-nav) .cst-3d-site :is(a,button,input,textarea,select):focus
   border-bottom: 1px solid hsl(218 40% 92% / .72);
 }
 .cst-public-nav .cst-nav-pill {
+  display: flex;
+  flex: 0 1 auto;
+  min-width: 0;
   box-shadow: 0 10px 34px -24px hsl(224 60% 20% / .42), inset 0 1px 0 hsl(0 0% 100% / .9);
+}
+/* Keep the main navigation toolbar visible on desktop. The utility CTA area stays separate. */
+@media (max-width: 1023px) {
+  .cst-public-nav .cst-nav-pill { display: none; }
 }
 .cst-public-nav .cst-nav-link { position: relative; }
 .cst-public-nav .cst-nav-link::after {
