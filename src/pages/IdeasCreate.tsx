@@ -39,13 +39,13 @@ export default function IdeasCreate() {
    setSaving(true);
    try{
      const{data:{user}}=await supabase.auth.getUser();
-     if(!user){toast.error("Create your Ideas ID and complete your profile before posting.");navigate("/ideas/account");return}
+     if(!user){toast.error("Create your Ideas ID and complete your profile before posting.");navigate("/anvya/account");return}
      const profile=await supabase.from("idea_profiles").select("user_id,first_name,middle_name,last_name,state,country,account_status,banned_until,is_creator,creator_types").eq("user_id",user.id).maybeSingle();
      if(profile.error) throw profile.error;
      const p=profile.data;
      if(!p || !p.first_name?.trim() || !p.last_name?.trim() || !p.state?.trim() || !p.country?.trim() || !user.email?.trim()){
        toast.error("Complete your full Ideas profile before posting.");
-       navigate("/ideas/profile/me");
+       navigate("/anvya/profile/me");
        return;
      }
      const publicName=[p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ");
@@ -58,21 +58,21 @@ export default function IdeasCreate() {
      }});
      if(guardError) throw guardError;
      if(!guard?.accepted){toast.error(guard?.error||"AI-like content detected. Please rewrite it in your own words.");return}
-     if(guard?.status==="pending"){toast.success("Content detector check completed. Your post is now pending admin approval.");navigate("/ideas/profile/me");}else{toast.success("Post submitted for review.");navigate("/ideas/profile/me");}
+     if(guard?.status==="pending"){toast.success("Content detector check completed. Your post is now pending admin approval.");navigate("/anvya/profile/me");}else{toast.success("Post submitted for review.");navigate("/anvya/profile/me");}
    }catch(e:any){toast.error(e?.message||"Could not submit idea.")}finally{setSaving(false)}
  };
 
  return (
   <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-violet-50/40">
     <div className="container mx-auto max-w-4xl px-4 py-8 md:py-12">
-      <Link to="/ideas" className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground"><ArrowLeft size={16} /> Back to Ideas</Link>
+      <Link to="/anvya" className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground"><ArrowLeft size={16} /> Back to Ideas</Link>
       <div className="mb-7 flex items-start gap-4">
         <div className="rounded-2xl bg-gradient-to-br from-violet-600 to-blue-600 p-3 text-white shadow-lg"><Lightbulb /></div>
-        <div><p className="mb-1 text-xs font-bold uppercase tracking-[.18em] text-violet-600">Community • Ideas</p><h1 className="text-3xl font-black tracking-tight md:text-4xl">Share something worth building.</h1><p className="mt-2 max-w-2xl text-muted-foreground">Share ideas, questions and experiences across Technology, AI, SEO, Economics, Business, Science and more. Every submission is reviewed before it becomes public.</p></div>
+        <div><p className="mb-1 text-xs font-bold uppercase tracking-[.18em] text-violet-600">ANVYA • Community</p><h1 className="text-3xl font-black tracking-tight md:text-4xl">Share something worth building.</h1><p className="mt-2 max-w-2xl text-muted-foreground">Share posts, questions and experiences across Technology, AI, SEO, Economics, Business, Science and more. Every submission is reviewed before it becomes public.</p></div>
       </div>
       <Card className="overflow-hidden rounded-[30px] border-slate-200/80 bg-white/90 shadow-xl shadow-slate-200/40 backdrop-blur">
         <CardContent className="p-5 md:p-8">
-          <div className="mb-7 rounded-2xl border border-violet-100 bg-violet-50/70 p-4"><div className="flex items-start gap-3"><Sparkles className="mt-0.5 text-violet-600" /><div><p className="font-bold">Keep it useful & original</p><p className="mt-1 text-sm text-muted-foreground">Choose one topic, explain the idea clearly, and add an image when it helps people understand it.</p></div></div></div>
+          <div className="mb-7 rounded-2xl border border-violet-100 bg-violet-50/70 p-4"><div className="flex items-start gap-3"><Sparkles className="mt-0.5 text-violet-600" /><div><p className="font-bold">Keep it useful, original & yours</p><p className="mt-1 text-sm text-muted-foreground">Choose one topic, explain the idea clearly, and add an image when it helps people understand it.</p></div></div></div>
           <div className="grid gap-6">
             <div className="grid gap-6 md:grid-cols-3">
               <div className="grid gap-2"><Label>Type</Label><Select value={postType} onValueChange={v => setPostType(v as any)}><SelectTrigger className="h-12 rounded-xl"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="post">Create Post</SelectItem><SelectItem value="question">Start a Discussion</SelectItem><SelectItem value="event">Create Event</SelectItem></SelectContent></Select></div>
@@ -121,7 +121,7 @@ export default function IdeasCreate() {
           </div>
           <div className="mt-8 flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-between">
             <div className="flex items-center gap-2 text-xs text-muted-foreground"><ShieldCheck size={15} /> Reviewed before public publishing</div>
-            <div className="flex gap-3"><Button variant="outline" className="rounded-xl" onClick={() => navigate("/ideas")}>Cancel</Button><Button className="rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 px-6" onClick={submit} disabled={saving}>{saving && <Loader2 className="mr-2 size-4 animate-spin" />}Submit Idea</Button></div>
+            <div className="flex gap-3"><Button variant="outline" className="rounded-xl" onClick={() => navigate("/anvya")}>Cancel</Button><Button className="rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 px-6" onClick={submit} disabled={saving}>{saving && <Loader2 className="mr-2 size-4 animate-spin" />}Publish Post</Button></div>
           </div>
         </CardContent>
       </Card>
