@@ -32,7 +32,6 @@ export default function AdminLogin() {
   const [settingPassword, setSettingPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [settingPassword, setSettingPassword] = useState(false);
 
   // Only redirect an existing session when it is actually an admin.
   // Redirecting every authenticated user to /admin causes a login <-> guard
@@ -41,6 +40,12 @@ export default function AdminLogin() {
     let cancelled = false;
 
     const checkAdminSession = async () => {
+      let passwordSetup = false;
+      try { passwordSetup = sessionStorage.getItem("admin_password_setup") === "1"; } catch {}
+      if (passwordSetup) {
+        if (!cancelled) setSettingPassword(true);
+        return;
+      }
       const { data } = await supabase.auth.getSession();
       const user = data.session?.user;
       if (!user || cancelled) return;
