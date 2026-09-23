@@ -148,38 +148,42 @@ export default function IdeasProfile(){
    <div className="container mx-auto max-w-5xl px-4 py-6 md:py-10">
     <Button variant="ghost" onClick={()=>nav("/anvya")}><ArrowLeft className="mr-2 size-4"/>Ideas</Button>
     <Card className="mt-4 overflow-hidden rounded-[28px] shadow-sm">
-     <div className="relative h-48 overflow-hidden bg-gradient-to-r from-blue-600/80 via-violet-600/80 to-fuchsia-600/70">
-      {p.cover_url&&<img src={p.cover_url} className="size-full object-cover" alt="Cover"/>}
-      {me===p.user_id&&edit&&<label className="absolute right-4 top-4 cursor-pointer rounded-xl bg-black/60 px-3 py-2 text-sm text-white"><Camera className="mr-2 inline size-4"/>Change Cover<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setCoverFile(e.target.files?.[0]||null)}/></label>}
-     </div>
-     <CardContent className="relative px-5 pb-6 pt-4 md:px-6">
-      <div className="-mt-16 flex flex-col gap-5 md:flex-row md:items-end">
-       <div className={"relative z-10 size-28 shrink-0 overflow-hidden rounded-full border-4 border-background bg-muted shadow-xl md:size-32 "+(hasActiveStory?"ring-4 ring-pink-500 ring-offset-2 ring-offset-background":"")}>
-        {p.avatar_url?<img src={p.avatar_url} className="size-full object-cover" alt={p.display_name}/>:<UserCircle2 className="size-full p-5 text-muted-foreground"/>}
-        {me===p.user_id&&edit&&<label className="absolute inset-x-0 bottom-0 cursor-pointer bg-black/60 py-2 text-center text-xs text-white">Change<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setAvatarFile(e.target.files?.[0]||null)}/></label>}
-       </div>
-       <div className="min-w-0 flex-1 pb-1 text-center md:text-left">
-        <div className="flex flex-wrap items-center justify-center gap-2 md:justify-start">
-         <h1 className="break-words text-2xl font-black leading-tight md:text-4xl">{p.display_name}</h1>
-         {p.verified&&<Badge className="bg-blue-600 text-white">✓ Verified</Badge>}
-        </div>
-        <p className="mt-1 text-sm text-muted-foreground">@{p.profile_slug||"saurabh-anand"}</p>
-        <p className="mt-1 text-sm text-muted-foreground">📍 {[p.location,p.state,p.country].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(", ")||"ANVYA Community member"}</p>
-        {(p.working||p.company||p.education)&&<div className="mt-3 flex flex-wrap justify-center gap-2 md:justify-start text-sm">{p.working&&<Badge variant="outline">💼 {p.working}</Badge>}{p.company&&<Badge variant="outline">🏢 {p.company}</Badge>}{p.education&&<Badge variant="outline">🎓 {p.education}</Badge>}</div>}
-        {me!==p.user_id&&<div className="mt-2 flex items-center justify-center gap-2 text-xs font-semibold md:justify-start">{profileOnline?<><span className="size-2.5 rounded-full bg-green-500"/>Active now</>:<><span className="size-2.5 rounded-full bg-muted-foreground"/>Not active{profileLastSeen&&<span className="font-normal text-muted-foreground">• Last seen {new Date(profileLastSeen).toLocaleString()}</span>}</>}</div>}
-       </div>
-       <div className="flex w-full shrink-0 flex-wrap justify-center gap-2 md:w-auto md:justify-end">
-        {me===p.user_id ? (<>
-         <Button variant="outline" onClick={()=>nav("/anvya/account")}>Account</Button>
-         <Button variant="outline" onClick={()=>nav("/anvya/help")}><HelpCircle className="mr-2 size-4"/>Help Centre</Button>
-         <Button onClick={()=>setEdit(!edit)}>{edit?"Cancel":"Edit Profile"}</Button>
-        </>) : (<>
-         {me&&<><Button onClick={toggleFollow} variant={following?"outline":"default"}>{following?<UserCheck className="mr-2 size-4"/>:<UserPlus className="mr-2 size-4"/>}{following?"Unfollow":"Follow"}</Button><Button variant="outline" onClick={friend} disabled={friendStatus==="accepted"||friendStatus==="pending"}>{friendStatus==="accepted"?<UserCheck className="mr-2 size-4"/>:<Users className="mr-2 size-4"/>}{friendStatus==="accepted"?"Friends":friendStatus==="pending"?"Request Sent":"Add Friend"}</Button><Button variant="outline" onClick={()=>setTab("messages")}><MessageCircle className="mr-2 size-4"/>Message</Button></>}
-         {!me&&<Button variant="outline" onClick={handleAuth}><LogIn className="mr-2 size-4"/>Log In</Button>}
-        </>)}
-       </div>
+      <div className="relative h-52 overflow-hidden bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-600">
+        {p.cover_url ? <img src={p.cover_url} className="size-full object-cover" alt="Profile cover"/> : <div className="size-full bg-gradient-to-br from-blue-600 via-violet-600 to-fuchsia-500"/>}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent"/>
+        {me===p.user_id&&edit&&<label className="absolute right-4 top-4 z-10 cursor-pointer rounded-xl bg-black/60 px-3 py-2 text-sm font-medium text-white backdrop-blur-sm"><Camera className="mr-2 inline size-4"/>Change Cover<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setCoverFile(e.target.files?.[0]||null)}/></label>}
       </div>
-      <IdeasStoryHighlights profileUserId={p.user_id} avatarUrl={p.avatar_url} displayName={p.display_name} isOwner={me===p.user_id}/>
+      <CardContent className="px-5 pb-6 pt-0 md:px-7">
+        <div className="relative flex flex-col items-center md:flex-row md:items-end">
+          <div className={"relative z-10 -mt-14 size-28 shrink-0 overflow-hidden rounded-full border-4 border-background bg-muted shadow-xl md:-mt-16 md:size-32 "+(hasActiveStory?"ring-4 ring-pink-500 ring-offset-2 ring-offset-background":"")}>
+            {p.avatar_url?<img src={p.avatar_url} className="size-full object-cover" alt={p.display_name}/>:<UserCircle2 className="size-full p-5 text-muted-foreground"/>}
+            {me===p.user_id&&edit&&<label className="absolute inset-x-0 bottom-0 cursor-pointer bg-black/65 py-2 text-center text-xs font-medium text-white">Change<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setAvatarFile(e.target.files?.[0]||null)}/></label>}
+          </div>
+          <div className="min-w-0 flex-1 px-0 pb-1 pt-4 text-center md:px-5 md:pt-0 md:text-left">
+            <div className="flex flex-wrap items-center justify-center gap-2 md:justify-start">
+              <h1 className="break-words text-2xl font-black leading-tight md:text-4xl">{p.display_name}</h1>
+              {p.verified&&<Badge className="bg-blue-600 text-white">✓ Verified</Badge>}
+            </div>
+            <p className="mt-1 text-sm font-medium text-muted-foreground">@{p.profile_slug||"saurabh-anand"}</p>
+            <p className="mt-1 text-sm text-muted-foreground">📍 {[p.location,p.state,p.country].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(", ")||"ANVYA Community member"}</p>
+            {(p.working||p.company||p.education)&&<div className="mt-3 flex flex-wrap justify-center gap-2 md:justify-start">{p.working&&<Badge variant="outline">💼 {p.working}</Badge>}{p.company&&<Badge variant="outline">🏢 {p.company}</Badge>}{p.education&&<Badge variant="outline">🎓 {p.education}</Badge>}</div>}
+            {me!==p.user_id&&<div className="mt-2 flex items-center justify-center gap-2 text-xs font-semibold md:justify-start">{profileOnline?<><span className="size-2.5 rounded-full bg-green-500"/>Active now</>:<><span className="size-2.5 rounded-full bg-muted-foreground"/>Not active{profileLastSeen&&<span className="font-normal text-muted-foreground">• Last seen {new Date(profileLastSeen).toLocaleString()}</span>}</>}</div>}
+          </div>
+          <div className="flex w-full shrink-0 flex-wrap justify-center gap-2 pt-4 md:w-auto md:justify-end md:pb-1 md:pt-0">
+            {me===p.user_id ? (<>
+              <Button variant="outline" onClick={()=>nav("/anvya/account")}>Account</Button>
+              <Button variant="outline" onClick={()=>nav("/anvya/help")}><HelpCircle className="mr-2 size-4"/>Help Centre</Button>
+              <Button onClick={()=>setEdit(!edit)}>{edit?"Cancel":"Edit Profile"}</Button>
+            </>) : (<>
+              {me&&<><Button onClick={toggleFollow} variant={following?"outline":"default"}>{following?<UserCheck className="mr-2 size-4"/>:<UserPlus className="mr-2 size-4"/>}{following?"Unfollow":"Follow"}</Button><Button variant="outline" onClick={friend} disabled={friendStatus==="accepted"||friendStatus==="pending"}>{friendStatus==="accepted"?<UserCheck className="mr-2 size-4"/>:<Users className="mr-2 size-4"/>}{friendStatus==="accepted"?"Friends":friendStatus==="pending"?"Request Sent":"Add Friend"}</Button><Button variant="outline" onClick={()=>setTab("messages")}><MessageCircle className="mr-2 size-4"/>Message</Button></>}
+              {!me&&<Button variant="outline" onClick={handleAuth}><LogIn className="mr-2 size-4"/>Log In</Button>}
+            </>)}
+          </div>
+        </div>
+        <div className="mt-5 border-t pt-5">
+          <IdeasStoryHighlights profileUserId={p.user_id} avatarUrl={p.avatar_url} displayName={p.display_name} isOwner={me===p.user_id}/>
+        </div>
+      </CardContent>
     </Card>
     {me===p.user_id&&requesters.length>0&&<Card className="mt-5"><CardContent className="p-6"><h3 className="mb-4 text-lg font-bold">Friend Requests</h3>{requesters.map(r=><div key={r.user_id} className="flex items-center gap-3 border-b py-3"><div className="size-10 overflow-hidden rounded-full bg-muted">{r.avatar_url?<img src={r.avatar_url} className="size-full object-cover" alt={r.display_name}/>:<UserCircle2 className="size-full p-2"/>}</div><div className="flex-1"><p className="font-bold">{r.display_name}</p><p className="text-xs text-muted-foreground">{r.location||"ANVYA Community"}</p></div><Button size="sm" onClick={()=>respondFriend(r.user_id,"accepted")}><UserCheck className="mr-1 size-4"/>Accept</Button><Button size="sm" variant="outline" onClick={()=>respondFriend(r.user_id,"rejected")}>Reject</Button></div>)}</CardContent></Card>}
     {me===p.user_id&&<VerificationCard profile={p} request={verification} onSubmitted={v=>setVerification(v)}/>}
