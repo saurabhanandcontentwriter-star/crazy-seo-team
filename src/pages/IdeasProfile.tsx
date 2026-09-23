@@ -97,8 +97,7 @@ export default function IdeasProfile(){
  const incomingIds=(incomingResult.data||[]).map((x:any)=>x.requester_id);
  if(incomingIds.length){
   const {data:rp}=await supabase.from("idea_profiles").select("user_id,display_name,avatar_url,location,state,country,verified,level,reputation_points").in("user_id",incomingIds);
-  setRequesters((rp as Profile[])||[]);
- }else setRequesters([]);
+  setRequesters((rp as Profile[])||[]); }else setRequesters([]);
  if(user&&id!==user.id){
   const [f,fr]=await Promise.all([
    supabase.from("idea_follows").select("follower_id").eq("follower_id",user.id).eq("following_id",id).maybeSingle(),
@@ -145,30 +144,30 @@ export default function IdeasProfile(){
  if(loading)return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin"/></div>;
  if(!p)return <div className="container mx-auto max-w-3xl px-4 py-12"><Card><CardContent className="p-10 text-center">Profile not found.</CardContent></Card></div>;
  return (
-  <div className="min-h-screen bg-background">
-   <div className="container mx-auto max-w-5xl px-4 py-6 md:py-10">
-    <Button variant="ghost" onClick={()=>nav("/anvya")}><ArrowLeft className="mr-2 size-4"/>Ideas</Button>
-    <Card className="mt-4 overflow-hidden rounded-[24px] border bg-background shadow-sm">
-      <div className="relative h-44 overflow-hidden sm:h-56 md:h-64">
+  <div className="min-h-screen bg-[#fafafa] dark:bg-background">
+   <div className="mx-auto w-full max-w-[935px] px-0 pb-10 md:px-4 md:py-8">
+    <div className="px-4 py-3 md:px-0"><Button variant="ghost" size="sm" onClick={()=>nav("/anvya")}><ArrowLeft className="mr-2 size-4"/>Ideas</Button></div>
+    <Card className="overflow-hidden border-0 bg-background shadow-none md:rounded-xl md:border md:shadow-sm">
+      <div className="relative h-48 overflow-hidden sm:h-56 md:h-64">
         {p.cover_url ? <img src={p.cover_url} className="size-full object-cover" alt="Profile cover" /> : <div className="size-full bg-gradient-to-br from-blue-600 via-violet-600 to-fuchsia-500" />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10" />
         {me===p.user_id&&edit&&<label className="absolute right-3 top-3 z-10 cursor-pointer rounded-full bg-black/65 px-4 py-2 text-xs font-semibold text-white backdrop-blur-md transition hover:bg-black/80"><Camera className="mr-2 inline size-4" />Change Cover<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setCoverFile(e.target.files?.[0]||null)} /></label>}
       </div>
-      <CardContent className="px-4 pb-6 pt-0 sm:px-6 md:px-8">
+      <CardContent className="px-4 pb-5 pt-0 sm:px-6 md:px-8">
         <div className="relative">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-            <div className={"relative z-10 -mt-14 size-28 shrink-0 self-center overflow-hidden rounded-full border-4 border-background bg-muted shadow-xl sm:-mt-16 sm:size-32 sm:self-start md:size-36 "+(hasActiveStory?"ring-4 ring-pink-500 ring-offset-2 ring-offset-background":"")}>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className={"relative z-10 -mt-16 size-28 shrink-0 self-center overflow-hidden rounded-full border-4 border-background bg-muted shadow-xl sm:-mt-16 sm:size-32 sm:self-start md:size-36 "+(hasActiveStory?"ring-4 ring-pink-500 ring-offset-2 ring-offset-background":"")}>
               {p.avatar_url?<img src={p.avatar_url} className="size-full object-cover" alt={p.display_name} loading="eager"/>:<UserCircle2 className="size-full p-6 text-muted-foreground"/>}
               {me===p.user_id&&edit&&<label className="absolute inset-x-0 bottom-0 cursor-pointer bg-black/70 py-2 text-center text-xs font-semibold text-white">Change<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setAvatarFile(e.target.files?.[0]||null)}/></label>}
             </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-3 sm:pb-1">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 flex-1 flex-col gap-2 sm:pb-1">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                    <h1 className="break-words text-2xl font-bold leading-tight md:text-3xl">{p.display_name}</h1>
+                    <h1 className="break-words text-[22px] font-bold leading-tight tracking-tight md:text-2xl">{p.display_name}</h1>
                     {p.verified&&<Badge className="rounded-full bg-blue-600 text-white">✓ Verified</Badge>}
                   </div>
-                  <p className="mt-1 text-center text-sm text-muted-foreground sm:text-left">@{p.profile_slug||p.public_id||"anvya-member"}</p>
+                  <p className="mt-0.5 text-center text-sm text-muted-foreground sm:text-left">@{p.profile_slug||p.public_id||"anvya-member"}</p>
                 </div>
                 <div className="flex flex-wrap justify-center gap-2 sm:justify-end">
                   {me===p.user_id ? <>
@@ -197,8 +196,7 @@ export default function IdeasProfile(){
           </div>
           {me!==p.user_id&&<div className="mt-3 flex items-center justify-center gap-2 text-xs font-semibold sm:justify-start">{profileOnline?<><span className="size-2.5 rounded-full bg-green-500"/>Active now</>:<><span className="size-2.5 rounded-full bg-muted-foreground"/>Not active{profileLastSeen&&<span className="font-normal text-muted-foreground">• Last seen {new Date(profileLastSeen).toLocaleString()}</span></>}</div>}
         </div>
-        <div className="mt-5 border-t pt-5">
-          <IdeasStoryHighlights profileUserId={p.user_id} avatarUrl={p.avatar_url} displayName={p.display_name} isOwner={me===p.user_id}/>
+        <div className="mt-5 border-t pt-5">          <IdeasStoryHighlights profileUserId={p.user_id} avatarUrl={p.avatar_url} displayName={p.display_name} isOwner={me===p.user_id}/>
         </div>
       </CardContent>
     </Card>
