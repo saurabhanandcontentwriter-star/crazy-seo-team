@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +32,7 @@ export default function AdminLogin() {
   const [settingPassword, setSettingPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [searchParams] = useSearchParams();
+  const [settingPassword, setSettingPassword] = useState(false);
 
   // Only redirect an existing session when it is actually an admin.
   // Redirecting every authenticated user to /admin causes a login <-> guard
@@ -56,6 +56,9 @@ export default function AdminLogin() {
     };
 
     checkAdminSession();
+    try {
+      if (sessionStorage.getItem("admin_password_setup") === "1") setSettingPassword(true);
+    } catch {}
     return () => {
       cancelled = true;
     };
@@ -63,11 +66,14 @@ export default function AdminLogin() {
 
 
   const handleGoogleSetup = async () => {
+    try {
+      sessionStorage.setItem("admin_password_setup", "1");
+    } catch {}
     setBusy(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/admin/login?set-password=1`,
+        redirectTo: `${window.location.origin}/admin/login`,
         queryParams: { prompt: "select_account" },
       },
     });
@@ -125,6 +131,7 @@ export default function AdminLogin() {
     }
 
     toast.success("Admin password created successfully");
+    try { sessionStorage.removeItem("admin_password_setup"); } catch {}
     setNewPassword("");
     setConfirmPassword("");
     setSettingPassword(false);
@@ -197,10 +204,10 @@ export default function AdminLogin() {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent mb-1">
               Welcome Back
             </h1>
-            <p className="text-sm text-slate-600">{searchParams.get("set-password") === "1" ? "Create your password securely with Google verification" : "Sign in to your admin dashboard"}</p>
+            <p className="text-sm text-slate-600">{settingPassword ? "Create your password securely with Google verification" : "Sign in to your admin dashboard"}</p>
           </div>
 
-          {searchParams.get("set-password") === "1" ? (
+          {settingPassword ? (
             <form onSubmit={handleSetPassword} className="space-y-4">
               <div className="rounded-xl bg-blue-50 border border-blue-100 p-4">
                 <p className="text-sm font-semibold text-slate-800">Create Admin Password</p>
@@ -252,6 +259,7 @@ export default function AdminLogin() {
                 type="button"
                 onClick={() => {
                   setSettingPassword(false);
+                  try { sessionStorage.removeItem("admin_password_setup"); } catch {}
                   navigate("/admin/login", { replace: true });
                 }}
                 className="w-full text-sm text-slate-500 hover:text-slate-800"
