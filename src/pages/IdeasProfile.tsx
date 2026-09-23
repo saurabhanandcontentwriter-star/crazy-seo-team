@@ -148,61 +148,52 @@ export default function IdeasProfile(){
   <div className="min-h-screen bg-background">
    <div className="container mx-auto max-w-5xl px-4 py-6 md:py-10">
     <Button variant="ghost" onClick={()=>nav("/anvya")}><ArrowLeft className="mr-2 size-4"/>Ideas</Button>
-    <Card className="mt-4 overflow-hidden rounded-[24px] border bg-background shadow-sm">
-      <div className="relative h-44 overflow-hidden sm:h-56 md:h-64">
+    <Card className="mt-4 overflow-hidden rounded-[28px] border bg-background shadow-sm">
+      <div className="relative h-48 sm:h-56 md:h-64">
         {p.cover_url ? <img src={p.cover_url} className="size-full object-cover" alt="Profile cover" /> : <div className="size-full bg-gradient-to-br from-blue-600 via-violet-600 to-fuchsia-500" />}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/10" />
-        {me===p.user_id&&edit&&<label className="absolute right-3 top-3 z-10 cursor-pointer rounded-full bg-black/65 px-4 py-2 text-xs font-semibold text-white backdrop-blur-md transition hover:bg-black/80"><Camera className="mr-2 inline size-4" />Change Cover<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setCoverFile(e.target.files?.[0]||null)} /></label>}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10" />
+        {me===p.user_id&&edit&&<label className="absolute right-4 top-4 z-20 cursor-pointer rounded-full bg-black/65 px-4 py-2 text-xs font-semibold text-white backdrop-blur-md transition hover:bg-black/80"><Camera className="mr-2 inline size-4" />Change Cover<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setCoverFile(e.target.files?.[0]||null)} /></label>}
       </div>
       <CardContent className="px-4 pb-6 pt-0 sm:px-6 md:px-8">
-        <div className="relative">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-            <div className={"relative z-10 -mt-14 size-28 shrink-0 self-center overflow-hidden rounded-full border-4 border-background bg-muted shadow-xl sm:-mt-16 sm:size-32 sm:self-start md:size-36 "+(hasActiveStory?"ring-4 ring-pink-500 ring-offset-2 ring-offset-background":"")}>
-              {p.avatar_url?<img src={p.avatar_url} className="size-full object-cover" alt={p.display_name} loading="eager"/>:<UserCircle2 className="size-full p-6 text-muted-foreground"/>}
-              {me===p.user_id&&edit&&<label className="absolute inset-x-0 bottom-0 cursor-pointer bg-black/70 py-2 text-center text-xs font-semibold text-white">Change<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setAvatarFile(e.target.files?.[0]||null)}/></label>}
-            </div>
-            <div className="flex min-w-0 flex-1 flex-col gap-3 sm:pb-1">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                    <h1 className="break-words text-2xl font-bold leading-tight md:text-3xl">{p.display_name}</h1>
-                    {p.verified&&<Badge className="rounded-full bg-blue-600 text-white">✓ Verified</Badge>}
-                  </div>
-                  <p className="mt-1 text-center text-sm text-muted-foreground sm:text-left">@{p.profile_slug||p.public_id||"anvya-member"}</p>
+        <div className="relative flex flex-col items-center sm:items-start">
+          <div className={"relative z-10 -mt-16 size-32 shrink-0 overflow-hidden rounded-full border-4 border-background bg-muted shadow-xl sm:size-36 "+(hasActiveStory?"ring-4 ring-pink-500 ring-offset-2 ring-offset-background":"")}>
+            {p.avatar_url?<img src={p.avatar_url} className="size-full object-cover" alt={p.display_name} loading="eager"/>:<UserCircle2 className="size-full p-7 text-muted-foreground"/>}
+            {me===p.user_id&&edit&&<label className="absolute inset-x-0 bottom-0 cursor-pointer bg-black/70 py-2 text-center text-xs font-semibold text-white">Change<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setAvatarFile(e.target.files?.[0]||null)}/></label>}
+          </div>
+          <div className="mt-4 w-full">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                  <h1 className="break-words text-2xl font-bold leading-tight md:text-3xl">{p.display_name}</h1>
+                  {p.verified&&<Badge className="rounded-full bg-blue-600 text-white">✓ Verified</Badge>}
                 </div>
-                <div className="flex flex-wrap justify-center gap-2 sm:justify-end">
-                  {me===p.user_id ? <>
-                    <Button variant="outline" size="sm" onClick={()=>nav("/anvya/account")}>Account</Button>
-                    <Button variant="outline" size="sm" onClick={()=>nav("/anvya/help")}><HelpCircle className="mr-2 size-4"/>Help Centre</Button>
-                    <Button size="sm" onClick={()=>setEdit(!edit)}>{edit?"Cancel":"Edit Profile"}</Button>
-                  </> : <>
-                    {me&&<><Button size="sm" onClick={toggleFollow} variant={following?"outline":"default"}>{following?<UserCheck className="mr-2 size-4"/>:<UserPlus className="mr-2 size-4"/>}{following?"Unfollow":"Follow"}</Button><Button size="sm" variant="outline" onClick={friend} disabled={friendStatus==="accepted"||friendStatus==="pending"}>{friendStatus==="accepted"?<UserCheck className="mr-2 size-4"/>:<Users className="mr-2 size-4"/>}{friendStatus==="accepted"?"Friends":friendStatus==="pending"?"Request Sent":"Add Friend"}</Button><Button size="sm" variant="outline" onClick={()=>setTab("messages")}><MessageCircle className="mr-2 size-4"/>Message</Button></>}
-                    {!me&&<Button size="sm" variant="outline" onClick={handleAuth}><LogIn className="mr-2 size-4"/>Log In</Button>}
-                  </>}
-                </div>
+                <p className="mt-1 text-center text-sm text-muted-foreground sm:text-left">@{p.profile_slug||p.public_id||"anvya-member"}</p>
               </div>
-              <div className="flex items-center justify-center gap-6 border-y py-3 text-sm sm:justify-start sm:border-0 sm:py-0">
-                <div className="text-center"><span className="font-bold">{posts.length}</span><span className="ml-1 text-muted-foreground">posts</span></div>
-                <button type="button" onClick={()=>setTab("followers")} className="text-center hover:underline"><span className="font-bold">{followerCount}</span><span className="ml-1 text-muted-foreground">followers</span></button>
-                <button type="button" onClick={()=>setTab("following")} className="text-center hover:underline"><span className="font-bold">{followingCount}</span><span className="ml-1 text-muted-foreground">following</span></button>
+              <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
+                {me===p.user_id?<Button variant="outline" className="rounded-xl" onClick={()=>setEdit(v=>!v)}>{edit?"Cancel":"Edit Profile"}</Button>:<>
+                  <Button className="rounded-xl" onClick={toggleFollow}>{following?<UserCheck className="mr-2 size-4"/>:<UserPlus className="mr-2 size-4"/>}{following?"Following":"Follow"}</Button>
+                  <Button variant="outline" className="rounded-xl" onClick={()=>{sessionStorage.setItem("ideas_message_target",JSON.stringify({user_id:p.user_id,display_name:p.display_name,avatar_url:p.avatar_url||null,public_id:p.public_id||null}));setTab("messages")}}><MessageCircle className="mr-2 size-4"/>Message</Button>
+                </>}
               </div>
             </div>
+            <div className="mt-5 flex justify-center gap-8 border-y py-4 text-center sm:justify-start sm:gap-10">
+              <button onClick={()=>setTab("posts")}><span className="block text-lg font-bold">{posts.length}</span><span className="text-xs text-muted-foreground">Posts</span></button>
+              <button onClick={()=>setTab("followers")}><span className="block text-lg font-bold">{followerCount}</span><span className="text-xs text-muted-foreground">Followers</span></button>
+              <button onClick={()=>setTab("following")}><span className="block text-lg font-bold">{followingCount}</span><span className="text-xs text-muted-foreground">Following</span></button>
+            </div>
+            <div className="mt-4 max-w-2xl space-y-2 text-center sm:text-left">
+              {p.bio&&<p className="text-sm leading-6 text-foreground">{p.bio}</p>}
+              <p className="text-sm text-muted-foreground">📍 {[p.location,p.state,p.country].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(", ")||"ANVYA Community member"}</p>
+              {(p.working||p.company||p.education)&&<div className="flex flex-wrap justify-center gap-2 sm:justify-start">{p.working&&<Badge variant="outline">{p.working}</Badge>}{p.company&&<Badge variant="outline">{p.company}</Badge>}{p.education&&<Badge variant="outline">{p.education}</Badge>}</div>}
+              <div className="flex flex-wrap justify-center gap-3 text-sm sm:justify-start">{social.map(([label,url])=><a key={label} href={String(url)} target="_blank" rel="noreferrer" className="font-medium text-primary hover:underline">{label}</a>)}</div>
+            </div>
           </div>
-          <div className="mt-4 max-w-2xl space-y-2 text-center sm:text-left">
-            <p className="text-sm font-semibold">@{p.profile_slug||p.public_id||"anvya-member"}</p>
-            {p.bio&&<p className="whitespace-pre-line text-sm leading-6 text-foreground">{p.bio}</p>}
-            <p className="text-sm text-muted-foreground">📍 {[p.location,p.state,p.country].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(", ")||"ANVYA Community member"}</p>
-            {(p.working||p.company||p.education)&&<div className="flex flex-wrap justify-center gap-2 sm:justify-start">{p.working&&<Badge variant="outline">💼 {p.working}</Badge>}{p.company&&<Badge variant="outline">🏢 {p.company}</Badge>}{p.education&&<Badge variant="outline">🎓 {p.education}</Badge>}</div>}
-            {social.length>0&&<div className="flex flex-wrap justify-center gap-3 pt-1 sm:justify-start">{social.slice(0,5).map(([label,url])=><a key={label} href={String(url)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"><ExternalLink className="size-3.5"/>{label}</a>)}</div>}
-          </div>
-          {me!==p.user_id&&<div className="mt-3 flex items-center justify-center gap-2 text-xs font-semibold sm:justify-start">{profileOnline?<><span className="size-2.5 rounded-full bg-green-500"/>Active now</>:<><span className="size-2.5 rounded-full bg-muted-foreground"/>Not active{profileLastSeen&&<span className="font-normal text-muted-foreground">• Last seen {new Date(profileLastSeen).toLocaleString()}</span></>}</div>}
         </div>
         <div className="mt-5 border-t pt-5">
           <IdeasStoryHighlights profileUserId={p.user_id} avatarUrl={p.avatar_url} displayName={p.display_name} isOwner={me===p.user_id}/>
         </div>
       </CardContent>
-    </Card>
-    {me===p.user_id&&requesters.length>0&&<Card className="mt-5"><CardContent className="p-6"><h3 className="mb-4 text-lg font-bold">Friend Requests</h3>{requesters.map(r=><div key={r.user_id} className="flex items-center gap-3 border-b py-3"><div className="size-10 overflow-hidden rounded-full bg-muted">{r.avatar_url?<img src={r.avatar_url} className="size-full object-cover" alt={r.display_name}/>:<UserCircle2 className="size-full p-2"/>}</div><div className="flex-1"><p className="font-bold">{r.display_name}</p><p className="text-xs text-muted-foreground">{r.location||"ANVYA Community"}</p></div><Button size="sm" onClick={()=>respondFriend(r.user_id,"accepted")}><UserCheck className="mr-1 size-4"/>Accept</Button><Button size="sm" variant="outline" onClick={()=>respondFriend(r.user_id,"rejected")}>Reject</Button></div>)}</CardContent></Card>}
+    </Card>    {me===p.user_id&&requesters.length>0&&<Card className="mt-5"><CardContent className="p-6"><h3 className="mb-4 text-lg font-bold">Friend Requests</h3>{requesters.map(r=><div key={r.user_id} className="flex items-center gap-3 border-b py-3"><div className="size-10 overflow-hidden rounded-full bg-muted">{r.avatar_url?<img src={r.avatar_url} className="size-full object-cover" alt={r.display_name}/>:<UserCircle2 className="size-full p-2"/>}</div><div className="flex-1"><p className="font-bold">{r.display_name}</p><p className="text-xs text-muted-foreground">{r.location||"ANVYA Community"}</p></div><Button size="sm" onClick={()=>respondFriend(r.user_id,"accepted")}><UserCheck className="mr-1 size-4"/>Accept</Button><Button size="sm" variant="outline" onClick={()=>respondFriend(r.user_id,"rejected")}>Reject</Button></div>)}</CardContent></Card>}
     {me===p.user_id&&<VerificationCard profile={p} request={verification} onSubmitted={v=>setVerification(v)}/>}
     <ProfileProgress userId={p.user_id} posts={posts.length} level={p.level||1} points={p.reputation_points||0}/><ProfileSection section={section} setSection={setSection} posts={posts} draftCount={draftCount} me={me} profile={p} darkMode={darkMode} setDarkMode={setDarkMode} language={language} setLanguage={v=>{setLanguage(v);localStorage.setItem("ideas-language",v)}} region={region} setRegion={v=>{setRegion(v);localStorage.setItem("ideas-region",v)}} saveTheme={saveTheme}/><div className="mt-6 flex flex-wrap gap-2"><Button variant={tab==="posts"?"default":"outline"} onClick={()=>setTab("posts")}><FileText className="mr-2 size-4"/>Posts</Button><Button variant={tab==="messages"?"default":"outline"} onClick={()=>setTab("messages")}><MessageCircle className="mr-2 size-4"/>Messages</Button><Button variant={tab==="reshares"?"default":"outline"} onClick={()=>setTab("reshares")}><Activity className="mr-2 size-4"/>Reshares</Button><Button variant={tab==="activity"?"default":"outline"} onClick={()=>setTab("activity")}><Activity className="mr-2 size-4"/>Activity</Button><Button variant={tab==="friends"?"default":"outline"} onClick={()=>setTab("friends")}><Users className="mr-2 size-4"/>Friends</Button><Button variant={tab==="followers"?"default":"outline"} onClick={()=>setTab("followers")}><Users className="mr-2 size-4"/>Followers</Button><Button variant={tab==="following"?"default":"outline"} onClick={()=>setTab("following")}><UserPlus className="mr-2 size-4"/>Following</Button><Button variant={tab==="questions"?"default":"outline"} onClick={()=>setTab("questions")}><HelpCircle className="mr-2 size-4"/>Questions</Button></div>
     <div className="mt-5 space-y-4">
