@@ -116,7 +116,7 @@ export default function IdeasProfile(){
   if(!p?.user_id) return;
   const raw=sessionStorage.getItem("ideas_message_target");
   if(raw){try{JSON.parse(raw);setTab("messages");}catch{} sessionStorage.removeItem("ideas_message_target")}
-  else if(me===p.user_id && (!userId || userId==="me")) setTab("messages");
+  else setTab("posts");
  },[p?.user_id,me,userId]);
  useEffect(()=>{
   if(!p?.user_id){setHasActiveStory(false);return;}
