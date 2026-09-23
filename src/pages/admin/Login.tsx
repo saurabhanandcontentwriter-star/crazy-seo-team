@@ -128,7 +128,7 @@ export default function AdminLogin() {
       return;
     }
 
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    const { error } = await supabase.functions.invoke("admin-set-password", { body: { password: newPassword } });
     if (error) {
       toast.error(error.message || "Could not set password");
       setBusy(false);
