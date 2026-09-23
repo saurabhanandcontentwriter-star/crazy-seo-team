@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,10 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [settingPassword, setSettingPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [searchParams] = useSearchParams();
 
   // Only redirect an existing session when it is actually an admin.
   // Redirecting every authenticated user to /admin causes a login <-> guard
@@ -58,31 +62,102 @@ export default function AdminLogin() {
   }, [navigate]);
 
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleGoogleSetup = async () => {
     setBusy(true);
-    const id = username.trim();
-
-    const { data, error } = await supabase.functions.invoke("admin-login", {
-      body: { username: id, password },
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/admin/login?set-password=1`,
+        queryParams: { prompt: "select_account" },
+      },
     });
+    if (error) {
+      toast.error(error.message || "Google sign-in failed");
+      setBusy(false);
+    }
+  };
 
-    const tokens = data as { access_token?: string; refresh_token?: string; error?: string } | null;
+  const handleSetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
 
-    if (error || !tokens?.access_token || !tokens?.refresh_token) {
-      await logAttempt({ email: id, success: false, failure_reason: tokens?.error ?? "invalid_credentials" });
-      toast.error("Invalid Admin ID or password");
+    setBusy(true);
+    const { data } = await supabase.auth.getUser();
+    const user = data.user;
+    const email = user?.email?.toLowerCase() ?? "";
+
+    const allowed = [
+      "crazyseoteam@gmail.com",
+      "sauravanand499@gmail.com",
+      "saurabhanandshahisarmera@gmail.com",
+    ];
+
+    if (!user || !email || !allowed.includes(email)) {
+      toast.error("This Google account is not an authorized admin");
+      await supabase.auth.signOut({ scope: "local" }).catch(() => {});
       setBusy(false);
       return;
     }
 
-    const { error: sessErr } = await supabase.auth.setSession({
-      access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token,
+    const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
+      _user_id: user.id,
+      _role: "admin",
     });
 
-    if (sessErr) {
-      toast.error("Could not start session");
+    if (roleError || isAdmin !== true) {
+      toast.error("Admin role is required");
+      setBusy(false);
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      toast.error(error.message || "Could not set password");
+      setBusy(false);
+      return;
+    }
+
+    toast.success("Admin password created successfully");
+    setNewPassword("");
+    setConfirmPassword("");
+    setSettingPassword(false);
+    await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+    setBusy(false);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    const id = username.trim().toLowerCase();
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: id,
+      password,
+    });
+
+    if (error || !data.user || !data.session) {
+      await logAttempt({ email: id, success: false, failure_reason: error?.message ?? "invalid_credentials" });
+      toast.error("Invalid Admin Gmail or password");
+      setBusy(false);
+      return;
+    }
+
+    const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
+      _user_id: data.user.id,
+      _role: "admin",
+    });
+
+    if (roleError || isAdmin !== true) {
+      await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+      await logAttempt({ email: id, success: false, failure_reason: "not_admin" });
+      toast.error("This account is not an admin");
       setBusy(false);
       return;
     }
@@ -122,10 +197,71 @@ export default function AdminLogin() {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent mb-1">
               Welcome Back
             </h1>
-            <p className="text-sm text-slate-600">Sign in to your admin dashboard</p>
+            <p className="text-sm text-slate-600">{searchParams.get("set-password") === "1" ? "Create your password securely with Google verification" : "Sign in to your admin dashboard"}</p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          {searchParams.get("set-password") === "1" ? (
+            <form onSubmit={handleSetPassword} className="space-y-4">
+              <div className="rounded-xl bg-blue-50 border border-blue-100 p-4">
+                <p className="text-sm font-semibold text-slate-800">Create Admin Password</p>
+                <p className="text-xs text-slate-600 mt-1">
+                  Sign in with your authorized Google account, then create a password for Admin Login.
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="new-admin-pwd" className="text-slate-700 font-medium">New Password</Label>
+                <Input
+                  id="new-admin-pwd"
+                  type="password"
+                  autoComplete="new-password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Minimum 8 characters"
+                  required
+                  minLength={8}
+                  className="mt-1.5 bg-white/70 border-slate-200"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="confirm-admin-pwd" className="text-slate-700 font-medium">Confirm Password</Label>
+                <Input
+                  id="confirm-admin-pwd"
+                  type="password"
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Repeat password"
+                  required
+                  minLength={8}
+                  className="mt-1.5 bg-white/70 border-slate-200"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={busy}
+                className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white border-0"
+                size="lg"
+              >
+                {busy ? <><Loader2 size={16} className="mr-2 animate-spin" /> Saving…</> : "Create Password"}
+              </Button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSettingPassword(false);
+                  navigate("/admin/login", { replace: true });
+                }}
+                className="w-full text-sm text-slate-500 hover:text-slate-800"
+              >
+                Back to Admin Login
+              </button>
+            </form>
+          ) : (
+            <>
+              <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <Label htmlFor="username" className="text-slate-700 font-medium">Admin ID</Label>
               <Input
@@ -177,7 +313,25 @@ export default function AdminLogin() {
                 <>Sign In <ArrowRight size={16} className="ml-2" /></>
               )}
             </Button>
-          </form>
+              </form>
+
+              <div className="relative my-5">
+                <div className="border-t border-slate-200" />
+                <span className="absolute left-1/2 -translate-x-1/2 -top-2.5 bg-white/90 px-3 text-[11px] text-slate-400">OR</span>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGoogleSetup}
+                disabled={busy}
+                className="w-full border-slate-200 bg-white/70"
+              >
+                {busy ? <Loader2 size={16} className="mr-2 animate-spin" /> : null}
+                Continue with Google to Create/Reset Password
+              </Button>
+            </>
+          )}
 
           {/* Trust badges */}
           <div className="mt-6 grid grid-cols-3 gap-2 text-center">
