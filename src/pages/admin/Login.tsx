@@ -147,7 +147,15 @@ export default function AdminLogin() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const id = username.trim().toLowerCase();
+    const enteredId = username.trim().toLowerCase();
+    // Accept both the real admin Gmail and the short Admin ID shown in the UI.
+    const adminEmailAliases: Record<string, string> = {
+      "crazyseoteam": "crazyseoteam@gmail.com",
+      "crazyseo": "crazyseoteam@gmail.com",
+      "saurabhanand": "saurabhanandshahisarmera@gmail.com",
+      "saurav": "saurabhanandshahisarmera@gmail.com",
+    };
+    const id = adminEmailAliases[enteredId] ?? enteredId;
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email: id,
@@ -283,7 +291,7 @@ export default function AdminLogin() {
                 autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Crazyseoteam"
+                placeholder="Crazyseoteam or admin Gmail"
                 required
                 className="mt-1.5 bg-white/70 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
               />
