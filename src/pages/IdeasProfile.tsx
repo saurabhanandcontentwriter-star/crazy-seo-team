@@ -9,7 +9,6 @@ import {Textarea} from "@/components/ui/textarea";
 import {Card,CardContent} from "@/components/ui/card";
 import {Badge} from "@/components/ui/badge";
 import {toast} from "sonner";
-import IdeasStoryHighlights from "@/components/IdeasStoryHighlights";
 import IdeasMessages from "@/components/IdeasMessages";
 import IdeasInlinePostComposer from "@/components/IdeasInlinePostComposer";
 import CreatorProfilePanel from "@/components/CreatorProfilePanel";
@@ -39,7 +38,7 @@ export default function IdeasProfile(){
  // Keep profile UI clean: no literal newline escape should ever be rendered as JSX text.
  const {userId}=useParams(); const nav=useNavigate();
  const [me,setMe]=useState<string|null>(null),[p,setP]=useState<Profile|null>(null),[verification,setVerification]=useState<any>(null),[posts,setPosts]=useState<Post[]>([]),[followerCount,setFollowerCount]=useState(0),[followingCount,setFollowingCount]=useState(0),[tab,setTab]=useState("posts"),[reshares,setReshares]=useState<Post[]>([]),[following,setFollowing]=useState(false),[friendStatus,setFriendStatus]=useState<string|null>(null),[edit,setEdit]=useState(false),[saving,setSaving]=useState(false),[loading,setLoading]=useState(true),[form,setForm]=useState<Partial<Profile>>({}),[avatarFile,setAvatarFile]=useState<File|null>(null),[coverFile,setCoverFile]=useState<File|null>(null),[requesters,setRequesters]=useState<Profile[]>([]);
- const [section,setSection]=useState("content"),[darkMode,setDarkMode]=useState(false),[language,setLanguage]=useState("English"),[region,setRegion]=useState("Global"),[draftCount,setDraftCount]=useState(0),[hasActiveStory,setHasActiveStory]=useState(false),[profileOnline,setProfileOnline]=useState(false),[profileLastSeen,setProfileLastSeen]=useState<string|null>(null),[pinnedPostId,setPinnedPostId]=useState<string|null>(null),[showPostComposer,setShowPostComposer]=useState(false);
+ const [section,setSection]=useState("content"),[darkMode,setDarkMode]=useState(false),[language,setLanguage]=useState("English"),[region,setRegion]=useState("Global"),[draftCount,setDraftCount]=useState(0),[profileOnline,setProfileOnline]=useState(false),[profileLastSeen,setProfileLastSeen]=useState<string|null>(null),[pinnedPostId,setPinnedPostId]=useState<string|null>(null),[showPostComposer,setShowPostComposer]=useState(false);
  const applyTheme=(mode:"light"|"dark"|"system")=>{
   const isDark=mode==="dark"||(mode==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);
   document.documentElement.classList.toggle("dark",isDark);
@@ -216,8 +215,8 @@ export default function IdeasProfile(){
 
         <CardContent className="px-4 pb-0 pt-0 sm:px-6">
           <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end">
-            <div className={"relative z-10 -mt-20 size-32 shrink-0 overflow-hidden rounded-full border-[6px] border-background bg-muted shadow-2xl sm:size-40 "+(hasActiveStory?"ring-4 ring-pink-500 ring-offset-2 ring-offset-background":"")}>
-              {p.avatar_url?<img src={p.avatar_url} className="size-full object-cover" alt={p.display_name} loading="eager"/>:<UserCircle2 className="size-full p-8 text-muted-foreground"/>}
+            <div className="relative z-10 -mt-20 size-32 shrink-0 overflow-hidden rounded-full border-[6px] border-background bg-muted shadow-2xl sm:size-40">
+              {p.avatar_url?<img src={p.avatar_url} className="size-full object-cover" alt={p.display_name} loading="eager"/>:<div className="grid size-full place-items-center bg-gradient-to-br from-primary via-primary/80 to-violet-500 text-primary-foreground" aria-label="ANVYA logo"><svg viewBox="0 0 64 64" className="size-20" aria-hidden="true"><path d="M32 7c-11.6 0-21 8.7-21 19.5 0 7.1 3.8 12.5 9.2 15.8V48c0 2.2 1.8 4 4 4h15.6c2.2 0 4-1.8 4-4v-5.7C49.2 39 53 33.6 53 26.5 53 15.7 43.6 7 32 7Z" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/><path d="M25 58h14M27 42h10M27 32c2.2 2 3.9 3 5 3s2.8-1 5-3" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round"/></svg></div>}
               {me===p.user_id&&<label className="absolute inset-x-0 bottom-0 cursor-pointer bg-black/70 py-2 text-center text-xs font-semibold text-white hover:bg-black/80"><Camera className="mr-1 inline size-3"/>Edit<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setAvatarFile(e.target.files?.[0]||null)}/></label>}
               {profileOnline&&<span className="absolute bottom-2 right-2 size-4 rounded-full border-2 border-background bg-emerald-500" title="Active now"/>}
             </div>
@@ -272,9 +271,6 @@ export default function IdeasProfile(){
             </div>
           </div>
 
-          <div className="mt-5 pb-6">
-            <IdeasStoryHighlights profileUserId={p.user_id} avatarUrl={p.avatar_url} displayName={p.display_name} isOwner={me===p.user_id}/>
-          </div>
         </CardContent>
       </Card>
 
