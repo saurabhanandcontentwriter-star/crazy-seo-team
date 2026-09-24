@@ -85,6 +85,9 @@ Deno.serve(async (req) => {
         .order("updated_at", { ascending: false });
       if (error) return fail(error.message, 400);
 
+      // Always include every Auth user as a CRM user, even when a profile row is
+      // missing. This keeps all three existing Ideas accounts visible with their
+      // email/account metadata instead of silently dropping them.
       const [{ data: postRows, error: postsError }, { data: follows }, { data: friends }, { data: badges }, { data: users }] =
         await Promise.all([
           admin.from("idea_posts").select("id,user_id,profile_id,display_name,location,subject,title,content,image_url,device_type,status,rejection_reason,created_at,scheduled_for,ai_detection_score,moderation_score,moderation_reason,moderation_checked_at,moderation_links,post_type,visibility,event_start,event_end,event_location,event_url").order("created_at", { ascending: false }),
@@ -96,24 +99,35 @@ Deno.serve(async (req) => {
       if (postsError) return fail(postsError.message, 400);
 
       const byUser = new Map((users?.users ?? []).map((u: any) => [u.id, u]));
-      const out = (profiles ?? []).map((p: any) => {
-        const u = byUser.get(p.user_id);
-        const ps = (posts ?? []).filter((x: any) => x.user_id === p.user_id);
-        const fs = (follows ?? []).filter((x: any) => x.following_id === p.user_id);
-        const fg = (follows ?? []).filter((x: any) => x.follower_id === p.user_id);
+      const profilesByUser = new Map((profiles ?? []).map((p: any) => [p.user_id, p]));
+      const allUserIds = Array.from(new Set([
+        ...(users?.users ?? []).map((u: any) => u.id),
+        ...(profiles ?? []).map((p: any) => p.user_id),
+        ...(postRows ?? []).map((p: any) => p.user_id),
+      ].filter(Boolean)));
+
+      const out = allUserIds.map((userId: string) => {
+        const u = byUser.get(userId);
+        const p = profilesByUser.get(userId) ?? {};
+        const ps = (postRows ?? []).filter((x: any) => x.user_id === userId);
+        const fs = (follows ?? []).filter((x: any) => x.following_id === userId);
+        const fg = (follows ?? []).filter((x: any) => x.follower_id === userId);
         const fr = (friends ?? []).filter(
-          (x: any) => (x.requester_id === p.user_id || x.addressee_id === p.user_id) && x.status === "accepted",
+          (x: any) => (x.requester_id === userId || x.addressee_id === userId) && x.status === "accepted",
         );
+        const fullName = [p.first_name, p.middle_name, p.last_name].filter(Boolean).join(" ").trim();
         return {
           ...p,
-          email: u?.email ?? "",
+          user_id: userId,
+          display_name: p.display_name ?? fullName ?? u?.email?.split("@")[0] ?? "Ideas User",
+          email: u?.email ?? p.email ?? "",
           auth_created_at: u?.created_at ?? null,
           last_sign_in_at: u?.last_sign_in_at ?? null,
           post_count: ps.length,
           follower_count: fs.length,
           following_count: fg.length,
           friend_count: fr.length,
-          badges: (badges ?? []).filter((b: any) => b.user_id === p.user_id).map((b: any) => b.badge_name),
+          badges: (badges ?? []).filter((b: any) => b.user_id === userId).map((b: any) => b.badge_name),
           last_post_at: ps.sort((a: any, b: any) => +new Date(b.created_at) - +new Date(a.created_at))[0]?.created_at ?? null,
         };
       });
