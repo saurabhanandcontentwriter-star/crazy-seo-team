@@ -155,10 +155,52 @@ export default function IdeasProfile(){
  if(loading)return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin"/></div>;
  if(!p)return <div className="container mx-auto max-w-3xl px-4 py-12"><Card><CardContent className="p-10 text-center">Profile not found.</CardContent></Card></div>;
  return (
-  <div className="min-h-screen bg-background">
-   <div className="container mx-auto max-w-5xl px-4 py-6 md:py-10">
-    <Button variant="ghost" onClick={()=>nav("/anvya")}><ArrowLeft className="mr-2 size-4"/>Ideas</Button>
-    <div className="mt-4 grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
+  <div className="min-h-screen bg-[#f8f9fc] dark:bg-background">
+   <div className="mx-auto flex min-h-screen max-w-[1500px]">
+    <aside className="sticky top-0 hidden h-screen w-[215px] shrink-0 flex-col border-r bg-background px-3 py-5 lg:flex">
+      <button onClick={()=>nav("/anvya")} className="flex items-center gap-3 px-3 pb-7 text-left">
+        <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 text-xl font-black text-white">A</div>
+        <span className="text-2xl font-black tracking-tight">ANVYA</span>
+      </button>
+      <nav className="space-y-1">
+        {[
+          ["Home",Home,"/anvya"],
+          ["Explore",Compass,"/anvya"],
+          ["Notifications",Bell,"/anvya/notifications"],
+          ["Messages",MessageCircle,"messages"],
+          ["Profile",UserCircle2,"profile"],
+          ["Saved",Bookmark,"/anvya/saved"],
+          ["Communities",Users,"/anvya/communities"],
+          ["Events",CalendarDays,"/anvya/events"],
+          ["Premium",Crown,"/anvya/premium"],
+          ["Analytics",BarChart3,"/anvya/analytics"],
+          ["Settings",Settings2,"/anvya/settings"]
+        ].map(([label,Icon,target]:any)=>{
+          const active=target==="profile"||(target==="messages"&&tab==="messages")||(target==="profile"&&tab!=="messages");
+          return <button key={label} onClick={()=>target==="messages"?setTab("messages"):target==="profile"?setTab("posts"):nav(target)} className={"flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition "+(active?"bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300":"text-muted-foreground hover:bg-muted hover:text-foreground")}><Icon className="size-5"/><span>{label}</span>{label==="Notifications"&&<span className="ml-auto flex size-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">3</span>}</button>
+        })}
+      </nav>
+      <Button onClick={()=>nav("/anvya/create")} className="mt-4 h-11 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 font-bold shadow-lg"><Plus className="mr-2 size-5"/>Create Post</Button>
+      <div className="mt-5 rounded-2xl border bg-background p-3 shadow-sm">
+        <div className="mb-2 flex flex-wrap gap-1">
+          <Badge className="rounded-full bg-blue-600 text-white">🌍 ANVYA GLOBAL</Badge>
+          <Badge variant="outline" className="rounded-full text-[10px]">Professional + Social Network</Badge>
+        </div>
+        <h3 className="text-base font-black leading-5">Connect, create and grow worldwide.</h3>
+        <p className="mt-2 text-xs leading-5 text-muted-foreground">Discover people, communities, events and conversations from one public ANVYA identity.</p>
+        <div className="mt-3 space-y-1">
+          <button onClick={()=>nav("/anvya")} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm font-semibold hover:bg-muted"><Globe2 className="size-4 text-blue-600"/>Explore</button>
+          <button onClick={()=>nav("/anvya/communities")} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm font-semibold hover:bg-muted"><Users className="size-4 text-violet-600"/>Communities</button>
+          <button onClick={()=>nav("/anvya/create")} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm font-semibold hover:bg-muted"><Plus className="size-4 text-orange-500"/>Publish</button>
+          <button onClick={()=>setTab("followers")} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm font-semibold hover:bg-muted"><UserPlus className="size-4 text-amber-500"/>Network</button>
+          <button onClick={()=>setTab("messages")} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm font-semibold hover:bg-muted"><MessageCircle className="size-4 text-violet-600"/>Messages</button>
+        </div>
+      </div>
+    </aside>
+    <main className="min-w-0 flex-1 px-3 py-4 sm:px-5 md:px-7 md:py-7">
+      <div className="mx-auto max-w-[1180px]">
+       <Button variant="ghost" onClick={()=>nav("/anvya")}><ArrowLeft className="mr-2 size-4"/>ANVYA</Button>
+       <div className="mt-2 grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
       <Card className="overflow-hidden rounded-[30px] border bg-background shadow-xl">
         <div className="relative h-56 sm:h-64 md:h-72">
           {p.cover_url?<img src={p.cover_url} className="size-full object-cover" alt="Profile cover"/>:<div className="size-full bg-gradient-to-br from-slate-950 via-blue-900 to-violet-700"/>}
@@ -221,33 +263,6 @@ export default function IdeasProfile(){
             {p.github_url&&<a href={String(p.github_url)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold hover:text-primary"><ExternalLink className="size-5"/>GitHub</a>}
             {p.website_url&&<a href={String(p.website_url)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold hover:text-primary"><Globe2 className="size-5 text-blue-600"/>Website</a>}
           </div>
-
-          <Card className="mt-5 overflow-hidden rounded-2xl border-primary/15 bg-gradient-to-br from-primary/5 via-background to-violet-500/5">
-            <CardContent className="p-4 sm:p-5">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge className="rounded-full">🌍 ANVYA GLOBAL</Badge>
-                    <Badge variant="outline" className="rounded-full">Professional + Social Network</Badge>
-                  </div>
-                  <h2 className="mt-2 text-xl font-black tracking-tight sm:text-2xl">Connect, create and grow worldwide.</h2>
-                  <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">Discover people, communities, events and conversations from one public ANVYA identity. This profile is publicly shareable and designed for a global audience.</p>
-                </div>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:w-auto">
-                  <Button size="sm" variant="outline" className="justify-start" onClick={()=>nav("/anvya")}><Home className="mr-2 size-4"/>Home</Button>
-                  <Button size="sm" variant="outline" className="justify-start" onClick={()=>nav("/anvya/communities")}><Users className="mr-2 size-4"/>Communities</Button>
-                  <Button size="sm" variant="outline" className="justify-start" onClick={()=>nav("/anvya/create")}><Plus className="mr-2 size-4"/>Create</Button>
-                  <Button size="sm" className="justify-start" onClick={()=>setTab("messages")}><MessageCircle className="mr-2 size-4"/>Messages</Button>
-                </div>
-              </div>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                <button onClick={()=>nav("/anvya")} className="rounded-xl border bg-background/80 p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/40"><p className="font-bold">🌐 Explore</p><p className="mt-1 text-xs text-muted-foreground">Find people and new ideas.</p></button>
-                <button onClick={()=>nav("/anvya/communities")} className="rounded-xl border bg-background/80 p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/40"><p className="font-bold">👥 Communities</p><p className="mt-1 text-xs text-muted-foreground">Join interest-based groups.</p></button>
-                <button onClick={()=>nav("/anvya/create")} className="rounded-xl border bg-background/80 p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/40"><p className="font-bold">✍️ Publish</p><p className="mt-1 text-xs text-muted-foreground">Share posts, questions and knowledge.</p></button>
-                <button onClick={()=>setTab("followers")} className="rounded-xl border bg-background/80 p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/40"><p className="font-bold">🤝 Network</p><p className="mt-1 text-xs text-muted-foreground">Build your professional network.</p></button>
-              </div>
-            </CardContent>
-          </Card>
 
           <div className="mt-5 border-b">
             <div className="flex gap-1 overflow-x-auto">
@@ -373,7 +388,9 @@ export default function IdeasProfile(){
      {tab==="questions"&&posts.filter(x=>x.post_type==="question").map(x=><PostCard key={x.id} x={x}/>)}
      {tab==="activity"&&<Card><CardContent className="p-6"><h3 className="text-lg font-black">Timeline</h3><div className="relative mt-5 space-y-5 pl-5 before:absolute before:bottom-2 before:left-2 before:top-2 before:w-px before:bg-border">{posts.slice(0,20).map(x=><div key={x.id} className="relative"><span className="absolute -left-[17px] top-1.5 size-3 rounded-full border-2 border-background bg-primary"/><div className="rounded-2xl border p-4"><div className="flex flex-wrap items-center justify-between gap-2"><b>{x.post_type==="question"?"Asked a question":"Published a post"}</b><span className="text-xs text-muted-foreground">{new Date(x.created_at).toLocaleString()}</span></div><p className="mt-1 text-sm text-muted-foreground">{x.title}</p></div></div>)}</div></CardContent></Card>}
      {(tab==="friends"||tab==="following"||tab==="followers")&&<RelationshipList userId={p.user_id} mode={tab as "friends"|"following"|"followers"}/>}
-    </div>
+       </div>
+      </div>
+    </main>
    </div>
   </div>
  );
