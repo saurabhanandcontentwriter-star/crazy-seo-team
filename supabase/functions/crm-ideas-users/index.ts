@@ -72,14 +72,15 @@ Deno.serve(async (req) => {
         .order("updated_at", { ascending: false });
       if (error) return fail(error.message, 400);
 
-      const [{ data: posts }, { data: follows }, { data: friends }, { data: badges }, { data: users }] =
+      const [{ data: postRows, error: postsError }, { data: follows }, { data: friends }, { data: badges }, { data: users }] =
         await Promise.all([
-          admin.from("idea_posts").select("user_id,created_at"),
+          admin.from("idea_posts").select("id,user_id,profile_id,display_name,location,subject,title,content,image_url,device_type,status,rejection_reason,created_at,scheduled_for,ai_detection_score,moderation_score,moderation_reason,moderation_checked_at,moderation_links,post_type,visibility,event_start,event_end,event_location,event_url").order("created_at", { ascending: false }),
           admin.from("idea_follows").select("follower_id,following_id"),
           admin.from("idea_friendships").select("requester_id,addressee_id,status"),
           admin.from("idea_badges").select("user_id,badge_name"),
           admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
         ]);
+      if (postsError) return fail(postsError.message, 400);
 
       const byUser = new Map((users?.users ?? []).map((u: any) => [u.id, u]));
       const out = (profiles ?? []).map((p: any) => {
@@ -103,7 +104,20 @@ Deno.serve(async (req) => {
           last_post_at: ps.sort((a: any, b: any) => +new Date(b.created_at) - +new Date(a.created_at))[0]?.created_at ?? null,
         };
       });
-      return ok({ users: out, total: out.length });
+      const postsOut = (postRows ?? []).map((post: any) => {
+        const u = byUser.get(post.user_id);
+        const p = (profiles ?? []).find((profile: any) => profile.user_id === post.user_id);
+        return {
+          ...post,
+          email: u?.email ?? "",
+          owner_name: p
+            ? [p.first_name, p.middle_name, p.last_name].filter(Boolean).join(" ") || p.display_name
+            : post.display_name ?? null,
+          profile_image_url: p?.avatar_url ?? null,
+          public_id: p?.public_id ?? post.profile_id ?? null,
+        };
+      });
+      return ok({ users: out, posts: postsOut, total: out.length, totalPosts: postsOut.length });
     }
 
     if (body.action === "delete_creator_application") {
