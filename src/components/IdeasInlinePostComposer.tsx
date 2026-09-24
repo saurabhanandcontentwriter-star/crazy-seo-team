@@ -79,6 +79,7 @@ export default function IdeasInlinePostComposer({
   const [eventEnd, setEventEnd] = useState("");
   const [eventLocation, setEventLocation] = useState("");
   const [eventUrl, setEventUrl] = useState("");
+  const [location, setLocation] = useState(profile.location || "");
 
   const currentMode = modes.find((item) => item.value === mode)!;
 
@@ -149,11 +150,12 @@ export default function IdeasInlinePostComposer({
       const imageUrl = imageFile ? await uploadImage(user.id, imageFile) : null;
       const normalizedTags = tags.map((tag) => tag.trim().replace(/^#/, "")).filter(Boolean).slice(0, 10);
       const subjectValue = subject || "Tech";
+      const locationValue = location.trim() || null;
       const payload = {
         user_id: user.id,
         profile_id: profile.public_id || user.id,
         display_name: profile.display_name || "ANVYA Member",
-        location: profile.location || null,
+        location: locationValue,
         mobile: null,
         show_mobile: false,
         subject: subjectValue,
@@ -174,7 +176,7 @@ export default function IdeasInlinePostComposer({
       const { data, error } = await supabase
         .from("idea_posts")
         .insert(payload)
-        .select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status")
+        .select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,tags,location,image_url,created_at,status")
         .single();
 
       if (error) throw error;
@@ -196,6 +198,8 @@ export default function IdeasInlinePostComposer({
       onCreated(data);
       setTitle("");
       setImageFile(null);
+      setTags([]);
+      setTagInput("");
       if (editorRef.current) editorRef.current.innerHTML = "";
       onClose();
     } catch (e: any) {
@@ -265,6 +269,24 @@ export default function IdeasInlinePostComposer({
                   : "Post title..."
             }
           />
+
+          <div className="grid gap-3 md:grid-cols-3">
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Subject</label>
+              <select className="h-11 w-full rounded-xl border bg-background px-3 text-sm" value={subject} onChange={(e) => setSubject(e.target.value)}>
+                <option>Tech</option><option>SEO</option><option>AI</option><option>Marketing</option><option>Business</option><option>Career</option><option>Education</option><option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Tags</label>
+              <Input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); const v=tagInput.trim().replace(/^#/,""); if(v && !tags.includes(v) && tags.length<10) setTags([...tags,v]); setTagInput(""); } }} placeholder="#SEO, #AI, #Google" />
+              {tags.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5">{tags.map(tag => <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => setTags(tags.filter(t => t !== tag))}>#{tag} ×</Badge>)}</div>}
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Location</label>
+              <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City, State, Country" />
+            </div>
+          </div>
 
           <div className="overflow-hidden rounded-2xl border bg-background">
             <div className="flex flex-wrap items-center gap-1 border-b bg-muted/40 p-2">
