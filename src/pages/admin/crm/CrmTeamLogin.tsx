@@ -5,7 +5,10 @@ import { toast } from "sonner";
 import { GlassCard } from "@/components/crm/CrmUI";
 import { supabase } from "@/integrations/supabase/client";
 
-const CRM_ADMIN_EMAIL = "crazyseoteam@gmail.com";
+const CRM_ADMIN_EMAILS = new Set([
+  "crazyseoteam@gmail.com",
+  "saurabhanandshahisarmera@gmail.com",
+]);
 
 export default function CrmTeamLogin() {
   const navigate = useNavigate();
@@ -18,7 +21,7 @@ export default function CrmTeamLogin() {
       const { data } = await supabase.auth.getSession();
       const email = data.session?.user?.email?.trim().toLowerCase();
 
-      if (!cancelled && email === CRM_ADMIN_EMAIL) {
+      if (!cancelled && email && CRM_ADMIN_EMAILS.has(email)) {
         navigate("/admin/crm", { replace: true });
       }
     };
@@ -84,7 +87,7 @@ export default function CrmTeamLogin() {
         </button>
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
-          Sign in with the authorized Google account to continue.
+          Sign in with an authorized Google account to continue.
         </p>
       </GlassCard>
     </div>
