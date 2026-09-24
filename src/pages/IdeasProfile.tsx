@@ -38,7 +38,7 @@ export default function IdeasProfile(){
  // Keep profile UI clean: no literal newline escape should ever be rendered as JSX text.
  const {userId}=useParams(); const nav=useNavigate();
  const [me,setMe]=useState<string|null>(null),[p,setP]=useState<Profile|null>(null),[verification,setVerification]=useState<any>(null),[posts,setPosts]=useState<Post[]>([]),[followerCount,setFollowerCount]=useState(0),[followingCount,setFollowingCount]=useState(0),[tab,setTab]=useState("posts"),[reshares,setReshares]=useState<Post[]>([]),[following,setFollowing]=useState(false),[friendStatus,setFriendStatus]=useState<string|null>(null),[edit,setEdit]=useState(false),[saving,setSaving]=useState(false),[loading,setLoading]=useState(true),[form,setForm]=useState<Partial<Profile>>({}),[avatarFile,setAvatarFile]=useState<File|null>(null),[coverFile,setCoverFile]=useState<File|null>(null),[requesters,setRequesters]=useState<Profile[]>([]);
- const [section,setSection]=useState("content"),[darkMode,setDarkMode]=useState(false),[language,setLanguage]=useState("English"),[region,setRegion]=useState("Global"),[draftCount,setDraftCount]=useState(0),[profileOnline,setProfileOnline]=useState(false),[profileLastSeen,setProfileLastSeen]=useState<string|null>(null),[pinnedPostId,setPinnedPostId]=useState<string|null>(null),[showPostComposer,setShowPostComposer]=useState(false);
+ const [section,setSection]=useState("content"),[darkMode,setDarkMode]=useState(false),[language,setLanguage]=useState("English"),[region,setRegion]=useState("Global") ,[draftCount,setDraftCount]=useState(0),[profileOnline,setProfileOnline]=useState(false),[profileLastSeen,setProfileLastSeen]=useState<string|null>(null),[pinnedPostId,setPinnedPostId]=useState<string|null>(null),[showPostComposer,setShowPostComposer]=useState(false);
  const applyTheme=(mode:"light"|"dark"|"system")=>{
   const isDark=mode==="dark"||(mode==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);
   document.documentElement.classList.toggle("dark",isDark);
@@ -74,7 +74,8 @@ export default function IdeasProfile(){
   if(slugProfile?.user_id) id=slugProfile.user_id;
  }
  if(!id){setLoading(false);nav("/anvya/login",{replace:true});return}
- const {data:profile}=await supabase.from("idea_profiles").select("user_id,display_name,first_name,middle_name,last_name,state,country,bio,avatar_url,cover_url,location,website_url,linkedin_url,github_url,instagram_url,twitter_url,date_of_birth,working,company,education,public_id,reputation_points,level,verified,account_status,banned_until,is_creator,creator_types,creator_since,creator_rules_accepted_at").eq("user_id",id).maybeSingle();
+ const {data:profile,error:profileError}=await supabase.from("idea_profiles").select("user_id,display_name,first_name,middle_name,last_name,state,country,bio,avatar_url,cover_url,location,website_url,linkedin_url,github_url,instagram_url,twitter_url,date_of_birth,working,company,education,public_id,reputation_points,level,verified,account_status,banned_until,is_creator,creator_types,creator_since,creator_rules_accepted_at").eq("user_id",id).maybeSingle();
+ if(profileError){console.error("ANVYA profile lookup failed",profileError);setLoading(false);return;}
  if(!profile&&user?.id===id){
   const fallback={user_id:user.id,display_name:user.user_metadata?.full_name||user.email?.split("@")[0]||"Member"};
   const {data:created,error:createError}=await supabase.from("idea_profiles").insert(fallback).select("user_id,display_name").single();
@@ -126,12 +127,6 @@ export default function IdeasProfile(){
   if(raw){try{JSON.parse(raw);setTab("messages");}catch{} sessionStorage.removeItem("ideas_message_target")}
   else setTab("posts");
  },[p?.user_id,me,userId]);
- useEffect(()=>{
-  if(!p?.user_id){setHasActiveStory(false);return;}
-  let cancelled=false;
-  (async()=>{const {data}=await supabase.from("idea_stories").select("id").eq("user_id",p.user_id).gt("expires_at",new Date().toISOString()).limit(1);if(!cancelled)setHasActiveStory(!!data?.length)})();
-  return()=>{cancelled=true};
- },[p?.user_id]);
  useEffect(()=>{
   const saved=localStorage.getItem("ideas-draft-count");setDraftCount(saved?Number(saved)||0:0);
   setLanguage(localStorage.getItem("ideas-language")||"English");setRegion(localStorage.getItem("ideas-region")||"Global");
