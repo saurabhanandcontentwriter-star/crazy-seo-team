@@ -14,7 +14,9 @@ type InboxItem=MsgProfile&{last_message:string;last_message_at:string;unread:num
 const onlineCutoff=90*1000;
 
 function isOnline(lastSeen:string|null|undefined){return !!lastSeen&&Date.now()-new Date(lastSeen).getTime()<onlineCutoff;}
-function formatMessageTime(value:string){return new Date(value).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});}\nfunction formatDayLabel(value:string){const d=new Date(value);const today=new Date();const yesterday=new Date();yesterday.setDate(today.getDate()-1);if(d.toDateString()===today.toDateString())return "Today";if(d.toDateString()===yesterday.toDateString())return "Yesterday";return d.toLocaleDateString([], {day:"numeric",month:"short",year:"numeric"});}\nfunction formatLastSeen(value:string|null|undefined){
+function formatMessageTime(value:string){return new Date(value).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});}
+function formatDayLabel(value:string){const d=new Date(value);const today=new Date();const yesterday=new Date();yesterday.setDate(today.getDate()-1);if(d.toDateString()===today.toDateString())return "Today";if(d.toDateString()===yesterday.toDateString())return "Yesterday";return d.toLocaleDateString([], {day:"numeric",month:"short",year:"numeric"});}
+function formatLastSeen(value:string|null|undefined){
  if(!value)return "Never seen";
  const diff=Math.max(0,Date.now()-new Date(value).getTime());
  if(diff<60_000)return "Last seen just now";
