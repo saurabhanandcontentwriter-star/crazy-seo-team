@@ -11,6 +11,9 @@ import { Check, Loader2, X, Search, Clock3, CheckCircle2, XCircle, ShieldCheck }
 type Idea = {
   id: string;
   profile_id: string;
+  user_id: string | null;
+  email?: string | null;
+  public_id?: string | null;
   display_name: string | null;
   location: string | null;
   mobile: string | null;
@@ -63,17 +66,21 @@ export default function IdeasAdmin() {
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("idea_posts")
-      .select("id,profile_id,display_name,location,mobile,subject,title,content,image_url,device_type,status,rejection_reason,created_at,scheduled_for,ai_detection_score,moderation_score,moderation_reason,moderation_checked_at,moderation_links")
-      .order("created_at", { ascending: false })
-      .limit(300);
-    if (error) toast.error(error.message);
-    else setRows(Array.isArray(data) ? (data as Idea[]) : []);
-    const ca = await supabase.from("creator_applications").select("*").order("created_at", { ascending: false });
-    if (ca.error) toast.error(`Creator applications: ${ca.error.message}`);
-    setCreatorApps(Array.isArray(ca.data) ? (ca.data as CreatorApplication[]) : []);
-    setLoading(false);
+    try {
+      const { data, error } = await supabase.functions.invoke("crm-ideas-users", { body: { action: "list" } });
+      if (error || data?.error) {
+        toast.error(data?.error || error?.message || "Ideas data could not load");
+        setRows([]);
+      } else {
+        setRows(Array.isArray(data?.posts) ? (data.posts as Idea[]) : []);
+      }
+
+      const ca = await supabase.from("creator_applications").select("*").order("created_at", { ascending: false });
+      if (ca.error) toast.error(`Creator applications: ${ca.error.message}`);
+      setCreatorApps(Array.isArray(ca.data) ? (ca.data as CreatorApplication[]) : []);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { void load(); }, []);
@@ -107,7 +114,7 @@ export default function IdeasAdmin() {
   const filtered = useMemo(() => rows.filter((r) => {
     const matchesStatus = filter === "all" || r.status === filter;
     const q = query.trim().toLowerCase();
-    const matchesQuery = !q || [r.title, r.content, r.display_name, r.subject, r.profile_id]
+    const matchesQuery = !q || [r.title, r.content, r.display_name, r.subject, r.profile_id, r.email, r.public_id]
       .some((v) => (v || "").toLowerCase().includes(q));
     return matchesStatus && matchesQuery;
   }), [rows, filter, query]);
@@ -121,10 +128,12 @@ export default function IdeasAdmin() {
       toast.error("Add rejection reason.");
       return;
     }
+
     setBusy(row.id);
     const nextReason = status === "rejected"
       ? reason[row.id].trim()
       : "Approved after content detector review.";
+
     const { error } = await supabase
       .from("idea_posts")
       .update({
@@ -135,9 +144,12 @@ export default function IdeasAdmin() {
         moderation_checked_at: row.moderation_checked_at || new Date().toISOString(),
       })
       .eq("id", row.id);
-    if (error) toast.error(error.message);
-    else {
+
+    if (error) {
+      toast.error(error.message);
+    } else {
       toast.success(status === "approved" ? "Idea approved and published." : "Idea rejected.");
+      setReason((v) => ({ ...v, [row.id]: "" }));
       await load();
     }
     setBusy(null);
@@ -222,6 +234,8 @@ export default function IdeasAdmin() {
                 <div className="border-b bg-muted/20 px-5 py-4 md:px-8">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-xs font-bold text-muted-foreground">{r.display_name || `Profile ${r.profile_id}`}</span>
+                    {r.email && <span className="text-[11px] text-muted-foreground">{r.email}</span>}
+                    {r.public_id && <Badge variant="outline">{r.public_id}</Badge>}
                     <Badge variant="outline">{r.subject}</Badge>
                     <Badge variant={r.status === "approved" ? "default" : r.status === "rejected" ? "destructive" : "outline"}>{r.status}</Badge>
                     {r.ai_detection_score != null && <Badge variant="secondary">AI-style {Math.round(r.ai_detection_score)}%</Badge>}
