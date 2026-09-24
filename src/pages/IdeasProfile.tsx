@@ -450,7 +450,7 @@ export default function IdeasProfile(){
        initialTarget={p.user_id !== me ? { user_id: p.user_id, display_name: p.display_name, avatar_url: p.avatar_url, public_id: p.public_id } : null}
       />
      ) : null} 
-     {tab==="posts"&&posts.filter(x=>x.post_type==="post"&&x.id!==pinnedPostId).map(x=><PostCard key={x.id} x={x} pinnedByProfile={pinnedPostId===x.id} onTogglePin={()=>togglePinnedPost(x.id)}/>)}
+     {tab==="posts"&&posts.filter(x=>String(x.post_type||"").toLowerCase()==="post"&&x.id!==pinnedPostId).map(x=><PostCard key={x.id} x={x} pinnedByProfile={pinnedPostId===x.id} onTogglePin={()=>togglePinnedPost(x.id)}/>)}
      {tab==="reshares"&&reshares.map(x=><PostCard key={x.id} x={x} resharedByProfile/>)}
      {tab==="questions"&&posts.filter(x=>x.post_type==="question").map(x=><PostCard key={x.id} x={x}/>)}
      {tab==="activity"&&<Card><CardContent className="p-6"><h3 className="text-lg font-black">Timeline</h3><div className="relative mt-5 space-y-5 pl-5 before:absolute before:bottom-2 before:left-2 before:top-2 before:w-px before:bg-border">{posts.slice(0,20).map(x=><div key={x.id} className="relative"><span className="absolute -left-[17px] top-1.5 size-3 rounded-full border-2 border-background bg-primary"/><div className="rounded-2xl border p-4"><div className="flex flex-wrap items-center justify-between gap-2"><b>{x.post_type==="question"?"Asked a question":"Published a post"}</b><span className="text-xs text-muted-foreground">{new Date(x.created_at).toLocaleString()}</span></div><p className="mt-1 text-sm text-muted-foreground">{x.title}</p></div></div>)}</div></CardContent></Card>}
