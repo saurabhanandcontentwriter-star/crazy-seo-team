@@ -222,6 +222,33 @@ export default function IdeasProfile(){
             {p.website_url&&<a href={String(p.website_url)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold hover:text-primary"><Globe2 className="size-5 text-blue-600"/>Website</a>}
           </div>
 
+          <Card className="mt-5 overflow-hidden rounded-2xl border-primary/15 bg-gradient-to-br from-primary/5 via-background to-violet-500/5">
+            <CardContent className="p-4 sm:p-5">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge className="rounded-full">🌍 ANVYA GLOBAL</Badge>
+                    <Badge variant="outline" className="rounded-full">Professional + Social Network</Badge>
+                  </div>
+                  <h2 className="mt-2 text-xl font-black tracking-tight sm:text-2xl">Connect, create and grow worldwide.</h2>
+                  <p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">Discover people, communities, events and conversations from one public ANVYA identity. This profile is publicly shareable and designed for a global audience.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:w-auto">
+                  <Button size="sm" variant="outline" className="justify-start" onClick={()=>nav("/anvya")}><Home className="mr-2 size-4"/>Home</Button>
+                  <Button size="sm" variant="outline" className="justify-start" onClick={()=>nav("/anvya/communities")}><Users className="mr-2 size-4"/>Communities</Button>
+                  <Button size="sm" variant="outline" className="justify-start" onClick={()=>nav("/anvya/create")}><Plus className="mr-2 size-4"/>Create</Button>
+                  <Button size="sm" className="justify-start" onClick={()=>setTab("messages")}><MessageCircle className="mr-2 size-4"/>Messages</Button>
+                </div>
+              </div>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                <button onClick={()=>nav("/anvya")} className="rounded-xl border bg-background/80 p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/40"><p className="font-bold">🌐 Explore</p><p className="mt-1 text-xs text-muted-foreground">Find people and new ideas.</p></button>
+                <button onClick={()=>nav("/anvya/communities")} className="rounded-xl border bg-background/80 p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/40"><p className="font-bold">👥 Communities</p><p className="mt-1 text-xs text-muted-foreground">Join interest-based groups.</p></button>
+                <button onClick={()=>nav("/anvya/create")} className="rounded-xl border bg-background/80 p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/40"><p className="font-bold">✍️ Publish</p><p className="mt-1 text-xs text-muted-foreground">Share posts, questions and knowledge.</p></button>
+                <button onClick={()=>setTab("followers")} className="rounded-xl border bg-background/80 p-3 text-left transition hover:-translate-y-0.5 hover:border-primary/40"><p className="font-bold">🤝 Network</p><p className="mt-1 text-xs text-muted-foreground">Build your professional network.</p></button>
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="mt-5 border-b">
             <div className="flex gap-1 overflow-x-auto">
               {[["posts","Posts",FileText],["activity","Activity",Activity],["friends","Friends",Users],["followers","Followers",Users],["following","Following",UserPlus],["messages","Messages",MessageCircle]].map(([key,label,Icon]:any)=><button key={key} onClick={()=>setTab(key)} className={"flex shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition "+(tab===key?"border-primary text-primary":"border-transparent text-muted-foreground hover:text-foreground")}><Icon className="size-4"/>{label}</button>)}
