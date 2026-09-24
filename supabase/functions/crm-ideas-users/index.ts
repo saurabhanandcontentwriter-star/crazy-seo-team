@@ -55,14 +55,18 @@ Deno.serve(async (req) => {
     const selfDelete = body.action === "delete_self";
 
     if (!selfDelete) {
-      const { data: adminEmail, error: adminCheckError } = await admin
-        .from("admin_emails")
-        .select("email")
-        .ilike("email", actor.email ?? "")
-        .maybeSingle();
+      const actorEmail = (actor.email ?? "").trim().toLowerCase();
+      const [{ data: adminEmail, error: adminCheckError }, { data: roleRows, error: roleCheckError }] = await Promise.all([
+        admin.from("admin_emails").select("email").ilike("email", actorEmail).maybeSingle(),
+        admin.from("user_roles").select("role").eq("user_id", actor.id).eq("role", "admin").maybeSingle(),
+      ]);
 
-      if (adminCheckError) return fail("Admin check failed: " + adminCheckError.message, 500);
-      if (!adminEmail) return fail("Admin access required.", 403);
+      if (adminCheckError && roleCheckError) {
+        return fail("Admin check failed: " + (adminCheckError.message || roleCheckError.message), 500);
+      }
+      // Accept either of the site's two admin sources. This keeps CRM access working
+      // when the account has the admin role but the admin_emails seed is stale.
+      if (!adminEmail && !roleRows) return fail("Admin access required.", 403);
     }
 
     if (body.action === "list") {
