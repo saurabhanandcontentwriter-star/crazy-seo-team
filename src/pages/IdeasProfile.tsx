@@ -70,7 +70,7 @@ export default function IdeasProfile(){
  let id:string|undefined=!userId||userId==="me"?user?.id:userId;
  if(userId&&userId!=="me"&&!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(userId)){
   const slug=decodeURIComponent(userId).trim().toLowerCase();
-  const {data:slugProfile}=await supabase.from("idea_profiles").select("user_id,display_name,first_name,middle_name,last_name,state,country,bio,avatar_url,cover_url,location,website_url,linkedin_url,github_url,instagram_url,twitter_url,medium_url,profile_slug,date_of_birth,working,company,education,experience,education_details,projects,certificates,public_id,reputation_points,level,verified,account_status,banned_until,email,is_creator,creator_types,creator_since,creator_rules_accepted_at").or(`profile_slug.ilike.${slug},public_id.eq.${slug.toUpperCase()},email.ilike.${slug}@gmail.com`).maybeSingle();
+  const {data:slugProfile}=await supabase.from("idea_profiles").select("user_id,display_name,first_name,middle_name,last_name,state,country,bio,avatar_url,cover_url,location,website_url,linkedin_url,github_url,instagram_url,twitter_url,profile_slug,date_of_birth,working,company,education,public_id,reputation_points,level,verified,account_status,banned_until,email,is_creator,creator_types,creator_since,creator_rules_accepted_at").or(`profile_slug.ilike.${slug},public_id.eq.${slug.toUpperCase()},email.ilike.${slug}@gmail.com`).maybeSingle();
   if(slugProfile?.user_id) id=slugProfile.user_id;
  }
  if(!id){setLoading(false);nav("/anvya/login",{replace:true});return}
@@ -86,6 +86,13 @@ export default function IdeasProfile(){
    setP((created||fallback) as Profile);setForm((created||fallback) as Profile);
   }
  }else{setP(profile as Profile|null);setForm((profile||{}) as Profile)}
+ if(profile?.user_id){
+  const {data:professionalSections}=await supabase.from("idea_profiles").select("experience,education_details,projects,certificates,medium_url").eq("user_id",profile.user_id).maybeSingle();
+  if(professionalSections){
+   const merged={...(profile as any),...(professionalSections as any)};
+   setP(merged as Profile);setForm(merged as Profile);
+  }
+ }
  if(userId==="me"&&user?.id===id&&profile?.public_id){nav("/anvya/profile/"+profile.public_id,{replace:true});return}
  if(!profile&&user?.id!==id){setLoading(false);return}
  setLoading(false);
