@@ -195,7 +195,7 @@ export default function IdeasProfile(){
         <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 text-white shadow-md"><svg viewBox="0 0 64 64" className="size-7" aria-label="ANVYA Ideas"><path d="M32 7c-11.6 0-21 8.7-21 19.5 0 7.1 3.8 12.5 9.2 15.8V48c0 2.2 1.8 4 4 4h15.6c2.2 0 4-1.8 4-4v-5.7C49.2 39 53 33.6 53 26.5 53 15.7 43.6 7 32 7Z" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/><path d="M25 58h14M27 42h10M27 32c2.2 2 3.9 3 5 3s2.8-1 5-3" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/></svg></div>
         <span className="text-2xl font-black tracking-tight">ANVYA</span>
       </button>
-      <nav className="space-y-1">
+      <nav className="space-y-1.5">
         {[
           ["Home",Home,"/anvya"],
           ["Explore",Compass,"/anvya"],
@@ -210,8 +210,15 @@ export default function IdeasProfile(){
           ["Settings",Settings2,"/anvya/settings"],
           ["Help Centre",HelpCircle,"/anvya/help"]
         ].map(([label,Icon,target]:any)=>{
-          const active=target==="profile"||(target==="messages"&&tab==="messages")||(target==="profile"&&tab!=="messages");
-          return <button key={label} onClick={()=>target==="messages"?setTab("messages"):target==="profile"?setTab("posts"):nav(target)} className={"flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition "+(active?"bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300":"text-muted-foreground hover:bg-muted hover:text-foreground")}><Icon className="size-5"/><span>{label}</span>{label==="Notifications"&&<span className="ml-auto flex size-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">3</span>}</button>
+          const active=target==="profile"||(target==="messages"&&tab==="messages")||(target!=="profile"&&target!=="messages"&&location.pathname===target);
+          return <button key={label} onClick={()=>target==="messages"?setTab("messages"):target==="profile"?setTab("posts"):nav(target)} className={"group flex w-full items-center gap-3 rounded-2xl border px-3 py-2.5 text-sm font-semibold transition-all "+(active?"border-violet-200 bg-violet-50 text-violet-700 shadow-sm dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-300":"border-transparent text-muted-foreground hover:border-border hover:bg-muted/70 hover:text-foreground")}>
+            <span className={"flex size-9 shrink-0 items-center justify-center rounded-xl transition "+(active?"bg-violet-600 text-white shadow-sm":"bg-muted/70 text-muted-foreground group-hover:bg-background group-hover:text-foreground")}>
+              <Icon className="size-[18px]"/>
+            </span>
+            <span className="truncate">{label}</span>
+            {label==="Notifications"&&<span className="ml-auto flex size-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm">3</span>}
+            {label==="Saved"&&<span className="ml-auto hidden text-[10px] font-medium text-muted-foreground sm:block">Posts</span>}
+          </button>
         })}
       </nav>
       <Button onClick={()=>{setTab("posts");setShowPostComposer(true)}} className="mt-4 h-11 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 font-bold shadow-lg"><Plus className="mr-2 size-5"/>Create Post <span className="ml-1 text-[10px] font-medium opacity-80">in Profile</span></Button>
