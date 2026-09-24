@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -11,7 +11,7 @@ type State = "checking" | "allowed" | "denied";
  * callback. A deferred verification keeps refresh/sign-in events from
  * deadlocking the client auth lock.
  */
-export default function AdminGuard({ children }: { children: React.ReactNode }) {
+export default function AdminGuard({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>("checking");
   const location = useLocation();
   const verifiedUserId = useRef<string | null>(null);
