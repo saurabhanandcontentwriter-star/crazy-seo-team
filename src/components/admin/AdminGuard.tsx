@@ -4,17 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 
 type State = "checking" | "allowed" | "denied";
 
-/**
- * Stable admin route guard.
- *
- * We intentionally do not call Supabase APIs from inside the auth-state
- * callback. A deferred verification keeps refresh/sign-in events from
- * deadlocking the client auth lock.
- */
+const ALLOWED_ADMINS = new Set([
+  "saurabhanandshahisarmera@gmail.com",
+  "crazyseoteam@gmail.com",
+]);
+
 export default function AdminGuard({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>("checking");
   const location = useLocation();
-  const verifiedUserId = useRef<string | null>(null);\n\n  const ALLOWED_ADMINS = new Set([\n    "saurabhanandshahisarmera@gmail.com",\n    "crazyseoteam@gmail.com",\n  ]);
+  const verifiedUserId = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -28,25 +26,9 @@ export default function AdminGuard({ children }: { children: ReactNode }) {
         if (cancelled) return;
 
         const user = session?.user;
-        if (!user) {
-          verifiedUserId.current = null;
-          setState("denied");
-          return;
-        }
+        const email = user?.email?.trim().toLowerCase() ?? "";
 
-        if (verifiedUserId.current === user.id) {
-          setState("allowed");
-          return;
-        }
-
-        const { data: roleData, error: roleError } = await supabase.rpc("has_role", {
-          _user_id: user.id,
-          _role: "admin",
-        });
-
-        if (cancelled) return;
-
-        if (roleError || roleData !== true) {
+        if (!user || !ALLOWED_ADMINS.has(email)) {
           verifiedUserId.current = null;
           setState("denied");
           return;
@@ -78,15 +60,17 @@ export default function AdminGuard({ children }: { children: ReactNode }) {
           return;
         }
 
-        if (
-          event === "TOKEN_REFRESHED" &&
-          verifiedUserId.current === session.user.id
-        ) {
-          setState("allowed");
+        const email = session.user.email?.trim().toLowerCase() ?? "";
+
+        if (!ALLOWED_ADMINS.has(email)) {
+          verifiedUserId.current = null;
+          setState("denied");
+          void supabase.auth.signOut({ scope: "local" });
           return;
         }
 
-        void verify();
+        verifiedUserId.current = session.user.id;
+        setState("allowed");
       }, 0);
     });
 
