@@ -129,9 +129,9 @@ export default function IdeasInlinePostComposer({
     }
 
     if (mode === "event" && !eventStart) { toast.error("Choose an event start time."); return; }
-    const eventStartAt = mode === "event" && eventStart ? new Date(eventStart).toISOString() : null;
-    const eventEndAt = mode === "event" && eventEnd ? new Date(eventEnd).toISOString() : null;
-    if (mode === "event" && eventEndAt && new Date(eventEndAt).getTime() <= new Date(eventStartAt!).getTime()) {
+    const eventStartIso = mode === "event" && eventStart ? new Date(eventStart).toISOString() : null;
+    const eventEndIso = mode === "event" && eventEnd ? new Date(eventEnd).toISOString() : null;
+    if (mode === "event" && eventEndIso && new Date(eventEndIso).getTime() <= new Date(eventStartIso!).getTime()) {
       toast.error("Event end time must be after the start time.");
       return;
     }
@@ -160,8 +160,8 @@ export default function IdeasInlinePostComposer({
         status: "pending",
         visibility,
         post_type: mode,
-        event_start: eventStartAt,
-        event_end: eventEndAt,
+        event_start: eventStartIso,
+        event_end: eventEndIso,
         event_location: eventLocation.trim() || null,
         event_url: eventUrl.trim() || null,
       };
