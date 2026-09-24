@@ -55,10 +55,15 @@ export default function AdminLogin() {
         throw new Error("Admin account could not be verified.");
       }
 
-      const { data: roleData, error: roleError } = await supabase.rpc("has_role", {
-        _user_id: data.user.id,
-        _role: "admin",
-      });
+      const { data: roleData, error: roleError } = await Promise.race([
+        supabase.rpc("has_role", {
+          _user_id: data.user.id,
+          _role: "admin",
+        }),
+        new Promise<never>((_, reject) =>
+          window.setTimeout(() => reject(new Error("Admin role verification timed out. Please retry.")), 8000),
+        ),
+      ]);
 
       const isAdmin = Array.isArray(roleData)
         ? roleData.some(Boolean)
