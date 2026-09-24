@@ -31,6 +31,10 @@ type Idea = {
   moderation_reason: string | null;
   moderation_checked_at: string | null;
   moderation_links: any[] | null;
+  moderation_decision?: string | null;
+  post_type?: string | null;
+  visibility?: string | null;
+  profile_image_url?: string | null;
 };
 type CreatorApplication = { id: string; user_id: string | null; name: string; email: string; creator_types: string[] | null; bio: string | null; website_url: string | null; linkedin_url: string | null; github_url: string | null; medium_url: string | null; reddit_url: string | null; anvya_id: string | null; country: string | null; state: string | null; district: string | null; gender: string | null; date_of_birth: string | null; status: string; created_at: string; };
 
@@ -72,7 +76,8 @@ export default function IdeasAdmin() {
         toast.error(data?.error || error?.message || "Ideas data could not load");
         setRows([]);
       } else {
-        setRows(Array.isArray(data?.posts) ? (data.posts as Idea[]) : []);
+        const restoredPosts = Array.isArray(data?.posts) ? data.posts : [];
+        setRows(restoredPosts as Idea[]);
       }
 
       const ca = await supabase.from("creator_applications").select("*").order("created_at", { ascending: false });
