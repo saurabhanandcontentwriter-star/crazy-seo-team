@@ -70,7 +70,11 @@ export default function IdeasInlinePostComposer({
   const [title, setTitle] = useState("");
   const [visibility, setVisibility] = useState("public");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [busy, setBusy] = useState(false);\n  const [eventStart, setEventStart] = useState("");\n  const [eventEnd, setEventEnd] = useState("");\n  const [eventLocation, setEventLocation] = useState("");\n  const [eventUrl, setEventUrl] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [eventStart, setEventStart] = useState("");
+  const [eventEnd, setEventEnd] = useState("");
+  const [eventLocation, setEventLocation] = useState("");
+  const [eventUrl, setEventUrl] = useState("");
 
   const currentMode = modes.find((item) => item.value === mode)!;
 
@@ -123,7 +127,8 @@ export default function IdeasInlinePostComposer({
       return;
     }
 
-    if (mode === "event" && !eventStart) { toast.error("Choose an event start time."); return; }\n    const { data: { user } } = await supabase.auth.getUser();
+    if (mode === "event" && !eventStart) { toast.error("Choose an event start time."); return; }
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user || user.id !== profile.user_id) {
       toast.error("Please sign in to your own profile first.");
       return;
@@ -147,7 +152,11 @@ export default function IdeasInlinePostComposer({
         device_type: /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Laptop/Desktop",
         status: "pending",
         visibility,
-        post_type: mode,\n        event_start: eventStartAt,\n        event_end: eventEndAt,\n        event_location: eventLocation.trim() || null,\n        event_url: eventUrl.trim() || null,
+        post_type: mode,
+        event_start: eventStartAt,
+        event_end: eventEndAt,
+        event_location: eventLocation.trim() || null,
+        event_url: eventUrl.trim() || null,
       };
 
       const { data, error } = await supabase
@@ -277,7 +286,19 @@ export default function IdeasInlinePostComposer({
             />
           </div>
 
-\n          {mode === "event" && (\n            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">\n              <div className="mb-3 flex items-center gap-2 font-bold"><CalendarDays className="size-4 text-primary"/> Live event details</div>\n              <div className="grid gap-3 md:grid-cols-2">\n                <Input type="datetime-local" value={eventStart} onChange={(e) => setEventStart(e.target.value)} min={new Date(Date.now()+60000).toISOString().slice(0,16)} aria-label="Event start"/>\n                <Input type="datetime-local" value={eventEnd} onChange={(e) => setEventEnd(e.target.value)} aria-label="Event end"/>\n                <Input value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} placeholder="Venue / Online"/>\n                <Input value={eventUrl} onChange={(e) => setEventUrl(e.target.value)} placeholder="Live / registration URL (https://...)"/>\n              </div>\n            </div>\n          )}\n          <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+
+          {mode === "event" && (
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
+              <div className="mb-3 flex items-center gap-2 font-bold"><CalendarDays className="size-4 text-primary"/> Live event details</div>
+              <div className="grid gap-3 md:grid-cols-2">
+                <Input type="datetime-local" value={eventStart} onChange={(e) => setEventStart(e.target.value)} min={new Date(Date.now()+60000).toISOString().slice(0,16)} aria-label="Event start"/>
+                <Input type="datetime-local" value={eventEnd} onChange={(e) => setEventEnd(e.target.value)} aria-label="Event end"/>
+                <Input value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} placeholder="Venue / Online"/>
+                <Input value={eventUrl} onChange={(e) => setEventUrl(e.target.value)} placeholder="Live / registration URL (https://...)"/>
+              </div>
+            </div>
+          )}
+          <div className="grid gap-3 md:grid-cols-[1fr_auto]">
             <label className="flex min-h-16 cursor-pointer items-center gap-3 rounded-2xl border border-dashed p-3 transition hover:border-primary/50 hover:bg-muted/30">
               <ImagePlus className="size-5 text-primary" />
               <div className="min-w-0">
