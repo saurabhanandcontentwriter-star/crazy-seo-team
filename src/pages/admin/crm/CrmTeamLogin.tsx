@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { KeyRound, Loader2, LockKeyhole } from "lucide-react";
+import { Loader2, LockKeyhole } from "lucide-react";
 import { toast } from "sonner";
 import { GlassCard } from "@/components/crm/CrmUI";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,7 +39,7 @@ export default function CrmTeamLogin() {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/admin/crm`,
+          redirectTo: `${window.location.origin}/admin/crm/login`,
           queryParams: {
             prompt: "select_account",
           },
@@ -71,20 +71,6 @@ export default function CrmTeamLogin() {
           </p>
         </div>
 
-        <div className="mt-6 rounded-2xl border bg-muted/30 p-4">
-          <div className="flex items-center gap-3">
-            <div className="grid size-10 place-items-center rounded-xl bg-background shadow-sm">
-              <KeyRound size={18} className="text-primary" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-muted-foreground">
-                Authorized CRM email
-              </p>
-              <p className="truncate text-sm font-bold">{CRM_ADMIN_EMAIL}</p>
-            </div>
-          </div>
-        </div>
-
         <button
           type="button"
           onClick={continueWithGoogle}
@@ -98,8 +84,7 @@ export default function CrmTeamLogin() {
         </button>
 
         <p className="mt-4 text-center text-xs text-muted-foreground">
-          Password is not required. Google sign-in verifies the authorized
-          account.
+          Sign in with the authorized Google account to continue.
         </p>
       </GlassCard>
     </div>
