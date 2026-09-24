@@ -18,16 +18,22 @@ type Profile={user_id:string;display_name:string;working?:string|null;company?:s
 type Post={id:string;user_id:string;display_name:string|null;profile_image_url:string|null;title:string;content:string;post_type:string;visibility:string;subject:string;image_url:string|null;created_at:string;status:string};
 
 function sanitizeRichHtml(input:string){
- // Convert accidental literal \
- sequences into harmless line breaks before rendering.
- const cleanedInput=input.replace(/\\\
-/g,"<br>");
- const parser=new DOMParser(); const doc=parser.parseFromString(cleanedInput,"text/html");
+ const cleanedInput=input.replace(/\\\\n/g,"<br>");
+ const parser=new DOMParser();
+ const doc=parser.parseFromString(cleanedInput,"text/html");
  doc.querySelectorAll("script,style,iframe,object,embed,form").forEach(el=>el.remove());
- doc.querySelectorAll("*").forEach(el=>{Array.from(el.attributes).forEach(a=>{if(a.name.toLowerCase().startsWith("on")||["style","class","id"].includes(a.name.toLowerCase()))el.removeAttribute(a.name)});if(el.tagName.toLowerCase()==="a"){const href=el.getAttribute("href")||"";if(!/^https:\/\//i.test(href))el.removeAttribute("href");else{el.setAttribute("target","_blank");el.setAttribute("rel","noopener noreferrer")}}});
+ doc.querySelectorAll("*").forEach(el=>{
+  Array.from(el.attributes).forEach(a=>{
+   if(a.name.toLowerCase().startsWith("on")||["style","class","id"].includes(a.name.toLowerCase()))el.removeAttribute(a.name);
+  });
+  if(el.tagName.toLowerCase()==="a"){
+   const href=el.getAttribute("href")||"";
+   if(!/^https:\/\//i.test(href))el.removeAttribute("href");
+   else{el.setAttribute("target","_blank");el.setAttribute("rel","noopener noreferrer")}
+  }
+ });
  return doc.body.innerHTML;
 }
-
 export default function IdeasProfile(){
  // Keep profile UI clean: no literal newline escape should ever be rendered as JSX text.
  const {userId}=useParams(); const nav=useNavigate();
