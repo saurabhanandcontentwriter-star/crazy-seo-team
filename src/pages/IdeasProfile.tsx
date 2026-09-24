@@ -12,7 +12,7 @@ import {toast} from "sonner";
 import IdeasStoryHighlights from "@/components/IdeasStoryHighlights";
 import IdeasMessages from "@/components/IdeasMessages";
 import CreatorProfilePanel from "@/components/CreatorProfilePanel";
-import {ArrowLeft,LogIn,LogOut,UserPlus,UserCheck,Users,FileText,Activity,HelpCircle,Save,ExternalLink,Loader2,UserCircle2,Camera,ShieldCheck,Upload,Clock3,Bookmark,FileEdit,BarChart3,Moon,Sun,Languages,Globe2,Settings2,MessageCircle,Quote,Facebook,Linkedin,Instagram,Twitter,Mail,Send} from "lucide-react";
+import {ArrowLeft,LogIn,LogOut,UserPlus,UserCheck,Users,FileText,Activity,HelpCircle,Save,ExternalLink,Loader2,UserCircle2,Camera,ShieldCheck,Upload,Clock3,Bookmark,FileEdit,BarChart3,Moon,Sun,Languages,Globe2,Settings2,MessageCircle,Quote,Facebook,Linkedin,Instagram,Twitter,Mail,Send,Home,Compass,Bell,Plus,Crown,CalendarDays} from "lucide-react";
 
 type Profile={user_id:string;display_name:string;working?:string|null;company?:string|null;education?:string|null;date_of_birth?:string|null;first_name?:string|null;middle_name?:string|null;last_name?:string|null;state?:string|null;country?:string|null;bio:string|null;avatar_url:string|null;cover_url:string|null;location:string|null;website_url:string|null;linkedin_url:string|null;github_url:string|null;instagram_url:string|null;twitter_url:string|null;public_id?:string|null;reputation_points?:number;level?:number;verified?:boolean;profile_slug?:string|null;is_creator?:boolean;creator_types?:string[]|null;creator_since?:string|null;creator_rules_accepted_at?:string|null};
 type Post={id:string;user_id:string;display_name:string|null;profile_image_url:string|null;title:string;content:string;post_type:string;visibility:string;subject:string;image_url:string|null;created_at:string;status:string};
@@ -285,7 +285,7 @@ export default function IdeasProfile(){
               <Input placeholder="Last name" value={String(form.last_name||"")} onChange={e=>setForm(f=>({...f,last_name:e.target.value}))}/>
             </div>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <Input placeholder="Username / profile slug" value={String(form.profile_slug||"")} onChange={e=>setForm(f=>({...f,profile_slug:e.target.value.toLowerCase().replace(/\s+/g,"-")}))}/>
+              <Input placeholder="Username / profile slug" value={String(form.profile_slug||"")} onChange={e=>setForm(f=>({...f,profile_slug:e.target.value.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"")}))}/>
               <Input placeholder="Location e.g. Ranchi, India" value={String(form.location||"")} onChange={e=>setForm(f=>({...f,location:e.target.value}))}/>
             </div>
             <Textarea className="mt-3 min-h-28" placeholder="About you" value={String(form.bio||"")} onChange={e=>setForm(f=>({...f,bio:e.target.value}))}/>
@@ -344,7 +344,7 @@ export default function IdeasProfile(){
      {tab==="posts"&&posts.filter(x=>x.post_type==="post"&&x.id!==pinnedPostId).map(x=><PostCard key={x.id} x={x} pinnedByProfile={pinnedPostId===x.id} onTogglePin={()=>togglePinnedPost(x.id)}/>)}
      {tab==="reshares"&&reshares.map(x=><PostCard key={x.id} x={x} resharedByProfile/>)}
      {tab==="questions"&&posts.filter(x=>x.post_type==="question").map(x=><PostCard key={x.id} x={x}/>)}
-     {tab==="activity"&&<Card><CardContent className="space-y-4 p-6">{posts.slice(0,20).map(x=><div key={x.id} className="flex gap-3 border-b pb-3"><Activity className="mt-1 size-4 text-primary"/><div><b>{x.post_type==="question"?"Asked a question":"Published a post"}</b><p className="text-sm text-muted-foreground">{x.title} • {new Date(x.created_at).toLocaleDateString()}</p></div></div>)}</CardContent></Card>}
+     {tab==="activity"&&<Card><CardContent className="p-6"><h3 className="text-lg font-black">Timeline</h3><div className="relative mt-5 space-y-5 pl-5 before:absolute before:bottom-2 before:left-2 before:top-2 before:w-px before:bg-border">{posts.slice(0,20).map(x=><div key={x.id} className="relative"><span className="absolute -left-[17px] top-1.5 size-3 rounded-full border-2 border-background bg-primary"/><div className="rounded-2xl border p-4"><div className="flex flex-wrap items-center justify-between gap-2"><b>{x.post_type==="question"?"Asked a question":"Published a post"}</b><span className="text-xs text-muted-foreground">{new Date(x.created_at).toLocaleString()}</span></div><p className="mt-1 text-sm text-muted-foreground">{x.title}</p></div></div>)}</div></CardContent></Card>}
      {(tab==="friends"||tab==="following"||tab==="followers")&&<RelationshipList userId={p.user_id} mode={tab as "friends"|"following"|"followers"}/>}
     </div>
    </div>
