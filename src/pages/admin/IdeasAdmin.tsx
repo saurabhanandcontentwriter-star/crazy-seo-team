@@ -139,19 +139,17 @@ export default function IdeasAdmin() {
       ? reason[row.id].trim()
       : "Approved after content detector review.";
 
-    const { error } = await supabase
-      .from("idea_posts")
-      .update({
+    const { data, error } = await supabase.functions.invoke("crm-ideas-users", {
+      body: {
+        action: "moderate_post",
+        post_id: row.id,
         status,
         rejection_reason: status === "rejected" ? nextReason : null,
-        moderation_decision: status,
-        moderation_reason: nextReason,
-        moderation_checked_at: row.moderation_checked_at || new Date().toISOString(),
-      })
-      .eq("id", row.id);
+      },
+    });
 
-    if (error) {
-      toast.error(error.message);
+    if (error || data?.error) {
+      toast.error(data?.error || error?.message || "Post moderation failed.");
     } else {
       toast.success(status === "approved" ? "Idea approved and published." : "Idea rejected.");
       setReason((v) => ({ ...v, [row.id]: "" }));
