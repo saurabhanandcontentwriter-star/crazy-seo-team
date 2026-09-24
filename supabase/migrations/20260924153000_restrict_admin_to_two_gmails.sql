@@ -1,4 +1,4 @@
--- Restrict Admin access to exactly these two Gmail accounts.
+-- Keep the configured admin accounts in the allow-list.
 DELETE FROM public.user_roles ur
 USING auth.users u
 WHERE u.id = ur.user_id
@@ -24,7 +24,7 @@ VALUES
   ('sauravanand499@gmail.com')
 ON CONFLICT (email) DO NOTHING;
 
--- Ensure both existing Auth accounts have the admin role.
+-- Ensure all configured Auth accounts have the admin role.
 INSERT INTO public.user_roles (user_id, role)
 SELECT u.id, 'admin'::public.app_role
 FROM auth.users AS u
