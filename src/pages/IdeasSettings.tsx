@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { firebaseAuth } from "@/integrations/firebase";
+import { signOut as firebaseSignOut } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -51,7 +53,7 @@ export default function IdeasSettings(){
     document.documentElement.style.colorScheme=value?"dark":"light";
     setDark(value);
   };
-  const logout=async()=>{await supabase.auth.signOut();sessionStorage.removeItem("ideas_direct_profile");toast.success("Logged out.");nav("/anvya/login",{replace:true})};
+  const logout=async()=>{const {error}=await supabase.auth.signOut();await firebaseSignOut(firebaseAuth).catch(()=>{});if(error){toast.error(error.message);return}sessionStorage.removeItem("ideas_direct_profile");sessionStorage.removeItem("ideas_congratulations");toast.success("Logged out successfully.");nav("/anvya/login",{replace:true})};
 
   if(loading)return <div className="min-h-screen grid place-items-center"><div className="animate-spin rounded-full border-2 border-primary border-t-transparent size-8"/></div>;
 
