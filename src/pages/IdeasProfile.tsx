@@ -128,6 +128,37 @@ export default function IdeasProfile(){
   else setTab("posts");
  },[p?.user_id,me,userId]);
  useEffect(()=>{
+  if(!p?.user_id) return;
+  let cancelled=false;
+  let channel:any=null;
+  const refreshPresence=async()=>{
+   const {data}=await supabase.from("idea_presence").select("last_seen_at").eq("user_id",p.user_id).maybeSingle();
+   if(cancelled)return;
+   const lastSeen=data?.last_seen_at?new Date(data.last_seen_at).getTime():0;
+   setProfileLastSeen(data?.last_seen_at||null);
+   setProfileOnline(!!lastSeen && Date.now()-lastSeen<=90000);
+  };
+  void refreshPresence();
+  channel=supabase.channel("profile-presence-"+p.user_id).on("postgres_changes",{event:"*",schema:"public",table:"idea_presence",filter:"user_id=eq."+p.user_id},()=>{void refreshPresence()}).subscribe();
+  const timer=window.setInterval(()=>{void refreshPresence()},30000);
+  return()=>{cancelled=true;window.clearInterval(timer);if(channel)supabase.removeChannel(channel)};
+ },[p?.user_id]);
+ useEffect(()=>{
+  if(!me) return;
+  let cancelled=false;
+  const heartbeat=async()=>{
+   if(document.visibilityState!=="visible")return;
+   const now=new Date().toISOString();
+   const {error}=await supabase.from("idea_presence").upsert({user_id:me,last_seen_at:now},{onConflict:"user_id"});
+   if(!error&&!cancelled&&p?.user_id===me){setProfileLastSeen(now);setProfileOnline(true)}
+  };
+  void heartbeat();
+  const timer=window.setInterval(()=>{void heartbeat()},30000);
+  const onVisible=()=>{if(document.visibilityState==="visible")void heartbeat()};
+  document.addEventListener("visibilitychange",onVisible);
+  return()=>{cancelled=true;window.clearInterval(timer);document.removeEventListener("visibilitychange",onVisible)};
+ },[me,p?.user_id]);
+ useEffect(()=>{
   const saved=localStorage.getItem("ideas-draft-count");setDraftCount(saved?Number(saved)||0:0);
   setLanguage(localStorage.getItem("ideas-language")||"English");setRegion(localStorage.getItem("ideas-region")||"Global");
   const savedTheme=(localStorage.getItem("ideas-theme")||"system") as "light"|"dark"|"system";
@@ -218,7 +249,7 @@ export default function IdeasProfile(){
             <div className="relative z-10 -mt-20 size-32 shrink-0 overflow-hidden rounded-full border-[6px] border-background bg-muted shadow-2xl sm:size-40">
               {p.avatar_url?<img src={p.avatar_url} className="size-full object-cover" alt={p.display_name} loading="eager"/>:<div className="grid size-full place-items-center bg-gradient-to-br from-primary via-primary/80 to-violet-500 text-primary-foreground" aria-label="ANVYA logo"><svg viewBox="0 0 64 64" className="size-20" aria-hidden="true"><path d="M32 7c-11.6 0-21 8.7-21 19.5 0 7.1 3.8 12.5 9.2 15.8V48c0 2.2 1.8 4 4 4h15.6c2.2 0 4-1.8 4-4v-5.7C49.2 39 53 33.6 53 26.5 53 15.7 43.6 7 32 7Z" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/><path d="M25 58h14M27 42h10M27 32c2.2 2 3.9 3 5 3s2.8-1 5-3" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round"/></svg></div>}
               {me===p.user_id&&<label className="absolute inset-x-0 bottom-0 cursor-pointer bg-black/70 py-2 text-center text-xs font-semibold text-white hover:bg-black/80"><Camera className="mr-1 inline size-3"/>Edit<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setAvatarFile(e.target.files?.[0]||null)}/></label>}
-              {profileOnline&&<span className="absolute bottom-2 right-2 size-4 rounded-full border-2 border-background bg-emerald-500" title="Active now"/>}
+              <span className={`absolute bottom-2 right-2 size-4 rounded-full border-2 border-background ${profileOnline?"bg-emerald-500":"bg-red-500"}`} title={profileOnline?"Active now":"Offline"}/>
             </div>
             <div className="min-w-0 flex-1 pb-1">
               <div className="flex flex-wrap items-center gap-2">
