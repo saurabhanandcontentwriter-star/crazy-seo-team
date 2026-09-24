@@ -72,6 +72,9 @@ export default function IdeasInlinePostComposer({
   const [visibility, setVisibility] = useState("public");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
+  const [subject, setSubject] = useState("Tech");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
   const [eventStart, setEventStart] = useState("");
   const [eventEnd, setEventEnd] = useState("");
   const [eventLocation, setEventLocation] = useState("");
@@ -144,7 +147,8 @@ export default function IdeasInlinePostComposer({
     setBusy(true);
     try {
       const imageUrl = imageFile ? await uploadImage(user.id, imageFile) : null;
-      const subject = mode === "blog" ? "Blog" : mode === "question" ? "Discussion" : "Tech";
+      const normalizedTags = tags.map((tag) => tag.trim().replace(/^#/, "")).filter(Boolean).slice(0, 10);
+      const subjectValue = subject || "Tech";
       const payload = {
         user_id: user.id,
         profile_id: profile.public_id || user.id,
@@ -152,7 +156,8 @@ export default function IdeasInlinePostComposer({
         location: profile.location || null,
         mobile: null,
         show_mobile: false,
-        subject,
+        subject: subjectValue,
+        tags: normalizedTags,
         title: title.trim(),
         content: richContent,
         image_url: imageUrl,
