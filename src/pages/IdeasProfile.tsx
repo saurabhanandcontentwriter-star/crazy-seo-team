@@ -148,43 +148,52 @@ export default function IdeasProfile(){
   <div className="min-h-screen bg-background">
    <div className="container mx-auto max-w-5xl px-4 py-6 md:py-10">
     <Button variant="ghost" onClick={()=>nav("/anvya")}><ArrowLeft className="mr-2 size-4"/>Ideas</Button>
-    <Card className="mt-4 overflow-hidden rounded-[28px] border bg-background shadow-sm">
-      <div className="relative h-56 sm:h-64 md:h-72">
-        {p.cover_url ? <img src={p.cover_url} className="size-full object-cover" alt="Profile cover" /> : <div className="size-full bg-gradient-to-br from-blue-600 via-violet-600 to-fuchsia-500" />}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/5 to-black/10" />
-        {me===p.user_id&&edit&&<label className="absolute right-4 top-4 z-20 cursor-pointer rounded-full bg-black/65 px-4 py-2 text-xs font-semibold text-white backdrop-blur-md transition hover:bg-black/80"><Camera className="mr-2 inline size-4" />Change Cover<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setCoverFile(e.target.files?.[0]||null)} /></label>}
+    <Card className="mt-4 overflow-hidden rounded-[28px] border bg-background shadow-lg">
+      <div className="relative h-48 sm:h-60 md:h-72">
+        {p.cover_url ? <img src={p.cover_url} className="size-full object-cover" alt="Profile cover" /> : <div className="size-full bg-gradient-to-br from-sky-500 via-indigo-600 to-fuchsia-600" />}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+        {me===p.user_id&&edit&&<label className="absolute right-4 top-4 z-20 cursor-pointer rounded-full bg-black/60 px-4 py-2 text-xs font-semibold text-white backdrop-blur-md transition hover:bg-black/80"><Camera className="mr-2 inline size-4" />Change Cover<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setCoverFile(e.target.files?.[0]||null)} /></label>}
       </div>
-      <CardContent className="px-4 pb-7 pt-0 sm:px-6 md:px-8">
+      <CardContent className="px-4 pb-7 pt-0 sm:px-7">
         <div className="relative">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-            <div className={"relative z-10 -mt-16 size-32 shrink-0 overflow-hidden rounded-full border-4 border-background bg-muted shadow-xl sm:size-36 "+(hasActiveStory?"ring-4 ring-pink-500 ring-offset-2 ring-offset-background":"")}>
+            <div className={"relative z-10 -mt-14 size-28 shrink-0 overflow-hidden rounded-full border-4 border-background bg-muted shadow-2xl sm:size-36 "+(hasActiveStory?"ring-4 ring-pink-500 ring-offset-2 ring-offset-background":"")}>
               {p.avatar_url?<img src={p.avatar_url} className="size-full object-cover" alt={p.display_name} loading="eager"/>:<UserCircle2 className="size-full p-7 text-muted-foreground"/>}
               {me===p.user_id&&edit&&<label className="absolute inset-x-0 bottom-0 cursor-pointer bg-black/70 py-2 text-center text-xs font-semibold text-white">Change<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setAvatarFile(e.target.files?.[0]||null)}/></label>}
+              {profileOnline&&<span className="absolute bottom-2 right-2 size-4 rounded-full border-2 border-background bg-emerald-500" title="Active now" />}
             </div>
             <div className="min-w-0 flex-1 pb-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="break-words text-2xl font-black leading-tight md:text-3xl">{p.display_name}</h1>
-                {p.verified&&<Badge className="rounded-full bg-blue-600 text-white">✓ Verified</Badge>}
+                {p.verified&&<Badge className="rounded-full bg-blue-600 text-white shadow-sm">✓ Verified</Badge>}
+                {p.is_creator&&<Badge className="rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">👑 Creator</Badge>}
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">@{p.profile_slug||p.public_id||"anvya-member"}</p>
+              <p className="mt-1 text-sm font-medium text-muted-foreground">@{p.profile_slug||p.public_id||"anvya-member"}</p>
+              {(p.working||p.company)&&<p className="mt-2 text-sm text-muted-foreground">{[p.working,p.company].filter(Boolean).join(" · ")}</p>}
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 sm:pb-1">
               {me===p.user_id?<Button variant="outline" className="rounded-full" onClick={()=>setEdit(v=>!v)}>{edit?"Cancel":"Edit Profile"}</Button>:<>
-                <Button className="rounded-full px-5" onClick={toggleFollow}>{following?<UserCheck className="mr-2 size-4"/>:<UserPlus className="mr-2 size-4"/>}{following?"Following":"Follow"}</Button>
+                <Button className="rounded-full px-5 shadow-sm" onClick={toggleFollow}>{following?<UserCheck className="mr-2 size-4"/>:<UserPlus className="mr-2 size-4"/>}{following?"Following":"Follow"}</Button>
                 <Button variant="outline" className="rounded-full" onClick={()=>{sessionStorage.setItem("ideas_message_target",JSON.stringify({user_id:p.user_id,display_name:p.display_name,avatar_url:p.avatar_url||null,public_id:p.public_id||null}));setTab("messages")}}><MessageCircle className="mr-2 size-4"/>Message</Button>
               </>}
             </div>
           </div>
-          <div className="mt-5 grid grid-cols-3 border-y py-4 text-center">
-            <button onClick={()=>setTab("posts")} className="transition hover:text-primary"><span className="block text-lg font-black">{posts.length}</span><span className="text-xs text-muted-foreground">Posts</span></button>
-            <button onClick={()=>setTab("followers")} className="transition hover:text-primary"><span className="block text-lg font-black">{followerCount}</span><span className="text-xs text-muted-foreground">Followers</span></button>
-            <button onClick={()=>setTab("following")} className="transition hover:text-primary"><span className="block text-lg font-black">{followingCount}</span><span className="text-xs text-muted-foreground">Following</span></button>
+          <div className="mt-5 grid grid-cols-3 rounded-2xl border bg-muted/20 py-4 text-center">
+            <button onClick={()=>setTab("posts")} className="transition hover:bg-background/70 hover:text-primary rounded-xl"><span className="block text-xl font-black">{posts.length}</span><span className="text-xs text-muted-foreground">Posts</span></button>
+            <button onClick={()=>setTab("followers")} className="transition hover:bg-background/70 hover:text-primary rounded-xl"><span className="block text-xl font-black">{followerCount}</span><span className="text-xs text-muted-foreground">Followers</span></button>
+            <button onClick={()=>setTab("following")} className="transition hover:bg-background/70 hover:text-primary rounded-xl"><span className="block text-xl font-black">{followingCount}</span><span className="text-xs text-muted-foreground">Following</span></button>
           </div>
-          <div className="mt-5 max-w-2xl space-y-3">
+          <div className="mt-5 max-w-3xl space-y-3">
             {p.bio&&<p className="text-sm leading-6 text-foreground">{p.bio}</p>}
             <p className="text-sm text-muted-foreground">📍 {[p.location,p.state,p.country].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(", ")||"ANVYA Community member"}</p>
-            {(p.working||p.company||p.education)&&<div className="flex flex-wrap gap-2">{p.working&&<Badge variant="outline">{p.working}</Badge>}{p.company&&<Badge variant="outline">{p.company}</Badge>}{p.education&&<Badge variant="outline">{p.education}</Badge>}</div>}
-            <div className="flex flex-wrap gap-3 text-sm">{social.map(([label,url])=><a key={label} href={String(url)} target="_blank" rel="noreferrer" className="font-medium text-primary hover:underline">{label}</a>)}</div>
+            {(p.working||p.company||p.education)&&<div className="flex flex-wrap gap-2">{p.working&&<Badge variant="outline">💼 {p.working}</Badge>}{p.company&&<Badge variant="outline">🏢 {p.company}</Badge>}{p.education&&<Badge variant="outline">🎓 {p.education}</Badge>}</div>}
+            <div className="flex flex-wrap gap-2">
+              {p.website_url&&<a href={String(p.website_url)} target="_blank" rel="noreferrer" aria-label="Website" className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:bg-muted"><ExternalLink className="size-3.5"/>Website</a>}
+              {p.linkedin_url&&<a href={String(p.linkedin_url)} target="_blank" rel="noreferrer" aria-label="LinkedIn" className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:bg-muted"><Linkedin className="size-3.5"/>LinkedIn</a>}
+              {p.instagram_url&&<a href={String(p.instagram_url)} target="_blank" rel="noreferrer" aria-label="Instagram" className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:bg-muted"><Instagram className="size-3.5"/>Instagram</a>}
+              {p.github_url&&<a href={String(p.github_url)} target="_blank" rel="noreferrer" aria-label="GitHub" className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:bg-muted"><ExternalLink className="size-3.5"/>GitHub</a>}
+              {p.twitter_url&&<a href={String(p.twitter_url)} target="_blank" rel="noreferrer" aria-label="X" className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition hover:bg-muted"><Twitter className="size-3.5"/>X</a>}
+            </div>
           </div>
         </div>
         <div className="mt-5 border-t pt-5">
