@@ -6,6 +6,7 @@ import { toast } from "sonner";
 const ALLOWED_ADMINS = [
   "crazyseoteam@gmail.com",
   "sauravanand499@gmail.com",
+  "saurabhanandshahisarmera@gmail.com",
 ];
 
 export default function AdminLogin() {
