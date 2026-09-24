@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -14,12 +14,17 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     const email = username.trim().toLowerCase();
 
     if (!email || !password) {
       toast.error("Gmail and password are required.");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Enter a valid Gmail address.");
       return;
     }
 
@@ -31,7 +36,7 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+      await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -50,20 +55,21 @@ export default function AdminLogin() {
         throw new Error("Admin account could not be verified.");
       }
 
-      const { data: roleData, error: roleError } = await supabase.rpc(
-        "has_role",
-        {
-          _user_id: data.user.id,
-          _role: "admin",
-        },
-      );
+      const { data: roleData, error: roleError } = await supabase.rpc("has_role", {
+        _user_id: data.user.id,
+        _role: "admin",
+      });
+
+      const isAdmin = Array.isArray(roleData)
+        ? roleData.some(Boolean)
+        : Boolean(roleData);
 
       if (roleError) {
         await supabase.auth.signOut({ scope: "local" });
-        throw new Error(roleError.message);
+        throw new Error(roleError.message || "Admin role check failed.");
       }
 
-      if (!roleData) {
+      if (!isAdmin) {
         await supabase.auth.signOut({ scope: "local" });
         throw new Error("This account does not have admin access.");
       }
