@@ -88,15 +88,36 @@ Deno.serve(async (req) => {
       // Always include every Auth user as a CRM user, even when a profile row is
       // missing. This keeps all three existing Ideas accounts visible with their
       // email/account metadata instead of silently dropping them.
-      const [{ data: postRows, error: postsError }, { data: follows }, { data: friends }, { data: badges }, { data: users }] =
-        await Promise.all([
-          admin.from("idea_posts").select("id,user_id,profile_id,display_name,location,subject,title,content,image_url,device_type,status,rejection_reason,created_at,scheduled_for,ai_detection_score,moderation_score,moderation_reason,moderation_checked_at,moderation_links,post_type,visibility,event_start,event_end,event_location,event_url").order("created_at", { ascending: false }),
-          admin.from("idea_follows").select("follower_id,following_id"),
-          admin.from("idea_friendships").select("requester_id,addressee_id,status"),
-          admin.from("idea_badges").select("user_id,badge_name"),
-          admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
-        ]);
+      const [postsResult, followsResult, friendsResult, badgesResult, usersResult] = await Promise.all([
+        admin.from("idea_posts").select("id,user_id,profile_id,display_name,location,subject,title,content,image_url,device_type,status,rejection_reason,created_at,scheduled_for,ai_detection_score,moderation_score,moderation_reason,moderation_checked_at,moderation_links,post_type,visibility,event_start,event_end,event_location,event_url").order("created_at", { ascending: false }),
+        admin.from("idea_follows").select("follower_id,following_id"),
+        admin.from("idea_friendships").select("requester_id,addressee_id,status"),
+        admin.from("idea_badges").select("user_id,badge_name"),
+        admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+      ]);
+
+      // Keep CRM records visible even if an older production schema is missing
+      // one of the newer optional post columns. The extended query is preferred,
+      // but the fallback still returns the core post record.
+      let postRows = postsResult.data;
+      let postsError = postsResult.error;
+      if (postsError) {
+        const fallback = await admin
+          .from("idea_posts")
+          .select("id,user_id,profile_id,display_name,location,subject,title,content,image_url,device_type,status,rejection_reason,created_at")
+          .order("created_at", { ascending: false });
+        postRows = fallback.data;
+        postsError = fallback.error;
+      }
+
       if (postsError) return fail(postsError.message, 400);
+
+      const follows = followsResult.data ?? [];
+      const friends = friendsResult.data ?? [];
+      const badges = badgesResult.data ?? [];
+      const users = usersResult.data;
+      const usersError = usersResult.error;
+      if (usersError) return fail("Could not load community accounts: " + usersError.message, 400);
 
       const byUser = new Map((users?.users ?? []).map((u: any) => [u.id, u]));
       const profilesByUser = new Map((profiles ?? []).map((p: any) => [p.user_id, p]));
