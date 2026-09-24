@@ -24,10 +24,25 @@ export default defineConfig(({ mode }) => ({
     dedupe: [
       "react",
       "react-dom",
+      "react-router-dom",
       "react/jsx-runtime",
       "react/jsx-dev-runtime",
       "@tanstack/react-query",
       "@tanstack/query-core",
     ],
+  },
+  build: {
+    chunkSizeWarningLimit: 2000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom", "react-router-dom"],
+          query: ["@tanstack/react-query", "@tanstack/query-core"],
+          charts: ["recharts"],
+          editor: ["react-quill", "quill"],
+          pdf: ["jspdf", "jspdf-autotable"],
+        },
+      },
+    },
   },
 }));
