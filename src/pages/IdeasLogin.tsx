@@ -168,7 +168,7 @@ export default function IdeasLogin() {
         <div className="bg-gradient-to-r from-blue-600 via-violet-600 to-fuchsia-600 p-7 text-white">
           <h1 className="text-2xl font-black">Welcome to Crazy SEO Team Ideas</h1>
           <p className="mt-2 text-sm text-white/80">
-            Sign in or create your ANVYA account securely with Gmail / Google.
+            One secure entry for ANVYA — sign up or log in with your Gmail / Google account.
           </p>
         </div>
 
@@ -181,22 +181,20 @@ export default function IdeasLogin() {
             disabled={busy}
           >
             {busy ? <Loader2 className="mr-3 size-5 animate-spin" /> : <span className="mr-3">{googleIcon()}</span>}
-            {busy ? "Connecting to Google…" : "Create Account / Log In with Gmail"}
+            {busy ? "Connecting to Google…" : "Continue with Gmail — Sign up / Log in"}
           </Button>
 
           <div className="rounded-2xl border bg-muted/30 p-4 text-center text-sm text-muted-foreground">
-            Use your Gmail / Google account to securely create or access your ANVYA account.
+            No separate account-creation form, password, or extra signup step. Gmail / Google is the only ANVYA sign-in method.
           </div>
 
-          <div className="flex items-center justify-center gap-4 text-sm">
-            <Link to="/anvya/help" className="font-semibold text-primary hover:underline">Help Centre</Link>
-            <span className="text-muted-foreground">•</span>
-            <Link to="/anvya" className="text-muted-foreground hover:underline">Home</Link>
+          <div className="flex items-center justify-center">
+            <Link to="/anvya" className="font-semibold text-primary hover:underline">← Home</Link>
           </div>
 
           <p className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <LogIn className="size-3.5" />
-            Returning users keep the same ANVYA ID.
+            Returning users keep the same ANVYA ID • New users get an ANVYA ID automatically.
           </p>
         </CardContent>
       </Card>
