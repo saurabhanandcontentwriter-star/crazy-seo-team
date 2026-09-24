@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 type State = "checking" | "allowed" | "denied";
 
-export default function CrmTeamGuard({ children }: { children: React.ReactNode }) {
+export default function CrmTeamGuard({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>("checking");
   const location = useLocation();
 
