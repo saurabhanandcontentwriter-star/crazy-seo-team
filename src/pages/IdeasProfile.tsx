@@ -192,7 +192,7 @@ export default function IdeasProfile(){
    <div className="mx-auto flex min-h-screen max-w-[1500px]">
     <aside className="sticky top-0 hidden h-screen w-[215px] shrink-0 flex-col border-r bg-background px-3 py-5 lg:flex">
       <button onClick={()=>nav("/anvya")} className="flex items-center gap-3 px-3 pb-7 text-left">
-        <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 text-xl font-black text-white">A</div>
+        <div className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 text-white shadow-md"><svg viewBox="0 0 64 64" className="size-7" aria-label="ANVYA Ideas"><path d="M32 7c-11.6 0-21 8.7-21 19.5 0 7.1 3.8 12.5 9.2 15.8V48c0 2.2 1.8 4 4 4h15.6c2.2 0 4-1.8 4-4v-5.7C49.2 39 53 33.6 53 26.5 53 15.7 43.6 7 32 7Z" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/><path d="M25 58h14M27 42h10M27 32c2.2 2 3.9 3 5 3s2.8-1 5-3" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/></svg></div>
         <span className="text-2xl font-black tracking-tight">ANVYA</span>
       </button>
       <nav className="space-y-1">
