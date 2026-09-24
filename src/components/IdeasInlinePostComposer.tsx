@@ -22,7 +22,7 @@ import {
   Unlink,
 } from "lucide-react";
 
-type ComposerMode = "post" | "blog" | "question";
+type ComposerMode = "post" | "blog" | "question" | "event";
 
 const modes: Array<{
   value: ComposerMode;
@@ -32,7 +32,7 @@ const modes: Array<{
 }> = [
   { value: "post", label: "Create Post", description: "Share an update, idea or image.", icon: FileText },
   { value: "blog", label: "Write Blog", description: "Publish a richer article with a cover image.", icon: BookOpen },
-  { value: "question", label: "Ask Discussion", description: "Ask the community and start a conversation.", icon: MessageCircle },
+  { value: "question", label: "Ask Discussion", description: "Ask the community and start a conversation.", icon: MessageCircle },\n  { value: "event", label: "Live Event", description: "Create a live or upcoming community event.", icon: CalendarDays },
 ];
 
 const sanitizeRichHtml = (html: string) => {
@@ -69,7 +69,7 @@ export default function IdeasInlinePostComposer({
   const [title, setTitle] = useState("");
   const [visibility, setVisibility] = useState("public");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState(false);\n  const [eventStart, setEventStart] = useState("");\n  const [eventEnd, setEventEnd] = useState("");\n  const [eventLocation, setEventLocation] = useState("");\n  const [eventUrl, setEventUrl] = useState("");
 
   const currentMode = modes.find((item) => item.value === mode)!;
 
@@ -122,7 +122,7 @@ export default function IdeasInlinePostComposer({
       return;
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
+    if (mode === "event" && !eventStart) { toast.error("Choose an event start time."); return; }\n    const { data: { user } } = await supabase.auth.getUser();
     if (!user || user.id !== profile.user_id) {
       toast.error("Please sign in to your own profile first.");
       return;
@@ -146,7 +146,7 @@ export default function IdeasInlinePostComposer({
         device_type: /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Laptop/Desktop",
         status: "pending",
         visibility,
-        post_type: mode,
+        post_type: mode,\n        event_start: eventStartAt,\n        event_end: eventEndAt,\n        event_location: eventLocation.trim() || null,\n        event_url: eventUrl.trim() || null,
       };
 
       const { data, error } = await supabase
@@ -276,7 +276,7 @@ export default function IdeasInlinePostComposer({
             />
           </div>
 
-          <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+\n          {mode === "event" && (\n            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">\n              <div className="mb-3 flex items-center gap-2 font-bold"><CalendarDays className="size-4 text-primary"/> Live event details</div>\n              <div className="grid gap-3 md:grid-cols-2">\n                <Input type="datetime-local" value={eventStart} onChange={(e) => setEventStart(e.target.value)} min={new Date(Date.now()+60000).toISOString().slice(0,16)} aria-label="Event start"/>\n                <Input type="datetime-local" value={eventEnd} onChange={(e) => setEventEnd(e.target.value)} aria-label="Event end"/>\n                <Input value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} placeholder="Venue / Online"/>\n                <Input value={eventUrl} onChange={(e) => setEventUrl(e.target.value)} placeholder="Live / registration URL (https://...)"/>\n              </div>\n            </div>\n          )}\n          <div className="grid gap-3 md:grid-cols-[1fr_auto]">
             <label className="flex min-h-16 cursor-pointer items-center gap-3 rounded-2xl border border-dashed p-3 transition hover:border-primary/50 hover:bg-muted/30">
               <ImagePlus className="size-5 text-primary" />
               <div className="min-w-0">
@@ -334,7 +334,7 @@ export default function IdeasInlinePostComposer({
             className="rounded-xl bg-gradient-to-r from-violet-600 to-blue-600"
           >
             {busy ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Send className="mr-2 size-4" />}
-            {busy ? "Publishing…" : mode === "question" ? "Ask Discussion" : mode === "blog" ? "Publish Blog" : "Publish Post"}
+            {busy ? "Publishing…" : mode === "question" ? "Ask Discussion" : mode === "blog" ? "Publish Blog" : mode === "event" ? "Publish Event" : "Publish Post"}
           </Button>
         </div>
       </CardContent>
