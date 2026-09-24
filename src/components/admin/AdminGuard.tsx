@@ -5,8 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 type State = "checking" | "allowed" | "denied";
 
 const ALLOWED_ADMINS = new Set([
-  "saurabhanandshahisarmera@gmail.com",
   "crazyseoteam@gmail.com",
+  "sauravanand499@gmail.com",
 ]);
 
 export default function AdminGuard({ children }: { children: ReactNode }) {
