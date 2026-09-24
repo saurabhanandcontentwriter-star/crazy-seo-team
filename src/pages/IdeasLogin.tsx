@@ -191,7 +191,7 @@ export default function IdeasLogin() {
           <div className="flex items-center justify-center gap-4 text-sm">
             <Link to="/anvya/help" className="font-semibold text-primary hover:underline">Help Centre</Link>
             <span className="text-muted-foreground">•</span>
-            <Link to="/anvya" className="text-muted-foreground hover:underline">Back to Ideas</Link>
+            <Link to="/anvya" className="text-muted-foreground hover:underline">Home</Link>
           </div>
 
           <p className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
