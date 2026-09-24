@@ -58,7 +58,7 @@ export default function IdeasCreate() {
    setSaving(true);
    try{
      const{data:{user}}=await supabase.auth.getUser();
-     if(!user){toast.error("Create your Ideas ID and complete your profile before posting.");navigate("/anvya/account");return}
+     if(!user){toast.error("Please sign in with Gmail to create a post.");navigate("/anvya/login");return}
      const profile=await supabase.from("idea_profiles").select("user_id,public_id,first_name,middle_name,last_name,state,country,account_status,banned_until,is_creator,creator_types").eq("user_id",user.id).maybeSingle();
      if(profile.error) throw profile.error;
      const p=profile.data;
