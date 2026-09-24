@@ -18,8 +18,10 @@ type Profile={user_id:string;display_name:string;working?:string|null;company?:s
 type Post={id:string;user_id:string;display_name:string|null;profile_image_url:string|null;title:string;content:string;post_type:string;visibility:string;subject:string;image_url:string|null;created_at:string;status:string};
 
 function sanitizeRichHtml(input:string){
- // Convert accidental literal \\n sequences into harmless line breaks before rendering.
- const cleanedInput=input.replace(/\\\\n/g,"<br>");
+ // Convert accidental literal \
+ sequences into harmless line breaks before rendering.
+ const cleanedInput=input.replace(/\\\
+/g,"<br>");
  const parser=new DOMParser(); const doc=parser.parseFromString(cleanedInput,"text/html");
  doc.querySelectorAll("script,style,iframe,object,embed,form").forEach(el=>el.remove());
  doc.querySelectorAll("*").forEach(el=>{Array.from(el.attributes).forEach(a=>{if(a.name.toLowerCase().startsWith("on")||["style","class","id"].includes(a.name.toLowerCase()))el.removeAttribute(a.name)});if(el.tagName.toLowerCase()==="a"){const href=el.getAttribute("href")||"";if(!/^https:\/\//i.test(href))el.removeAttribute("href");else{el.setAttribute("target","_blank");el.setAttribute("rel","noopener noreferrer")}}});
@@ -141,7 +143,9 @@ export default function IdeasProfile(){
  const friend=async()=>{if(!me||!p)return toast.error("Please sign in first.");if(friendStatus==="accepted"||friendStatus==="pending")return;const {error}=await supabase.from("idea_friendships").insert({requester_id:me,addressee_id:p.user_id});if(error)toast.error(error.message);else{setFriendStatus("pending");toast.success("Friend request sent.")}};
  const uploadImage=async(file:File,kind:"avatar"|"cover")=>{if(!me)throw new Error("Please sign in again.");if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>5*1024*1024)throw new Error("Use JPG, PNG or WEBP up to 5 MB.");const ext=(file.name.split(".").pop()||"jpg").toLowerCase();const path=`${me}/${kind}-${crypto.randomUUID()}.${ext}`;const storage=supabase.storage.from("idea-images");const up=await storage.upload(path,file,{contentType:file.type,cacheControl:"3600",upsert:false});if(up.error){console.error("ANVYA image upload failed",up.error);throw new Error(up.error.message||"Image upload failed. Please try again.");}const url=storage.getPublicUrl(path).data.publicUrl;if(!url)throw new Error("Image URL could not be created.");return url};
  const save=async()=>{if(!me)return;setSaving(true);try{let avatar=form.avatar_url,cover=form.cover_url;if(avatarFile)avatar=await uploadImage(avatarFile,"avatar");if(coverFile)cover=await uploadImage(coverFile,"cover");const payload={...form,user_id:me,display_name:[form.first_name,form.middle_name,form.last_name].filter(Boolean).join(" ").trim()||String(form.display_name||"").trim()||"Member",updated_at:new Date().toISOString()};const {data,error}=await supabase.from("idea_profiles").upsert({...payload,avatar_url:avatar,cover_url:cover}).select().single();if(error)toast.error(error.message);else{setP(data);setForm(data);setEdit(false);setAvatarFile(null);setCoverFile(null);toast.success("Profile updated.")}}catch(e:any){toast.error(e?.message||"Could not update profile")}setSaving(false)};
- const social=[["Website",p?.website_url],["LinkedIn",p?.linkedin_url],["GitHub",p?.github_url],["Instagram",p?.instagram_url],["X",p?.twitter_url]].filter(x=>x[1]);\n const togglePinnedPost=(postId:string)=>{if(!p)return;const key="anvya-pinned-post-"+p.user_id;const next=pinnedPostId===postId?null:postId;if(next)localStorage.setItem(key,next);else localStorage.removeItem(key);setPinnedPostId(next);toast.success(next?"Post pinned to profile.":"Post unpinned.")};\n const pinnedPost=pinnedPostId?posts.find(x=>x.id===pinnedPostId)||null:null;
+ const social=[["Website",p?.website_url],["LinkedIn",p?.linkedin_url],["GitHub",p?.github_url],["Instagram",p?.instagram_url],["X",p?.twitter_url]].filter(x=>x[1]);
+ const togglePinnedPost=(postId:string)=>{if(!p)return;const key="anvya-pinned-post-"+p.user_id;const next=pinnedPostId===postId?null:postId;if(next)localStorage.setItem(key,next);else localStorage.removeItem(key);setPinnedPostId(next);toast.success(next?"Post pinned to profile.":"Post unpinned.")};
+ const pinnedPost=pinnedPostId?posts.find(x=>x.id===pinnedPostId)||null:null;
  if(loading)return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin"/></div>;
  if(!p)return <div className="container mx-auto max-w-3xl px-4 py-12"><Card><CardContent className="p-10 text-center">Profile not found.</CardContent></Card></div>;
  return (
