@@ -5,8 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const CRM_ADMIN_EMAILS = new Set([
   "crazyseoteam@gmail.com",
-  "saurabhanandshahisarmera@gmail.com",
-  "saurabhanandcontentwriter@gmail.com",
+  "sauravanand499@gmail.com",
 ]);
 
 type State = "checking" | "allowed" | "denied";
@@ -21,17 +20,11 @@ export default function CrmTeamGuard({ children }: { children: ReactNode }) {
     const verify = async () => {
       try {
         const { data } = await supabase.auth.getSession();
-        const user = data.session?.user;
-        const email = user?.email?.trim().toLowerCase() ?? "";
+        const email = data.session?.user?.email?.trim().toLowerCase() ?? "";
 
         if (cancelled) return;
 
-        if (!CRM_ADMIN_EMAILS.has(email)) {
-          setState("denied");
-          return;
-        }
-
-        setState("allowed");
+        setState(CRM_ADMIN_EMAILS.has(email) ? "allowed" : "denied");
       } catch (error) {
         console.error("CRM guard verification failed:", error);
         if (!cancelled) setState("denied");
@@ -47,13 +40,11 @@ export default function CrmTeamGuard({ children }: { children: ReactNode }) {
         if (cancelled) return;
 
         const email = session?.user?.email?.trim().toLowerCase() ?? "";
-
-        if (event === "SIGNED_OUT" || !CRM_ADMIN_EMAILS.has(email)) {
-          setState("denied");
-          return;
-        }
-
-        setState("allowed");
+        setState(
+          event !== "SIGNED_OUT" && CRM_ADMIN_EMAILS.has(email)
+            ? "allowed"
+            : "denied",
+        );
       }, 0);
     });
 
