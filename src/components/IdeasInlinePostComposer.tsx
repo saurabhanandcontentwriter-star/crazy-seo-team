@@ -32,7 +32,8 @@ const modes: Array<{
 }> = [
   { value: "post", label: "Create Post", description: "Share an update, idea or image.", icon: FileText },
   { value: "blog", label: "Write Blog", description: "Publish a richer article with a cover image.", icon: BookOpen },
-  { value: "question", label: "Ask Discussion", description: "Ask the community and start a conversation.", icon: MessageCircle },\n  { value: "event", label: "Live Event", description: "Create a live or upcoming community event.", icon: CalendarDays },
+  { value: "question", label: "Ask Discussion", description: "Ask the community and start a conversation.", icon: MessageCircle },
+  { value: "event", label: "Live Event", description: "Create a live or upcoming community event.", icon: CalendarDays },
 ];
 
 const sanitizeRichHtml = (html: string) => {
