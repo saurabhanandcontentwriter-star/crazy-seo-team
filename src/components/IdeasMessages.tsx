@@ -14,7 +14,7 @@ type InboxItem=MsgProfile&{last_message:string;last_message_at:string;unread:num
 const onlineCutoff=90*1000;
 
 function isOnline(lastSeen:string|null|undefined){return !!lastSeen&&Date.now()-new Date(lastSeen).getTime()<onlineCutoff;}
-function formatLastSeen(value:string|null|undefined){
+function formatMessageTime(value:string){return new Date(value).toLocaleTimeString([], {hour:"numeric",minute:"2-digit"});}\nfunction formatDayLabel(value:string){const d=new Date(value);const today=new Date();const yesterday=new Date();yesterday.setDate(today.getDate()-1);if(d.toDateString()===today.toDateString())return "Today";if(d.toDateString()===yesterday.toDateString())return "Yesterday";return d.toLocaleDateString([], {day:"numeric",month:"short",year:"numeric"});}\nfunction formatLastSeen(value:string|null|undefined){
  if(!value)return "Never seen";
  const diff=Math.max(0,Date.now()-new Date(value).getTime());
  if(diff<60_000)return "Last seen just now";
@@ -166,10 +166,10 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
      <div className="min-w-0 flex-1"><p className="truncate font-bold">{target.display_name}</p><p className="text-xs text-muted-foreground">{target.public_id||"No Public ID"} • {online?<span className="text-green-600">Active now</span>:formatLastSeen(presence?.last_seen_at)}</p></div>
      <Badge variant={online?"default":"outline"}>{online?"Online":"Offline"}</Badge>
     </div>
-    <div className="max-h-[55vh] min-h-56 space-y-2 overflow-y-auto p-3 sm:p-4">
+    <div className="max-h-[55vh] min-h-56 space-y-1 overflow-y-auto bg-muted/10 p-3 sm:p-5">
      {loading&&<p className="text-sm text-muted-foreground">Loading conversation…</p>}
      {!loading&&messages.length===0&&<p className="py-12 text-center text-sm text-muted-foreground">No messages yet. Say hello 👋</p>}
-     {messages.map(m=><div key={m.id} className={"flex "+(m.sender_id===me?"justify-end":"justify-start")}><div className={"max-w-[85%] rounded-2xl px-3 py-2 text-sm sm:max-w-[75%] "+(m.sender_id===me?"bg-primary text-primary-foreground":"bg-muted")}><p className="whitespace-pre-wrap break-words">{m.message}</p><p className={"mt-1 text-[10px] "+(m.sender_id===me?"opacity-75":"text-muted-foreground")}>{new Date(m.created_at).toLocaleString()}</p></div></div>)}
+     {messages.map((m,i)=>{const showDay=i===0||formatDayLabel(messages[i-1].created_at)!==formatDayLabel(m.created_at);return <div key={m.id}>{showDay&&<div className="my-4 flex items-center gap-3"><div className="h-px flex-1 bg-border"/><span className="text-[11px] font-semibold text-muted-foreground">{formatDayLabel(m.created_at)}</span><div className="h-px flex-1 bg-border"/></div>}<div className={"flex "+(m.sender_id===me?"justify-end":"justify-start")}><div className={"max-w-[82%] rounded-[22px] px-3.5 py-2.5 text-sm shadow-sm sm:max-w-[70%] "+(m.sender_id===me?"rounded-br-md bg-primary text-primary-foreground":"rounded-bl-md border bg-background")}><p className="whitespace-pre-wrap break-words">{m.message}</p><div className={"mt-1 flex items-center justify-end gap-1 text-[10px] "+(m.sender_id===me?"opacity-75":"text-muted-foreground")}><span>{formatMessageTime(m.created_at)}</span>{m.sender_id===me&&<span>✓</span>}</div></div></div></div>})}
     </div>
     <div className="flex gap-2 border-t p-2 sm:p-3"><Input className="min-w-0" value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();void send()}}} placeholder={"Message "+target.display_name+"…"} maxLength={5000}/><Button onClick={()=>void send()} disabled={sending||!text.trim()}><Send className="mr-2 size-4"/>Send</Button></div>
    </div>}
