@@ -74,7 +74,7 @@ export default function IdeasProfile(){
   const {data:slugProfile}=await supabase.from("idea_profiles").select("user_id,display_name,first_name,middle_name,last_name,state,country,bio,avatar_url,cover_url,location,website_url,linkedin_url,github_url,instagram_url,twitter_url,profile_slug,date_of_birth,working,company,education,public_id,reputation_points,level,verified,account_status,banned_until,email,is_creator,creator_types,creator_since,creator_rules_accepted_at").or(`profile_slug.ilike.${slug},public_id.eq.${slug.toUpperCase()},email.ilike.${slug}@gmail.com`).maybeSingle();
   if(slugProfile?.user_id) id=slugProfile.user_id;
  }
- if(!id){setLoading(false);nav("/anvya/account",{replace:true});return}
+ if(!id){setLoading(false);nav("/anvya/login",{replace:true});return}
  const {data:profile}=await supabase.from("idea_profiles").select("user_id,display_name,first_name,middle_name,last_name,state,country,bio,avatar_url,cover_url,location,website_url,linkedin_url,github_url,instagram_url,twitter_url,date_of_birth,working,company,education,public_id,reputation_points,level,verified,account_status,banned_until,is_creator,creator_types,creator_since,creator_rules_accepted_at").eq("user_id",id).maybeSingle();
  if(!profile&&user?.id===id){
   const fallback={user_id:user.id,display_name:user.user_metadata?.full_name||user.email?.split("@")[0]||"Member"};
