@@ -14,7 +14,7 @@ type State = "checking" | "allowed" | "denied";
 export default function AdminGuard({ children }: { children: ReactNode }) {
   const [state, setState] = useState<State>("checking");
   const location = useLocation();
-  const verifiedUserId = useRef<string | null>(null);
+  const verifiedUserId = useRef<string | null>(null);\n\n  const ALLOWED_ADMINS = new Set([\n    "saurabhanandshahisarmera@gmail.com",\n    "crazyseoteam@gmail.com",\n  ]);
 
   useEffect(() => {
     let cancelled = false;
