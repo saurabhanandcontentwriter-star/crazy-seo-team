@@ -20,6 +20,7 @@ import {
   ListOrdered,
   Heading2,
   Unlink,
+  CalendarDays,
 } from "lucide-react";
 
 type ComposerMode = "post" | "blog" | "question" | "event";
@@ -128,6 +129,12 @@ export default function IdeasInlinePostComposer({
     }
 
     if (mode === "event" && !eventStart) { toast.error("Choose an event start time."); return; }
+    const eventStartAt = mode === "event" && eventStart ? new Date(eventStart).toISOString() : null;
+    const eventEndAt = mode === "event" && eventEnd ? new Date(eventEnd).toISOString() : null;
+    if (mode === "event" && eventEndAt && new Date(eventEndAt).getTime() <= new Date(eventStartAt!).getTime()) {
+      toast.error("Event end time must be after the start time.");
+      return;
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user || user.id !== profile.user_id) {
       toast.error("Please sign in to your own profile first.");
