@@ -168,6 +168,39 @@ Deno.serve(async (req) => {
       return ok({ users: out, posts: postsOut, total: out.length, totalPosts: postsOut.length });
     }
 
+    if (body.action === "moderate_post") {
+      const postId = String(body.post_id ?? "").trim();
+      const status = body.status === "approved" ? "approved" : body.status === "rejected" ? "rejected" : "";
+      if (!postId || !status) return fail("Post ID and moderation status are required.", 400);
+
+      const rejectionReason = status === "rejected"
+        ? String(body.rejection_reason ?? "").trim()
+        : "";
+      if (status === "rejected" && !rejectionReason) {
+        return fail("Rejection reason is required.", 400);
+      }
+
+      const moderationReason = status === "approved"
+        ? "Approved after content detector review."
+        : rejectionReason;
+
+      const { data: updatedPost, error: updateError } = await admin
+        .from("idea_posts")
+        .update({
+          status,
+          rejection_reason: status === "rejected" ? rejectionReason : null,
+          moderation_decision: status,
+          moderation_reason: moderationReason,
+          moderation_checked_at: new Date().toISOString(),
+        })
+        .eq("id", postId)
+        .select("*")
+        .single();
+
+      if (updateError) return fail("Post moderation failed: " + updateError.message, 400);
+      return ok({ success: true, post: updatedPost });
+    }
+
     if (body.action === "delete_creator_application") {
       const applicationId = String(body.application_id ?? "").trim();
       if (!applicationId) return fail("Creator application ID required.");
