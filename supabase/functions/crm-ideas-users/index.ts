@@ -56,17 +56,26 @@ Deno.serve(async (req) => {
 
     if (!selfDelete) {
       const actorEmail = (actor.email ?? "").trim().toLowerCase();
-      const [{ data: adminEmail, error: adminCheckError }, { data: roleRows, error: roleCheckError }] = await Promise.all([
-        admin.from("admin_emails").select("email").ilike("email", actorEmail).maybeSingle(),
-        admin.from("user_roles").select("role").eq("user_id", actor.id).eq("role", "admin").maybeSingle(),
+
+      // CRM admin access is intentionally limited to the two authorized accounts.
+      // Check the authenticated email first so access does not depend on a stale
+      // admin_emails/user_roles row in production.
+      const allowedAdminEmails = new Set([
+        "saurabhanandshahisarmera@gmail.com",
+        "crazyseoteam@gmail.com",
       ]);
 
-      if (adminCheckError && roleCheckError) {
-        return fail("Admin check failed: " + (adminCheckError.message || roleCheckError.message), 500);
+      if (!allowedAdminEmails.has(actorEmail)) {
+        const [{ data: adminEmail, error: adminCheckError }, { data: roleRows, error: roleCheckError }] = await Promise.all([
+          admin.from("admin_emails").select("email").ilike("email", actorEmail).maybeSingle(),
+          admin.from("user_roles").select("role").eq("user_id", actor.id).eq("role", "admin").maybeSingle(),
+        ]);
+
+        if (adminCheckError && roleCheckError) {
+          return fail("Admin check failed: " + (adminCheckError.message || roleCheckError.message), 500);
+        }
+        if (!adminEmail && !roleRows) return fail("Admin access required.", 403);
       }
-      // Accept either of the site's two admin sources. This keeps CRM access working
-      // when the account has the admin role but the admin_emails seed is stale.
-      if (!adminEmail && !roleRows) return fail("Admin access required.", 403);
     }
 
     if (body.action === "list") {
