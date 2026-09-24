@@ -70,10 +70,10 @@ export default function IdeasCreate() {
      const publicName=[p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ");
      const scheduledAt=scheduleMode==="scheduled"&&scheduledFor?new Date(scheduledFor).toISOString():null;
      if(scheduleMode==="scheduled"&&(!scheduledAt||new Date(scheduledAt).getTime()<=Date.now())){toast.error("Choose a future date and time.");return}
-     const imageUrl=coverFile?await uploadImage(user.id,coverFile,"cover"):null; const eventStartAt=postType==="event"&&eventStart?new Date(eventStart).toISOString():null; const eventEndAt=postType==="event"&&eventEnd?new Date(eventEnd).toISOString():null; if(postType==="event"&&(!eventStartAt||new Date(eventStartAt).getTime()<=Date.now())){toast.error("Choose a future event date and time.");return} if(postType==="event"&&eventEndAt&&new Date(eventEndAt).getTime()<=new Date(eventStartAt!).getTime()){toast.error("Event end time must be after the start time.");return}
+     const imageUrl=coverFile?await uploadImage(user.id,coverFile,"cover"):null; const eventStartIso=postType==="event"&&eventStart?new Date(eventStart).toISOString():null; const eventEndIso=postType==="event"&&eventEnd?new Date(eventEnd).toISOString():null; if(postType==="event"&&(!eventStartIso||new Date(eventStartIso).getTime()<=Date.now())){toast.error("Choose a future event date and time.");return} if(postType==="event"&&eventEndIso&&new Date(eventEndIso).getTime()<=new Date(eventStartIso!).getTime()){toast.error("Event end time must be after the start time.");return}
      const{data:guard,error:guardError}=await supabase.functions.invoke("idea-content-guard",{body:{
        name:publicName,subject,creatorType:null,title:title.trim(),content:richContent,location:location.trim(),deviceType:device,postType,visibility,
-       scheduledFor:scheduledAt,imageUrl,imageAlt:imageAlt.trim()||title.trim(),eventStart:eventStartAt,eventEnd:eventEndAt,eventLocation,eventUrl,eventMaxAttendees
+       scheduledFor:scheduledAt,imageUrl,imageAlt:imageAlt.trim()||title.trim(),eventStart:eventStartIso,eventEnd:eventEndIso,eventLocation,eventUrl,eventMaxAttendees
      }});
      if(guardError) throw guardError;
      if(!guard?.accepted){toast.error(guard?.error||"AI-like content detected. Please rewrite it in your own words.");return}
