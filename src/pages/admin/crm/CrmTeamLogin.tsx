@@ -7,8 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 
 const CRM_ADMIN_EMAILS = new Set([
   "crazyseoteam@gmail.com",
-  "saurabhanandshahisarmera@gmail.com",
-  "saurabhanandcontentwriter@gmail.com",
   "sauravanand499@gmail.com",
 ]);
 
@@ -71,9 +69,7 @@ export default function CrmTeamLogin() {
 
         <div className="text-center">
           <h1 className="text-2xl font-black">Crazy SEO Team CRM</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Admin access
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">Admin access</p>
         </div>
 
         <button
