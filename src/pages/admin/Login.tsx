@@ -1,87 +1,72 @@
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const ALLOWED_ADMINS = [
-  "crazyseoteam@gmail.com",
-  "sauravanand499@gmail.com",
   "saurabhanandshahisarmera@gmail.com",
+  "crazyseoteam@gmail.com",
 ];
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: FormEvent) => {
-    e.preventDefault();
-    const email = username.trim().toLowerCase();
-
-    if (!email || !password) {
-      toast.error("Gmail and password are required.");
-      return;
-    }
-
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
-      toast.error("Enter a valid Gmail address.");
-      return;
-    }
-
-    if (!ALLOWED_ADMINS.includes(email)) {
-      toast.error("This Gmail is not authorized as an admin.");
-      return;
-    }
-
+  const handleGoogleLogin = async () => {
     setLoading(true);
-
     try {
       await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/admin`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "select_account",
+          },
+        },
       });
 
-      if (error) {
-        throw new Error(
-          error.message === "Invalid login credentials"
-            ? "Invalid Gmail or password."
-            : error.message,
-        );
-      }
-
-      if (!data.user) {
-        throw new Error("Admin account could not be verified.");
-      }
-
-      const { data: roleData, error: roleError } = await supabase.rpc("has_role", {
-        _user_id: data.user.id,
-        _role: "admin",
-      });
-
-      if (roleError) {
-        await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
-        throw new Error(roleError.message || "Admin role check failed.");
-      }
-
-      if (roleData !== true) {
-        await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
-        throw new Error("This account does not have admin access.");
-      }
-
-      localStorage.setItem("adminLoggedIn", "true");
-      toast.success("Admin login successful.");
-      navigate("/admin", { replace: true });
+      if (error) throw error;
     } catch (error) {
-      console.error("Admin login error:", error);
+      console.error("Admin Google login error:", error);
       toast.error(
-        error instanceof Error ? error.message : "Admin login failed.",
+        error instanceof Error
+          ? error.message
+          : "Google admin login failed.",
       );
-    } finally {
       setLoading(false);
     }
+  };
+
+  const checkCurrentGoogleUser = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const email = user?.email?.trim().toLowerCase() ?? "";
+    if (!user || !ALLOWED_ADMINS.includes(email)) {
+      await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+      localStorage.removeItem("adminLoggedIn");
+      toast.error("This Gmail is not authorized for Admin.");
+      return false;
+    }
+
+    const { data: roleData, error: roleError } = await supabase.rpc("has_role", {
+      _user_id: user.id,
+      _role: "admin",
+    });
+
+    if (roleError || roleData !== true) {
+      await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+      localStorage.removeItem("adminLoggedIn");
+      toast.error("This Gmail does not have Admin access yet.");
+      return false;
+    }
+
+    localStorage.setItem("adminLoggedIn", "true");
+    return true;
   };
 
   return (
@@ -90,44 +75,28 @@ export default function AdminLogin() {
         <div className="rounded-2xl border bg-card p-6 shadow-xl">
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold">Admin Login</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Crazy SEO Team</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Continue with Google using an authorized Gmail only.
+            </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="mb-2 block text-sm font-medium">Admin Gmail</label>
-              <input
-                type="email"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="crazyseoteam@gmail.com"
-                autoComplete="username"
-                disabled={loading}
-                className="w-full rounded-lg border bg-background px-4 py-3 outline-none focus:ring-2"
-              />
-            </div>
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-3 rounded-xl border bg-background px-4 py-3 font-semibold transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <span className="grid size-7 place-items-center rounded-full bg-white text-sm font-black shadow-sm">
+              G
+            </span>
+            {loading ? "Opening Google..." : "Continue with Google"}
+          </button>
 
-            <div>
-              <label className="mb-2 block text-sm font-medium">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter admin password"
-                autoComplete="current-password"
-                disabled={loading}
-                className="w-full rounded-lg border bg-background px-4 py-3 outline-none focus:ring-2"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {loading ? "Signing in..." : "Login"}
-            </button>
-          </form>
+          <div className="mt-5 rounded-xl border bg-muted/40 p-4 text-center text-xs text-muted-foreground">
+            <p className="font-semibold text-foreground">Authorized Admin Gmail</p>
+            <p className="mt-1">saurabhanandshahisarmera@gmail.com</p>
+            <p>crazyseoteam@gmail.com</p>
+          </div>
         </div>
       </div>
     </div>
