@@ -64,18 +64,30 @@ Deno.serve(async (req) => {
         "saurabhanandshahisarmera@gmail.com",
         "crazyseoteam@gmail.com",
         "saurabhanandcontentwriter@gmail.com",
+        "sauravanand499@gmail.com",
       ]);
 
       if (!allowedAdminEmails.has(actorEmail)) {
-        const [{ data: adminEmail, error: adminCheckError }, { data: roleRows, error: roleCheckError }] = await Promise.all([
-          admin.from("admin_emails").select("email").ilike("email", actorEmail).maybeSingle(),
-          admin.from("user_roles").select("role").eq("user_id", actor.id).eq("role", "admin").maybeSingle(),
-        ]);
+        const { data: adminEmail, error: adminCheckError } = await admin
+          .from("admin_emails")
+          .select("email")
+          .ilike("email", actorEmail)
+          .maybeSingle();
+
+        const { data: roleRows, error: roleCheckError } = await admin
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", actor.id)
+          .eq("role", "admin")
+          .maybeSingle();
 
         if (adminCheckError && roleCheckError) {
           return fail("Admin check failed: " + (adminCheckError.message || roleCheckError.message), 500);
         }
-        if (!adminEmail && !roleRows) return fail("Admin access required.", 403);
+
+        if (!adminEmail?.email && !roleRows?.role) {
+          return fail("Admin access required.", 403);
+        }
       }
     }
 
