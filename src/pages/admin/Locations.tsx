@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -123,7 +123,7 @@ const trendIcon = (delta: number) =>
     <span className="inline-flex items-center gap-1 text-muted-foreground text-xs font-semibold"><Minus size={13} /> Stable</span>
   );
 
-const Card = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+const Card = ({ children, className = "" }: { children: ReactNode; className?: string }) => (
   <div className={`rounded-[24px] border border-border/60 bg-card/70 backdrop-blur-xl p-4 shadow-sm ${className}`}>
     {children}
   </div>
