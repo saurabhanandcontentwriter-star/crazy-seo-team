@@ -23,7 +23,7 @@ export default function AdminLogin() {
       return;
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
       toast.error("Enter a valid Gmail address.");
       return;
     }
@@ -55,27 +55,18 @@ export default function AdminLogin() {
         throw new Error("Admin account could not be verified.");
       }
 
-      const { data: roleData, error: roleError } = await Promise.race([
-        supabase.rpc("has_role", {
-          _user_id: data.user.id,
-          _role: "admin",
-        }),
-        new Promise<never>((_, reject) =>
-          window.setTimeout(() => reject(new Error("Admin role verification timed out. Please retry.")), 8000),
-        ),
-      ]);
-
-      const isAdmin = Array.isArray(roleData)
-        ? roleData.some(Boolean)
-        : Boolean(roleData);
+      const { data: roleData, error: roleError } = await supabase.rpc("has_role", {
+        _user_id: data.user.id,
+        _role: "admin",
+      });
 
       if (roleError) {
-        await supabase.auth.signOut({ scope: "local" });
+        await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
         throw new Error(roleError.message || "Admin role check failed.");
       }
 
-      if (!isAdmin) {
-        await supabase.auth.signOut({ scope: "local" });
+      if (roleData !== true) {
+        await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
         throw new Error("This account does not have admin access.");
       }
 
