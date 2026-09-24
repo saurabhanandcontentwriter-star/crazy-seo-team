@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 const CRM_ADMIN_EMAILS = new Set([
   "crazyseoteam@gmail.com",
+  "saurabhanandshahisarmera@gmail.com",
+  "saurabhanandcontentwriter@gmail.com",
   "sauravanand499@gmail.com",
 ]);
 
