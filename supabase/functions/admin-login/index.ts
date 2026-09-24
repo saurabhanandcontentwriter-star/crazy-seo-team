@@ -12,7 +12,6 @@ const corsHeaders = {
 const ALLOWED_ADMINS = new Set([
   "crazyseoteam@gmail.com",
   "sauravanand499@gmail.com",
-  "saurabhanandshahisarmera@gmail.com",
 ]);
 
 const ALIASES: Record<string, string> = {
