@@ -2,9 +2,12 @@ import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
+import AppErrorBoundary from "./components/AppErrorBoundary.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>
-    <App />
+    <AppErrorBoundary>
+      <App />
+    </AppErrorBoundary>
   </HelmetProvider>,
 );
