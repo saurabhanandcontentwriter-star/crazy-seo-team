@@ -63,6 +63,7 @@ Deno.serve(async (req) => {
       const allowedAdminEmails = new Set([
         "saurabhanandshahisarmera@gmail.com",
         "crazyseoteam@gmail.com",
+        "saurabhanandcontentwriter@gmail.com",
       ]);
 
       if (!allowedAdminEmails.has(actorEmail)) {
