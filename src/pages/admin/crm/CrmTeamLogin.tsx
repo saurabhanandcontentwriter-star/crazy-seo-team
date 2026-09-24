@@ -1,46 +1,58 @@
-import { FormEvent, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { KeyRound, Loader2, LockKeyhole } from "lucide-react";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/crm/CrmUI";
 import { supabase } from "@/integrations/supabase/client";
 
+const CRM_ADMIN_EMAIL = "crazyseoteam@gmail.com";
+
 export default function CrmTeamLogin() {
   const navigate = useNavigate();
-  const [loginId, setLoginId] = useState("");
-  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const submit = async (e: FormEvent) => {
-    e.preventDefault();
-    const id = loginId.trim().toLowerCase();
-    if (!id || !password) return toast.error("Email / Team ID and password are required.");
-    setBusy(true);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: id.includes("@") ? id : `${id}@crazyseoteam.in`,
-        password,
-      });
-      if (error) throw error;
+  useEffect(() => {
+    let cancelled = false;
 
-      const { data: teamRole } = await supabase.rpc("has_role", {
-        _user_id: (await supabase.auth.getUser()).data.user?.id,
-        _role: "crm_team",
-      });
-      const { data: adminRole } = await supabase.rpc("has_role", {
-        _user_id: (await supabase.auth.getUser()).data.user?.id,
-        _role: "admin",
-      });
-      if (!teamRole && !adminRole) {
-        await supabase.auth.signOut();
-        throw new Error("This account is not authorized for CRM.");
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      const email = data.session?.user?.email?.trim().toLowerCase();
+
+      if (!cancelled && email === CRM_ADMIN_EMAIL) {
+        navigate("/admin/crm", { replace: true });
       }
-      navigate("/admin/crm", { replace: true });
-    } catch (err: any) {
-      toast.error(err.message ?? "Invalid Login ID or password.");
-    } finally {
+    };
+
+    void checkSession();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate]);
+
+  const continueWithGoogle = async () => {
+    setBusy(true);
+
+    try {
+      await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/admin/crm`,
+          queryParams: {
+            prompt: "select_account",
+          },
+        },
+      });
+
+      if (error) throw error;
+      if (data?.url) window.location.assign(data.url);
+    } catch (error) {
+      console.error("CRM Google login error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "CRM Google login failed.",
+      );
       setBusy(false);
     }
   };
@@ -51,26 +63,44 @@ export default function CrmTeamLogin() {
         <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary">
           <LockKeyhole size={26} />
         </div>
+
         <div className="text-center">
           <h1 className="text-2xl font-black">Crazy SEO Team CRM</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Team login</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Admin access
+          </p>
         </div>
-        <form onSubmit={submit} className="mt-6 space-y-4">
-          <div>
-            <label className="text-sm font-semibold">Admin Email / Team ID</label>
-            <div className="relative mt-1">
-              <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input className="pl-9" value={loginId} onChange={(e) => setLoginId(e.target.value)} placeholder="Admin email or e.g. cst_sales01" autoComplete="username" />
+
+        <div className="mt-6 rounded-2xl border bg-muted/30 p-4">
+          <div className="flex items-center gap-3">
+            <div className="grid size-10 place-items-center rounded-xl bg-background shadow-sm">
+              <KeyRound size={18} className="text-primary" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-muted-foreground">
+                Authorized CRM email
+              </p>
+              <p className="truncate text-sm font-bold">{CRM_ADMIN_EMAIL}</p>
             </div>
           </div>
-          <div>
-            <label className="text-sm font-semibold">Password</label>
-            <Input className="mt-1" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter password" autoComplete="current-password" />
-          </div>
-          <Button type="submit" className="w-full" disabled={busy}>
-            {busy ? <><Loader2 size={16} className="mr-2 animate-spin" /> Signing in…</> : "Login to CRM"}
-          </Button>
-        </form>
+        </div>
+
+        <button
+          type="button"
+          onClick={continueWithGoogle}
+          disabled={busy}
+          className="mt-4 flex w-full items-center justify-center gap-3 rounded-xl border bg-background px-4 py-3 font-semibold transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span className="grid size-7 place-items-center rounded-full bg-white text-sm font-black shadow-sm">
+            G
+          </span>
+          {busy ? "Opening Google..." : "Continue with Google"}
+        </button>
+
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          Password is not required. Google sign-in verifies the authorized
+          account.
+        </p>
       </GlassCard>
     </div>
   );
