@@ -168,11 +168,18 @@ export default function IdeasInlinePostComposer({
       if (error) throw error;
 
       toast.success(
-        mode === "blog"
-          ? "Blog submitted for review."
-          : mode === "question"
-            ? "Discussion submitted for review."
-            : "Post submitted for review."
+        "🎉 Congratulations!",
+        {
+          description:
+            mode === "blog"
+              ? "Your article has been submitted successfully and is now in review."
+              : mode === "question"
+                ? "Your discussion has been submitted successfully and is now in review."
+                : mode === "event"
+                  ? "Your event has been submitted successfully and is now in review."
+                  : "Your post has been submitted successfully and is now in review.",
+          duration: 5000,
+        }
       );
       onCreated(data);
       setTitle("");
