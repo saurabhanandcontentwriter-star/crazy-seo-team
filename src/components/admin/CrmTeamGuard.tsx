@@ -3,7 +3,10 @@ import { Navigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-const CRM_ADMIN_EMAIL = "crazyseoteam@gmail.com";
+const CRM_ADMIN_EMAILS = new Set([
+  "crazyseoteam@gmail.com",
+  "saurabhanandshahisarmera@gmail.com",
+]);
 
 type State = "checking" | "allowed" | "denied";
 
@@ -22,7 +25,7 @@ export default function CrmTeamGuard({ children }: { children: ReactNode }) {
 
         if (cancelled) return;
 
-        if (email !== CRM_ADMIN_EMAIL) {
+        if (!CRM_ADMIN_EMAILS.has(email)) {
           setState("denied");
           return;
         }
@@ -44,7 +47,7 @@ export default function CrmTeamGuard({ children }: { children: ReactNode }) {
 
         const email = session?.user?.email?.trim().toLowerCase() ?? "";
 
-        if (event === "SIGNED_OUT" || email !== CRM_ADMIN_EMAIL) {
+        if (event === "SIGNED_OUT" || !CRM_ADMIN_EMAILS.has(email)) {
           setState("denied");
           return;
         }
