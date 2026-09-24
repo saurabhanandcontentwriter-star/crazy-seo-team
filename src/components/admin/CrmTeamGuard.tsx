@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 const CRM_ADMIN_EMAILS = new Set([
   "crazyseoteam@gmail.com",
   "saurabhanandshahisarmera@gmail.com",
+  "saurabhanandcontentwriter@gmail.com",
 ]);
 
 type State = "checking" | "allowed" | "denied";
