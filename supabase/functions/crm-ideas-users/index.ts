@@ -57,12 +57,14 @@ Deno.serve(async (req) => {
     if (!selfDelete) {
       const actorEmail = (actor.email ?? "").trim().toLowerCase();
 
-      // CRM admin access is intentionally limited to the two authorized accounts.
-      // Check the authenticated email first so access does not depend on a stale
-      // admin_emails/user_roles row in production.
+      // Keep the Edge Function allowlist identical to the admin/CRM guards.
+      // Access is checked against the verified Supabase Auth email so the CRM
+      // does not depend on a stale admin_emails/user_roles row in production.
       const allowedAdminEmails = new Set([
         "crazyseoteam@gmail.com",
         "sauravanand499@gmail.com",
+        "saurabhanandshahisarmera@gmail.com",
+        "saurabhanandcontentwriter@gmail.com",
       ]);
 
       if (!allowedAdminEmails.has(actorEmail)) {
