@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ArrowLeft, Bell, Lock, ShieldCheck, UserCircle2, Moon, Globe2, LogOut, ChevronRight, Mail, Eye, KeyRound } from "lucide-react";
+import { ArrowLeft, Bell, Lock, ShieldCheck, UserCircle2, Moon, Globe2, LogOut, ChevronRight, Mail, Eye, KeyRound, Link2, Copy, Save, Loader2 } from "lucide-react";
 
 type SettingKey = "privateProfile" | "activityStatus" | "emailNotifications" | "pushNotifications";
 
@@ -21,6 +21,10 @@ export default function IdeasSettings(){
   const [dark,setDark]=useState(false);
   const [language,setLanguage]=useState("English");
   const [region,setRegion]=useState("Global");
+  const [userId,setUserId]=useState("");
+  const [profileSlug,setProfileSlug]=useState("");
+  const [editingUrl,setEditingUrl]=useState(false);
+  const [savingUrl,setSavingUrl]=useState(false);
   const [settings,setSettings]=useState<Record<SettingKey,boolean>>({
     privateProfile:false,activityStatus:true,emailNotifications:true,pushNotifications:true
   });
@@ -30,6 +34,9 @@ export default function IdeasSettings(){
       const {data:{user}}=await supabase.auth.getUser();
       if(!user){nav("/anvya/login",{replace:true});return}
       setEmail(user.email||"");
+      setUserId(user.id);
+      const {data:profile}=await supabase.from("idea_profiles").select("profile_slug,public_id").eq("user_id",user.id).maybeSingle();
+      setProfileSlug(profile?.profile_slug||profile?.public_id||"");
       setName(user.user_metadata?.full_name||user.user_metadata?.name||user.email?.split("@")[0]||"ANVYA Member");
       const saved=localStorage.getItem("anvya-settings");
       if(saved)try{setSettings(v=>({...v,...JSON.parse(saved)}))}catch{}
@@ -53,6 +60,22 @@ export default function IdeasSettings(){
     document.documentElement.style.colorScheme=value?"dark":"light";
     setDark(value);
   };
+  const saveProfileUrl=async()=>{
+    const slug=profileSlug.trim().toLowerCase().replace(/\\s+/g,"-").replace(/[^a-z0-9-]/g,"").replace(/^-+|-+$/g,"");
+    if(slug.length<3){toast.error("Profile URL must be at least 3 characters.");return}
+    setSavingUrl(true);
+    try{
+      const {data:existing,error:checkError}=await supabase.from("idea_profiles").select("user_id").eq("profile_slug",slug).neq("user_id",userId).maybeSingle();
+      if(checkError)throw checkError;
+      if(existing?.user_id){toast.error("This profile URL is already taken.");return}
+      const {error}=await supabase.from("idea_profiles").update({profile_slug:slug,updated_at:new Date().toISOString()}).eq("user_id",userId);
+      if(error)throw error;
+      setProfileSlug(slug);setEditingUrl(false);toast.success("Profile URL updated.");
+    }catch(e:any){toast.error(e?.message||"Could not update profile URL")}finally{setSavingUrl(false)}
+  };
+  const profileUrl=window.location.origin+"/anvya/profile/"+profileSlug;
+  const copyProfileUrl=async()=>{try{await navigator.clipboard.writeText(profileUrl);toast.success("Profile URL copied.");}catch{toast.error("Could not copy the URL.")}};
+
   const logout=async()=>{const {error}=await supabase.auth.signOut();await firebaseSignOut(firebaseAuth).catch(()=>{});if(error){toast.error(error.message);return}sessionStorage.removeItem("ideas_direct_profile");sessionStorage.removeItem("ideas_congratulations");toast.success("Logged out successfully.");nav("/anvya/login",{replace:true})};
 
   if(loading)return <div className="min-h-screen grid place-items-center"><div className="animate-spin rounded-full border-2 border-primary border-t-transparent size-8"/></div>;
@@ -79,6 +102,17 @@ export default function IdeasSettings(){
             <div className="flex items-center gap-3"><div className="rounded-2xl bg-primary/10 p-3"><Mail className="text-primary"/></div><div><h1 className="text-xl font-black">Account</h1><p className="text-sm text-muted-foreground">Your ANVYA identity is connected to Google/Gmail.</p></div></div>
             <div className="mt-5 rounded-2xl border bg-muted/20 p-4"><p className="text-xs font-bold uppercase text-muted-foreground">Signed in as</p><p className="mt-1 font-semibold break-all">{name}</p><p className="text-sm text-muted-foreground break-all">{email}</p></div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2"><Button variant="outline" onClick={()=>nav("/anvya/profile/me")}><UserCircle2 className="mr-2 size-4"/>Edit Profile</Button><Button variant="outline" onClick={logout}><LogOut className="mr-2 size-4"/>Log out</Button></div>
+            <div className="mt-4 rounded-2xl border p-4">
+              <div className="flex items-center gap-3"><Link2 className="size-5 text-primary"/><div><p className="font-semibold">Profile URL</p><p className="text-xs text-muted-foreground">Change the public username URL, like LinkedIn or Instagram.</p></div></div>
+              {!editingUrl?<div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="min-w-0 flex-1 rounded-xl bg-muted/40 px-3 py-2 text-sm font-medium break-all">{profileUrl}</div>
+                <div className="flex gap-2"><Button variant="outline" size="sm" onClick={copyProfileUrl}><Copy className="mr-2 size-4"/>Copy</Button><Button size="sm" onClick={()=>setEditingUrl(true)}><Link2 className="mr-2 size-4"/>Edit URL</Button></div>
+              </div>:<div className="mt-3">
+                <div className="flex items-center gap-2"><span className="text-sm text-muted-foreground">{window.location.origin}/anvya/profile/</span><Input value={profileSlug} onChange={e=>setProfileSlug(e.target.value.toLowerCase().replace(/\\s+/g,"-").replace(/[^a-z0-9-]/g,""))} placeholder="your-username"/></div>
+                <p className="mt-2 text-xs text-muted-foreground">Use 3+ characters: letters, numbers and hyphens only.</p>
+                <div className="mt-3 flex gap-2"><Button onClick={saveProfileUrl} disabled={savingUrl}>{savingUrl?<Loader2 className="mr-2 size-4 animate-spin"/>:<Save className="mr-2 size-4"/>}Save URL</Button><Button variant="outline" onClick={()=>setEditingUrl(false)}>Cancel</Button></div>
+              </div>}
+            </div>
           </CardContent></Card>
 
           <Card id="settings-privacy" className="rounded-3xl"><CardContent className="p-5 md:p-6">
