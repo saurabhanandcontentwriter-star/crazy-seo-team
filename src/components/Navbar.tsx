@@ -48,7 +48,7 @@ const Navbar = () => {
         <div className="cst-public-announcement border-b border-slate-200/70 bg-gradient-to-r from-slate-50 via-white to-blue-50 text-slate-800">
           <div className="container mx-auto flex min-h-12 items-center justify-center gap-2 px-3 py-2 text-center">
             <Sparkles aria-hidden="true" className="h-4 w-4 shrink-0 text-blue-600" />
-            <div className="leading-tight"><div className="text-xs font-bold tracking-wide text-slate-700 sm:text-sm">Daily Motivation</div><div className="text-sm font-extrabold text-slate-950 sm:text-base">“{dailyQuote}”</div></div>
+            <div className="leading-tight"><div className="text-sm font-extrabold text-slate-950 sm:text-base">“{dailyQuote}”</div></div>
           </div>
         </div>
         <div className="cst-nav-inner">
