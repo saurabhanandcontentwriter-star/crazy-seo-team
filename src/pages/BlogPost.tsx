@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import { fetchPostBySlug, fetchPublishedPosts } from "@/lib/blog";
-import { ArrowLeft, Play, Pause, Loader2 } from "lucide-react";
+import { ArrowLeft, Play, Pause, Loader2, Bookmark, BookmarkCheck, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -17,6 +17,7 @@ const BlogPost = () => {
   const [selectedLang, setSelectedLang] = useState("en-US");
   const [speed, setSpeed] = useState(1);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [saved, setSaved] = useState(false);
   const synthRef = useRef(typeof window !== "undefined" ? window.speechSynthesis : null);
   const location = useLocation();
 
@@ -234,7 +235,7 @@ const BlogPost = () => {
             <span className="text-sm text-muted-foreground">{post.date}</span>
           </div>
 
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-foreground leading-tight mb-6">{post.title}</h1>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-foreground leading-tight mb-6">{post.title}</h1>\n\n          <div className="mb-6 flex flex-wrap items-center gap-2">\n            <Button type="button" variant={saved ? "default" : "outline"} onClick={toggleSave} className="rounded-full gap-2">\n              {saved ? <BookmarkCheck size={17} /> : <Bookmark size={17} />}\n              {saved ? "Saved" : "Save Post"}\n            </Button>\n            <Button type="button" variant="outline" onClick={sharePost} className="rounded-full gap-2">\n              <Share2 size={17} /> Share\n            </Button>\n          </div>
 
           <div className="flex items-center gap-3 mb-6">
             
