@@ -43,7 +43,37 @@ async function getFunctionError(error:any, fallback="Request failed"){
 export default function CrmIdeasWorkspace(){
  const nav=useNavigate();
  const [creatorApps,setCreatorApps]=useState<CreatorApplication[]>([]),[ideas,setIdeas]=useState<Idea[]>([]),[users,setUsers]=useState<IdeaUser[]>([]),[help,setHelp]=useState<HelpConversation[]>([]),[traffic,setTraffic]=useState<TrafficStats>({views30d:0,visitors30d:0,viewsToday:0,onlineNow:0,topPages:[]}),[loading,setLoading]=useState(true),[query,setQuery]=useState(""),[filter,setFilter]=useState("all"),[userSearch,setUserSearch]=useState(""),[selected,setSelected]=useState<IdeaUser|null>(null),[removing,setRemoving]=useState<IdeaUser|null>(null),[countryOpen,setCountryOpen]=useState(false),[editing,setEditing]=useState<Idea|null>(null),[editTitle,setEditTitle]=useState(""),[editContent,setEditContent]=useState(""),[editSubject,setEditSubject]=useState(""),[busy,setBusy]=useState(false),[moderating,setModerating]=useState<string|null>(null),[deletingApplication,setDeletingApplication]=useState<string|null>(null);
- const load=async()=>{setLoading(true);try{const [{data,error},{data:trafficRows,error:trafficError}]=await Promise.all([supabase.functions.invoke("crm-ideas-users",{body:{action:"list"}}),supabase.from("page_views").select("path,session_id,created_at").gte("created_at",new Date(Date.now()-30*864e5).toISOString()).order("created_at",{ascending:false}).limit(10000)]);if(error||data?.error){toast.error(await getFunctionError(error,data?.error||"Community data could not load"));setIdeas([]);setUsers([]);setLoading(false);return}const allUsers=(data?.users||[]) as IdeaUser[];const allPosts=(data?.posts||[]) as Idea[];setIdeas(allPosts);setUsers(allUsers);setHelp((data?.help_conversations||[]) as HelpConversation[]);if(trafficError) console.error("CRM traffic data error:",trafficError);const rows=(trafficRows||[]) as {path:string;session_id:string;created_at:string}[];const todayStart=new Date();todayStart.setHours(0,0,0,0);const viewsToday=rows.filter(v=>v.created_at>=todayStart.toISOString()).length;const onlineCutoff=new Date(Date.now()-5*60*1000).toISOString();const onlineNow=new Set(rows.filter(v=>v.created_at>=onlineCutoff).map(v=>v.session_id)).size;const pageMap=new Map<string,number>();rows.forEach(v=>pageMap.set(v.path,(pageMap.get(v.path)||0)+1));setTraffic({views30d:rows.length,visitors30d:new Set(rows.map(v=>v.session_id)).size,viewsToday,onlineNow,topPages:[...pageMap.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5).map(([path,views])=>({path,views}))});const ca=await supabase.from("creator_applications").select("*").order("created_at",{ascending:false});setCreatorApps((ca.data||[]) as CreatorApplication[]);}finally{setLoading(false)}};
+ const load=async()=>{setLoading(true);try{
+ const [{data,error},{data:trafficRows,error:trafficError}]=await Promise.all([
+  supabase.functions.invoke("crm-ideas-users",{body:{action:"list"}}),
+  supabase.from("page_views").select("path,session_id,created_at").gte("created_at",new Date(Date.now()-30*864e5).toISOString()).order("created_at",{ascending:false}).limit(10000)
+ ]);
+ let allUsers:IdeaUser[]=[]; let allPosts:Idea[]=[]; let help:HelpConversation[]=[];
+ if(!error&&!data?.error){
+   allUsers=(data?.users||[]) as IdeaUser[]; allPosts=(data?.posts||[]) as Idea[]; help=(data?.help_conversations||[]) as HelpConversation[];
+ }else{
+   // Live Edge Function may be stale while Supabase deployment catches up.
+   // Public ANVYA profiles and approved posts remain readable directly, so never show
+   // a misleading zero-state when stored community data is available.
+   const [profilesResult,postsResult]=await Promise.all([
+     supabase.from("idea_profiles").select("*").order("updated_at",{ascending:false}),
+     supabase.from("idea_posts").select("*").eq("status","approved").order("created_at",{ascending:false})
+   ]);
+   allUsers=(profilesResult.data||[]).map((p:any)=>({...p,user_id:p.user_id,display_name:p.display_name||"ANVYA User",email:p.email||"",post_count:0,follower_count:p.followers_count||0,following_count:p.following_count||0,friend_count:0,badges:[],last_post_at:null})) as IdeaUser[];
+   allPosts=(postsResult.data||[]) as Idea[];
+   if(error||data?.error) console.warn("crm-ideas-users unavailable; loaded public ANVYA records directly",error||data?.error);
+ }
+ setIdeas(allPosts);setUsers(allUsers);setHelp(help);
+ if(trafficError) console.error("CRM traffic data error:",trafficError);
+ const rows=(trafficRows||[]) as {path:string;session_id:string;created_at:string}[];
+ const todayStart=new Date();todayStart.setHours(0,0,0,0);
+ const viewsToday=rows.filter(v=>v.created_at>=todayStart.toISOString()).length;
+ const onlineCutoff=new Date(Date.now()-5*60*1000).toISOString();
+ const onlineNow=new Set(rows.filter(v=>v.created_at>=onlineCutoff).map(v=>v.session_id)).size;
+ const pageMap=new Map<string,number>();rows.forEach(v=>pageMap.set(v.path,(pageMap.get(v.path)||0)+1));
+ setTraffic({views30d:rows.length,visitors30d:new Set(rows.map(v=>v.session_id)).size,viewsToday,onlineNow,topPages:[...pageMap.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5).map(([path,views])=>({path,views}))});
+ const ca=await supabase.from("creator_applications").select("*").order("created_at",{ascending:false});setCreatorApps((ca.data||[]) as CreatorApplication[]);
+ }finally{setLoading(false)}};
  useEffect(()=>{load()},[]);
  const filtered=useMemo(()=>ideas.filter(i=>{const ok=filter==="all"||i.status===filter,q=query.trim().toLowerCase();return ok&&(!q||[i.title,i.content,i.display_name,i.subject].some(v=>(v||"").toLowerCase().includes(q)))}),[ideas,filter,query]);
  const filteredUsers=useMemo(()=>users.filter(u=>{const q=userSearch.trim().toLowerCase();return !q||[u.display_name,u.first_name,u.last_name,u.email,u.public_id,u.state,u.country].some(v=>(v||"").toLowerCase().includes(q))}),[users,userSearch]);
