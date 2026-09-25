@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -80,8 +80,33 @@ export default function IdeasInlinePostComposer({
   const [eventLocation, setEventLocation] = useState("");
   const [eventUrl, setEventUrl] = useState("");
   const [location, setLocation] = useState(profile.location || "");
+  const draftKey = `anvya-blog-draft-${profile.user_id}`;
 
   const currentMode = modes.find((item) => item.value === mode)!;
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      if (draft?.mode !== "blog") return;
+      setMode("blog"); setTitle(draft.title || ""); setSubject(draft.subject || "Tech");
+      setTags(Array.isArray(draft.tags) ? draft.tags : []); setVisibility(draft.visibility || "public");
+      setLocation(draft.location || profile.location || "");
+      if (editorRef.current) editorRef.current.innerHTML = draft.content || "";
+      toast.success("Blog draft restored.");
+    } catch { /* ignore invalid local draft */ }
+  }, [draftKey, profile.location]);
+
+  const saveBlogDraft = () => {
+    if (mode !== "blog") return;
+    const content = editorRef.current?.innerHTML || "";
+    if (!title.trim() && !editorRef.current?.innerText?.trim()) {
+      toast.error("Add a title or some content before saving the draft."); return;
+    }
+    localStorage.setItem(draftKey, JSON.stringify({mode:"blog", title:title.trim(), content:sanitizeRichHtml(content), subject, tags, visibility, location:location.trim(), savedAt:new Date().toISOString()}));
+    toast.success("Blog draft saved on this device.");
+  };
 
   const format = (command: string, value?: string) => {
     editorRef.current?.focus();
@@ -147,7 +172,7 @@ export default function IdeasInlinePostComposer({
 
     setBusy(true);
     try {
-      const imageUrl = imageFile ? await uploadImage(user.id, imageFile) : null;
+      const imageUrl = mode === "blog" ? null : (imageFile ? await uploadImage(user.id, imageFile) : null);
       const normalizedTags = tags.map((tag) => tag.trim().replace(/^#/, "")).filter(Boolean).slice(0, 10);
       const subjectValue = subject || "Tech";
       const locationValue = location.trim() || null;
@@ -195,6 +220,7 @@ export default function IdeasInlinePostComposer({
           duration: 5000,
         }
       );
+      if (mode === "blog") localStorage.removeItem(draftKey);
       onCreated(data);
       setTitle("");
       setImageFile(null);
@@ -253,7 +279,7 @@ export default function IdeasInlinePostComposer({
         <div className="mt-5 space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <Badge className="rounded-full">{currentMode.label}</Badge>
-            {mode === "blog" && <Badge variant="outline" className="rounded-full">Article + Cover Image</Badge>}
+            {mode === "blog" && <Badge variant="outline" className="rounded-full">Article</Badge>}
             {mode === "question" && <Badge variant="outline" className="rounded-full">Community Discussion</Badge>}
           </div>
 
@@ -339,7 +365,7 @@ export default function IdeasInlinePostComposer({
               </div>
             </div>
           )}
-          <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+          {mode !== "blog" && <div className="grid gap-3 md:grid-cols-[1fr_auto]">
             <label className="flex min-h-16 cursor-pointer items-center gap-3 rounded-2xl border border-dashed p-3 transition hover:border-primary/50 hover:bg-muted/30">
               <ImagePlus className="size-5 text-primary" />
               <div className="min-w-0">
@@ -371,9 +397,9 @@ export default function IdeasInlinePostComposer({
               <option value="public">🌍 Public</option>
               <option value="friends">👥 Friends only</option>
             </select>
-          </div>
+          </div>}
 
-          {imageFile && (
+          {mode !== "blog" && imageFile && (
             <div className="flex items-center justify-between gap-3 rounded-xl border bg-muted/20 p-3 text-xs">
               <span className="truncate">Image ready: {imageFile.name}</span>
               <Button type="button" size="sm" variant="ghost" onClick={() => setImageFile(null)}>
@@ -388,9 +414,11 @@ export default function IdeasInlinePostComposer({
             {mode === "question"
               ? "Ask clearly, add context and invite useful answers."
               : mode === "blog"
-                ? "Use headings, lists, links and a cover image for a blog-style article."
+                ? "Use headings, lists and links for a blog-style article."
                 : "Share an update, idea or visual with your network."}
           </p>
+          <div className="flex flex-wrap gap-2">
+          {mode === "blog" && <Button type="button" variant="outline" onClick={saveBlogDraft} disabled={busy}><FileText className="mr-2 size-4"/>Save Draft</Button>}
           <Button
             onClick={submit}
             disabled={busy}
@@ -399,6 +427,7 @@ export default function IdeasInlinePostComposer({
             {busy ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Send className="mr-2 size-4" />}
             {busy ? "Publishing…" : mode === "question" ? "Ask Discussion" : mode === "blog" ? "Publish Blog" : mode === "event" ? "Publish Event" : "Publish Post"}
           </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
