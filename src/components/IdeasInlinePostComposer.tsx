@@ -241,7 +241,7 @@ export default function IdeasInlinePostComposer({
 
   return (
     <Card className="w-full max-w-full overflow-hidden rounded-3xl border-primary/20 shadow-sm">
-      <CardContent className="min-w-0 p-4 sm:p-5 md:p-6">
+      <CardContent className="min-w-0 overflow-x-auto p-4 sm:p-5 md:p-6">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-lg font-black">Create on ANVYA</p>
@@ -254,7 +254,7 @@ export default function IdeasInlinePostComposer({
           </Button>
         </div>
 
-        <div className="mt-5 grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+        <div className="mt-5 flex min-w-0 gap-2 overflow-x-auto pb-1 [&>button]:min-w-[138px] [&>button]:shrink-0">
           {modes.map((item) => {
             const Icon = item.icon;
             const active = mode === item.value;
@@ -303,7 +303,7 @@ export default function IdeasInlinePostComposer({
             }
           />
 
-          <div className="grid min-w-0 gap-3 sm:grid-cols-2 md:grid-cols-3">
+          <div className="grid min-w-[720px] grid-cols-3 gap-3 overflow-x-auto pb-1">
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Subject</label>
               <select className="h-11 w-full rounded-xl border bg-background px-3 text-sm" value={subject} onChange={(e) => setSubject(e.target.value)}>
@@ -365,7 +365,7 @@ export default function IdeasInlinePostComposer({
           {mode === "event" && (
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
               <div className="mb-3 flex items-center gap-2 font-bold"><CalendarDays className="size-4 text-primary"/> Live event details</div>
-              <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+              <div className="grid min-w-[560px] grid-cols-2 gap-3 overflow-x-auto pb-1">
                 <Input type="datetime-local" value={eventStart} onChange={(e) => setEventStart(e.target.value)} min={new Date(Date.now()+60000).toISOString().slice(0,16)} aria-label="Event start"/>
                 <Input type="datetime-local" value={eventEnd} onChange={(e) => setEventEnd(e.target.value)} aria-label="Event end"/>
                 <Input value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} placeholder="Venue / Online"/>
@@ -373,7 +373,7 @@ export default function IdeasInlinePostComposer({
               </div>
             </div>
           )}
-          {mode !== "blog" && <div className="grid min-w-0 gap-3 sm:grid-cols-[1fr_auto]">
+          {mode !== "blog" && <div className="grid min-w-[560px] grid-cols-[1fr_auto] gap-3 overflow-x-auto pb-1">
             <label className="flex min-h-16 cursor-pointer items-center gap-3 rounded-2xl border border-dashed p-3 transition hover:border-primary/50 hover:bg-muted/30">
               <ImagePlus className="size-5 text-primary" />
               <div className="min-w-0">
