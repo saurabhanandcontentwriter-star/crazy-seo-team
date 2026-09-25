@@ -21,9 +21,10 @@ import {
   Heading2,
   Unlink,
   CalendarDays,
+  Lightbulb,
 } from "lucide-react";
 
-type ComposerMode = "post" | "blog" | "question" | "event";
+type ComposerMode = "post" | "blog" | "question" | "event" | "suggestion";
 
 const modes: Array<{
   value: ComposerMode;
@@ -35,6 +36,7 @@ const modes: Array<{
   { value: "blog", label: "Write Blog", description: "Publish a richer article with a cover image.", icon: BookOpen },
   { value: "question", label: "Ask Discussion", description: "Ask the community and start a conversation.", icon: MessageCircle },
   { value: "event", label: "Live Event", description: "Create a live or upcoming community event.", icon: CalendarDays },
+  { value: "suggestion", label: "Suggestion", description: "Share a suggestion or improvement for the community.", icon: Lightbulb },
 ];
 
 const sanitizeRichHtml = (html: string) => {
@@ -151,7 +153,7 @@ export default function IdeasInlinePostComposer({
     const plainContent = editorRef.current?.innerText?.trim() || "";
 
     if (!title.trim() || !plainContent) {
-      toast.error(mode === "question" ? "Add a question title and details." : "Add a title and content.");
+      toast.error(mode === "question" ? "Add a question title and details." : mode === "suggestion" ? "Add a suggestion title and details." : "Add a title and content.");
       return;
     }
     if (title.trim().length > 180 || plainContent.length > 10000) {
@@ -283,6 +285,7 @@ export default function IdeasInlinePostComposer({
             <Badge className="rounded-full">{currentMode.label}</Badge>
             {mode === "blog" && <Badge variant="outline" className="rounded-full">Article</Badge>}
             {mode === "question" && <Badge variant="outline" className="rounded-full">Community Discussion</Badge>}
+            {mode === "suggestion" && <Badge variant="outline" className="rounded-full">Suggestion</Badge>}
           </div>
 
           <Input
@@ -292,6 +295,8 @@ export default function IdeasInlinePostComposer({
             placeholder={
               mode === "question"
                 ? "Ask a clear question..."
+                : mode === "suggestion"
+                  ? "Write your suggestion..."
                 : mode === "blog"
                   ? "Blog title..."
                   : "Post title..."
