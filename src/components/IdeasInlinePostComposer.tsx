@@ -302,7 +302,8 @@ export default function IdeasInlinePostComposer({
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Subject</label>
               <select className="h-11 w-full rounded-xl border bg-background px-3 text-sm" value={subject} onChange={(e) => setSubject(e.target.value)}>
-                <option>Tech</option><option>SEO</option><option>AI</option><option>Marketing</option><option>Business</option><option>Career</option><option>Education</option><option>Other</option>
+                <option value="">Select Subject</option>
+                <option value="Tech">Tech</option><option value="SEO">SEO</option><option value="AI">AI</option><option value="Marketing">Marketing</option><option value="Business">Business</option><option value="Career">Career</option><option value="Education">Education</option><option value="Other">Other</option>
               </select>
             </div>
             <div>
