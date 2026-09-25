@@ -72,7 +72,7 @@ export default function IdeasInlinePostComposer({
   const [visibility, setVisibility] = useState("public");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
-  const [subject, setSubject] = useState("Tech");
+  const [subject, setSubject] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [eventStart, setEventStart] = useState("");
@@ -90,7 +90,7 @@ export default function IdeasInlinePostComposer({
       if (!raw) return;
       const draft = JSON.parse(raw);
       if (draft?.mode !== "blog") return;
-      setMode("blog"); setTitle(draft.title || ""); setSubject(draft.subject || "Tech");
+      setMode("blog"); setTitle(draft.title || ""); setSubject(draft.subject || "");
       setTags(Array.isArray(draft.tags) ? draft.tags : []); setVisibility(draft.visibility || "public");
       setLocation(draft.location || profile.location || "");
       if (editorRef.current) editorRef.current.innerHTML = draft.content || "";
@@ -176,7 +176,7 @@ export default function IdeasInlinePostComposer({
     try {
       const imageUrl = mode === "blog" ? null : (imageFile ? await uploadImage(user.id, imageFile) : null);
       const normalizedTags = tags.map((tag) => tag.trim().replace(/^#/, "")).filter(Boolean).slice(0, 10);
-      const subjectValue = subject || "Tech";
+      const subjectValue = subject.trim() || null;
       const locationValue = location.trim() || null;
       const payload = {
         user_id: user.id,
