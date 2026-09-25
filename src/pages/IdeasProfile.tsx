@@ -281,7 +281,7 @@ export default function IdeasProfile(){
               </div>
             </div>
             <div className="flex flex-wrap gap-2 sm:pb-1">
-              {me===p.user_id?<Button variant="outline" className="rounded-full px-5" onClick={()=>setEdit(v=>!v)}><FileEdit className="mr-2 size-4"/>{edit?"Close Editor":"Edit Profile"}</Button>:<>
+              {me!==p.user_id?<>
                 <Button className="rounded-full px-5" onClick={toggleFollow}>{following?<UserCheck className="mr-2 size-4"/>:<UserPlus className="mr-2 size-4"/>}{following?"Following":"Follow"}</Button>
                 <Button variant="outline" className="rounded-full" onClick={()=>{sessionStorage.setItem("ideas_message_target",JSON.stringify({user_id:p.user_id,display_name:p.display_name,avatar_url:p.avatar_url||null,public_id:p.public_id||null}));setTab("messages")}}><MessageCircle className="mr-2 size-4"/>Message</Button>
               </>}
