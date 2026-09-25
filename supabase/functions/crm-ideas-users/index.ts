@@ -67,7 +67,36 @@ Deno.serve(async (req) => {
         "saurabhanandcontentwriter@gmail.com",
       ]);
 
-      if (!allowedAdminEmails.has(actorEmail)) {
+      // Accept either the configured email allowlist or an existing admin role.
+      // This keeps the function aligned with database-backed admin access and
+      // also works when a user's admin role was created by handle_new_user.
+      let hasAdminRole = false;
+      try {
+        const { data: roleRow } = await admin
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", actor.id)
+          .eq("role", "admin")
+          .maybeSingle();
+        hasAdminRole = roleRow?.role === "admin";
+      } catch {
+        // The explicit email allowlist remains the fallback if this table is
+        // unavailable in an older production schema.
+      }
+
+      let isConfiguredAdmin = false;
+      try {
+        const { data: adminEmailRow } = await admin
+          .from("admin_emails")
+          .select("email")
+          .ilike("email", actorEmail)
+          .maybeSingle();
+        isConfiguredAdmin = Boolean(adminEmailRow);
+      } catch {
+        // Keep the explicit allowlist as the final fallback.
+      }
+
+      if (!allowedAdminEmails.has(actorEmail) && !hasAdminRole && !isConfiguredAdmin) {
         return fail("Admin access required.", 403);
       }
     }
