@@ -14,6 +14,7 @@ type IdeaUser={user_id:string;public_id:string|null;display_name:string|null;fir
 type CreatorApplication={id:string;user_id:string|null;name:string;email:string;creator_types:string[];bio:string|null;website_url:string|null;status:string;created_at:string};
 type HelpMessage={id:string;conversation_id:string;sender_type:"customer"|"ai"|"admin";message:string;created_at:string};
 type HelpConversation={id:string;user_id:string|null;email:string|null;public_id:string|null;subject:string|null;status:string;created_at:string;updated_at:string;messages:HelpMessage[]};
+type TrafficStats={views30d:number;visitors30d:number;viewsToday:number;onlineNow:number;topPages:{path:string;views:number}[]};
 type Idea={id:string;user_id:string|null;public_id:string|null;email:string|null;owner_name:string|null;display_name:string;profile_id:string|null;subject:string;title:string;content:string;image_url:string|null;profile_image_url:string|null;device_type:string|null;location:string|null;status:string;created_at:string;ai_detection_score:number|null;moderation_score:number|null;moderation_reason:string|null;moderation_links:any[]|null;tags?:string[]|null;post_type?:string|null;visibility?:string|null;event_location?:string|null};
 const sanitizeRichHtml=(html:string)=>{
  const doc=new DOMParser().parseFromString(html,"text/html");
