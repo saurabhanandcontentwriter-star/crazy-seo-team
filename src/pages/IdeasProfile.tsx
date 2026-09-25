@@ -132,7 +132,9 @@ export default function IdeasProfile(){
  useEffect(()=>{
   if(!p?.user_id) return;
   const raw=sessionStorage.getItem("ideas_message_target");
-  if(raw){try{JSON.parse(raw);setTab("messages");}catch{} sessionStorage.removeItem("ideas_message_target")}
+  const openMessages=sessionStorage.getItem("ideas_open_messages")==="1";
+  if(raw){try{JSON.parse(raw);setTab("messages");}catch{} sessionStorage.removeItem("ideas_message_target");sessionStorage.removeItem("ideas_open_messages")}
+  else if(openMessages){setTab("messages");sessionStorage.removeItem("ideas_open_messages")}
   else setTab("posts");
  },[p?.user_id,me,userId]);
  useEffect(()=>{
@@ -212,7 +214,7 @@ export default function IdeasProfile(){
           ["Help Centre",HelpCircle,"/anvya/help"]
         ].map(([label,Icon,target]:any)=>{
           const active=target==="profile"||(target==="messages"&&tab==="messages")||(target!=="profile"&&target!=="messages"&&location.pathname===target);
-          return <button key={label} onClick={()=>target==="messages"?setTab("messages"):target==="profile"?setTab("posts"):nav(target)} className={"group flex w-full items-center gap-3 rounded-2xl border px-3 py-2.5 text-sm font-semibold transition-all "+(active?"border-violet-200 bg-violet-50 text-violet-700 shadow-sm dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-300":"border-transparent text-muted-foreground hover:border-border hover:bg-muted/70 hover:text-foreground")}>
+          return <button key={label} onClick={()=>target==="messages"?(sessionStorage.setItem("ideas_open_messages","1"),nav("/anvya/profile/"+(me||userId||"me"))):target==="profile"?nav("/anvya/profile/"+(me||userId||"me")):nav(target)} className={"group flex w-full items-center gap-3 rounded-2xl border px-3 py-2.5 text-sm font-semibold transition-all "+(active?"border-violet-200 bg-violet-50 text-violet-700 shadow-sm dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-300":"border-transparent text-muted-foreground hover:border-border hover:bg-muted/70 hover:text-foreground")}>
             <span className={"flex size-9 shrink-0 items-center justify-center rounded-xl transition "+(active?"bg-violet-600 text-white shadow-sm":"bg-muted/70 text-muted-foreground group-hover:bg-background group-hover:text-foreground")}>
               <Icon className="size-[18px]"/>
             </span>
@@ -243,7 +245,7 @@ export default function IdeasProfile(){
       <div className="mx-auto max-w-[1180px]">
        <div className="sticky top-2 z-30 mb-3 lg:hidden overflow-x-auto rounded-2xl border bg-background/95 p-2 shadow-lg backdrop-blur">
         <div className="flex min-w-max gap-1">
-         {[["Home",Home,"/anvya"],["Explore",Compass,"/anvya/explore"],["Notifications",Bell,"/anvya/notifications"],["Messages",MessageCircle,"messages"],["Profile",UserCircle2,"profile"],["Saved",Bookmark,"/anvya/saved"],["Communities",Users,"/anvya/communities"],["Events",Calendar,"/anvya/events"],["Premium",Crown,"/anvya/premium"],["Analytics",BarChart3,"/anvya/analytics"],["Settings",Settings2,"/anvya/settings"],["Help",HelpCircle,"/anvya/help"]].map(([label,Icon,target]:any)=><button key={label} onClick={()=>target==="messages"?setTab("messages"):target==="profile"?setTab("posts"):nav(target)} className={"inline-flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition "+((target==="profile"||(target==="messages"&&tab==="messages"))?"bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300":"text-muted-foreground hover:bg-muted hover:text-foreground")}><Icon className="size-4"/>{label}</button>)}
+         {[["Home",Home,"/anvya"],["Explore",Compass,"/anvya/explore"],["Notifications",Bell,"/anvya/notifications"],["Messages",MessageCircle,"messages"],["Profile",UserCircle2,"profile"],["Saved",Bookmark,"/anvya/saved"],["Communities",Users,"/anvya/communities"],["Events",Calendar,"/anvya/events"],["Premium",Crown,"/anvya/premium"],["Analytics",BarChart3,"/anvya/analytics"],["Settings",Settings2,"/anvya/settings"],["Help",HelpCircle,"/anvya/help"]].map(([label,Icon,target]:any)=><button key={label} onClick={()=>target==="messages"?(sessionStorage.setItem("ideas_open_messages","1"),nav("/anvya/profile/"+(me||userId||"me"))):target==="profile"?nav("/anvya/profile/"+(me||userId||"me")):nav(target)} className={"inline-flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition "+((target==="profile"||(target==="messages"&&tab==="messages"))?"bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300":"text-muted-foreground hover:bg-muted hover:text-foreground")}><Icon className="size-4"/>{label}</button>)}
         </div>
        </div>
        <Button variant="ghost" onClick={()=>nav("/anvya")}><ArrowLeft className="mr-2 size-4"/>ANVYA</Button>
