@@ -72,12 +72,48 @@ export default function IdeasAdmin() {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("crm-ideas-users", { body: { action: "list" } });
-      if (error || data?.error) {
-        toast.error(data?.error || error?.message || "Ideas data could not load");
-        setRows([]);
-      } else {
+      if (!error && !data?.error) {
         const restoredPosts = Array.isArray(data?.posts) ? data.posts : [];
         setRows(restoredPosts as Idea[]);
+      } else {
+        // Keep the admin moderation page usable even if the CRM Edge Function
+        // is temporarily unavailable. Admins can read the Ideas table directly.
+        const { data: directPosts, error: directError } = await supabase
+          .from("idea_posts")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (directError) {
+          console.error("Ideas Edge Function and direct fallback both failed:", {
+            functionError: error?.message,
+            functionDataError: data?.error,
+            directError: directError.message,
+          });
+          toast.error("Ideas data could not be loaded. Refresh after the CRM service is available.");
+          setRows([]);
+        } else {
+          const profileIds = Array.from(new Set((directPosts ?? []).map((p: any) => p.profile_id).filter(Boolean)));
+          let profileMap = new Map<string, any>();
+
+          if (profileIds.length) {
+            const { data: profiles } = await supabase
+              .from("idea_profiles")
+              .select("user_id,public_id,display_name,avatar_url")
+              .in("user_id", profileIds);
+
+            profileMap = new Map((profiles ?? []).map((p: any) => [p.user_id, p]));
+          }
+
+          setRows((directPosts ?? []).map((post: any) => {
+            const profile = profileMap.get(post.user_id ?? post.profile_id);
+            return {
+              ...post,
+              email: null,
+              public_id: profile?.public_id ?? post.profile_id ?? null,
+              profile_image_url: profile?.avatar_url ?? null,
+            };
+          }) as Idea[]);
+        }
       }
 
       const ca = await supabase.from("creator_applications").select("*").order("created_at", { ascending: false });
