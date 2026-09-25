@@ -258,7 +258,7 @@ export default function IdeasProfile(){
             <Badge className="rounded-full border border-white/20 bg-black/35 text-white backdrop-blur-md">ANVYA</Badge>
             {p.is_creator&&<Badge className="rounded-full border-0 bg-amber-500 text-white">★ Creator</Badge>}
           </div>
-          {me===p.user_id&&<label className="absolute right-4 top-4 z-20 cursor-pointer rounded-full bg-white/95 px-4 py-2 text-xs font-bold text-slate-900 shadow-lg hover:bg-white"><Camera className="mr-2 inline size-4"/>Edit Cover<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setCoverFile(e.target.files?.[0]||null)}/></label>}
+          {me===p.user_id&&tab==="posts"&&<label className="absolute right-4 top-4 z-20 cursor-pointer rounded-full bg-white/95 px-4 py-2 text-xs font-bold text-slate-900 shadow-lg hover:bg-white"><Camera className="mr-2 inline size-4"/>Edit Cover<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={e=>setCoverFile(e.target.files?.[0]||null)}/></label>}
         </div>
 
         <CardContent className="px-4 pb-0 pt-0 sm:px-6">
