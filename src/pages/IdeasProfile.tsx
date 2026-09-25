@@ -198,7 +198,7 @@ export default function IdeasProfile(){
       <nav className="space-y-1.5">
         {[
           ["Home",Home,"/anvya"],
-          ["Explore",Compass,"/anvya"],
+          ["Explore",Compass,"/anvya/explore"],
           ["Notifications",Bell,"/anvya/notifications"],
           ["Messages",MessageCircle,"messages"],
           ["Profile",UserCircle2,"profile"],
@@ -230,7 +230,7 @@ export default function IdeasProfile(){
         <h3 className="text-base font-black leading-5">Connect, create and grow worldwide.</h3>
         <p className="mt-2 text-xs leading-5 text-muted-foreground">Discover people, communities, events and conversations from one public ANVYA identity.</p>
         <div className="mt-3 space-y-1">
-          <button onClick={()=>nav("/anvya")} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm font-semibold hover:bg-muted"><Globe2 className="size-4 text-blue-600"/>Explore</button>
+          <button onClick={()=>nav("/anvya/explore")} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm font-semibold hover:bg-muted"><Globe2 className="size-4 text-blue-600"/>Explore</button>
           <button onClick={()=>nav("/anvya/communities")} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm font-semibold hover:bg-muted"><Users className="size-4 text-violet-600"/>Communities</button>
           <button onClick={()=>{setTab("posts");setShowPostComposer(true)}} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm font-semibold hover:bg-muted"><Plus className="size-4 text-orange-500"/>Publish in Profile</button>
           <button onClick={()=>setTab("followers")} className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-sm font-semibold hover:bg-muted"><UserPlus className="size-4 text-amber-500"/>Network</button>
