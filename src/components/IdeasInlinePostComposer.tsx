@@ -105,6 +105,7 @@ export default function IdeasInlinePostComposer({
       toast.error("Add a title or some content before saving the draft."); return;
     }
     localStorage.setItem(draftKey, JSON.stringify({mode:"blog", title:title.trim(), content:sanitizeRichHtml(content), subject, tags, visibility, location:location.trim(), savedAt:new Date().toISOString()}));
+    localStorage.setItem("ideas-draft-count", "1");
     toast.success("Blog draft saved on this device.");
   };
 
@@ -220,7 +221,7 @@ export default function IdeasInlinePostComposer({
           duration: 5000,
         }
       );
-      if (mode === "blog") localStorage.removeItem(draftKey);
+      if (mode === "blog") { localStorage.removeItem(draftKey); localStorage.setItem("ideas-draft-count", "0"); }
       onCreated(data);
       setTitle("");
       setImageFile(null);
