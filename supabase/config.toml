@@ -20,3 +20,7 @@ verify_jwt = false
 
 [functions.refresh-news]
 verify_jwt = false
+
+# The function validates the Supabase access token itself with admin.auth.getUser().
+[functions.crm-ideas-users]
+verify_jwt = false
