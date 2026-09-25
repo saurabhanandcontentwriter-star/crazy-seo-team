@@ -135,46 +135,49 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
  const online=isOnline(presence?.last_seen_at);
  const unreadTotal=useMemo(()=>inbox.reduce((n,x)=>n+x.unread,0),[inbox]);
 
- return <Card className="mt-4 overflow-hidden">
-  <CardContent className="p-3 sm:p-4 md:p-5">
-   <div className="flex flex-wrap items-center gap-3">
-    <div className="rounded-xl bg-primary/10 p-2"><MessageCircle className="text-primary"/></div>
-    <div className="min-w-0 flex-1"><h3 className="font-black text-lg">Messages {unreadTotal>0&&<Badge className="ml-2">{unreadTotal}</Badge>}</h3><p className="text-xs text-muted-foreground">Direct inbox • Search by name or Public ID</p></div>
-    {target&&<Button size="sm" variant="outline" onClick={()=>setTarget(null)}><ArrowLeft className="mr-1 size-4"/>Inbox</Button>}
+ return <Card className="mt-4 overflow-hidden rounded-3xl border bg-background shadow-sm">
+  <CardContent className="p-0">
+   <div className="grid min-h-[620px] md:grid-cols-[320px_1fr]">
+    <aside className={`border-b md:border-b-0 md:border-r ${target ? "hidden md:block" : "block"}`}>
+     <div className="sticky top-0 bg-background/95 p-4 backdrop-blur">
+      <div className="flex items-center gap-3">
+       <div className="grid size-10 place-items-center rounded-full bg-gradient-to-br from-violet-600 to-blue-500 text-white"><MessageCircle className="size-5"/></div>
+       <div className="min-w-0 flex-1"><h3 className="font-black">Messages</h3><p className="text-[11px] text-muted-foreground">Direct conversations</p></div>
+       {unreadTotal>0&&<Badge className="rounded-full">{unreadTotal}</Badge>}
+      </div>
+      <div className="relative mt-4"><Search className="absolute left-3 top-2.5 size-4 text-muted-foreground"/><Input className="h-9 rounded-full border-0 bg-muted pl-9 text-sm" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search"/></div>
+      {results.length>0&&<div className="absolute z-30 mt-1 w-[calc(100%-2rem)] max-w-[288px] rounded-2xl border bg-background p-2 shadow-xl">{results.map(r=><button key={r.user_id} onClick={()=>selectTarget(r)} className="flex w-full items-center gap-3 rounded-xl p-2.5 text-left hover:bg-muted">
+       <div className="size-10 shrink-0 overflow-hidden rounded-full bg-muted">{r.avatar_url?<img src={r.avatar_url} className="size-full object-cover" alt={r.display_name}/>:<UserCircle2 className="size-full p-2 text-muted-foreground"/>}</div>
+       <div className="min-w-0"><p className="truncate text-sm font-semibold">{r.display_name}</p><p className="text-[11px] text-muted-foreground">{r.public_id||"ANVYA member"}</p></div>
+      </button>)}</div>}
+     </div>
+     <div className="max-h-[540px] overflow-y-auto px-2 pb-3">
+      {inboxLoading&&<p className="py-8 text-center text-xs text-muted-foreground">Loading chats…</p>}
+      {!inboxLoading&&inbox.length===0&&<div className="px-5 py-12 text-center"><MessageCircle className="mx-auto size-8 text-muted-foreground"/><p className="mt-3 text-sm font-semibold">No messages yet</p><p className="mt-1 text-xs text-muted-foreground">Search a member to start chatting.</p></div>}
+      {inbox.map(x=><button key={x.user_id} onClick={()=>selectTarget({user_id:x.user_id,display_name:x.display_name,avatar_url:x.avatar_url,public_id:x.public_id})} className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition ${target?.user_id===x.user_id?"bg-muted":"hover:bg-muted/70"}`}>
+       <div className="relative size-12 shrink-0 overflow-hidden rounded-full bg-muted">{x.avatar_url?<img src={x.avatar_url} className="size-full object-cover" alt={x.display_name}/>:<UserCircle2 className="size-full p-2 text-muted-foreground"/>}<span className="absolute bottom-0 right-0 size-3 rounded-full border-2 border-background bg-muted-foreground"/></div>
+       <div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="truncate text-sm font-bold">{x.display_name}</p>{x.unread>0&&<span className="size-2 rounded-full bg-blue-600"/>}</div><p className={`truncate text-xs ${x.unread>0?"font-semibold text-foreground":"text-muted-foreground"}`}>{x.last_message}</p></div>
+       <div className="shrink-0 text-[10px] text-muted-foreground">{new Date(x.last_message_at).toLocaleDateString([], {day:"numeric",month:"short"})}</div>
+      </button>)}
+     </div>
+    </aside>
+
+    <section className={target ? "flex min-h-[620px] flex-col" : "hidden md:flex md:items-center md:justify-center"}>
+     {!target?<div className="max-w-sm px-8 text-center"><div className="mx-auto grid size-20 place-items-center rounded-full bg-gradient-to-br from-violet-600/15 to-blue-600/15"><MessageCircle className="size-9 text-primary"/></div><h3 className="mt-5 text-xl font-black">Your messages</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">Select a conversation or search for an ANVYA member to send a direct message.</p></div>:
+      <><div className="flex items-center gap-3 border-b px-4 py-3">
+       <Button size="icon" variant="ghost" className="md:hidden" onClick={()=>setTarget(null)}><ArrowLeft className="size-5"/></Button>
+       <div className="relative size-11 shrink-0 overflow-hidden rounded-full bg-muted">{target.avatar_url?<img src={target.avatar_url} className="size-full object-cover" alt={target.display_name}/>:<UserCircle2 className="size-full p-2 text-muted-foreground"/>}<span className={`absolute bottom-0 right-0 size-3 rounded-full border-2 border-background ${online?"bg-green-500":"bg-muted-foreground"}`}/></div>
+       <div className="min-w-0 flex-1"><p className="truncate font-bold">{target.display_name}</p><p className="text-[11px] text-muted-foreground">{target.public_id||"ANVYA member"} · {online?"Active now":formatLastSeen(presence?.last_seen_at)}</p></div>
+       <Badge variant="outline" className="hidden rounded-full sm:inline-flex">{online?"Active":"Offline"}</Badge>
+      </div>
+      <div className="flex-1 space-y-1 overflow-y-auto bg-gradient-to-b from-background to-muted/20 px-4 py-5 sm:px-7">
+       {loading&&<p className="text-xs text-muted-foreground">Loading conversation…</p>}
+       {!loading&&messages.length===0&&<div className="py-20 text-center"><div className="mx-auto grid size-16 place-items-center rounded-full bg-muted"><MessageCircle className="size-7 text-muted-foreground"/></div><p className="mt-3 text-sm font-semibold">Say hello 👋</p><p className="text-xs text-muted-foreground">Start the conversation with {target.display_name}.</p></div>}
+       {messages.map((m,i)=>{const showDay=i===0||formatDayLabel(messages[i-1].created_at)!==formatDayLabel(m.created_at);return <div key={m.id}>{showDay&&<div className="my-5 flex items-center gap-3"><div className="h-px flex-1 bg-border"/><span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{formatDayLabel(m.created_at)}</span><div className="h-px flex-1 bg-border"/></div>}<div className={`mb-1 flex items-end gap-2 ${m.sender_id===me?"justify-end":"justify-start"}`}>{m.sender_id!==me&&<div className="size-7 shrink-0 overflow-hidden rounded-full bg-muted"><UserCircle2 className="size-full p-1 text-muted-foreground"/></div>}<div className={`max-w-[78%] px-3.5 py-2.5 text-sm shadow-sm sm:max-w-[65%] ${m.sender_id===me?"rounded-[22px] rounded-br-md bg-gradient-to-r from-violet-600 to-blue-600 text-white":"rounded-[22px] rounded-bl-md border bg-background"}`}><p className="whitespace-pre-wrap break-words leading-5">{m.message}</p><div className={`mt-1 flex items-center justify-end gap-1 text-[9px] ${m.sender_id===me?"text-white/70":"text-muted-foreground"}`}><span>{formatMessageTime(m.created_at)}</span>{m.sender_id===me&&<span>{m.read_at?"✓✓":"✓"}</span>}</div></div></div></div>})}
+      </div>
+      <div className="border-t bg-background p-3 sm:p-4"><div className="flex items-center gap-2 rounded-full border bg-muted/40 p-1.5"><Input className="h-9 border-0 bg-transparent px-3 shadow-none focus-visible:ring-0" value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();void send()}}} placeholder={`Message ${target.display_name}…`} maxLength={5000}/><Button size="icon" className="size-9 shrink-0 rounded-full bg-gradient-to-r from-violet-600 to-blue-600" onClick={()=>void send()} disabled={sending||!text.trim()}><Send className="size-4"/></Button></div><p className="mt-1 px-3 text-[10px] text-muted-foreground">Press Enter to send</p></div>
+      </>}
+    </section>
    </div>
-
-   {!target&&<div className="mt-4">
-    <div className="relative">
-     <div className="relative"><Search className="absolute left-3 top-3 size-4 text-muted-foreground"/><Input className="pl-9" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search name or Public ID (CST-...)"/></div>
-     {results.length>0&&<div className="absolute z-20 mt-1 w-full rounded-xl border bg-background p-2 shadow-xl">{results.map(r=><button key={r.user_id} onClick={()=>selectTarget(r)} className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-muted">
-      <div className="size-9 shrink-0 overflow-hidden rounded-full bg-muted">{r.avatar_url?<img src={r.avatar_url} className="size-full object-cover" alt={r.display_name}/>:<UserCircle2 className="size-full p-1.5 text-muted-foreground"/>}</div>
-      <div className="min-w-0"><p className="truncate font-semibold">{r.display_name}</p><p className="text-xs text-muted-foreground">{r.public_id||"No Public ID"}</p></div>
-     </button>)}</div>}
-    </div>
-    <div className="mt-4 space-y-2">
-     {inboxLoading&&<p className="py-6 text-center text-sm text-muted-foreground">Loading inbox…</p>}
-     {!inboxLoading&&inbox.length===0&&<div className="rounded-2xl border p-8 text-center"><MessageCircle className="mx-auto size-9 text-muted-foreground"/><p className="mt-2 font-semibold">Your inbox is empty</p><p className="text-sm text-muted-foreground">Search a Public ID or profile name to start a direct chat.</p></div>}
-     {inbox.map(x=><button key={x.user_id} onClick={()=>selectTarget({user_id:x.user_id,display_name:x.display_name,avatar_url:x.avatar_url,public_id:x.public_id})} className="flex w-full items-center gap-3 rounded-2xl border p-3 text-left transition hover:bg-muted/50">
-      <div className="size-11 shrink-0 overflow-hidden rounded-full bg-muted">{x.avatar_url?<img src={x.avatar_url} className="size-full object-cover" alt={x.display_name}/>:<UserCircle2 className="size-full p-2 text-muted-foreground"/>}</div>
-      <div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="truncate font-bold">{x.display_name}</p>{x.public_id&&<span className="text-xs text-muted-foreground">{x.public_id}</span>}</div><p className="truncate text-sm text-muted-foreground">{x.last_message}</p></div>
-      <div className="shrink-0 text-right"><p className="text-[10px] text-muted-foreground">{new Date(x.last_message_at).toLocaleString()}</p>{x.unread>0&&<Badge className="mt-1">{x.unread}</Badge>}</div>
-     </button>)}
-    </div>
-   </div>}
-
-   {target&&target.user_id!==me&&<div className="mt-4 overflow-hidden rounded-2xl border">
-    <div className="flex items-center gap-3 border-b p-3 sm:p-4">
-     <div className="relative size-11 shrink-0 overflow-hidden rounded-full bg-muted">{target.avatar_url?<img src={target.avatar_url} className="size-full object-cover" alt={target.display_name}/>:<UserCircle2 className="size-full p-2 text-muted-foreground"/>}<span className={"absolute bottom-0 right-0 size-3 rounded-full border-2 border-background "+(online?"bg-green-500":"bg-muted-foreground")}/></div>
-     <div className="min-w-0 flex-1"><p className="truncate font-bold">{target.display_name}</p><p className="text-xs text-muted-foreground">{target.public_id||"No Public ID"} • {online?<span className="text-green-600">Active now</span>:formatLastSeen(presence?.last_seen_at)}</p></div>
-     <Badge variant={online?"default":"outline"}>{online?"Online":"Offline"}</Badge>
-    </div>
-    <div className="max-h-[55vh] min-h-56 space-y-1 overflow-y-auto bg-muted/10 p-3 sm:p-5">
-     {loading&&<p className="text-sm text-muted-foreground">Loading conversation…</p>}
-     {!loading&&messages.length===0&&<p className="py-12 text-center text-sm text-muted-foreground">No messages yet. Say hello 👋</p>}
-     {messages.map((m,i)=>{const showDay=i===0||formatDayLabel(messages[i-1].created_at)!==formatDayLabel(m.created_at);return <div key={m.id}>{showDay&&<div className="my-4 flex items-center gap-3"><div className="h-px flex-1 bg-border"/><span className="text-[11px] font-semibold text-muted-foreground">{formatDayLabel(m.created_at)}</span><div className="h-px flex-1 bg-border"/></div>}<div className={"flex "+(m.sender_id===me?"justify-end":"justify-start")}><div className={"max-w-[82%] rounded-[22px] px-3.5 py-2.5 text-sm shadow-sm sm:max-w-[70%] "+(m.sender_id===me?"rounded-br-md bg-primary text-primary-foreground":"rounded-bl-md border bg-background")}><p className="whitespace-pre-wrap break-words">{m.message}</p><div className={"mt-1 flex items-center justify-end gap-1 text-[10px] "+(m.sender_id===me?"opacity-75":"text-muted-foreground")}><span>{formatMessageTime(m.created_at)}</span>{m.sender_id===me&&<span>✓</span>}</div></div></div></div>})}
-    </div>
-    <div className="flex gap-2 border-t p-2 sm:p-3"><Input className="min-w-0" value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();void send()}}} placeholder={"Message "+target.display_name+"…"} maxLength={5000}/><Button onClick={()=>void send()} disabled={sending||!text.trim()}><Send className="mr-2 size-4"/>Send</Button></div>
-   </div>}
   </CardContent>
  </Card>;
-}
