@@ -240,8 +240,8 @@ export default function IdeasInlinePostComposer({
   };
 
   return (
-    <Card className="overflow-hidden rounded-3xl border-primary/20 shadow-sm">
-      <CardContent className="p-5 md:p-6">
+    <Card className="w-full max-w-full overflow-hidden rounded-3xl border-primary/20 shadow-sm">
+      <CardContent className="min-w-0 p-4 sm:p-5 md:p-6">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-lg font-black">Create on ANVYA</p>
@@ -254,7 +254,7 @@ export default function IdeasInlinePostComposer({
           </Button>
         </div>
 
-        <div className="mt-5 grid gap-2 md:grid-cols-3">
+        <div className="mt-5 grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
           {modes.map((item) => {
             const Icon = item.icon;
             const active = mode === item.value;
@@ -280,7 +280,7 @@ export default function IdeasInlinePostComposer({
           })}
         </div>
 
-        <div className="mt-5 space-y-3">
+        <div className="mt-5 min-w-0 space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <Badge className="rounded-full">{currentMode.label}</Badge>
             {mode === "blog" && <Badge variant="outline" className="rounded-full">Article</Badge>}
@@ -303,7 +303,7 @@ export default function IdeasInlinePostComposer({
             }
           />
 
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid min-w-0 gap-3 sm:grid-cols-2 md:grid-cols-3">
             <div>
               <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Subject</label>
               <select className="h-11 w-full rounded-xl border bg-background px-3 text-sm" value={subject} onChange={(e) => setSubject(e.target.value)}>
@@ -323,7 +323,7 @@ export default function IdeasInlinePostComposer({
           </div>
 
           <div className="overflow-hidden rounded-2xl border bg-background">
-            <div className="flex flex-wrap items-center gap-1 border-b bg-muted/40 p-2">
+            <div className="flex flex-wrap items-center gap-1 overflow-x-auto border-b bg-muted/40 p-2">
               <Button type="button" size="sm" variant="ghost" onClick={() => format("formatBlock", "h2")} title="Heading">
                 <Heading2 className="size-4" />
               </Button>
@@ -365,7 +365,7 @@ export default function IdeasInlinePostComposer({
           {mode === "event" && (
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
               <div className="mb-3 flex items-center gap-2 font-bold"><CalendarDays className="size-4 text-primary"/> Live event details</div>
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid min-w-0 gap-3 sm:grid-cols-2">
                 <Input type="datetime-local" value={eventStart} onChange={(e) => setEventStart(e.target.value)} min={new Date(Date.now()+60000).toISOString().slice(0,16)} aria-label="Event start"/>
                 <Input type="datetime-local" value={eventEnd} onChange={(e) => setEventEnd(e.target.value)} aria-label="Event end"/>
                 <Input value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} placeholder="Venue / Online"/>
@@ -373,7 +373,7 @@ export default function IdeasInlinePostComposer({
               </div>
             </div>
           )}
-          {mode !== "blog" && <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+          {mode !== "blog" && <div className="grid min-w-0 gap-3 sm:grid-cols-[1fr_auto]">
             <label className="flex min-h-16 cursor-pointer items-center gap-3 rounded-2xl border border-dashed p-3 transition hover:border-primary/50 hover:bg-muted/30">
               <ImagePlus className="size-5 text-primary" />
               <div className="min-w-0">
@@ -425,7 +425,7 @@ export default function IdeasInlinePostComposer({
                 ? "Use headings, lists and links for a blog-style article."
                 : "Share an update, idea or visual with your network."}
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 overflow-x-auto">
           {mode === "blog" && <Button type="button" variant="outline" onClick={saveBlogDraft} disabled={busy}><FileText className="mr-2 size-4"/>Save Draft</Button>}
           <Button
             onClick={submit}
