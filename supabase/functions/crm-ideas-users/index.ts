@@ -73,15 +73,13 @@ Deno.serve(async (req) => {
     }
 
     if (body.action === "list") {
-      const { data: profiles, error } = await admin
+      // Keep the CRM list resilient while production migrations catch up.
+      // Optional Ideas tables must not turn a valid admin request into a 4xx/5xx.
+      const profilesResult = await admin
         .from("idea_profiles")
         .select("*")
         .order("updated_at", { ascending: false });
-      if (error) return fail(error.message, 400);
 
-      // Always include every Auth user as a CRM user, even when a profile row is
-      // missing. This keeps all three existing Ideas accounts visible with their
-      // email/account metadata instead of silently dropping them.
       const [postsResult, followsResult, friendsResult, badgesResult, usersResult] = await Promise.all([
         admin.from("idea_posts").select("id,user_id,profile_id,display_name,location,subject,title,content,image_url,device_type,status,rejection_reason,created_at,scheduled_for,ai_detection_score,moderation_score,moderation_reason,moderation_checked_at,moderation_links,post_type,visibility,event_start,event_end,event_location,event_url").order("created_at", { ascending: false }),
         admin.from("idea_follows").select("follower_id,following_id"),
@@ -106,9 +104,10 @@ Deno.serve(async (req) => {
 
       if (postsError) return fail(postsError.message, 400);
 
-      const follows = followsResult.data ?? [];
-      const friends = friendsResult.data ?? [];
-      const badges = badgesResult.data ?? [];
+      const profiles = profilesResult.error ? [] : (profilesResult.data ?? []);
+      const follows = followsResult.error ? [] : (followsResult.data ?? []);
+      const friends = friendsResult.error ? [] : (friendsResult.data ?? []);
+      const badges = badgesResult.error ? [] : (badgesResult.data ?? []);
       const users = usersResult.data;
       const usersError = usersResult.error;
       if (usersError) return fail("Could not load community accounts: " + usersError.message, 400);
