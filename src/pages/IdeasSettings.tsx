@@ -100,20 +100,22 @@ export default function IdeasSettings(){
           {["Account","Profile","Privacy","Security","Notifications","Appearance"].map((x,i)=><button key={x} onClick={()=>document.getElementById("settings-"+x.toLowerCase())?.scrollIntoView({behavior:"smooth"})} className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm font-semibold hover:bg-muted"><span>{x}</span>{i===0?<Badge variant="secondary">Gmail</Badge>:x==="Profile"?<Badge variant="secondary">Edit</Badge>:<ChevronRight className="size-4 text-muted-foreground"/>}</button>)}
         </CardContent></Card>
         <div className="space-y-5">
+          <Card id="settings-profile" className="rounded-3xl border-2"><CardContent className="p-5 md:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-3"><div className="rounded-2xl bg-primary/10 p-3"><UserCircle2 className="text-primary"/></div><div><h1 className="text-xl font-black">Profile</h1><p className="text-sm text-muted-foreground">Manage your public ANVYA profile, just like LinkedIn or Instagram.</p></div></div>
+              <Badge>Profile</Badge>
+            </div>
+            <div className="mt-4 rounded-2xl border bg-muted/20 p-4">
+              <p className="font-semibold">Profile information</p>
+              <p className="mt-1 text-sm text-muted-foreground">Name, bio, profile photo, cover photo, work, education and social links.</p>
+              <p className="mt-2 text-xs text-muted-foreground">{profileUpdatedAt ? "Last updated " + new Date(profileUpdatedAt).toLocaleString() : "Ready to update"}</p>
+              <Button className="mt-4" onClick={()=>nav("/anvya/profile/me")}><UserCircle2 className="mr-2 size-4"/>Edit Profile</Button>
+            </div>
+          </CardContent></Card>
           <Card id="settings-account" className="rounded-3xl"><CardContent className="p-5 md:p-6">
             <div className="flex items-center gap-3"><div className="rounded-2xl bg-primary/10 p-3"><Mail className="text-primary"/></div><div><h1 className="text-xl font-black">Account</h1><p className="text-sm text-muted-foreground">Your ANVYA identity is connected to Google/Gmail.</p></div></div>
             <div className="mt-5 rounded-2xl border bg-muted/20 p-4"><p className="text-xs font-bold uppercase text-muted-foreground">Signed in as</p><p className="mt-1 font-semibold break-all">{name}</p><p className="text-sm text-muted-foreground break-all">{email}</p></div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2"><Button variant="outline" onClick={()=>nav("/anvya/profile/me")}><UserCircle2 className="mr-2 size-4"/>Edit Profile</Button><Button variant="outline" onClick={logout}><LogOut className="mr-2 size-4"/>Log out</Button></div>
-            <div id="settings-profile" className="mt-4 rounded-2xl border p-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3"><UserCircle2 className="size-5 text-primary"/><div><p className="font-semibold">Profile</p><p className="text-xs text-muted-foreground">Update your name, bio, photo, cover, work, education and social links.</p></div></div>
-                <Badge variant="secondary">Profile updated</Badge>
-              </div>
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-muted/40 px-3 py-2">
-                <p className="text-xs text-muted-foreground">{profileUpdatedAt ? "Last updated " + new Date(profileUpdatedAt).toLocaleString() : "Profile information is ready to update."}</p>
-                <Button size="sm" onClick={()=>nav("/anvya/profile/me")}><UserCircle2 className="mr-2 size-4"/>Edit Profile</Button>
-              </div>
-            </div>
             <div className="mt-4 rounded-2xl border p-4">
               <div className="flex items-center gap-3"><Link2 className="size-5 text-primary"/><div><p className="font-semibold">Profile URL</p><p className="text-xs text-muted-foreground">Change the public username URL, like LinkedIn or Instagram.</p></div></div>
               {!editingUrl?<div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
