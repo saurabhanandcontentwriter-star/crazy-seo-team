@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Menu, X, ArrowUpRight, Globe2, PartyPopper, ChevronDown, Sparkles, Search, Store, Lightbulb } from "lucide-react";
+import { Menu, X, ArrowUpRight, Globe2, ChevronDown, Sparkles, Search, Store, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import logo from "@/assets/logo.jpeg";
@@ -15,21 +15,29 @@ const navLinks = [
   { label: "News", path: "/news" },
 ];
 
-const GaneshIcon = () => (
-  <svg viewBox="0 0 64 64" aria-hidden="true" className="h-9 w-9 shrink-0 drop-shadow-sm">
-    <circle cx="32" cy="32" r="30" fill="currentColor" opacity="0.12" />
-    <path d="M20 27c-6-7-12-4-12 2 0 6 5 9 11 6M44 27c6-7 12-4 12 2 0 6-5 9-11 6" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
-    <path d="M23 25c1-8 6-12 9-12s8 4 9 12v10c0 8-5 14-9 14s-9-6-9-14z" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinejoin="round" />
-    <path d="M32 36c-2 3-2 7 0 10 2-3 2-7 0-10Z" fill="currentColor" />
-    <path d="M27 22c2 2 8 2 10 0M26 29h2M36 29h2" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-    <path d="M29 17h6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-  </svg>
-);
-
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [toolsOpen, setToolsOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [quoteDay, setQuoteDay] = useState(() => new Date().toDateString());
+  const dailyQuotes = [
+    "Small steps every day create big results.",
+    "Build with purpose. Improve with consistency.",
+    "Your next breakthrough starts with one focused action.",
+    "Stay curious, keep learning, keep moving forward.",
+    "Progress beats perfection when you keep showing up.",
+    "Think bigger. Start smaller. Execute today.",
+    "Good work compounds when you stay consistent.",
+    "Turn ideas into action, and action into growth.",
+    "Keep learning, keep building, keep becoming better.",
+    "Focus on what you can improve today."
+  ];
+  useEffect(() => {
+    const timer = window.setInterval(() => setQuoteDay(new Date().toDateString()), 60000);
+    return () => window.clearInterval(timer);
+  }, []);
+  const dayNumber = Math.floor(new Date(quoteDay).getTime() / 86400000);
+  const dailyQuote = dailyQuotes[((dayNumber % dailyQuotes.length) + dailyQuotes.length) % dailyQuotes.length];
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`);
   const toolsActive = isActive("/seo-tools") || isActive("/ai-tools");
@@ -37,11 +45,10 @@ const Navbar = () => {
   return (
     <>
       <nav className="cst-public-nav fixed top-0 left-0 right-0 z-50">
-        <div className="cst-public-announcement border-b border-orange-200/70 bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 text-orange-800">
-          <div className="container mx-auto flex min-h-12 items-center justify-center gap-2.5 px-3 py-1.5 text-center">
-            <GaneshIcon />
-            <div className="leading-tight"><div className="text-sm font-extrabold tracking-wide text-orange-700 sm:text-base">Happy Ganesh Chaturdashi 2026</div><div className="hidden text-[11px] font-medium text-orange-600/80 sm:block">Ganpati Bappa Morya • May Lord Ganesha bless you with wisdom, success & prosperity</div></div>
-            <span className="ml-1 hidden items-center gap-1 rounded-full border border-orange-200 bg-white/75 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-orange-600 shadow-sm md:inline-flex"><PartyPopper aria-hidden="true" className="h-3 w-3" />Festive Greeting</span>
+        <div className="cst-public-announcement border-b border-slate-200/70 bg-gradient-to-r from-slate-50 via-white to-blue-50 text-slate-800">
+          <div className="container mx-auto flex min-h-12 items-center justify-center gap-2 px-3 py-2 text-center">
+            <Sparkles aria-hidden="true" className="h-4 w-4 shrink-0 text-blue-600" />
+            <div className="leading-tight"><div className="text-xs font-bold tracking-wide text-slate-700 sm:text-sm">Daily Motivation</div><div className="text-sm font-extrabold text-slate-950 sm:text-base">“{dailyQuote}”</div></div>
           </div>
         </div>
         <div className="cst-nav-inner">
