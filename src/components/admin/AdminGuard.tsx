@@ -7,6 +7,8 @@ type State = "checking" | "allowed" | "denied";
 const ALLOWED_ADMINS = new Set([
   "crazyseoteam@gmail.com",
   "sauravanand499@gmail.com",
+  "saurabhanandshahisarmera@gmail.com",
+  "saurabhanandcontentwriter@gmail.com",
 ]);
 
 export default function AdminGuard({ children }: { children: ReactNode }) {
@@ -20,12 +22,14 @@ export default function AdminGuard({ children }: { children: ReactNode }) {
     const verify = async () => {
       try {
         const {
-          data: { session },
-        } = await supabase.auth.getSession();
+          data: { user },
+        error,
+        } = await supabase.auth.getUser();
+
+        if (error) throw error;
 
         if (cancelled) return;
 
-        const user = session?.user;
         const email = user?.email?.trim().toLowerCase() ?? "";
 
         if (!user || !ALLOWED_ADMINS.has(email)) {
