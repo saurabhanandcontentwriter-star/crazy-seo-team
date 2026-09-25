@@ -106,6 +106,7 @@ export default function IdeasInlinePostComposer({
     }
     localStorage.setItem(draftKey, JSON.stringify({mode:"blog", title:title.trim(), content:sanitizeRichHtml(content), subject, tags, visibility, location:location.trim(), savedAt:new Date().toISOString()}));
     localStorage.setItem("ideas-draft-count", "1");
+    window.dispatchEvent(new Event("anvya-draft-changed"));
     toast.success("Blog draft saved on this device.");
   };
 
@@ -221,7 +222,7 @@ export default function IdeasInlinePostComposer({
           duration: 5000,
         }
       );
-      if (mode === "blog") { localStorage.removeItem(draftKey); localStorage.setItem("ideas-draft-count", "0"); }
+      if (mode === "blog") { localStorage.removeItem(draftKey); localStorage.setItem("ideas-draft-count", "0"); window.dispatchEvent(new Event("anvya-draft-changed")); }
       onCreated(data);
       setTitle("");
       setImageFile(null);
