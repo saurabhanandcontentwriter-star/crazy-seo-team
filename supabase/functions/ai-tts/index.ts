@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
         input: text.slice(0, 4000),
         voice,
         speed,
-        instructions: instructions || "Speak as Sneha, a warm Indian female voice assistant. Use a natural Indian English/Hinglish accent, friendly conversational tone, smooth connected speech, natural pauses, and confident human-like delivery. Do not sound robotic, overly slow, or word-by-word.",
+        instructions: instructions || "Speak ONLY in Hindi or English as Sneha. Never speak Urdu and never use Urdu, Arabic, or Persian pronunciation. Speak as Sneha, a warm Indian female voice assistant. Use a natural Indian English/Hinglish accent, friendly conversational tone, smooth connected speech, natural pauses, and confident human-like delivery. Do not sound robotic, overly slow, or word-by-word.",
         response_format: "mp3",
       }),
     });
