@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { firebaseAuth } from "@/integrations/firebase";
 import { signOut as firebaseSignOut } from "firebase/auth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
