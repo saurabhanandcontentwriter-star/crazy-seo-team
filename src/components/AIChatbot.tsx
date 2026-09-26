@@ -27,14 +27,23 @@ const QUICK_ACTIONS = [
   { icon: Sparkles, label: "Optimize Google Ads", prompt: "How can I improve ROAS on my Google Ads account? Give me a prioritized action list." },
 ];
 
+const AGENT_CONTEXT = `You are Sneha, the friendly Hindi/Hinglish voice and chat assistant for ANVYA and Crazy SEO Team.
+Speak naturally in Hindi or Hinglish according to the user's language. Do not sound robotic.
+ANVYA is a modern ideas, discovery and community knowledge platform where people can share ideas, publish posts and blogs, ask questions, start discussions, discover different perspectives, explore profiles, communities and events, and use AI-assisted discovery.
+Crazy SEO Team works across SEO, technical SEO, on-page/off-page SEO, keyword research, content optimization, SEO audits, Core Web Vitals, schema, indexation, AI SEO, GEO, AEO, LLM optimization, digital marketing, Google Ads, AI solutions, automation, website/web-app development and voice AI assistants.
+Keep ANVYA and Crazy SEO Team clearly distinguished: ANVYA is the platform; Crazy SEO Team is the digital growth, technology and SEO team.
+Never invent pricing, guarantees, features, results, or policies. If something is not confirmed, say so and offer to collect the requirement.
+For interested prospects, politely ask for their name, business/company, requirement and preferred contact details only when appropriate. Never ask for passwords, OTPs, card numbers or other sensitive credentials.`;
+
 const WELCOME: Msg = {
   role: "assistant",
   ts: Date.now(),
-  content: "👋 **Welcome to the Crazy SEO Team AI Assistant.**\n\nI'm your enterprise SEO & AI-search concierge — ask me anything about **SEO, GEO, AEO, LLM SEO, Google Ads, or AI development**. Pick a quick action below or type your question.",
+  content: "👋 **Namaste! Main Sneha hoon.**\n\nMain ANVYA aur Crazy SEO Team ke baare mein Hindi ya Hinglish mein baat kar sakti hoon. Aap ANVYA, SEO, AI, digital marketing, automation, website development ya voice-agent services ke baare mein pooch sakte hain.\n\nAap chahein toh **Call Sneha** se voice mein bhi baat kar sakte hain.",
 };
 
 const AIChatbot = () => {
   const [open, setOpen] = useState(false);
+  const [voiceMode, setVoiceMode] = useState(false);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [recording, setRecording] = useState(false);
@@ -107,7 +116,7 @@ const AIChatbot = () => {
     greetedRef.current = true;
     if (sessionStorage.getItem("cst-chat-greeted")) return;
     sessionStorage.setItem("cst-chat-greeted", "1");
-    playTTS("Hi, I'm Nova from Crazy SEO Team. How can I help you rank higher on Google and AI search today?", -2);
+    playTTS("Namaste! Main Sneha hoon, ANVYA aur Crazy SEO Team ki assistant. Aap ANVYA ya Crazy SEO Team ke baare mein Hindi ya Hinglish mein mujhse baat kar sakte hain. Agar aap chahein, Call Sneha se voice conversation bhi start kar sakte hain.", -2);
   }, [open]);
 
   const showWelcome = messages.length === 1 && messages[0].role === "assistant" && messages[0].content === WELCOME.content;
@@ -124,7 +133,7 @@ const AIChatbot = () => {
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: AUTH },
-        body: JSON.stringify({ messages: next.map(({ role, content }) => ({ role, content })) }),
+        body: JSON.stringify({ messages: [{ role: "system", content: AGENT_CONTEXT }, ...next.map(({ role, content }) => ({ role, content }))] }),
       });
       if (resp.status === 429) { toast.error("Rate limit — try again shortly."); setBusy(false); return; }
       if (resp.status === 402) { toast.error("AI credits exhausted."); setBusy(false); return; }
@@ -163,7 +172,7 @@ const AIChatbot = () => {
     } finally {
       setBusy(false);
     }
-  }, [input, busy, messages, audioOn]);
+  }, [input, busy, messages, audioOn, voiceMode]);
 
   const playTTS = async (text: string, idx: number) => {
     try {
@@ -179,7 +188,11 @@ const AIChatbot = () => {
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
       audioElRef.current = audio;
-      audio.onended = () => { setTtsBusy(null); URL.revokeObjectURL(url); };
+      audio.onended = () => {
+        setTtsBusy(null);
+        URL.revokeObjectURL(url);
+        if (voiceMode && !busy) setTimeout(() => startRecording(), 400);
+      };
       audio.play();
     } catch {
       setTtsBusy(null);
@@ -217,6 +230,19 @@ const AIChatbot = () => {
     } catch {
       toast.error("Microphone access denied");
     }
+  };
+
+  const startVoiceCall = async () => {
+    setOpen(true);
+    setVoiceMode(true);
+    setAudioOn(true);
+    await startRecording();
+  };
+
+  const endVoiceCall = () => {
+    setVoiceMode(false);
+    setAudioOn(false);
+    stopRecording();
   };
 
   const stopRecording = () => {
@@ -289,6 +315,15 @@ const AIChatbot = () => {
                 Online · SEO · GEO · AEO · LLM SEO
               </p>
             </div>
+            <button
+              onClick={voiceMode ? endVoiceCall : startVoiceCall}
+              className={voiceMode ? "flex items-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-semibold bg-red-50 text-red-600" : "flex items-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-semibold bg-emerald-50 text-emerald-700"}
+              title={voiceMode ? "End voice conversation" : "Call Sneha"}
+              aria-label={voiceMode ? "End voice conversation" : "Call Sneha"}
+            >
+              {voiceMode ? <VolumeX size={15} /> : <Mic size={15} />}
+              {voiceMode ? "End Call" : "Call Sneha"}
+            </button>
             <button
               onClick={() => setAudioOn((v) => !v)}
               className={`p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition ${audioOn ? "text-emerald-600" : ""}`}
