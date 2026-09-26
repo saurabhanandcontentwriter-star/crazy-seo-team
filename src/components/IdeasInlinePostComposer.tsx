@@ -332,7 +332,7 @@ export default function IdeasInlinePostComposer({
                     </div>
                     <div>
                       <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Tags</label>
-                      <Input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); const v=tagInput.trim().replace(/^#/,""); if(v && !tags.includes(v) && tags.length<10) setTags([...tags,v]); setTagInput(""); } }} placeholder="#SEO, #AI, #Google" />
+                      <Input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); const v=tagInput.trim().replace(/^#/,""); if(v && !tags.includes(v) && tags.length<10) setTags([...tags,v]); setTagInput(""); } }} placeholder="" />
                       {tags.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5">{tags.map(tag => <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => setTags(tags.filter(t => t !== tag))}>#{tag} ×</Badge>)}</div>}
                     </div>
                     <div>
