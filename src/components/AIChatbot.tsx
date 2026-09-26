@@ -335,11 +335,11 @@ const AIChatbot = () => {
             <button
               onClick={voiceMode ? endVoiceCall : startVoiceCall}
               className={voiceMode ? "flex items-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-semibold bg-red-50 text-red-600" : "flex items-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-semibold bg-emerald-50 text-emerald-700"}
-              title={voiceMode ? "End voice conversation" : "Call Sneha"}
-              aria-label={voiceMode ? "End voice conversation" : "Call Sneha"}
+              title={voiceMode ? "End voice conversation" : "Start Web Call with Sneha"}
+              aria-label={voiceMode ? "End voice conversation" : "Start Web Call with Sneha"}
             >
               {voiceMode ? <VolumeX size={15} /> : <Mic size={15} />}
-              {voiceMode ? "End Call" : "Call Sneha"}
+              {voiceMode ? "End Call" : "Web Call"}
             </button>
             <button
               onClick={() => setAudioOn((v) => !v)}
