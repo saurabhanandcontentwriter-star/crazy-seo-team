@@ -178,7 +178,7 @@ export default function IdeasAdmin() {
     setBusy(null);
   };
 
-  const review = async (row: Idea, status: "approved" | "rejected") =>
+  const review = async (row: Idea, status: "approved" | "rejected") => {
     if (status === "approved" && !row.moderation_checked_at) {
       toast.error("Run/complete the content detector check before approval.");
       return;
