@@ -73,6 +73,7 @@ export default function IdeasInlinePostComposer({
   const editorRef = useRef<HTMLDivElement | null>(null);
   const [mode, setMode] = useState<ComposerMode>("post");
   const [title, setTitle] = useState("");
+  const [contentText, setContentText] = useState("");
   const [visibility, setVisibility] = useState("public");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
@@ -248,6 +249,7 @@ export default function IdeasInlinePostComposer({
       if (mode === "blog") { localStorage.removeItem(draftKey); localStorage.setItem("ideas-draft-count", "0"); window.dispatchEvent(new Event("anvya-draft-changed")); }
       onCreated(data);
       setTitle("");
+      setContentText("");
       setImageFile(null);
       setTags([]);
       setTagInput("");
@@ -372,9 +374,10 @@ export default function IdeasInlinePostComposer({
               ref={editorRef}
               onInput={(e) => {
                 const el = e.currentTarget;
-                const text = el.innerText || "";
+                let text = el.innerText || "";
                 if (mode === "post" && text.length > 3000) {
-                  el.innerText = stripToMaxChars(text, 3000);
+                  text = stripToMaxChars(text, 3000);
+                  el.innerText = text;
                   const range = document.createRange();
                   range.selectNodeContents(el);
                   range.collapse(false);
@@ -382,6 +385,7 @@ export default function IdeasInlinePostComposer({
                   selection?.removeAllRanges();
                   selection?.addRange(range);
                 }
+                setContentText(text);
               }}
               contentEditable
               suppressContentEditableWarning
@@ -398,10 +402,10 @@ export default function IdeasInlinePostComposer({
               <span>{mode === "post" ? "Caption only · image optional · no title" : mode === "blog" ? "Article limit · 300 words" : "Content"}</span>
               <span>
                 {mode === "post"
-                  ? `${plainContent.length}/3000 characters`
+                  ? `${contentText.length}/3000 characters`
                   : mode === "blog"
-                    ? `${countWords(plainContent)} / 300 words`
-                    : `${plainContent.length} characters`}
+                    ? `${countWords(contentText)} / 300 words`
+                    : `${contentText.length} characters`}
               </span>
             </div>
           </div>
