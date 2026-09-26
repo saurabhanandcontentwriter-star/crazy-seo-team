@@ -34,7 +34,7 @@ ANVYA is a modern ideas, discovery and community knowledge platform where people
 Crazy SEO Team works across SEO, technical SEO, on-page/off-page SEO, keyword research, content optimization, SEO audits, Core Web Vitals, schema, indexation, AI SEO, GEO, AEO, LLM optimization, digital marketing, Google Ads, AI solutions, automation, website/web-app development and voice AI assistants.
 Keep ANVYA and Crazy SEO Team clearly distinguished: ANVYA is the platform; Crazy SEO Team is the digital growth, technology and SEO team.
 If the user asks about ANVYA, explain ANVYA first. If they ask about Crazy SEO Team, explain its relevant services first.
-Use short spoken responses in voice mode so the conversation feels natural: usually 1–3 short sentences, with simple punctuation and no long lists. Ask one relevant follow-up question when useful.
+Use very short spoken responses in voice mode: usually 1–2 short sentences and under 35 words, with simple punctuation and no long lists. Respond immediately and do not add unnecessary preambles. Ask one relevant follow-up question when useful.
 If speech is unclear, politely ask the user to repeat. Do not interrupt the user.
 Continue the conversation until the user says goodbye, asks to end the call, or otherwise clearly indicates they are finished.
 Never invent pricing, guarantees, features, results, or policies. If something is not confirmed, say so and offer to collect the requirement.
@@ -187,7 +187,7 @@ const AIChatbot = () => {
       const resp = await fetch(TTS_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: AUTH },
-        body: JSON.stringify({ text: text.replace(/[*_#`>[\]()]/g, "").replace(/\s+/g, " ").trim().slice(0, 1400), voice: "shimmer", speed: 1.0 }),
+        body: JSON.stringify({ text: text.replace(/[*_#`>[\]()]/g, "").replace(/\s+/g, " ").trim().slice(0, 1400), voice: "shimmer", speed: 1.05 }),
       });
       if (!resp.ok) throw new Error("TTS failed");
       const blob = await resp.blob();
@@ -214,7 +214,59 @@ const AIChatbot = () => {
       mediaRef.current = mr;
       chunksRef.current = [];
       mr.ondataavailable = (e) => e.data.size > 0 && chunksRef.current.push(e.data);
+      let silenceTimer: number | undefined;
+      let maxTimer: number | undefined;
+      let analyser: AnalyserNode | null = null;
+      let audioContext: AudioContext | null = null;
+      let monitorFrame = 0;
+      let speechDetected = false;
+      let lastSpeechAt = performance.now();
+
+      const finishRecording = () => {
+        if (mr.state === "recording") mr.stop();
+      };
+
+      try {
+        audioContext = new AudioContext();
+        const source = audioContext.createMediaStreamSource(stream);
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 1024;
+        source.connect(analyser);
+        const data = new Uint8Array(analyser.fftSize);
+
+        const monitor = () => {
+          if (!voiceModeRef.current || mr.state !== "recording" || !analyser) return;
+          analyser.getByteTimeDomainData(data);
+          let sum = 0;
+          for (let i = 0; i < data.length; i++) {
+            const normalized = (data[i] - 128) / 128;
+            sum += normalized * normalized;
+          }
+          const rms = Math.sqrt(sum / data.length);
+          const now = performance.now();
+
+          if (rms > 0.018) {
+            speechDetected = true;
+            lastSpeechAt = now;
+            if (silenceTimer) window.clearTimeout(silenceTimer);
+          } else if (speechDetected && now - lastSpeechAt > 1200) {
+            finishRecording();
+            return;
+          }
+
+          monitorFrame = requestAnimationFrame(monitor);
+        };
+
+        monitorFrame = requestAnimationFrame(monitor);
+      } catch {
+        // If audio analysis is unavailable, the 5-second safety timer still ends the turn.
+      }
+
       mr.onstop = async () => {
+        if (silenceTimer) window.clearTimeout(silenceTimer);
+        if (maxTimer) window.clearTimeout(maxTimer);
+        if (monitorFrame) cancelAnimationFrame(monitorFrame);
+        try { await audioContext?.close(); } catch { /* noop */ }
         recordingRef.current = false;
         stream.getTracks().forEach((t) => t.stop());
         const blob = new Blob(chunksRef.current, { type: chunksRef.current[0]?.type || "audio/webm" });
@@ -237,9 +289,9 @@ const AIChatbot = () => {
       recordingRef.current = true;
       setRecording(true);
       if (voiceModeRef.current) {
-        window.setTimeout(() => {
-          if (voiceModeRef.current && mediaRef.current === mr && mr.state === "recording") mr.stop();
-        }, 7000);
+        maxTimer = window.setTimeout(() => {
+          if (voiceModeRef.current && mediaRef.current === mr && mr.state === "recording") finishRecording();
+        }, 5000);
       }
     } catch {
       toast.error("Microphone access denied");
@@ -381,7 +433,7 @@ const AIChatbot = () => {
                   <p className="text-sm text-white/85">
                     {ttsBusy !== null
                       ? "Sneha aapko audio mein reply kar rahi hai…"
-                      : "Call connected. Neeche message type karein — Sneha audio mein reply karegi."}
+                      : "Call connected. Boliye — Sneha turant audio mein reply karegi."}
                   </p>
                 </div>
               </div>
