@@ -18,7 +18,8 @@ const pageMeta: Record<string, { title: string; description: string; keywords: s
   "/faq": { title: "SEO & AI SEO FAQs | Crazy SEO Team", description: "Answers to common questions about SEO, AI SEO, GEO, AEO, LLM optimization, audits and digital marketing.", keywords: "SEO FAQ, AI SEO FAQ, GEO FAQ, AEO FAQ, LLM SEO questions" },
   "/pricing": { title: "SEO & AI Services Pricing | Crazy SEO Team", description: "Explore Crazy SEO Team service options for SEO, AI SEO, content, automation and digital growth.", keywords: "SEO pricing, AI SEO pricing, SEO services, AI automation services" },
   "/classifieds": { title: "Classifieds Marketplace India | Buy, Sell, Jobs, Property & Services | Crazy SEO Team", description: "Browse approved classifieds across India for products, services, jobs, property, vehicles, businesses, education and more on Crazy SEO Team.", keywords: "classifieds India, online marketplace, buy sell India, jobs, property, cars, mobiles, services, business listings" },
-  "/anvya": { title: "ANVYA | Discover AI, SEO, Tech, Travel & Business Ideas | Crazy SEO Team", description: "Explore public ideas, questions, discussions and events across AI, SEO, technology, travel, science and economics on ANVYA by Crazy SEO Team.", keywords: "ANVYA social platform, AI ideas, SEO ideas, technology ideas, travel ideas, business ideas, public discussions, questions, events" },
+  "/anvya": { title: "ANVYA – Ideas, Q&A, Blogs & Community Platform | AI, SEO, Tech", description: "ANVYA is a modern ideas, Q&A, blogging and community platform for publishing posts, asking questions, joining discussions, discovering people and exploring AI, SEO, technology, travel, science and business topics.", keywords: "ANVYA, ideas platform, Q&A platform, question answer website, blog publishing platform, community knowledge platform, social publishing, AI ideas, SEO ideas, technology discussions, travel ideas, business discussions, online communities, events" },
+  "/anvya/explore": { title: "Explore Ideas, Questions, Blogs & Communities | ANVYA", description: "Explore AI, SEO, technology, science, travel, economics and business ideas on ANVYA. Discover questions, public discussions, blogs, profiles, communities and events.", keywords: "explore ideas, ANVYA explore, AI discussions, SEO discussions, technology questions, blogs and posts, community discovery, public Q&A, knowledge discovery" },
   "/post-ad": { title: "Post an Ad in India | Classifieds Marketplace | Crazy SEO Team", description: "Create an account, complete your profile and submit a moderated classified ad for products, services, jobs, property, vehicles and businesses on Crazy SEO Team.", keywords: "post ad India, submit classified ad, free classified listing, sell online India, business listing, property listing, jobs listing" },
 };
 const faqSets: Record<string, Array<{ q: string; a: string }>> = {
@@ -77,8 +78,9 @@ export default function SEOHead() {
   const location = useLocation();
   const basePath = getBasePath(location.pathname);
   const [listing, setListing] = useState<any>(null);
-  const isIdeas = basePath === "/anvya";
+  const isIdeas = basePath === "/anvya" || basePath === "/anvya/explore";
   const isPostAd = basePath === "/post-ad";
+  const isPrivateOrUtility = ["/anvya/login", "/anvya/settings", "/anvya/analytics", "/anvya/notifications", "/anvya/saved"].includes(basePath);
   const meta = pageMeta[basePath] ?? { title: `${BRAND} | AI SEO, GEO, AEO & Digital Growth`, description: "Crazy SEO Team helps businesses improve SEO, AI search visibility, content performance and digital growth.", keywords: CORE_TOPICS };
   const canonical = `${SITE}${location.pathname === "/" ? "/" : location.pathname.replace(/\/$/, "")}`;
   const faqs = faqSets[basePath] ?? [];
@@ -134,9 +136,9 @@ export default function SEOHead() {
     <meta name="classification" content={CORE_TOPICS} />
     <meta name="author" content={BRAND} />
     <meta name="publisher" content={BRAND} />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <meta name="bingbot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="robots" content={isPrivateOrUtility ? "noindex, nofollow, noarchive" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
+    <meta name="googlebot" content={isPrivateOrUtility ? "noindex, nofollow, noarchive" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
+    <meta name="bingbot" content={isPrivateOrUtility ? "noindex, nofollow, noarchive" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
     <meta name="ai-content-declaration" content="AI-assisted SEO and content optimization may be used; factual claims should be verified against cited or authoritative sources." />
     <meta name="ai-topic" content={CORE_TOPICS} />
     <meta name="content-language" content="en-IN" />
@@ -144,11 +146,14 @@ export default function SEOHead() {
     <meta name="theme-color" content="#ffffff" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <link rel="canonical" href={canonical} />
+    <link rel="alternate" hrefLang="en-IN" href={canonical} />
+    <link rel="alternate" hrefLang="x-default" href={canonical} />
     <meta property="og:title" content={listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title} />
     <meta property="og:description" content={listing?.description?.slice(0, 160) || meta.description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:type" content={listing ? "product" : "website"} />
     <meta property="og:site_name" content={BRAND} />
+    <meta property="og:locale" content="en_IN" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title} />
     <meta name="twitter:description" content={listing?.description?.slice(0, 160) || meta.description} />
