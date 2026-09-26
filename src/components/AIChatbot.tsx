@@ -68,6 +68,22 @@ const AIChatbot = () => {
 
   // External "talk to AI assistant" trigger (welcome popup, CTAs)
   useEffect(() => {
+    if (!open) return;
+    const id = "omnidimension-chat-widget-script";
+    if (document.getElementById(id)) return;
+    const script = document.createElement("script");
+    script.id = id;
+    script.async = true;
+    script.src = "https://omnidim.io/web_widget.js?secret_key=8995be432b1a7ccacbb2a148e040417a";
+    const host = document.getElementById("anvya-chat-omnidimension-host");
+    (host || document.body).appendChild(script);
+    return () => {
+      document.getElementById(id)?.remove();
+      document.querySelectorAll('[id^="omnidimension"]').forEach((el) => el.remove());
+    };
+  }, [open]);
+
+  useEffect(() => {
     const on = () => setOpen(true);
     window.addEventListener("cst:open-chat", on);
     return () => window.removeEventListener("cst:open-chat", on);
@@ -288,6 +304,9 @@ const AIChatbot = () => {
               <X size={18} />
             </button>
           </header>
+
+          {/* OmniDimension voice/chat assistant is mounted only inside the Crazy SEO AI Assistant. */}
+          <div id="anvya-chat-omnidimension-host" className="absolute left-0 top-0 h-0 w-0 overflow-hidden" aria-hidden="true" />
 
           {/* Messages */}
           <div ref={scrollRef} className="relative flex-1 overflow-y-auto p-4 space-y-4">
