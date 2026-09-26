@@ -34,9 +34,9 @@ const modes: Array<{
 }> = [
   { value: "post", label: "Create Post", description: "Share an update, idea or image.", icon: FileText },
   { value: "blog", label: "Write Blog", description: "Publish a richer article with a cover image.", icon: BookOpen },
-  { value: "question", label: "Ask Discussion", description: "Ask the community and start a conversation.", icon: MessageCircle },
-  { value: "event", label: "Live Event", description: "Create a live or upcoming community event.", icon: CalendarDays },
-  { value: "suggestion", label: "Suggestion", description: "Share a suggestion or improvement for the community.", icon: Lightbulb },
+  { value: "question", label: "Ask Discussion", description: "Ask a question and invite useful answers.", icon: MessageCircle },
+  { value: "event", label: "Live Event", description: "Create an event with time, place and details.", icon: CalendarDays },
+  { value: "suggestion", label: "Suggestion", description: "Suggest an idea or improvement for the community.", icon: Lightbulb },
 ];
 
 const countWords = (text: string) => text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0;
@@ -307,47 +307,103 @@ export default function IdeasInlinePostComposer({
           <div className="flex flex-wrap items-center gap-2">
             <Badge className="rounded-full">{currentMode.label}</Badge>
             {mode === "blog" && <Badge variant="outline" className="rounded-full">Article</Badge>}
-            {mode === "question" && <Badge variant="outline" className="rounded-full">Community Discussion</Badge>}
-            {mode === "suggestion" && <Badge variant="outline" className="rounded-full">Suggestion</Badge>}
+            {mode === "question" && <Badge variant="outline" className="rounded-full">Question</Badge>}
+            {mode === "event" && <Badge variant="outline" className="rounded-full">Community Event</Badge>}
+            {mode === "suggestion" && <Badge variant="outline" className="rounded-full">Community Idea</Badge>}
           </div>
 
-          {mode !== "post" && <Input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            maxLength={180}
-            placeholder={
-              mode === "question"
-                ? "Ask a clear question..."
-                : mode === "suggestion"
-                  ? "Write your suggestion..."
-                : "Blog title..."
-            }
-          />}
-
           {mode !== "post" && (
-            <div className="grid min-w-[720px] grid-cols-3 gap-3 overflow-x-auto pb-1">
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Subject</label>
-                <select className="h-11 w-full rounded-xl border bg-background px-3 text-sm" value={subject} onChange={(e) => setSubject(e.target.value)}>
-                  <option value="">Select Subject</option>
-                  <option value="Tech">Tech</option><option value="SEO">SEO</option><option value="AI">AI</option><option value="Marketing">Marketing</option><option value="Business">Business</option><option value="Career">Career</option><option value="Education">Education</option><option value="Other">Other</option>
-                </select>
-              </div>
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Tags</label>
-                <Input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); const v=tagInput.trim().replace(/^#/,""); if(v && !tags.includes(v) && tags.length<10) setTags([...tags,v]); setTagInput(""); } }} placeholder="#SEO, #AI, #Google" />
-                {tags.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5">{tags.map(tag => <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => setTags(tags.filter(t => t !== tag))}>#{tag} ×</Badge>)}</div>}
-              </div>
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Location</label>
-                <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City, State, Country" />
-              </div>
+            <div className="space-y-3">
+              {mode === "blog" && (
+                <>
+                  <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    maxLength={180}
+                    placeholder="Blog title..."
+                  />
+                  <div className="grid min-w-[720px] grid-cols-3 gap-3 overflow-x-auto pb-1">
+                    <div>
+                      <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Subject</label>
+                      <select className="h-11 w-full rounded-xl border bg-background px-3 text-sm" value={subject} onChange={(e) => setSubject(e.target.value)}>
+                        <option value="">Select Subject</option>
+                        <option value="Tech">Tech</option><option value="SEO">SEO</option><option value="AI">AI</option><option value="Marketing">Marketing</option><option value="Business">Business</option><option value="Career">Career</option><option value="Education">Education</option><option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Tags</label>
+                      <Input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); const v=tagInput.trim().replace(/^#/,""); if(v && !tags.includes(v) && tags.length<10) setTags([...tags,v]); setTagInput(""); } }} placeholder="#SEO, #AI, #Google" />
+                      {tags.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5">{tags.map(tag => <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => setTags(tags.filter(t => t !== tag))}>#{tag} ×</Badge>)}</div>}
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Location</label>
+                      <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City, State, Country" />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {mode === "question" && (
+                <div className="rounded-2xl border bg-muted/20 p-4">
+                  <p className="mb-3 text-sm font-bold">Ask the community</p>
+                  <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    maxLength={180}
+                    placeholder="What do you want to know?"
+                    className="h-12 rounded-xl bg-background"
+                  />
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <select className="h-10 min-w-[180px] flex-1 rounded-xl border bg-background px-3 text-sm" value={subject} onChange={(e) => setSubject(e.target.value)}>
+                      <option value="">Topic</option>
+                      <option value="Tech">Tech</option><option value="SEO">SEO</option><option value="AI">AI</option><option value="Marketing">Marketing</option><option value="Business">Business</option><option value="Career">Career</option><option value="Education">Education</option><option value="Other">Other</option>
+                    </select>
+                    <Input className="min-w-[220px] flex-1" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); const v=tagInput.trim().replace(/^#/,""); if(v && !tags.includes(v) && tags.length<10) setTags([...tags,v]); setTagInput(""); } }} placeholder="Add topics: SEO, AI, Google" />
+                  </div>
+                  {tags.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5">{tags.map(tag => <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => setTags(tags.filter(t => t !== tag))}>#{tag} ×</Badge>)}</div>}
+                </div>
+              )}
+
+              {mode === "event" && (
+                <div className="rounded-2xl border bg-muted/20 p-4">
+                  <p className="mb-3 text-sm font-bold">Create your event</p>
+                  <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    maxLength={180}
+                    placeholder="Event name..."
+                    className="h-12 rounded-xl bg-background"
+                  />
+                  <p className="mt-2 text-xs text-muted-foreground">Add the event description, then set the date, time and venue below.</p>
+                </div>
+              )}
+
+              {mode === "suggestion" && (
+                <div className="rounded-2xl border bg-muted/20 p-4">
+                  <p className="mb-3 text-sm font-bold">Share an idea</p>
+                  <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    maxLength={180}
+                    placeholder="Suggestion title..."
+                    className="h-12 rounded-xl bg-background"
+                  />
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <select className="h-10 min-w-[180px] flex-1 rounded-xl border bg-background px-3 text-sm" value={subject} onChange={(e) => setSubject(e.target.value)}>
+                      <option value="">Category</option>
+                      <option value="Tech">Tech</option><option value="SEO">SEO</option><option value="AI">AI</option><option value="Marketing">Marketing</option><option value="Business">Business</option><option value="Career">Career</option><option value="Education">Education</option><option value="Other">Other</option>
+                    </select>
+                    <Input className="min-w-[220px] flex-1" value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); const v=tagInput.trim().replace(/^#/,""); if(v && !tags.includes(v) && tags.length<10) setTags([...tags,v]); setTagInput(""); } }} placeholder="Add tags: community, feature..." />
+                  </div>
+                  {tags.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5">{tags.map(tag => <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => setTags(tags.filter(t => t !== tag))}>#{tag} ×</Badge>)}</div>}
+                </div>
+              )}
             </div>
           )}
 
-
   
           <div className="overflow-hidden rounded-2xl border bg-background">
+            {(mode === "blog" || mode === "event") && (
             <div className="flex flex-wrap items-center gap-1 overflow-x-auto border-b bg-muted/40 p-2">
               <Button type="button" size="sm" variant="ghost" onClick={() => format("formatBlock", "h2")} title="Heading">
                 <Heading2 className="size-4" />
@@ -371,6 +427,7 @@ export default function IdeasInlinePostComposer({
                 <Unlink className="size-4" />
               </Button>
             </div>
+            )}
             <div
               ref={editorRef}
               onInput={(e) => {
@@ -392,15 +449,29 @@ export default function IdeasInlinePostComposer({
               suppressContentEditableWarning
               data-placeholder={
                 mode === "question"
-                  ? "Explain your question and what you want the community to discuss..."
+                  ? "Add context, details and what you want the community to answer..."
                   : mode === "blog"
                     ? "Write your blog with headings, paragraphs, lists and links..."
-                    : "Share something with your network..."
+                    : mode === "event"
+                      ? "Tell people what this event is about..."
+                      : mode === "suggestion"
+                        ? "Explain your idea, why it helps and how the community could improve..."
+                        : "Share an update, idea or image with your network..."
               }
               className="min-h-48 p-4 text-sm leading-7 outline-none [&:empty]:before:pointer-events-none [&:empty]:before:text-muted-foreground [&:empty]:before:content-[attr(data-placeholder)] [&_h2]:my-3 [&_h2]:text-2xl [&_h2]:font-bold [&_a]:text-primary [&_a]:underline [&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:pl-6"
             />
             <div className="flex items-center justify-between border-t px-4 py-2 text-[11px] text-muted-foreground">
-              <span>{mode === "post" ? "Caption only · image optional · no title" : mode === "blog" ? "Article limit · 300 words" : "Content"}</span>
+              <span>
+                {mode === "post"
+                  ? "LinkedIn-style post · caption + optional image"
+                  : mode === "blog"
+                    ? "Article limit · 300 words"
+                    : mode === "question"
+                      ? "Quora-style question · add context for better answers"
+                      : mode === "event"
+                        ? "Event description"
+                        : "Community suggestion"}
+              </span>
               <span>
                 {mode === "post"
                   ? `${contentText.length}/3000 characters`
@@ -470,12 +541,14 @@ export default function IdeasInlinePostComposer({
         <div className="mt-5 flex flex-col-reverse gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted-foreground">
             {mode === "question"
-              ? "Ask clearly, add context and invite useful answers."
+              ? "Ask a clear question and give enough context for useful community answers."
               : mode === "blog"
                 ? "Use headings, lists and links for a blog-style article."
                 : mode === "post"
-                  ? "Post an image and caption. Maximum 3,000 characters."
-                  : "Share an update, idea or visual with your network."}
+                  ? "Share a professional update, caption or image with your network."
+                  : mode === "event"
+                    ? "Create a community event with a clear schedule and venue."
+                    : "Turn a useful idea into a clear community suggestion."}
           </p>
           <div className="flex flex-wrap gap-2 overflow-x-auto">
           {mode === "blog" && <Button type="button" variant="outline" onClick={saveBlogDraft} disabled={busy}><FileText className="mr-2 size-4"/>Save Draft</Button>}
@@ -485,7 +558,17 @@ export default function IdeasInlinePostComposer({
             className="rounded-xl bg-gradient-to-r from-violet-600 to-blue-600"
           >
             {busy ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Send className="mr-2 size-4" />}
-            {busy ? "Publishing…" : mode === "question" ? "Ask Discussion" : mode === "blog" ? "Publish Blog" : mode === "event" ? "Publish Event" : "Publish Post"}
+            {busy
+              ? "Publishing…"
+              : mode === "question"
+                ? "Post Question"
+                : mode === "blog"
+                  ? "Publish Blog"
+                  : mode === "event"
+                    ? "Create Event"
+                    : mode === "suggestion"
+                      ? "Share Suggestion"
+                      : "Publish Post"}
           </Button>
           </div>
         </div>
