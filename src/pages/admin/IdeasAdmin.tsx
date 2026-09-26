@@ -374,7 +374,7 @@ export default function IdeasAdmin() {
                           {busy === r.id ? <Loader2 className="mr-2 size-4 animate-spin" /> : <XCircle className="mr-2 size-4" />}
                           Delete {String(r.post_type || "").toLowerCase() === "blog" ? "Blog" : "Post"}
                         </Button>
-                        {!r.moderation_checked_at && <span className="self-center text-xs font-semibold text-amber-600">Detector check required before approval</span>
+                        {!r.moderation_checked_at && <span className="self-center text-xs font-semibold text-amber-600">Detector check required before approval</span>}
                       </div>
                     </div>
                   )}
