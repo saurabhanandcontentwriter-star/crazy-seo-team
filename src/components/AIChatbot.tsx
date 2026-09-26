@@ -44,6 +44,7 @@ const WELCOME: Msg = {
 const AIChatbot = () => {
   const [open, setOpen] = useState(false);
   const [voiceMode, setVoiceMode] = useState(false);
+  const voiceModeRef = useRef(false);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [recording, setRecording] = useState(false);
@@ -191,7 +192,7 @@ const AIChatbot = () => {
       audio.onended = () => {
         setTtsBusy(null);
         URL.revokeObjectURL(url);
-        if (voiceMode && !busy) setTimeout(() => startRecording(), 400);
+        if (voiceModeRef.current) setTimeout(() => startRecording(), 500);
       };
       audio.play();
     } catch {
@@ -227,6 +228,11 @@ const AIChatbot = () => {
       };
       mr.start();
       setRecording(true);
+      if (voiceModeRef.current) {
+        window.setTimeout(() => {
+          if (voiceModeRef.current && mediaRef.current === mr && mr.state === "recording") mr.stop();
+        }, 7000);
+      }
     } catch {
       toast.error("Microphone access denied");
     }
@@ -234,12 +240,14 @@ const AIChatbot = () => {
 
   const startVoiceCall = async () => {
     setOpen(true);
+    voiceModeRef.current = true;
     setVoiceMode(true);
     setAudioOn(true);
     await startRecording();
   };
 
   const endVoiceCall = () => {
+    voiceModeRef.current = false;
     setVoiceMode(false);
     setAudioOn(false);
     stopRecording();
