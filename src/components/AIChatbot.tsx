@@ -188,7 +188,7 @@ const AIChatbot = () => {
       const resp = await fetch(TTS_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: AUTH },
-        body: JSON.stringify({ text: text.replace(/[*_#`>[\]()]/g, "").replace(/\s+/g, " ").trim().slice(0, 1400), voice: "shimmer", speed: 1.05 }),
+        body: JSON.stringify({ text: text.replace(/[*_#`>[\]()]/g, "").replace(/\s+/g, " ").trim().slice(0, 1400), voice: "shimmer", speed: 1.08 }),
       });
       if (!resp.ok) throw new Error("TTS failed");
       const blob = await resp.blob();
