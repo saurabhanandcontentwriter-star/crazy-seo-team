@@ -160,7 +160,25 @@ export default function IdeasAdmin() {
     return matchesStatus && matchesQuery;
   }), [rows, filter, query]);
 
-  const review = async (row: Idea, status: "approved" | "rejected") => {
+  const deletePost = async (row: Idea) => {
+    const kind = String(row.post_type || "").toLowerCase() === "blog" ? "blog" : "post";
+    if (!window.confirm(`Delete this ${kind}? This action cannot be undone.`)) return;
+
+    setBusy(row.id);
+    const { data, error } = await supabase.functions.invoke("crm-ideas-users", {
+      body: { action: "delete_post", post_id: row.id },
+    });
+
+    if (error || data?.error) {
+      toast.error(data?.error || error?.message || "Delete failed.");
+    } else {
+      toast.success(`${kind === "blog" ? "Blog" : "Post"} deleted successfully.`);
+      setRows((current) => current.filter((item) => item.id !== row.id));
+    }
+    setBusy(null);
+  };
+
+  const review = async (row: Idea, status: "approved" | "rejected") =>
     if (status === "approved" && !row.moderation_checked_at) {
       toast.error("Run/complete the content detector check before approval.");
       return;
@@ -328,6 +346,15 @@ export default function IdeasAdmin() {
                     </div>
                   )}
 
+                  {r.status !== "pending" && (
+                    <div className="mt-5 flex justify-end border-t pt-5">
+                      <Button variant="outline" onClick={() => deletePost(r)} disabled={busy === r.id} className="border-destructive/40 text-destructive hover:bg-destructive/10">
+                        {busy === r.id ? <Loader2 className="mr-2 size-4 animate-spin" /> : <XCircle className="mr-2 size-4" />}
+                        Delete {String(r.post_type || "").toLowerCase() === "blog" ? "Blog" : "Post"}
+                      </Button>
+                    </div>
+                  )}
+
                   {r.status === "pending" && (
                     <div className="mt-7 border-t pt-5">
                       <Textarea
@@ -343,7 +370,11 @@ export default function IdeasAdmin() {
                         <Button variant="destructive" onClick={() => review(r, "rejected")} disabled={busy === r.id}>
                           <X className="mr-2 size-4" />Reject
                         </Button>
-                        {!r.moderation_checked_at && <span className="self-center text-xs font-semibold text-amber-600">Detector check required before approval</span>}
+                        <Button variant="outline" onClick={() => deletePost(r)} disabled={busy === r.id} className="border-destructive/40 text-destructive hover:bg-destructive/10">
+                          {busy === r.id ? <Loader2 className="mr-2 size-4 animate-spin" /> : <XCircle className="mr-2 size-4" />}
+                          Delete {String(r.post_type || "").toLowerCase() === "blog" ? "Blog" : "Post"}
+                        </Button>
+                        {!r.moderation_checked_at && <span className="self-center text-xs font-semibold text-amber-600">Detector check required before approval</span>
                       </div>
                     </div>
                   )}
