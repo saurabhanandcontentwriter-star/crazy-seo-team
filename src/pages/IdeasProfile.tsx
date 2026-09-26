@@ -42,19 +42,28 @@ export default function IdeasProfile(){
  useEffect(()=>{const syncDraft=()=>setDraftCount(Number(localStorage.getItem("ideas-draft-count")||0));syncDraft();window.addEventListener("anvya-draft-changed",syncDraft);return()=>window.removeEventListener("anvya-draft-changed",syncDraft)},[]);
  useEffect(()=>{
   const widgetStyleId="anvya-omnidimension-no-logo";
+  const omniHideCss="[id*=\"omnidimension\"] img,[class*=\"omnidimension\"] img,[id*=\"omnidim\"] img,[class*=\"omnidim\"] img{display:none!important;width:0!important;height:0!important;margin:0!important;padding:0!important;}";
+  const styleId=widgetStyleId;
   const hideOmniLogo=()=>{
-   const roots:any[]=[document];
-   const collect=(root:any)=>{
-    root.querySelectorAll("*").forEach((el:any)=>{if(el.shadowRoot&&!roots.includes(el.shadowRoot)){roots.push(el.shadowRoot);collect(el.shadowRoot)}});
+   const addStyle=(root:Document|ShadowRoot)=>{
+    try{
+     if(root.getElementById?.(styleId)||root.querySelector?.("#"+styleId))return;
+     const owner=root instanceof ShadowRoot?root.ownerDocument:root;
+     if(!owner)return;
+     const style=owner.createElement("style");
+     style.id=styleId;
+     style.textContent=omniHideCss;
+     if(root instanceof Document) root.head?.appendChild(style);
+     else root.appendChild(style);
+    }catch(err){console.debug("ANVYA widget style injection skipped",err)}
    };
-   collect(document);
-   roots.forEach((root:any)=>{
-    if(root.getElementById?.(widgetStyleId)||root.querySelector?.("#"+widgetStyleId))return;
-    const style=document.createElement("style");
-    style.id=widgetStyleId;
-    style.textContent="[id*=\"omnidimension\"] img,[class*=\"omnidimension\"] img,[id*=\"omnidim\"] img,[class*=\"omnidim\"] img{display:none!important;width:0!important;height:0!important;margin:0!important;padding:0!important;}";
-    root.appendChild(style);
-   });
+   addStyle(document);
+   const visit=(root:Document|ShadowRoot)=>{
+    root.querySelectorAll("*").forEach((el:any)=>{
+     if(el.shadowRoot) { addStyle(el.shadowRoot); visit(el.shadowRoot); }
+    });
+   };
+   visit(document);
   };
   const existing=document.getElementById("omnidimension-web-widget");
   if(!existing){const script=document.createElement("script");script.id="omnidimension-web-widget";script.async=true;script.src="https://omnidim.io/web_widget.js?secret_key=8995be432b1a7ccacbb2a148e040417a";document.body.appendChild(script);}
