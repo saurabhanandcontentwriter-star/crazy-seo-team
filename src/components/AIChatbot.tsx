@@ -139,7 +139,7 @@ const AIChatbot = () => {
       const resp = await fetch(CHAT_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: AUTH },
-        body: JSON.stringify({ messages: [{ role: "system", content: AGENT_CONTEXT }, ...next.map(({ role, content }) => ({ role, content }))] }),
+        body: JSON.stringify({ messages: [{ role: "system", content: AGENT_CONTEXT }, ...next.slice(-10).map(({ role, content }) => ({ role, content }))] }),
       });
       if (resp.status === 429) { toast.error("Rate limit — try again shortly."); setBusy(false); return; }
       if (resp.status === 402) { toast.error("AI credits exhausted."); setBusy(false); return; }
@@ -187,7 +187,7 @@ const AIChatbot = () => {
       const resp = await fetch(TTS_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: AUTH },
-        body: JSON.stringify({ text: text.replace(/[*_#`>[\]()]/g, "").replace(/\s+/g, " ").trim().slice(0, 2000), voice: "shimmer", speed: 0.95 }),
+        body: JSON.stringify({ text: text.replace(/[*_#`>[\]()]/g, "").replace(/\s+/g, " ").trim().slice(0, 1400), voice: "shimmer", speed: 1.0 }),
       });
       if (!resp.ok) throw new Error("TTS failed");
       const blob = await resp.blob();
