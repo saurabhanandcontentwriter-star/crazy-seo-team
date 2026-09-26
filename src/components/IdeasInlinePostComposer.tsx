@@ -39,6 +39,8 @@ const modes: Array<{
   { value: "suggestion", label: "Suggestion", description: "Share a suggestion or improvement for the community.", icon: Lightbulb },
 ];
 
+const countWords = (text: string) => text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0;
+const stripToMaxChars = (text: string, max: number) => text.slice(0, max);
 const sanitizeRichHtml = (html: string) => {
   const doc = new DOMParser().parseFromString(html, "text/html");
   doc.querySelectorAll("script,style,iframe,object,embed,form").forEach((el) => el.remove());
@@ -152,13 +154,32 @@ export default function IdeasInlinePostComposer({
     const richContent = sanitizeRichHtml(rawHtml);
     const plainContent = editorRef.current?.innerText?.trim() || "";
 
-    if (!title.trim() || !plainContent) {
-      toast.error(mode === "question" ? "Add a question title and details." : mode === "suggestion" ? "Add a suggestion title and details." : "Add a title and content.");
-      return;
-    }
-    if (title.trim().length > 180 || plainContent.length > 10000) {
-      toast.error("Title/content is too long.");
-      return;
+    if (mode === "post") {
+      if (!plainContent) {
+        toast.error("Write a caption for your post.");
+        return;
+      }
+      if (plainContent.length > 3000) {
+        toast.error("Post caption is limited to 3,000 characters.");
+        return;
+      }
+    } else {
+      if (!title.trim() || !plainContent) {
+        toast.error(mode === "question" ? "Add a question title and details." : mode === "suggestion" ? "Add a suggestion title and details." : "Add a title and content.");
+        return;
+      }
+      if (title.trim().length > 180) {
+        toast.error("Title is limited to 180 characters.");
+        return;
+      }
+      if (mode === "blog" && countWords(plainContent) > 300) {
+        toast.error("Blog articles are limited to 300 words.");
+        return;
+      }
+      if (mode !== "blog" && plainContent.length > 10000) {
+        toast.error("Content is too long.");
+        return;
+      }
     }
 
     if (mode === "event" && !eventStart) { toast.error("Choose an event start time."); return; }
@@ -189,7 +210,7 @@ export default function IdeasInlinePostComposer({
         show_mobile: false,
         subject: subjectValue,
         tags: normalizedTags,
-        title: title.trim(),
+        title: mode === "post" ? (plainContent.slice(0, 80).trim() || "ANVYA Post") : title.trim(),
         content: richContent,
         image_url: imageUrl,
         device_type: /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Laptop/Desktop",
@@ -288,7 +309,7 @@ export default function IdeasInlinePostComposer({
             {mode === "suggestion" && <Badge variant="outline" className="rounded-full">Suggestion</Badge>}
           </div>
 
-          <Input
+          {mode !== "post" && <Input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={180}
@@ -297,32 +318,33 @@ export default function IdeasInlinePostComposer({
                 ? "Ask a clear question..."
                 : mode === "suggestion"
                   ? "Write your suggestion..."
-                : mode === "blog"
-                  ? "Blog title..."
-                  : "Post title..."
+                : "Blog title..."
             }
-          />
+          />}
 
-          <div className="grid min-w-[720px] grid-cols-3 gap-3 overflow-x-auto pb-1">
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Subject</label>
-              <select className="h-11 w-full rounded-xl border bg-background px-3 text-sm" value={subject} onChange={(e) => setSubject(e.target.value)}>
-                <option value="">Select Subject</option>
-                <option value="Tech">Tech</option><option value="SEO">SEO</option><option value="AI">AI</option><option value="Marketing">Marketing</option><option value="Business">Business</option><option value="Career">Career</option><option value="Education">Education</option><option value="Other">Other</option>
-              </select>
+          {mode !== "post" && (
+            <div className="grid min-w-[720px] grid-cols-3 gap-3 overflow-x-auto pb-1">
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Subject</label>
+                <select className="h-11 w-full rounded-xl border bg-background px-3 text-sm" value={subject} onChange={(e) => setSubject(e.target.value)}>
+                  <option value="">Select Subject</option>
+                  <option value="Tech">Tech</option><option value="SEO">SEO</option><option value="AI">AI</option><option value="Marketing">Marketing</option><option value="Business">Business</option><option value="Career">Career</option><option value="Education">Education</option><option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Tags</label>
+                <Input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); const v=tagInput.trim().replace(/^#/,""); if(v && !tags.includes(v) && tags.length<10) setTags([...tags,v]); setTagInput(""); } }} placeholder="#SEO, #AI, #Google" />
+                {tags.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5">{tags.map(tag => <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => setTags(tags.filter(t => t !== tag))}>#{tag} ×</Badge>)}</div>}
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Location</label>
+                <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City, State, Country" />
+              </div>
             </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Tags</label>
-              <Input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); const v=tagInput.trim().replace(/^#/,""); if(v && !tags.includes(v) && tags.length<10) setTags([...tags,v]); setTagInput(""); } }} placeholder="#SEO, #AI, #Google" />
-              {tags.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5">{tags.map(tag => <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => setTags(tags.filter(t => t !== tag))}>#{tag} ×</Badge>)}</div>}
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs font-semibold text-muted-foreground">Location</label>
-              <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City, State, Country" />
-            </div>
-          </div>
-
-          <div className="overflow-hidden rounded-2xl border bg-background">
+  
+            <div className="overflow-hidden rounded-2xl border bg-background"
+          )}
+>
             <div className="flex flex-wrap items-center gap-1 overflow-x-auto border-b bg-muted/40 p-2">
               <Button type="button" size="sm" variant="ghost" onClick={() => format("formatBlock", "h2")} title="Heading">
                 <Heading2 className="size-4" />
@@ -348,6 +370,19 @@ export default function IdeasInlinePostComposer({
             </div>
             <div
               ref={editorRef}
+              onInput={(e) => {
+                const el = e.currentTarget;
+                const text = el.innerText || "";
+                if (mode === "post" && text.length > 3000) {
+                  el.innerText = stripToMaxChars(text, 3000);
+                  const range = document.createRange();
+                  range.selectNodeContents(el);
+                  range.collapse(false);
+                  const selection = window.getSelection();
+                  selection?.removeAllRanges();
+                  selection?.addRange(range);
+                }
+              }}
               contentEditable
               suppressContentEditableWarning
               data-placeholder={
@@ -359,6 +394,16 @@ export default function IdeasInlinePostComposer({
               }
               className="min-h-48 p-4 text-sm leading-7 outline-none [&:empty]:before:pointer-events-none [&:empty]:before:text-muted-foreground [&:empty]:before:content-[attr(data-placeholder)] [&_h2]:my-3 [&_h2]:text-2xl [&_h2]:font-bold [&_a]:text-primary [&_a]:underline [&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:pl-6"
             />
+            <div className="flex items-center justify-between border-t px-4 py-2 text-[11px] text-muted-foreground">
+              <span>{mode === "post" ? "Caption only · image optional · no title" : mode === "blog" ? "Article limit · 300 words" : "Content"}</span>
+              <span>
+                {mode === "post"
+                  ? `${plainContent.length}/3000 characters`
+                  : mode === "blog"
+                    ? `${countWords(plainContent)} / 300 words`
+                    : `${plainContent.length} characters`}
+              </span>
+            </div>
           </div>
 
 
@@ -423,7 +468,9 @@ export default function IdeasInlinePostComposer({
               ? "Ask clearly, add context and invite useful answers."
               : mode === "blog"
                 ? "Use headings, lists and links for a blog-style article."
-                : "Share an update, idea or visual with your network."}
+                : mode === "post"
+                  ? "Post an image and caption. Maximum 3,000 characters."
+                  : "Share an update, idea or visual with your network."}
           </p>
           <div className="flex flex-wrap gap-2 overflow-x-auto">
           {mode === "blog" && <Button type="button" variant="outline" onClick={saveBlogDraft} disabled={busy}><FileText className="mr-2 size-4"/>Save Draft</Button>}
