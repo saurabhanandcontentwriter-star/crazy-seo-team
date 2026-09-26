@@ -343,6 +343,9 @@ export default function IdeasInlinePostComposer({
                 <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City, State, Country" />
               </div>
             </div>
+          )}
+
+
   
             <div className="overflow-hidden rounded-2xl border bg-background"
           )}
