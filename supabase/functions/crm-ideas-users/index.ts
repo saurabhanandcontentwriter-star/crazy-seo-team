@@ -135,6 +135,27 @@ Deno.serve(async (req) => {
           last_post_at: ps.sort((a: any, b: any) => +new Date(b.created_at) - +new Date(a.created_at))[0]?.created_at ?? null,
         };
       });
+      // Fetch the full portal activity dataset so CRM stays in sync with everything
+      // captured by the ANVYA/Ideas portal. Each collection is isolated so one optional
+      // table/schema mismatch does not break the main CRM response.
+      const portalTableNames = [
+        "idea_account_registry","idea_presence","idea_communities","idea_community_members",
+        "idea_event_rsvps","idea_follows","idea_friendships","idea_messages","idea_post_achievements",
+        "idea_post_comments","idea_post_reactions","idea_post_reshares","idea_stories",
+        "idea_story_highlight_items","idea_story_highlights","idea_story_views","idea_verification_requests",
+        "creator_applications","page_views","tool_usage","help_center_conversations","help_center_messages",
+      ];
+      const portalResults = await Promise.all(
+        portalTableNames.map(async (tableName) => {
+          const result = await admin.from(tableName).select("*").order("created_at", { ascending: false }).limit(5000);
+          return [tableName, result.error ? [] : (result.data ?? [])] as const;
+        }),
+      );
+      const portal_data = Object.fromEntries(portalResults);
+      const portal_counts = Object.fromEntries(
+        portalTableNames.map((tableName) => [tableName, portal_data[tableName]?.length ?? 0]),
+      );
+
       const postsOut = (postRows ?? []).map((post: any) => {
         const u = byUser.get(post.user_id);
         const p = (profiles ?? []).find((profile: any) => profile.user_id === post.user_id);
@@ -148,7 +169,7 @@ Deno.serve(async (req) => {
           public_id: p?.public_id ?? post.profile_id ?? null,
         };
       });
-      return ok({ users: out, posts: postsOut, total: out.length, totalPosts: postsOut.length });
+      return ok({ users: out, posts: postsOut, total: out.length, totalPosts: postsOut.length, portal_data, portal_counts });
     }
 
     if (body.action === "moderate_post") {
