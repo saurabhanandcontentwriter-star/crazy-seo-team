@@ -51,6 +51,7 @@ const AIChatbot = () => {
   const [voiceMode, setVoiceMode] = useState(false);
   const voiceModeRef = useRef(false);
   const recordingRef = useRef(false);
+  const [callSeconds, setCallSeconds] = useState(0);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [recording, setRecording] = useState(false);
@@ -81,6 +82,21 @@ const AIChatbot = () => {
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 200);
   }, [open]);
+
+  useEffect(() => {
+    if (!voiceMode) {
+      setCallSeconds(0);
+      return;
+    }
+    const timer = window.setInterval(() => setCallSeconds((s) => s + 1), 1000);
+    return () => window.clearInterval(timer);
+  }, [voiceMode]);
+
+  const formatCallTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
 
   // External "talk to AI assistant" trigger (welcome popup, CTAs)
   useEffect(() => {
@@ -358,9 +374,53 @@ const AIChatbot = () => {
             </button>
           </header>
 
-          {/* OmniDimension voice/chat assistant is mounted only inside the Crazy SEO AI Assistant. */}
+          {/* OmniDimension remains mounted inside the assistant; the native call UI below gives the user a clear phone-call experience. */}
           <div id="anvya-chat-omnidimension-host" className="absolute left-0 top-0 h-0 w-0 overflow-hidden" aria-hidden="true" />
 
+          {voiceMode ? (
+            <div className="relative flex-1 flex flex-col items-center justify-between overflow-hidden bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 text-white">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(99,102,241,0.45),transparent_34%),radial-gradient(circle_at_20%_80%,rgba(14,165,233,0.2),transparent_30%)]" />
+              <div className="relative z-10 w-full px-6 pt-10 text-center">
+                <div className="mx-auto mb-5 relative h-28 w-28">
+                  <div className={`absolute inset-0 rounded-full bg-indigo-500/30 blur-xl ${recording || ttsBusy !== null ? "animate-pulse" : ""}`} />
+                  <div className="relative h-28 w-28 rounded-full border-4 border-white/20 bg-slate-900 shadow-2xl overflow-hidden flex items-center justify-center">
+                    <img src={avatarImg} alt="Sneha" className="h-full w-full object-cover" />
+                  </div>
+                  <span className="absolute right-1 bottom-2 h-4 w-4 rounded-full bg-emerald-400 border-2 border-slate-950" />
+                </div>
+                <h2 className="text-2xl font-bold">Sneha</h2>
+                <p className="mt-1 text-sm text-indigo-200">ANVYA & Crazy SEO Team</p>
+                <p className="mt-4 text-xs uppercase tracking-[0.2em] text-emerald-300">
+                  {ttsBusy !== null ? "Sneha is speaking…" : recording ? "Listening to you…" : busy ? "Thinking…" : "Connected"}
+                </p>
+                <p className="mt-2 font-mono text-sm text-white/60">{formatCallTime(callSeconds)}</p>
+              </div>
+
+              <div className="relative z-10 w-full px-6 pb-8">
+                <div className="mx-auto mb-8 max-w-sm rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-center backdrop-blur-xl">
+                  <p className="text-sm text-white/85">
+                    {recording
+                      ? "Aap boliye, main sun rahi hoon…"
+                      : ttsBusy !== null
+                        ? "Sneha aapko reply kar rahi hai…"
+                        : "Call connected. Aap Hindi ya Hinglish mein baat kar sakte hain."}
+                  </p>
+                </div>
+                <div className="flex items-center justify-center gap-5">
+                  <button
+                    onClick={endVoiceCall}
+                    className="h-16 w-16 rounded-full bg-red-500 text-white shadow-xl shadow-red-950/40 hover:bg-red-600 transition flex items-center justify-center"
+                    aria-label="End call"
+                    title="End call"
+                  >
+                    <VolumeX size={24} />
+                  </button>
+                </div>
+                <p className="mt-3 text-center text-[11px] text-white/45">Tap the red button to end the call</p>
+              </div>
+            </div>
+          ) : (
+          <>
           {/* Messages */}
           <div ref={scrollRef} className="relative flex-1 overflow-y-auto p-4 space-y-4">
             {showWelcome && (
@@ -414,9 +474,11 @@ const AIChatbot = () => {
               </div>
             )}
           </div>
+          </>
+          )}
 
           {/* Quick actions */}
-          {showWelcome && (
+          {!voiceMode && showWelcome && (
             <div className="relative px-4 pb-2 grid grid-cols-2 gap-2 max-h-[45%] overflow-y-auto">
               {QUICK_ACTIONS.map(({ icon: Icon, label, prompt }) => (
                 <button
@@ -431,7 +493,9 @@ const AIChatbot = () => {
             </div>
           )}
 
-          {/* Composer */}
+          {!voiceMode && (
+          /* Composer */
+          )}
           <div className="relative p-3 border-t border-slate-200 bg-white/70 backdrop-blur-xl">
             <div className="flex items-end gap-2 rounded-2xl bg-white border border-slate-200 focus-within:border-cyan-400/50 focus-within:ring-2 focus-within:ring-cyan-400/20 transition p-1.5">
               <Textarea
