@@ -494,8 +494,6 @@ const AIChatbot = () => {
           )}
 
           {!voiceMode && (
-          /* Composer */
-          )}
           <div className="relative p-3 border-t border-slate-200 bg-white/70 backdrop-blur-xl">
             <div className="flex items-end gap-2 rounded-2xl bg-white border border-slate-200 focus-within:border-cyan-400/50 focus-within:ring-2 focus-within:ring-cyan-400/20 transition p-1.5">
               <Textarea
@@ -529,6 +527,7 @@ const AIChatbot = () => {
             </div>
             <p className="text-[10px] text-slate-400 text-center mt-2">Powered by Lovable AI · Enterprise SEO Concierge</p>
           </div>
+          )} 
         </div>
       )}
     </>
