@@ -56,6 +56,7 @@ const AIChatbot = () => {
   const [busy, setBusy] = useState(false);
   const [recording, setRecording] = useState(false);
   const [ttsBusy, setTtsBusy] = useState<number | null>(null);
+  const [voiceLevel, setVoiceLevel] = useState(0);
   const [audioOn, setAudioOn] = useState(false);
   const [messages, setMessages] = useState<Msg[]>(() => {
     try {
@@ -196,8 +197,9 @@ const AIChatbot = () => {
       audioElRef.current = audio;
       audio.onended = () => {
         setTtsBusy(null);
+        setVoiceLevel(0);
         URL.revokeObjectURL(url);
-        if (voiceModeRef.current) setTimeout(() => startRecording(), 500);
+        if (voiceModeRef.current) setTimeout(() => startRecording(), 250);
       };
       audio.play();
     } catch {
@@ -245,11 +247,12 @@ const AIChatbot = () => {
           const rms = Math.sqrt(sum / data.length);
           const now = performance.now();
 
+          setVoiceLevel(Math.min(1, rms * 18));
           if (rms > 0.018) {
             speechDetected = true;
             lastSpeechAt = now;
             if (silenceTimer) window.clearTimeout(silenceTimer);
-          } else if (speechDetected && now - lastSpeechAt > 1200) {
+          } else if (speechDetected && now - lastSpeechAt > 650) {
             finishRecording();
             return;
           }
@@ -270,7 +273,9 @@ const AIChatbot = () => {
         recordingRef.current = false;
         stream.getTracks().forEach((t) => t.stop());
         const blob = new Blob(chunksRef.current, { type: chunksRef.current[0]?.type || "audio/webm" });
-        if (blob.size < 1000) { toast.error("Recording too short."); return; }
+        setRecording(false);
+        setVoiceLevel(0);
+        if (blob.size < 1000) { return; }
         const fd = new FormData();
         fd.append("file", blob, "voice.webm");
         setBusy(true);
@@ -291,7 +296,7 @@ const AIChatbot = () => {
       if (voiceModeRef.current) {
         maxTimer = window.setTimeout(() => {
           if (voiceModeRef.current && mediaRef.current === mr && mr.state === "recording") finishRecording();
-        }, 5000);
+        }, 8000);
       }
     } catch {
       toast.error("Microphone access denied");
@@ -429,7 +434,27 @@ const AIChatbot = () => {
                 </p>
                 <p className="mt-2 font-mono text-sm text-white/60">{formatCallTime(callSeconds)}</p>
 
-                <div className="mt-7 max-w-sm rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-xl">
+                <div className="mt-6 flex h-16 w-full max-w-sm items-center justify-center gap-1.5" aria-label="Live voice waveform">
+                  <style>{'@keyframes cstVoiceWave { 0%,100% { transform: scaleY(.18); opacity:.35 } 50% { transform: scaleY(1); opacity:1 } }'}</style>
+                  {Array.from({ length: 28 }, (_, i) => {
+                    const active = recording || ttsBusy !== null;
+                    const base = 0.25 + Math.abs(14 - i) * 0.025;
+                    const level = active ? Math.max(0.18, Math.min(1, voiceLevel * 1.4 + base)) : 0.16;
+                    return (
+                      <span
+                        key={i}
+                        className="w-1 rounded-full bg-gradient-to-t from-cyan-400 via-blue-400 to-violet-400 transition-all duration-100"
+                        style={{
+                          height: (8 + level * 42) + "px",
+                          animation: active ? "cstVoiceWave .55s ease-in-out infinite" : undefined,
+                          animationDelay: active ? ((i % 7) * 70) + "ms" : undefined,
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+
+                <div className="mt-1 max-w-sm rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-xl">
                   <p className="text-sm text-white/85">
                     {ttsBusy !== null
                       ? "Sneha aapko audio mein reply kar rahi hai…"
