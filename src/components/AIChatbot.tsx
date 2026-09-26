@@ -34,7 +34,7 @@ ANVYA is a modern ideas, discovery and community knowledge platform where people
 Crazy SEO Team works across SEO, technical SEO, on-page/off-page SEO, keyword research, content optimization, SEO audits, Core Web Vitals, schema, indexation, AI SEO, GEO, AEO, LLM optimization, digital marketing, Google Ads, AI solutions, automation, website/web-app development and voice AI assistants.
 Keep ANVYA and Crazy SEO Team clearly distinguished: ANVYA is the platform; Crazy SEO Team is the digital growth, technology and SEO team.
 If the user asks about ANVYA, explain ANVYA first. If they ask about Crazy SEO Team, explain its relevant services first.
-Use short spoken responses in voice mode so the conversation feels natural. Ask one relevant follow-up question when useful.
+Use short spoken responses in voice mode so the conversation feels natural: usually 1–3 short sentences, with simple punctuation and no long lists. Ask one relevant follow-up question when useful.
 If speech is unclear, politely ask the user to repeat. Do not interrupt the user.
 Continue the conversation until the user says goodbye, asks to end the call, or otherwise clearly indicates they are finished.
 Never invent pricing, guarantees, features, results, or policies. If something is not confirmed, say so and offer to collect the requirement.
@@ -187,7 +187,7 @@ const AIChatbot = () => {
       const resp = await fetch(TTS_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: AUTH },
-        body: JSON.stringify({ text: text.replace(/[*_#`>[\]()]/g, "").slice(0, 2000), voice: "shimmer" }),
+        body: JSON.stringify({ text: text.replace(/[*_#`>[\]()]/g, "").replace(/\s+/g, " ").trim().slice(0, 2000), voice: "shimmer", speed: 0.95 }),
       });
       if (!resp.ok) throw new Error("TTS failed");
       const blob = await resp.blob();
