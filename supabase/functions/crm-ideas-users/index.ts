@@ -205,6 +205,19 @@ Deno.serve(async (req) => {
       return ok({ success: true, post: updatedPost });
     }
 
+    if (body.action === "delete_post") {
+      const postId = String(body.post_id ?? "").trim();
+      if (!postId) return fail("Post ID required.", 400);
+
+      const { error: deletePostError } = await admin
+        .from("idea_posts")
+        .delete()
+        .eq("id", postId);
+
+      if (deletePostError) return fail("Post deletion failed: " + deletePostError.message, 400);
+      return ok({ success: true, deletedPostId: postId });
+    }
+
     if (body.action === "delete_creator_application") {
       const applicationId = String(body.application_id ?? "").trim();
       if (!applicationId) return fail("Creator application ID required.");
