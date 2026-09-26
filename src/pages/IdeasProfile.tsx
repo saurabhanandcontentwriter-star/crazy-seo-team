@@ -38,7 +38,7 @@ export default function IdeasProfile(){
  // Keep profile UI clean: no literal newline escape should ever be rendered as JSX text.
  const {userId}=useParams(); const nav=useNavigate();
  const [me,setMe]=useState<string|null>(null),[p,setP]=useState<Profile|null>(null),[verification,setVerification]=useState<any>(null),[posts,setPosts]=useState<Post[]>([]),[followerCount,setFollowerCount]=useState(0),[followingCount,setFollowingCount]=useState(0),[tab,setTab]=useState("posts"),[reshares,setReshares]=useState<Post[]>([]),[following,setFollowing]=useState(false),[friendStatus,setFriendStatus]=useState<string|null>(null),[edit,setEdit]=useState(false),[saving,setSaving]=useState(false),[loading,setLoading]=useState(true),[form,setForm]=useState<Partial<Profile>>({}),[avatarFile,setAvatarFile]=useState<File|null>(null),[coverFile,setCoverFile]=useState<File|null>(null),[requesters,setRequesters]=useState<Profile[]>([]);
- const [section,setSection]=useState("content"),[darkMode,setDarkMode]=useState(false),[language,setLanguage]=useState("English"),[region,setRegion]=useState("Global"),[draftCount,setDraftCount]=useState(0),[profileOnline,setProfileOnline]=useState(false),[profileLastSeen,setProfileLastSeen]=useState<string|null>(null),[pinnedPostId,setPinnedPostId]=useState<string|null>(null),[showPostComposer,setShowPostComposer]=useState(false),[notificationCount,setNotificationCount]=useState(0);
+ const [section,setSection]=useState("content"),[darkMode,setDarkMode]=useState(false),[language,setLanguage]=useState("English"),[region,setRegion]=useState("Global"),[draftCount,setDraftCount]=useState(0),[profileOnline,setProfileOnline]=useState(false),[profileLastSeen,setProfileLastSeen]=useState<string|null>(null),[pinnedPostId,setPinnedPostId]=useState<string|null>(null),[showPostComposer,setShowPostComposer]=useState(false),[notificationCount,setNotificationCount]=useState(0),[mobileMenuOpen,setMobileMenuOpen]=useState(false);
  useEffect(()=>{const syncDraft=()=>setDraftCount(Number(localStorage.getItem("ideas-draft-count")||0));syncDraft();window.addEventListener("anvya-draft-changed",syncDraft);return()=>window.removeEventListener("anvya-draft-changed",syncDraft)},[]);
  useEffect(()=>{let cancelled=false;let channel:any=null;(async()=>{if(!me)return;const {data:myPosts}=await supabase.from("idea_posts").select("id").eq("user_id",me);const ids=(myPosts||[]).map(x=>x.id);if(!ids.length){if(!cancelled)setNotificationCount(0);return}const [comments,reshares]=await Promise.all([supabase.from("idea_post_comments").select("id").in("post_id",ids).neq("user_id",me),supabase.from("idea_post_reshares").select("post_id,user_id,created_at").in("post_id",ids).neq("user_id",me)]);if(!cancelled)setNotificationCount((comments.data||[]).length+(reshares.data||[]).length);channel=supabase.channel("anvya-notification-count-"+me).on("postgres_changes",{event:"INSERT",schema:"public",table:"idea_post_comments"},payload=>{const row:any=payload.new;if(row?.user_id!==me&&ids.includes(row?.post_id))setNotificationCount(v=>v+1)}).on("postgres_changes",{event:"INSERT",schema:"public",table:"idea_post_reshares"},payload=>{const row:any=payload.new;if(row?.user_id!==me&&ids.includes(row?.post_id))setNotificationCount(v=>v+1)}).subscribe()})();return()=>{cancelled=true;if(channel)supabase.removeChannel(channel)}},[me]);
  const applyTheme=(mode:"light"|"dark"|"system")=>{
@@ -244,22 +244,22 @@ export default function IdeasProfile(){
     </aside>
     <main className="min-w-0 flex-1 px-3 py-4 sm:px-5 md:px-7 md:py-7">
       <div className="mx-auto max-w-[1180px]">
-       <details className="relative mb-3 flex justify-end lg:hidden">
-        <summary className="flex size-11 cursor-pointer list-none items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 shadow-sm [&::-webkit-details-marker]:hidden">
-         <span className="text-2xl leading-none" aria-hidden="true">☰</span>
-         <span className="sr-only">Open ANVYA navigation</span>
-        </summary>
-        <div className="absolute right-0 top-12 z-50 w-[min(92vw,320px)] overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-border dark:bg-background">
+       <div className="relative mb-3 flex justify-end lg:hidden">
+        <button type="button" aria-label={mobileMenuOpen?"Close ANVYA navigation":"Open ANVYA navigation"} aria-expanded={mobileMenuOpen} onClick={()=>setMobileMenuOpen(v=>!v)} className="flex size-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-800 shadow-sm">
+         {mobileMenuOpen?<span className="text-xl leading-none" aria-hidden="true">×</span>:<span className="flex flex-col gap-1" aria-hidden="true"><span className="block h-0.5 w-5 rounded-full bg-slate-700"/><span className="block h-0.5 w-5 rounded-full bg-slate-700"/><span className="block h-0.5 w-5 rounded-full bg-slate-700"/></span>}
+         <span className="sr-only">{mobileMenuOpen?"Close ANVYA navigation":"Open ANVYA navigation"}</span>
+        </button>
+        {mobileMenuOpen&&<div className="absolute right-0 top-12 z-50 w-[min(92vw,320px)] overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-xl dark:border-border dark:bg-background">
          <div className="grid gap-1">
           {[["Home",Home,"/anvya"],["Explore",Compass,"/anvya/explore"],["Notifications",Bell,"/anvya/notifications"],["Messages",MessageCircle,"messages"],["Profile",UserCircle2,"profile"],["Saved",Bookmark,"/anvya/saved"],["Communities",Users,"/anvya/communities"],["Events",Calendar,"/anvya/events"],["Premium",Crown,"/anvya/premium"],["Analytics",BarChart3,"/anvya/analytics"],["Settings",Settings2,"/anvya/settings"],["Help",HelpCircle,"/anvya/help"]].map(([label,Icon,target]:any)=>{
            const active=(target==="profile"&&tab!=="messages")||(target==="messages"&&tab==="messages");
-           return <button key={label} onClick={()=>target==="messages"?(sessionStorage.setItem("ideas_open_messages","1"),nav("/anvya/profile/"+(me||userId||"me"))):target==="profile"?nav("/anvya/profile/"+(me||userId||"me")):nav(target)} className={"flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition "+(active?"bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300":"text-slate-600 hover:bg-slate-50 dark:text-muted-foreground dark:hover:bg-muted")}>
+           return <button key={label} type="button" onClick={()=>{setMobileMenuOpen(false);target==="messages"?(sessionStorage.setItem("ideas_open_messages","1"),nav("/anvya/profile/"+(me||userId||"me"))):target==="profile"?nav("/anvya/profile/"+(me||userId||"me")):nav(target)}} className={"flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold transition "+(active?"bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300":"text-slate-600 hover:bg-slate-50 dark:text-muted-foreground dark:hover:bg-muted")}>
             <Icon className="size-4"/><span>{label}</span>{label==="Notifications"&&notificationCount>0&&<span className="ml-auto flex min-w-5 h-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">{notificationCount>99?"99+":notificationCount}</span>}
            </button>
           )})}
          </div>
-        </div>
-       </details>
+        </div>}
+       </div>
        <Button variant="ghost" onClick={()=>nav("/anvya")}><ArrowLeft className="mr-2 size-4"/>ANVYA</Button>
        <div className="mt-2 grid gap-5 xl:grid-cols-[minmax(0,1fr)_300px]">
       <Card className="overflow-hidden rounded-[30px] border bg-background shadow-xl">
