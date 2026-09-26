@@ -3,7 +3,7 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
-    const { text, voice = "alloy", speed = 1.0 } = await req.json();
+    const { text, voice = "shimmer", speed = 0.95, instructions } = await req.json();
     if (!text || typeof text !== "string") {
       return new Response(JSON.stringify({ error: "text required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
@@ -18,6 +18,7 @@ Deno.serve(async (req) => {
         input: text.slice(0, 4000),
         voice,
         speed,
+        instructions: instructions || "Speak as Sneha, a warm Indian female voice assistant. Use a natural Indian English/Hinglish accent, friendly conversational tone, smooth connected speech, natural pauses, and confident human-like delivery. Do not sound robotic, overly slow, or word-by-word.",
         response_format: "mp3",
       }),
     });
