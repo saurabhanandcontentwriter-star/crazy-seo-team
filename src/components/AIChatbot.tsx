@@ -172,7 +172,7 @@ const AIChatbot = () => {
         }
       }
 
-      if (audioOn && assistant) playTTS(assistant, -1);
+      if ((audioOn || voiceModeRef.current) && assistant) playTTS(assistant, -1);
     } catch (e) {
       toast.error("Chat failed", { description: e instanceof Error ? e.message : "unknown" });
     } finally {
@@ -358,45 +358,68 @@ const AIChatbot = () => {
           </header>
 
           {voiceMode ? (
-            <div className="relative flex-1 flex flex-col items-center justify-between overflow-hidden bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 text-white">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(99,102,241,0.45),transparent_34%),radial-gradient(circle_at_20%_80%,rgba(14,165,233,0.2),transparent_30%)]" />
-              <div className="relative z-10 w-full px-6 pt-10 text-center">
-                <div className="mx-auto mb-5 relative h-28 w-28">
+            <div className="relative flex-1 flex flex-col overflow-hidden bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 text-white">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(99,102,241,0.45),transparent_34%),radial-gradient(circle_at_20%_80%,rgba(14,165,233,0.2),transparent_30%)]" />
+
+              <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 text-center">
+                <div className="relative h-28 w-28 mb-5">
                   <div className={`absolute inset-0 rounded-full bg-indigo-500/30 blur-xl ${recording || ttsBusy !== null ? "animate-pulse" : ""}`} />
-                  <div className="relative h-28 w-28 rounded-full border-4 border-white/20 bg-slate-900 shadow-2xl overflow-hidden flex items-center justify-center">
+                  <div className="relative h-28 w-28 rounded-full border-4 border-white/20 bg-slate-900 shadow-2xl overflow-hidden">
                     <img src={avatarImg} alt="Sneha" className="h-full w-full object-cover" />
                   </div>
                   <span className="absolute right-1 bottom-2 h-4 w-4 rounded-full bg-emerald-400 border-2 border-slate-950" />
                 </div>
+
                 <h2 className="text-2xl font-bold">Sneha</h2>
                 <p className="mt-1 text-sm text-indigo-200">ANVYA & Crazy SEO Team</p>
                 <p className="mt-4 text-xs uppercase tracking-[0.2em] text-emerald-300">
                   {ttsBusy !== null ? "Sneha is speaking…" : recording ? "Listening to you…" : busy ? "Thinking…" : "Connected"}
                 </p>
                 <p className="mt-2 font-mono text-sm text-white/60">{formatCallTime(callSeconds)}</p>
-              </div>
 
-              <div className="relative z-10 w-full px-6 pb-8">
-                <div className="mx-auto mb-8 max-w-sm rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-center backdrop-blur-xl">
+                <div className="mt-7 max-w-sm rounded-2xl border border-white/10 bg-white/10 px-4 py-3 backdrop-blur-xl">
                   <p className="text-sm text-white/85">
-                    {recording
-                      ? "Aap boliye, main sun rahi hoon…"
-                      : ttsBusy !== null
-                        ? "Sneha aapko reply kar rahi hai…"
-                        : "Call connected. Aap Hindi ya Hinglish mein baat kar sakte hain."}
+                    {ttsBusy !== null
+                      ? "Sneha aapko audio mein reply kar rahi hai…"
+                      : "Call connected. Neeche message type karein — Sneha audio mein reply karegi."}
                   </p>
                 </div>
-                <div className="flex items-center justify-center gap-5">
+              </div>
+
+              <div className="relative z-10 p-3 border-t border-white/10 bg-black/20 backdrop-blur-xl">
+                <div className="flex items-end gap-2 rounded-2xl bg-white/10 border border-white/15 p-1.5">
+                  <Textarea
+                    ref={inputRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+                    placeholder="Message Sneha…"
+                    disabled={busy || ttsBusy !== null}
+                    maxLength={1000}
+                    rows={1}
+                    className="flex-1 min-h-[36px] max-h-[90px] resize-none bg-transparent border-0 text-white placeholder:text-white/45 focus-visible:ring-0 text-sm py-1.5"
+                  />
+                  <Button
+                    size="icon"
+                    onClick={() => send()}
+                    disabled={busy || !input.trim()}
+                    className="shrink-0 h-9 w-9 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-40"
+                    aria-label="Send message to Sneha"
+                  >
+                    {busy ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
+                  </Button>
+                </div>
+                <div className="flex items-center justify-center gap-5 mt-3">
                   <button
                     onClick={endVoiceCall}
-                    className="h-16 w-16 rounded-full bg-red-500 text-white shadow-xl shadow-red-950/40 hover:bg-red-600 transition flex items-center justify-center"
+                    className="h-14 w-14 rounded-full bg-red-500 text-white shadow-xl shadow-red-950/40 hover:bg-red-600 transition flex items-center justify-center"
                     aria-label="End call"
                     title="End call"
                   >
-                    <VolumeX size={24} />
+                    <VolumeX size={22} />
                   </button>
                 </div>
-                <p className="mt-3 text-center text-[11px] text-white/45">Tap the red button to end the call</p>
+                <p className="mt-2 text-center text-[10px] text-white/40">WhatsApp-style voice call · Text in, audio reply out</p>
               </div>
             </div>
           ) : (
