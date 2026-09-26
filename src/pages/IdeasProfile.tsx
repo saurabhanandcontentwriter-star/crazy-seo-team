@@ -40,7 +40,29 @@ export default function IdeasProfile(){
  const [me,setMe]=useState<string|null>(null),[p,setP]=useState<Profile|null>(null),[verification,setVerification]=useState<any>(null),[posts,setPosts]=useState<Post[]>([]),[followerCount,setFollowerCount]=useState(0),[followingCount,setFollowingCount]=useState(0),[tab,setTab]=useState("posts"),[reshares,setReshares]=useState<Post[]>([]),[following,setFollowing]=useState(false),[friendStatus,setFriendStatus]=useState<string|null>(null),[edit,setEdit]=useState(false),[saving,setSaving]=useState(false),[loading,setLoading]=useState(true),[form,setForm]=useState<Partial<Profile>>({}),[avatarFile,setAvatarFile]=useState<File|null>(null),[coverFile,setCoverFile]=useState<File|null>(null),[requesters,setRequesters]=useState<Profile[]>([]);
  const [section,setSection]=useState("content"),[darkMode,setDarkMode]=useState(false),[language,setLanguage]=useState("English"),[region,setRegion]=useState("Global"),[draftCount,setDraftCount]=useState(0),[profileOnline,setProfileOnline]=useState(false),[profileLastSeen,setProfileLastSeen]=useState<string|null>(null),[pinnedPostId,setPinnedPostId]=useState<string|null>(null),[showPostComposer,setShowPostComposer]=useState(false),[notificationCount,setNotificationCount]=useState(0);
  useEffect(()=>{const syncDraft=()=>setDraftCount(Number(localStorage.getItem("ideas-draft-count")||0));syncDraft();window.addEventListener("anvya-draft-changed",syncDraft);return()=>window.removeEventListener("anvya-draft-changed",syncDraft)},[]);
- useEffect(()=>{const existing=document.getElementById("omnidimension-web-widget");if(existing)return;const script=document.createElement("script");script.id="omnidimension-web-widget";script.async=true;script.src="https://omnidim.io/web_widget.js?secret_key=8995be432b1a7ccacbb2a148e040417a";document.body.appendChild(script);return()=>{document.getElementById("omnidimension-web-widget")?.remove();document.querySelectorAll('[id^="omnidimension"]').forEach(el=>el.remove())}},[]);
+ useEffect(()=>{
+  const widgetStyleId="anvya-omnidimension-no-logo";
+  const hideOmniLogo=()=>{
+   const roots:any[]=[document];
+   const collect=(root:any)=>{
+    root.querySelectorAll("*").forEach((el:any)=>{if(el.shadowRoot&&!roots.includes(el.shadowRoot)){roots.push(el.shadowRoot);collect(el.shadowRoot)}});
+   };
+   collect(document);
+   roots.forEach((root:any)=>{
+    if(root.getElementById?.(widgetStyleId)||root.querySelector?.("#"+widgetStyleId))return;
+    const style=document.createElement("style");
+    style.id=widgetStyleId;
+    style.textContent="[id*=\"omnidimension\"] img,[class*=\"omnidimension\"] img,[id*=\"omnidim\"] img,[class*=\"omnidim\"] img{display:none!important;width:0!important;height:0!important;margin:0!important;padding:0!important;}";
+    root.appendChild(style);
+   });
+  };
+  const existing=document.getElementById("omnidimension-web-widget");
+  if(!existing){const script=document.createElement("script");script.id="omnidimension-web-widget";script.async=true;script.src="https://omnidim.io/web_widget.js?secret_key=8995be432b1a7ccacbb2a148e040417a";document.body.appendChild(script);}
+  hideOmniLogo();
+  const observer=new MutationObserver(()=>hideOmniLogo());
+  observer.observe(document.documentElement,{subtree:true,childList:true});
+  return()=>{observer.disconnect();document.getElementById("omnidimension-web-widget")?.remove();document.querySelectorAll('[id^="omnidimension"]').forEach(el=>el.remove());document.querySelectorAll("#"+widgetStyleId).forEach(el=>el.remove())};
+ },[]);
  useEffect(()=>{let cancelled=false;let channel:any=null;(async()=>{if(!me)return;const {data:myPosts}=await supabase.from("idea_posts").select("id").eq("user_id",me);const ids=(myPosts||[]).map(x=>x.id);if(!ids.length){if(!cancelled)setNotificationCount(0);return}const [comments,reshares]=await Promise.all([supabase.from("idea_post_comments").select("id").in("post_id",ids).neq("user_id",me),supabase.from("idea_post_reshares").select("post_id,user_id,created_at").in("post_id",ids).neq("user_id",me)]);if(!cancelled)setNotificationCount((comments.data||[]).length+(reshares.data||[]).length);channel=supabase.channel("anvya-notification-count-"+me).on("postgres_changes",{event:"INSERT",schema:"public",table:"idea_post_comments"},payload=>{const row:any=payload.new;if(row?.user_id!==me&&ids.includes(row?.post_id))setNotificationCount(v=>v+1)}).on("postgres_changes",{event:"INSERT",schema:"public",table:"idea_post_reshares"},payload=>{const row:any=payload.new;if(row?.user_id!==me&&ids.includes(row?.post_id))setNotificationCount(v=>v+1)}).subscribe()})();return()=>{cancelled=true;if(channel)supabase.removeChannel(channel)}},[me]);
  const applyTheme=(mode:"light"|"dark"|"system")=>{
   const isDark=mode==="dark"||(mode==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);
