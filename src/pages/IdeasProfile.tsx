@@ -38,8 +38,9 @@ export default function IdeasProfile(){
  // Keep profile UI clean: no literal newline escape should ever be rendered as JSX text.
  const {userId}=useParams(); const nav=useNavigate();
  const [me,setMe]=useState<string|null>(null),[p,setP]=useState<Profile|null>(null),[verification,setVerification]=useState<any>(null),[posts,setPosts]=useState<Post[]>([]),[followerCount,setFollowerCount]=useState(0),[followingCount,setFollowingCount]=useState(0),[tab,setTab]=useState("posts"),[reshares,setReshares]=useState<Post[]>([]),[following,setFollowing]=useState(false),[friendStatus,setFriendStatus]=useState<string|null>(null),[edit,setEdit]=useState(false),[saving,setSaving]=useState(false),[loading,setLoading]=useState(true),[form,setForm]=useState<Partial<Profile>>({}),[avatarFile,setAvatarFile]=useState<File|null>(null),[coverFile,setCoverFile]=useState<File|null>(null),[requesters,setRequesters]=useState<Profile[]>([]);
- const [section,setSection]=useState("content"),[darkMode,setDarkMode]=useState(false),[language,setLanguage]=useState("English"),[region,setRegion]=useState("Global"),[draftCount,setDraftCount]=useState(0),[profileOnline,setProfileOnline]=useState(false),[profileLastSeen,setProfileLastSeen]=useState<string|null>(null),[pinnedPostId,setPinnedPostId]=useState<string|null>(null),[showPostComposer,setShowPostComposer]=useState(false);
+ const [section,setSection]=useState("content"),[darkMode,setDarkMode]=useState(false),[language,setLanguage]=useState("English"),[region,setRegion]=useState("Global"),[draftCount,setDraftCount]=useState(0),[profileOnline,setProfileOnline]=useState(false),[profileLastSeen,setProfileLastSeen]=useState<string|null>(null),[pinnedPostId,setPinnedPostId]=useState<string|null>(null),[showPostComposer,setShowPostComposer]=useState(false),[notificationCount,setNotificationCount]=useState(0);
  useEffect(()=>{const syncDraft=()=>setDraftCount(Number(localStorage.getItem("ideas-draft-count")||0));syncDraft();window.addEventListener("anvya-draft-changed",syncDraft);return()=>window.removeEventListener("anvya-draft-changed",syncDraft)},[]);
+ useEffect(()=>{let cancelled=false;(async()=>{if(!me)return;const {data:myPosts}=await supabase.from("idea_posts").select("id").eq("user_id",me);const ids=(myPosts||[]).map(x=>x.id);if(!ids.length){if(!cancelled)setNotificationCount(0);return}const [comments,reshares]=await Promise.all([supabase.from("idea_post_comments").select("id").in("post_id",ids).neq("user_id",me),supabase.from("idea_post_reshares").select("post_id,user_id,created_at").in("post_id",ids).neq("user_id",me)]);if(!cancelled)setNotificationCount((comments.data||[]).length+(reshares.data||[]).length)})();return()=>{cancelled=true}},[me]);
  const applyTheme=(mode:"light"|"dark"|"system")=>{
   const isDark=mode==="dark"||(mode==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);
   document.documentElement.classList.toggle("dark",isDark);
@@ -219,7 +220,7 @@ export default function IdeasProfile(){
               <Icon className="size-[18px]"/>
             </span>
             <span className="truncate">{label}</span>
-            {label==="Notifications"&&<span className="ml-auto flex size-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm">3</span>}
+            {label==="Notifications"&&notificationCount>0&&<span className="ml-auto flex min-w-5 h-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white shadow-sm">{notificationCount>99?"99+":notificationCount}</span>}
             {label==="Saved"&&<span className="ml-auto hidden text-[10px] font-medium text-muted-foreground sm:block">Posts</span>}
           </button>
         })}
