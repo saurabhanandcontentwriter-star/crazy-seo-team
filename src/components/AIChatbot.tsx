@@ -27,11 +27,16 @@ const QUICK_ACTIONS = [
   { icon: Sparkles, label: "Optimize Google Ads", prompt: "How can I improve ROAS on my Google Ads account? Give me a prioritized action list." },
 ];
 
-const AGENT_CONTEXT = `You are Sneha, the friendly Hindi/Hinglish voice and chat assistant for ANVYA and Crazy SEO Team.
-Speak naturally in Hindi or Hinglish according to the user's language. Do not sound robotic.
+const AGENT_CONTEXT = `You are Sneha, the friendly, natural, two-way voice and chat assistant for ANVYA and Crazy SEO Team.
+Speak naturally in Hindi or Hinglish according to the user's language. Do not sound robotic or read a fixed script.
+For voice mode, behave like a real conversation: listen to the user's complete turn, understand it, answer briefly and naturally, then wait/listen for the next turn. Do not end the conversation after one answer.
 ANVYA is a modern ideas, discovery and community knowledge platform where people can share ideas, publish posts and blogs, ask questions, start discussions, discover different perspectives, explore profiles, communities and events, and use AI-assisted discovery.
 Crazy SEO Team works across SEO, technical SEO, on-page/off-page SEO, keyword research, content optimization, SEO audits, Core Web Vitals, schema, indexation, AI SEO, GEO, AEO, LLM optimization, digital marketing, Google Ads, AI solutions, automation, website/web-app development and voice AI assistants.
 Keep ANVYA and Crazy SEO Team clearly distinguished: ANVYA is the platform; Crazy SEO Team is the digital growth, technology and SEO team.
+If the user asks about ANVYA, explain ANVYA first. If they ask about Crazy SEO Team, explain its relevant services first.
+Use short spoken responses in voice mode so the conversation feels natural. Ask one relevant follow-up question when useful.
+If speech is unclear, politely ask the user to repeat. Do not interrupt the user.
+Continue the conversation until the user says goodbye, asks to end the call, or otherwise clearly indicates they are finished.
 Never invent pricing, guarantees, features, results, or policies. If something is not confirmed, say so and offer to collect the requirement.
 For interested prospects, politely ask for their name, business/company, requirement and preferred contact details only when appropriate. Never ask for passwords, OTPs, card numbers or other sensitive credentials.`;
 
@@ -45,6 +50,7 @@ const AIChatbot = () => {
   const [open, setOpen] = useState(false);
   const [voiceMode, setVoiceMode] = useState(false);
   const voiceModeRef = useRef(false);
+  const recordingRef = useRef(false);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [recording, setRecording] = useState(false);
@@ -202,6 +208,7 @@ const AIChatbot = () => {
   };
 
   const startRecording = async () => {
+    if (!voiceModeRef.current || recordingRef.current || busy) return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mr = new MediaRecorder(stream);
@@ -209,6 +216,7 @@ const AIChatbot = () => {
       chunksRef.current = [];
       mr.ondataavailable = (e) => e.data.size > 0 && chunksRef.current.push(e.data);
       mr.onstop = async () => {
+        recordingRef.current = false;
         stream.getTracks().forEach((t) => t.stop());
         const blob = new Blob(chunksRef.current, { type: chunksRef.current[0]?.type || "audio/webm" });
         if (blob.size < 1000) { toast.error("Recording too short."); return; }
@@ -227,6 +235,7 @@ const AIChatbot = () => {
         }
       };
       mr.start();
+      recordingRef.current = true;
       setRecording(true);
       if (voiceModeRef.current) {
         window.setTimeout(() => {
@@ -254,6 +263,7 @@ const AIChatbot = () => {
   };
 
   const stopRecording = () => {
+    recordingRef.current = false;
     mediaRef.current?.stop();
     setRecording(false);
   };
