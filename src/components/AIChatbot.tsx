@@ -480,22 +480,6 @@ const AIChatbot = () => {
           </>
           )}
 
-          {/* Quick actions */}
-          {!voiceMode && showWelcome && (
-            <div className="relative px-4 pb-2 grid grid-cols-2 gap-2 max-h-[45%] overflow-y-auto">
-              {QUICK_ACTIONS.map(({ icon: Icon, label, prompt }) => (
-                <button
-                  key={label}
-                  onClick={() => send(prompt)}
-                  className="text-left p-2.5 rounded-xl bg-white/70 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 transition group"
-                >
-                  <Icon size={14} className="text-blue-600 mb-1 group-hover:scale-110 transition-transform" />
-                  <p className="text-[11px] font-medium text-slate-800 leading-tight">{label}</p>
-                </button>
-              ))}
-            </div>
-          )}
-
           {!voiceMode && (
           <div className="relative p-3 border-t border-slate-200 bg-white/70 backdrop-blur-xl">
             <div className="flex items-end gap-2 rounded-2xl bg-white border border-slate-200 focus-within:border-cyan-400/50 focus-within:ring-2 focus-within:ring-cyan-400/20 transition p-1.5">
