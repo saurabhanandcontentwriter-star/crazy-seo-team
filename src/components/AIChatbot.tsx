@@ -98,23 +98,6 @@ const AIChatbot = () => {
     return `${m}:${s}`;
   };
 
-  // External "talk to AI assistant" trigger (welcome popup, CTAs)
-  useEffect(() => {
-    if (!open) return;
-    const id = "omnidimension-chat-widget-script";
-    if (document.getElementById(id)) return;
-    const script = document.createElement("script");
-    script.id = id;
-    script.async = true;
-    script.src = "https://omnidim.io/web_widget.js?secret_key=8995be432b1a7ccacbb2a148e040417a";
-    const host = document.getElementById("anvya-chat-omnidimension-host");
-    (host || document.body).appendChild(script);
-    return () => {
-      document.getElementById(id)?.remove();
-      document.querySelectorAll('[id^="omnidimension"]').forEach((el) => el.remove());
-    };
-  }, [open]);
-
   useEffect(() => {
     const on = () => setOpen(true);
     window.addEventListener("cst:open-chat", on);
@@ -307,7 +290,7 @@ const AIChatbot = () => {
           <span className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 blur-xl opacity-70 group-hover:opacity-100 animate-pulse" />
           <span className="relative flex items-center gap-2 pl-2 pr-4 py-2 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-2xl border border-slate-300 backdrop-blur-xl group-hover:scale-105 transition-transform">
             <AIOrb size={36} />
-            <span className="text-sm font-semibold hidden sm:inline">Ask Nova</span>
+            <span className="text-sm font-semibold hidden sm:inline">Ask Sneha</span>
           </span>
         </button>
       )}
@@ -373,9 +356,6 @@ const AIChatbot = () => {
               <X size={18} />
             </button>
           </header>
-
-          {/* OmniDimension remains mounted inside the assistant; the native call UI below gives the user a clear phone-call experience. */}
-          <div id="anvya-chat-omnidimension-host" className="absolute left-0 top-0 h-0 w-0 overflow-hidden" aria-hidden="true" />
 
           {voiceMode ? (
             <div className="relative flex-1 flex flex-col items-center justify-between overflow-hidden bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 text-white">
@@ -539,7 +519,7 @@ const AIOrb = ({ size = 40, thinking = false, speaking = false }: { size?: numbe
     <div className={`absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 blur-md ${speaking ? "opacity-90 animate-pulse" : thinking ? "opacity-80 animate-pulse" : "opacity-60"}`} />
     <div className={`absolute -inset-1 rounded-full border border-cyan-300/40 ${speaking ? "animate-ping" : ""}`} />
     <div className={`relative w-full h-full rounded-full overflow-hidden ring-2 ring-white/25 shadow-inner ${thinking ? "animate-pulse" : ""}`}>
-      <img src={avatarImg} alt="Nova, AI concierge" className="w-full h-full object-cover" draggable={false} />
+      <img src={avatarImg} alt="Sneha, AI voice assistant" className="w-full h-full object-cover" draggable={false} />
       <div className="absolute inset-0 bg-gradient-to-t from-purple-900/30 via-transparent to-cyan-400/10 mix-blend-overlay" />
     </div>
   </div>
