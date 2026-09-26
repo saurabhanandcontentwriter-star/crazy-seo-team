@@ -1,4 +1,11 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /crm
+Disallow: /anvya/login
+Disallow: /anvya/settings
+Disallow: /anvya/analytics
+Disallow: /anvya/notifications
+Disallow: /anvya/saved
 
 Sitemap: https://crazyseoteam.in/sitemap.xml
