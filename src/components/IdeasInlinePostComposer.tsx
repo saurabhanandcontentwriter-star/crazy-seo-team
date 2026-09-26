@@ -347,9 +347,7 @@ export default function IdeasInlinePostComposer({
 
 
   
-            <div className="overflow-hidden rounded-2xl border bg-background"
-          )}
->
+          <div className="overflow-hidden rounded-2xl border bg-background">
             <div className="flex flex-wrap items-center gap-1 overflow-x-auto border-b bg-muted/40 p-2">
               <Button type="button" size="sm" variant="ghost" onClick={() => format("formatBlock", "h2")} title="Heading">
                 <Heading2 className="size-4" />
