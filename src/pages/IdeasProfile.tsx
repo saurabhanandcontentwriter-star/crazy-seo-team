@@ -259,7 +259,7 @@ export default function IdeasProfile(){
   }
  }
 
- if(rpcError||!loadedPosts.length){
+ if(!loadedPosts.length){
   const statusFilter=isOwner?["approved","pending"]:["approved"];
   const selectFields="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
   const directQueries=[
