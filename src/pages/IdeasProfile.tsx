@@ -34,19 +34,8 @@ function sanitizeRichHtml(input:string){
  });
  return doc.body.innerHTML;
 }
-function ProfileAnvyaNews({profile,isOwner}:{profile:Profile;isOwner:boolean}){
- const [stories,setStories]=useState<Post[]>([]);
- useEffect(()=>{(async()=>{
-  if(isOwner && profile.public_id){
-   const {data:crmResult}=await supabase.functions.invoke("crm-ideas-users",{body:{action:"list"}});
-   const allPosts=Array.isArray((crmResult as any)?.posts)?(crmResult as any).posts as Post[]:[];
-   const own=allPosts.filter(x=>(x.user_id===profile.user_id || x.profile_id===profile.public_id)&&["post","blog"].includes(String(x.post_type||"").toLowerCase())).sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime()).slice(0,5);
-   if(own.length){setStories(own);return;}
-  }
-  const {data:pub}=await supabase.from("idea_posts").select("id,user_id,profile_id,display_name,title,content,post_type,visibility,created_at,status,slug").eq("status","approved").eq("visibility","public").in("post_type",["post","blog"]).order("created_at",{ascending:false}).limit(5);
-  setStories((pub as Post[])||[]);
- })()},[profile.public_id,isOwner]);
- const visiblePosts=stories;
+function ProfileAnvyaNews({posts}:{posts:Post[]}){
+ const visiblePosts=posts.filter(x=>["post","blog"].includes(String(x.post_type||"").toLowerCase())).slice(0,5);
  const ago=(d:string)=>{const m=Math.max(1,Math.floor((Date.now()-new Date(d).getTime())/60000));return m<60?m+"m ago":m<1440?Math.floor(m/60)+"h ago":Math.floor(m/1440)+"d ago"};
  return <Card className="rounded-2xl border shadow-sm overflow-hidden">
   <CardContent className="p-0">
@@ -56,7 +45,7 @@ function ProfileAnvyaNews({profile,isOwner}:{profile:Profile;isOwner:boolean}){
    </div>
    <div className="px-5 pt-4 pb-1 text-sm font-bold">Top stories</div>
    <div className="px-5 pb-2">
-    {visiblePosts.length?visiblePosts.map((n:Post)=><Link key={n.id} to={n.slug ? "/anvya/"+n.slug : "/anvya"} className="block border-b py-3 last:border-0 hover:bg-muted/40">
+    {visiblePosts.length?visiblePosts.map((n:Post)=><Link key={n.id} to={n.slug?"/anvya/"+n.slug:"/anvya/profile/"+n.user_id+"?post="+n.id} className="block border-b py-3 last:border-0 hover:bg-muted/40">
       <p className="line-clamp-2 text-[13px] font-semibold leading-5">{n.title||n.content||"ANVYA update"}</p>
       <p className="mt-1 text-[10px] text-muted-foreground">{ago(n.created_at)} · {n.display_name||"ANVYA Member"} · {n.post_type==="blog"?"Blog":"Post"}{n.status==="pending"?" · Pending review":""}</p>
     </Link>):<p className="py-4 text-xs text-muted-foreground">No posts yet.</p>}
@@ -139,13 +128,23 @@ export default function IdeasProfile(){
  ]);
  setVerification(verificationResult.data||null);
  let loadedPosts=(postsResult.data as Post[])||[];
- if(!loadedPosts.length && me===id){
-  const {data:crmResult}=await supabase.functions.invoke("crm-ideas-users",{body:{action:"list"}});
-  const allPosts=Array.isArray((crmResult as any)?.posts)?(crmResult as any).posts as Post[]:[];
-  loadedPosts=allPosts.filter(x=>x.user_id===id || (p?.public_id && x.profile_id===p.public_id)).sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime());
+ if(me===id){
+  const profilePublicId=p?.public_id||"";
+  const ownerQuery=supabase.from("idea_posts")
+   .select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug")
+   .or(profilePublicId ? `user_id.eq.${id},profile_id.eq.${profilePublicId}` : `user_id.eq.${id}`)
+   .in("status",["approved","pending"])
+   .order("created_at",{ascending:false});
+  const {data:ownerPosts,error:ownerError}=await ownerQuery;
+  if(ownerError) console.error("ANVYA owner posts query failed:",ownerError);
+  if(ownerPosts?.length) loadedPosts=ownerPosts as Post[];
  }
  if(!loadedPosts.length){
-  const {data:publicPosts}=await supabase.from("idea_posts").select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").eq("user_id",id).eq("status","approved").eq("visibility","public").order("created_at",{ascending:false});
+  const {data:publicPosts,error:publicError}=await supabase.from("idea_posts")
+   .select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug")
+   .eq("user_id",id).eq("status","approved").eq("visibility","public")
+   .order("created_at",{ascending:false});
+  if(publicError) console.error("ANVYA public posts query failed:",publicError);
   loadedPosts=(publicPosts as Post[])||[];
  }
  setPosts(loadedPosts);
@@ -385,7 +384,7 @@ export default function IdeasProfile(){
       </Card>
 
       <div className="hidden space-y-5 xl:block">
-        <ProfileAnvyaNews profile={p} isOwner={me===p.user_id}/>
+        <ProfileAnvyaNews posts={posts}/>
         <Card className="rounded-2xl border shadow-sm">
           <CardContent className="p-5">
             <div className="flex items-center justify-between"><h3 className="font-black">Professional Highlights</h3><Badge variant="outline">ANVYA</Badge></div>
