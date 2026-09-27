@@ -170,10 +170,27 @@ export default function IdeasProfile(){
    if(!ownerPostsError){
     loadedPosts=((ownerPosts?.posts||[]) as Post[]).filter((x:Post)=>x.status==="approved"||x.status==="pending");
    }else{
-    console.warn("ANVYA owner Edge Function post lookup failed:",ownerPostsError.message);
+    console.warn("ANVYA owner Edge Function profile_posts failed:",ownerPostsError.message);
    }
   }catch(e:any){
-   console.warn("ANVYA owner Edge Function post lookup exception:",e?.message||e);
+   console.warn("ANVYA owner Edge Function profile_posts exception:",e?.message||e);
+  }
+
+  // Older deployed Edge Functions may support my_posts even when profile_posts
+  // is missing or restricted. Use it as a compatibility fallback for the owner.
+  if(!loadedPosts.length){
+   try{
+    const {data:ownerPosts,error:ownerPostsError}=await supabase.functions.invoke("crm-ideas-users",{
+     body:{action:"my_posts"}
+    });
+    if(!ownerPostsError){
+     loadedPosts=((ownerPosts?.posts||[]) as Post[]).filter((x:Post)=>x.status==="approved"||x.status==="pending");
+    }else{
+     console.warn("ANVYA owner Edge Function my_posts failed:",ownerPostsError.message);
+    }
+   }catch(e:any){
+    console.warn("ANVYA owner Edge Function my_posts exception:",e?.message||e);
+   }
   }
  }
 
