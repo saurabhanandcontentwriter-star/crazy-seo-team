@@ -119,7 +119,6 @@ export default function IdeasProfile(){
  }
  if(userId==="me"&&user?.id===id&&profile?.public_id){nav("/anvya/profile/"+profile.public_id,{replace:true});return}
  if(!profile&&user?.id!==id){setLoading(false);return}
- setLoading(false);
  const profilePublicId=profile?.public_id||"";
  const isOwner=user?.id===id;
  const postStatuses=isOwner?["approved","pending"]:["approved"];
@@ -154,6 +153,7 @@ export default function IdeasProfile(){
   directResults.forEach((r:any)=>{if(r.error)console.error("ANVYA direct profile posts query failed:",r.error)});
  }
  setPosts(loadedPosts);
+ setLoading(false);
 
  const [{count:followers},{count:followingCountValue}]=await Promise.all([supabase.from("idea_follows").select("follower_id",{count:"exact",head:true}).eq("following_id",id),supabase.from("idea_follows").select("following_id",{count:"exact",head:true}).eq("follower_id",id)]);setFollowerCount(followers||0);setFollowingCount(followingCountValue||0);
  const shareIds=(resharesResult.data||[]).map((x:any)=>x.post_id);
