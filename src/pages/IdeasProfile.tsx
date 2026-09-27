@@ -35,7 +35,7 @@ function sanitizeRichHtml(input:string){
  return doc.body.innerHTML;
 }
 function ProfileAnvyaNews({posts}:{posts:Post[]}){
- const visiblePosts=posts.filter(x=>["post","blog"].includes(String(x.post_type||"").toLowerCase())).slice(0,5);
+ const visiblePosts=posts.slice(0,5);
  const ago=(d:string)=>{const m=Math.max(1,Math.floor((Date.now()-new Date(d).getTime())/60000));return m<60?m+"m ago":m<1440?Math.floor(m/60)+"h ago":Math.floor(m/1440)+"d ago"};
  return <Card className="rounded-2xl border shadow-sm overflow-hidden">
   <CardContent className="p-0">
@@ -46,7 +46,7 @@ function ProfileAnvyaNews({posts}:{posts:Post[]}){
    <div className="px-5 pt-4 pb-1 text-sm font-bold">Top stories</div>
    <div className="px-5 pb-2">
     {visiblePosts.length?visiblePosts.map((n:Post)=><Link key={n.id} to={n.slug?"/anvya/"+n.slug:"/anvya/profile/"+n.user_id+"?post="+n.id} className="block border-b py-3 last:border-0 hover:bg-muted/40">
-      <p className="line-clamp-2 text-[13px] font-semibold leading-5">{n.title||n.content||"ANVYA update"}</p>
+      <div className="flex gap-3">{n.image_url&&<img src={n.image_url} alt={n.title||"ANVYA post"} className="h-16 w-20 shrink-0 rounded-xl object-cover"/>}<div className="min-w-0 flex-1"><p className="line-clamp-2 text-[13px] font-semibold leading-5">{n.title||n.content||"ANVYA update"}</p><div className="mt-1 line-clamp-2 text-[11px] leading-4 text-muted-foreground" dangerouslySetInnerHTML={{__html:sanitizeRichHtml(n.content||"")}}/><p className="mt-1 text-[10px] text-muted-foreground">{ago(n.created_at)} · {n.display_name||"ANVYA Member"} · {n.post_type||"Post"}{n.status==="pending"?" · Pending review":""}</p></div></div>
       <p className="mt-1 text-[10px] text-muted-foreground">{ago(n.created_at)} · {n.display_name||"ANVYA Member"} · {n.post_type==="blog"?"Blog":"Post"}{n.status==="pending"?" · Pending review":""}</p>
     </Link>):<p className="py-4 text-xs text-muted-foreground">No posts yet.</p>}
    </div>
