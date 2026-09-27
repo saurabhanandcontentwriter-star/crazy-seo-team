@@ -78,6 +78,9 @@ export default function SEOHead() {
   const location = useLocation();
   const basePath = getBasePath(location.pathname);
   const [listing, setListing] = useState<any>(null);
+  const [anvyaPost, setAnvyaPost] = useState<any>(null);
+  const anvyaSlug = location.pathname.match(/^\/anvya\/([^/]+)$/)?.[1] || null;
+  const isAnvyaPost = !!anvyaSlug;
   const isIdeas = basePath === "/anvya" || basePath === "/anvya/explore";
   const isPostAd = basePath === "/post-ad";
   const isPrivateOrUtility = ["/anvya/login", "/anvya/settings", "/anvya/analytics", "/anvya/notifications", "/anvya/saved"].includes(basePath);
@@ -89,6 +92,13 @@ export default function SEOHead() {
   useEffect(() => {
     let cancelled = false;
     setListing(null);
+    setAnvyaPost(null);
+    if (anvyaSlug) {
+      (async () => {
+        const { data } = await (supabase as any).from("idea_posts").select("id,title,content,slug,subject,display_name,image_url,created_at,status").eq("slug", decodeURIComponent(anvyaSlug)).eq("status", "approved").maybeSingle();
+        if (!cancelled) setAnvyaPost(data || null);
+      })();
+    }
     const id = location.pathname.match(/^\/listing\/([^/]+)$/)?.[1];
     if (!id) return () => { cancelled = true; };
     (async () => {
@@ -96,7 +106,7 @@ export default function SEOHead() {
       if (!cancelled) setListing(data || null);
     })();
     return () => { cancelled = true; };
-  }, [location.pathname]);
+  }, [location.pathname, anvyaSlug]);
 
   useEffect(() => {
     const applyAltText = () => document.querySelectorAll<HTMLImageElement>("img:not([alt]), img[alt='']").forEach((img) => {
@@ -113,7 +123,7 @@ export default function SEOHead() {
 
   const organization = { "@context": "https://schema.org", "@type": "Organization", "@id": `${SITE}/#organization`, name: BRAND, url: SITE, description: "AI SEO, GEO, AEO, LLM optimization, semantic SEO, NLP and digital growth platform.", knowsAbout: CORE_TOPICS.split(", ").map((x) => x.trim()) };
   const websiteSchema = { "@context": "https://schema.org", "@type": "WebSite", "@id": `${SITE}/#website`, name: BRAND, url: SITE, description: "AI SEO, GEO, AEO, LLM optimization, semantic SEO and digital marketing platform.", publisher: { "@id": `${SITE}/#organization` }, inLanguage: "en-IN", potentialAction: { "@type": "SearchAction", target: `${SITE}/blog?search={search_term_string}`, "query-input": "required name=search_term_string" } };
-  const webPageSchema = { "@context": "https://schema.org", "@type": "WebPage", "@id": `${canonical}#webpage`, url: canonical, name: listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title, description: listing?.description?.slice(0, 160) || meta.description, isPartOf: { "@id": `${SITE}/#website` }, about: { "@id": `${SITE}/#organization` }, inLanguage: "en-IN", keywords: listing ? [listing.category, listing.city, listing.state].filter(Boolean).join(", ") : meta.keywords };
+  const webPageSchema = { "@context": "https://schema.org", "@type": "WebPage", "@id": `${canonical}#webpage`, url: canonical, name: anvyaPost ? `${anvyaPost.title || "ANVYA Post"} | ANVYA | ${BRAND}` : listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title, description: anvyaPost ? String(anvyaPost.content || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) : listing?.description?.slice(0, 160) || meta.description, isPartOf: { "@id": `${SITE}/#website` }, about: { "@id": `${SITE}/#organization` }, inLanguage: "en-IN", keywords: listing ? [listing.category, listing.city, listing.state].filter(Boolean).join(", ") : meta.keywords };
   const collectionSchema = useMemo(() => (basePath === "/classifieds" || isIdeas) ? { "@context": "https://schema.org", "@type": "CollectionPage", name: meta.title, url: canonical, description: meta.description, isPartOf: { "@type": "WebSite", name: BRAND, url: SITE } } : null, [basePath, canonical, meta.title, meta.description, isIdeas]);
   const ideasSchema = isIdeas ? { "@context": "https://schema.org", "@type": "CollectionPage", "@id": `${SITE}/anvya#collection`, name: meta.title, url: canonical, description: meta.description, about: ["AI", "SEO", "Technology", "Travel", "Science", "Economics"], isPartOf: { "@id": `${SITE}/#website` }, publisher: { "@id": `${SITE}/#organization` } } : null;
   const postAdSchema = isPostAd ? { "@context": "https://schema.org", "@type": "WebPage", "@id": `${SITE}/post-ad#webpage`, name: meta.title, url: canonical, description: meta.description, about: { "@type": "Thing", name: "Classified advertising" }, isPartOf: { "@id": `${SITE}/#website` } } : null;
@@ -128,9 +138,9 @@ export default function SEOHead() {
 
   return <Helmet>
     <html lang="en-IN" />
-    <title>{listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title}</title>
-    <meta name="description" content={listing?.description?.slice(0, 160) || meta.description} />
-    <meta name="keywords" content={listing ? `${listing.category || "classified"}, ${listing.city || "India"}, ${BRAND}` : meta.keywords} />
+    <title>{anvyaPost ? `${anvyaPost.title || "ANVYA Post"} | ANVYA | ${BRAND}` : listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title}</title>
+    <meta name="description" content={anvyaPost ? String(anvyaPost.content || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) : listing?.description?.slice(0, 160) || meta.description} />
+    <meta name="keywords" content={anvyaPost ? `${anvyaPost.subject || "ANVYA"}, AI, SEO, technology, ${BRAND}` : listing ? `${listing.category || "classified"}, ${listing.city || "India"}, ${BRAND}` : meta.keywords} />
     <meta name="subject" content={listing ? `${listing.category || "Classified listing"} on ${BRAND}` : CORE_TOPICS} />
     <meta name="abstract" content={listing?.description?.slice(0, 300) || meta.description} />
     <meta name="classification" content={CORE_TOPICS} />
@@ -148,15 +158,15 @@ export default function SEOHead() {
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hrefLang="en-IN" href={canonical} />
     <link rel="alternate" hrefLang="x-default" href={canonical} />
-    <meta property="og:title" content={listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title} />
-    <meta property="og:description" content={listing?.description?.slice(0, 160) || meta.description} />
+    <meta property="og:title" content={anvyaPost ? `${anvyaPost.title || "ANVYA Post"} | ANVYA | ${BRAND}` : listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title} />
+    <meta property="og:description" content={anvyaPost ? String(anvyaPost.content || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) : listing?.description?.slice(0, 160) || meta.description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:type" content={listing ? "product" : "website"} />
     <meta property="og:site_name" content={BRAND} />
     <meta property="og:locale" content="en_IN" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title} />
-    <meta name="twitter:description" content={listing?.description?.slice(0, 160) || meta.description} />
+    <meta name="twitter:title" content={anvyaPost ? `${anvyaPost.title || "ANVYA Post"} | ANVYA | ${BRAND}` : listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title} />
+    <meta name="twitter:description" content={anvyaPost ? String(anvyaPost.content || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) : listing?.description?.slice(0, 160) || meta.description} />
     {basePath === "/" && <link rel="preconnect" href="https://fonts.googleapis.com" />}
     {basePath === "/" && <link rel="dns-prefetch" href="https://fonts.googleapis.com" />}
     <script type="application/ld+json">{JSON.stringify(organization)}</script>
