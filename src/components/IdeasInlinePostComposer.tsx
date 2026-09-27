@@ -276,7 +276,7 @@ export default function IdeasInlinePostComposer({
         image_url: imageUrl,
         device_type: /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Laptop/Desktop",
         status: "approved",
-        visibility,
+        visibility: "public",
         post_type: mode,
         event_start: eventStartIso,
         event_end: eventEndIso,
@@ -297,12 +297,12 @@ export default function IdeasInlinePostComposer({
         {
           description:
             mode === "blog"
-              ? "Your article has been submitted successfully and is now in review."
+              ? "Your article has been published successfully."
               : mode === "question"
-                ? "Your discussion has been submitted successfully and is now in review."
+                ? "Your discussion has been published successfully."
                 : mode === "event"
-                  ? "Your event has been submitted successfully and is now in review."
-                  : "Your post has been submitted successfully and is now in review.",
+                  ? "Your event has been published successfully."
+                  : "Your post has been published successfully.",
           duration: 5000,
         }
       );
