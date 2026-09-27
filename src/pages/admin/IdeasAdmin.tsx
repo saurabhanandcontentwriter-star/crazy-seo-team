@@ -40,19 +40,24 @@ type CreatorApplication = { id: string; user_id: string | null; name: string; em
 
 const sanitizeRichHtml = (html: string) => {
   const doc = new DOMParser().parseFromString(String(html ?? ""), "text/html");
-  const allowed = ["P", "H1", "H2", "H3", "STRONG", "EM", "UL", "OL", "LI", "A", "BR"];
+  const allowed = ["P", "H1", "H2", "H3", "STRONG", "EM", "UL", "OL", "LI", "A", "BR", "IMG"];
   doc.body.querySelectorAll("*").forEach((el) => {
     if (!allowed.includes(el.tagName)) {
       el.replaceWith(...Array.from(el.childNodes));
       return;
     }
     Array.from(el.attributes).forEach((attr) => {
-      if (el.tagName === "A" && attr.name.toLowerCase() === "href" && /^https:\/\//i.test(attr.value)) return;
+      if (el.tagName === "A" && attr.name.toLowerCase() === "href" && /^https:\/\//i.test(attr.value)) return;if (el.tagName === "IMG" && attr.name.toLowerCase() === "src" && /^https:\/\//i.test(attr.value)) return;if (el.tagName === "IMG" && attr.name.toLowerCase() === "alt") return;
       el.removeAttribute(attr.name);
     });
     if (el.tagName === "A") {
       el.setAttribute("target", "_blank");
       el.setAttribute("rel", "noopener noreferrer");
+    }
+    if (el.tagName === "IMG") {
+      el.setAttribute("loading", "lazy");
+      el.setAttribute("alt", el.getAttribute("alt") || "Article image");
+      el.setAttribute("class", "my-4 max-w-full rounded-xl object-contain");
     }
   });
   return doc.body.innerHTML;
