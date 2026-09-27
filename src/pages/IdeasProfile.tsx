@@ -131,18 +131,21 @@ export default function IdeasProfile(){
  setVerification(verificationResult.data||null);
 
  const postSelect="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
- const fetchProfilePosts=async(statuses:string[])=>{
-  const queries=[
-   supabase.from("idea_posts").select(postSelect).eq("user_id",id).in("status",statuses).order("created_at",{ascending:false}),
-   ...(profilePublicId?[supabase.from("idea_posts").select(postSelect).eq("profile_id",profilePublicId).in("status",statuses).order("created_at",{ascending:false})]:[])
-  ];
+ const fetchProfilePosts=async(statuses:string[],publicOnly:boolean)=>{
+  const build=(column:string,value:string)=>{
+   let q=supabase.from("idea_posts").select(postSelect).eq(column,value).in("status",statuses).order("created_at",{ascending:false});
+   if(publicOnly) q=q.eq("visibility","public");
+   return q;
+  };
+  const queries=[build("user_id",id),...(profilePublicId?[build("profile_id",profilePublicId)]:[])];
   const results=await Promise.all(queries);
   const rows=results.flatMap((r:any)=>r.data||[]) as Post[];
   results.forEach((r:any)=>{if(r.error)console.error("ANVYA profile posts query failed:",r.error)});
   return Array.from(new Map(rows.map(x=>[x.id,x])).values()).sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime());
  };
 
- const loadedPosts=await fetchProfilePosts(postStatuses);
+ // Owner sees approved + pending posts. Everyone else sees only approved public posts.
+ const loadedPosts=await fetchProfilePosts(postStatuses,!isOwner);
  setPosts(loadedPosts);
  const [{count:followers},{count:followingCountValue}]=await Promise.all([supabase.from("idea_follows").select("follower_id",{count:"exact",head:true}).eq("following_id",id),supabase.from("idea_follows").select("following_id",{count:"exact",head:true}).eq("follower_id",id)]);setFollowerCount(followers||0);setFollowingCount(followingCountValue||0);
  const shareIds=(resharesResult.data||[]).map((x:any)=>x.post_id);
