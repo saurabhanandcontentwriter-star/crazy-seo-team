@@ -551,12 +551,14 @@ function PostCard({x,resharedByProfile=false,pinnedByProfile=false,onTogglePin}:
  useEffect(()=>{load();const b=JSON.parse(localStorage.getItem("ideas-bookmarks")||"[]");setBookmarked(b.includes(x.id));setEditTitle(x.title);setEditContent(x.content)},[x.id,x.title,x.content]);
  const react=async(kind:"like"|"dislike")=>{if(!me)return toast.error("Please sign in first.");if(reaction===kind){const {error}=await supabase.from("idea_post_reactions").delete().eq("post_id",x.id).eq("user_id",me);if(error)toast.error(error.message);else{setReaction(null);kind==="like"?setLikes(v=>Math.max(0,v-1)):setDislikes(v=>Math.max(0,v-1))}}else{if(reaction){await supabase.from("idea_post_reactions").delete().eq("post_id",x.id).eq("user_id",me)}const {error}=await supabase.from("idea_post_reactions").insert({post_id:x.id,user_id:me,reaction:kind});if(error)toast.error(error.message);else{if(reaction==="like")setLikes(v=>Math.max(0,v-1));if(reaction==="dislike")setDislikes(v=>Math.max(0,v-1));kind==="like"?setLikes(v=>v+1):setDislikes(v=>v+1);setReaction(kind)}}};
  const sharePost=async()=>{
+  const title=String(x.title||"").trim();
   let slug=String(x.slug||"").trim();
-  if(!slug){
-   const title=String(x.title||"anvya-post");
+  // Keep the published Google September 2026 Spam Update on its canonical ANVYA URL.
+  if(title.toLowerCase().includes("google september 2026 spam update")){
+   slug="google-september-2026-spam-update";
+  }else if(!slug){
    slug=title.toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,70)||"anvya-post";
    slug=slug+"-"+x.id.slice(0,8);
-   // Persist the generated slug when RLS permits; sharing never depends on this write succeeding.
    try{await supabase.from("idea_posts").update({slug}).eq("id",x.id).eq("user_id",x.user_id)}catch{}
   }
   const url=new URL("/anvya/"+encodeURIComponent(slug),window.location.origin).href;
