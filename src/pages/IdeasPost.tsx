@@ -38,7 +38,9 @@ export default function IdeasPost(){
   const viewerId=userData.user?.id||null;
   const requestedSlug=decodeURIComponent(slug).trim();
   const selectFields="id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
-  let {data,error}=await supabase.from("idea_posts").select(selectFields).eq("slug",requestedSlug).maybeSingle();
+  let {data,error}=await supabase.rpc("get_anvya_post_by_slug",{requested_slug:requestedSlug});
+  if(!error&&Array.isArray(data)&&data.length){data=data[0];}
+  else if(!error&&!data){data=null;}
 
   // Resolve short/legacy ANVYA URLs even when the stored slug has a unique suffix.
   if((error||!data) && requestedSlug){
