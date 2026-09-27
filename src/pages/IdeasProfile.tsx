@@ -147,7 +147,14 @@ export default function IdeasProfile(){
   // the public ANVYA feed is readable. Load the same approved/public feed path and
   // filter the matching author/profile client-side.
   if(!loadedPosts.length){
-   const publicFeed=await supabase.from("idea_posts").select(selectFields).eq("status","approved").eq("visibility","public").or("scheduled_for.is.null,scheduled_for.lte."+new Date().toISOString()).order("created_at",{ascending:false}).limit(100);
+   // Use the same approved/public dataset as the ANVYA feed, but keep the
+   // profile fallback resilient if an older production schema rejects the
+   // scheduled_for filter or one of the newer post columns.
+   let publicFeed=await supabase.from("idea_posts").select(selectFields).eq("status","approved").eq("visibility","public").or("scheduled_for.is.null,scheduled_for.lte."+new Date().toISOString()).order("created_at",{ascending:false}).limit(100);
+   if(publicFeed.error){
+    console.warn("ANVYA public feed fallback with schedule filter failed; retrying without schedule filter:",publicFeed.error.message);
+    publicFeed=await supabase.from("idea_posts").select(selectFields).eq("status","approved").eq("visibility","public").order("created_at",{ascending:false}).limit(100);
+   }
    if(publicFeed.error){
     console.error("ANVYA public feed fallback failed:",publicFeed.error);
    }else{
