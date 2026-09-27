@@ -85,7 +85,35 @@ export default function IdeasProfile(){
     const directId=storedProfile?.user_id||d.user_id||directUser?.id||crypto.randomUUID();
     if(directUser&&d.email) void supabase.from("idea_account_registry").update({user_id:directId,last_seen_at:new Date().toISOString()}).eq("email",d.email);
     const directProfile={...(storedProfile||{}),user_id:directId,display_name:storedProfile?.display_name||d.display_name||"Ideas Member",first_name:storedProfile?.first_name||d.first_name||null,middle_name:storedProfile?.middle_name||d.middle_name||null,last_name:storedProfile?.last_name||d.last_name||null,state:storedProfile?.state||d.state||null,country:storedProfile?.country||d.country||null,bio:storedProfile?.bio||null,avatar_url:storedProfile?.avatar_url||null,cover_url:storedProfile?.cover_url||null,location:storedProfile?.location||d.location||[d.state,d.country].filter(Boolean).join(", "),website_url:storedProfile?.website_url||null,linkedin_url:storedProfile?.linkedin_url||null,github_url:storedProfile?.github_url||null,instagram_url:storedProfile?.instagram_url||null,twitter_url:storedProfile?.twitter_url||null,medium_url:storedProfile?.medium_url||null,experience:storedProfile?.experience||[],education_details:storedProfile?.education_details||[],projects:storedProfile?.projects||[],certificates:storedProfile?.certificates||[],public_id:storedProfile?.public_id||d.public_id,reputation_points:storedProfile?.reputation_points||0,level:storedProfile?.level||1,verified:storedProfile?.verified||false};
-    setMe(directId);setP(directProfile as Profile);setForm(directProfile as Profile);setPosts([]);setReshares([]);setRequesters([]);setVerification(null);setLoading(false);return;
+    setMe(directId);setP(directProfile as Profile);setForm(directProfile as Profile);setReshares([]);setRequesters([]);setVerification(null);
+    // Direct/session profiles must use the same author-scoped post loading path as
+    // normal profile routes. Never leave the Posts tab empty just because the
+    // profile was opened from the direct-profile session payload.
+    const directProfileId=String(directProfile.public_id||d.public_id||"");
+    const directOwner=directUser?.id===directId;
+    let directPosts:Post[]=[];
+    const {data:directRpcPosts}=await supabase.rpc("get_anvya_profile_posts",{
+      target_user_id:directId,
+      target_profile_id:directProfileId||null,
+    });
+    directPosts=(directRpcPosts as Post[])||[];
+    if(!directPosts.length){
+      const directStatus=directOwner?["approved","pending"]:["approved"];
+      const selectFields="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
+      const directResults=await Promise.all([
+        supabase.from("idea_posts").select(selectFields).eq("user_id",directId).in("status",directStatus).order("created_at",{ascending:false}),
+        ...(directProfileId?[supabase.from("idea_posts").select(selectFields).eq("profile_id",directProfileId).in("status",directStatus).order("created_at",{ascending:false})]:[])
+      ]);
+      directPosts=Array.from(new Map(directResults.flatMap((r:any)=>r.data||[]).map((x:any)=>[x.id,x])).values()) as Post[];
+      if(!directPosts.length){
+        const publicFeed=await supabase.from("idea_posts").select(selectFields).eq("status","approved").eq("visibility","public").order("created_at",{ascending:false}).limit(100);
+        if(!publicFeed.error){
+          directPosts=((publicFeed.data||[]) as Post[]).filter(x=>x.user_id===directId||!!directProfileId&&x.profile_id===directProfileId);
+        }
+      }
+    }
+    setPosts(directPosts);
+    setLoading(false);return;
    }
   }catch{sessionStorage.removeItem("ideas_direct_profile")}
  }
