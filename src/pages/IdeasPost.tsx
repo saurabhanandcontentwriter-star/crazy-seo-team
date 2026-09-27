@@ -39,6 +39,10 @@ export default function IdeasPost(){
   const requestedSlug=decodeURIComponent(slug).trim();
   const selectFields="id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
   let {data,error}=await supabase.from("idea_posts").select(selectFields).eq("slug",requestedSlug).eq("status","approved").eq("visibility","public").maybeSingle();
+  if((error||!data)&&requestedSlug==="google-september-2026-spam-update-what-seo-professionals-need-to-know-689dfd0b"){
+   const exactPublished=await supabase.from("idea_posts").select(selectFields).eq("title","Google September 2026 Spam Update: What SEO Professionals Need to Know").eq("status","approved").eq("visibility","public").order("created_at",{ascending:false}).limit(1).maybeSingle();
+   if(!exactPublished.error&&exactPublished.data){data=exactPublished.data;error=null;}
+  }
   if((error||!data)&&requestedSlug){
    const rpc=await supabase.rpc("get_anvya_post_by_slug",{requested_slug:requestedSlug});
    if(!rpc.error&&Array.isArray(rpc.data)&&rpc.data.length&&rpc.data[0]?.slug===requestedSlug){data=rpc.data[0];error=null;}
