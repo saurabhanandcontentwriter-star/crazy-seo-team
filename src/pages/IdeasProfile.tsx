@@ -134,8 +134,18 @@ export default function IdeasProfile(){
   target_user_id:id,
   target_profile_id:profilePublicId||null,
  });
- if(rpcError) console.error("ANVYA profile posts RPC failed:",rpcError);
- const loadedPosts=(rpcPosts as Post[])||[];
+ let loadedPosts=(rpcPosts as Post[])||[];
+ if(rpcError||!loadedPosts.length){
+  const statusFilter=isOwner?["approved","pending"]:["approved"];
+  const directQueries=[
+   supabase.from("idea_posts").select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").eq("user_id",id).in("status",statusFilter).order("created_at",{ascending:false}),
+   ...(profilePublicId?[supabase.from("idea_posts").select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").eq("profile_id",profilePublicId).in("status",statusFilter).order("created_at",{ascending:false})]:[])
+  ];
+  const directResults=await Promise.all(directQueries);
+  loadedPosts=Array.from(new Map(directResults.flatMap((r:any)=>r.data||[]).map((x:any)=>[x.id,x])).values()) as Post[];
+  if(rpcError) console.error("ANVYA profile posts RPC fallback:",rpcError);
+  directResults.forEach((r:any)=>{if(r.error)console.error("ANVYA direct profile posts query failed:",r.error)});
+ }
  setPosts(loadedPosts);
 
  const [{count:followers},{count:followingCountValue}]=await Promise.all([supabase.from("idea_follows").select("follower_id",{count:"exact",head:true}).eq("following_id",id),supabase.from("idea_follows").select("following_id",{count:"exact",head:true}).eq("follower_id",id)]);setFollowerCount(followers||0);setFollowingCount(followingCountValue||0);
