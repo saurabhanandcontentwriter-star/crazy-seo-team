@@ -1233,6 +1233,7 @@ export type Database = {
           image_alt: string | null
           image_url: string | null
           location: string | null
+          slug: string | null
           mobile: string | null
           moderation_checked_at: string | null
           moderation_decision: string | null
@@ -1270,6 +1271,7 @@ export type Database = {
           image_alt?: string | null
           image_url?: string | null
           location?: string | null
+          slug?: string | null
           mobile?: string | null
           moderation_checked_at?: string | null
           moderation_decision?: string | null
@@ -1307,6 +1309,7 @@ export type Database = {
           image_alt?: string | null
           image_url?: string | null
           location?: string | null
+          slug?: string | null
           mobile?: string | null
           moderation_checked_at?: string | null
           moderation_decision?: string | null
