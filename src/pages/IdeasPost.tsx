@@ -37,8 +37,13 @@ export default function IdeasPost(){
   const {data:userData}=await supabase.auth.getUser();
   const viewerId=userData.user?.id||null;
   const requestedSlug=decodeURIComponent(slug).trim();
+  const idSuffixMatch=requestedSlug.match(/-([0-9a-f]{8})$/i); const postIdPrefix=idSuffixMatch?.[1]||null;
   const selectFields="id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
   let {data,error}=await supabase.rpc("get_anvya_post_by_slug",{requested_slug:requestedSlug});
+  if((error||!data||!Array.isArray(data)||!data.length)&&postIdPrefix){
+   const exact=await supabase.from("idea_posts").select(selectFields).ilike("id",postIdPrefix+"%").eq("status","approved").eq("visibility","public").maybeSingle();
+   if(!exact.error&&exact.data){data=exact.data;error=null;}
+  }
   if(!error&&Array.isArray(data)&&data.length){data=data[0];}
   else if(!error&&!data){data=null;}
 
