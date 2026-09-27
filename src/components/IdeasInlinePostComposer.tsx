@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { slugify } from "@/lib/blog";
 import {
   ImagePlus,
   Loader2,
@@ -254,8 +255,16 @@ export default function IdeasInlinePostComposer({
       const normalizedTags = tags.map((tag) => tag.trim().replace(/^#/, "")).filter(Boolean).slice(0, 10);
       const subjectValue = subject.trim() || null;
       const locationValue = location.trim() || null;
+      const baseSlug = slugify(mode === "post" ? (plainContent.slice(0, 80).trim() || "anvya-post") : title.trim()) || "anvya-post";
+      let postSlug = baseSlug;
+      const { data: existingSlugs } = await supabase.from("idea_posts").select("slug").like("slug", `${baseSlug}%`).limit(100);
+      const used = new Set((existingSlugs || []).map((x: any) => x.slug).filter(Boolean));
+      let suffix = 2;
+      while (used.has(postSlug)) postSlug = `${baseSlug}-${suffix++}`;
+
       const payload = {
         user_id: user.id,
+        slug: postSlug,
         profile_id: profile.public_id || user.id,
         display_name: profile.display_name || "ANVYA Member",
         location: locationValue,
@@ -278,7 +287,7 @@ export default function IdeasInlinePostComposer({
       const { data, error } = await supabase
         .from("idea_posts")
         .insert(payload)
-        .select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,location,image_url,created_at,status")
+        .select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,location,image_url,created_at,status,slug")
         .single();
 
       if (error) throw error;
