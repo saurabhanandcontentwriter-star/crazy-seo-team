@@ -62,12 +62,26 @@ Deno.serve(async (req) => {
       // The authenticated Supabase session is still required above.
     }
 
-    if (body.action === "my_posts") {
-      const { data, error } = await admin
+    if (body.action === "my_posts" || body.action === "profile_posts") {
+      let query = admin
         .from("idea_posts")
-        .select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug")
-        .eq("user_id", actor.id)
+        .select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug")
         .order("created_at", { ascending: false });
+
+      if (body.action === "profile_posts" && body.public_id) {
+        const { data: profile, error: profileError } = await admin
+          .from("idea_profiles")
+          .select("user_id,public_id")
+          .eq("public_id", String(body.public_id))
+          .maybeSingle();
+        if (profileError) return fail(profileError.message, 400);
+        if (!profile || profile.user_id !== actor.id) return fail("Profile access denied.", 403);
+        query = query.eq("profile_id", profile.public_id);
+      } else {
+        query = query.eq("user_id", actor.id);
+      }
+
+      const { data, error } = await query;
       if (error) return fail(error.message, 400);
       return ok({ posts: data ?? [] });
     }
