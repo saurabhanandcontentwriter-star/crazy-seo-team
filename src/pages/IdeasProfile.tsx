@@ -214,6 +214,22 @@ export default function IdeasProfile(){
   }
  }
 
+ // Owner profiles always reconcile the direct author/profile rows as well.
+ // This keeps Posts, Activity and Anvya News on the same complete owner dataset
+ // even when a summary/RPC returns only a partial result.
+ if(isOwner){
+  const ownerStatus=["approved","pending"];
+  const ownerQueries=[
+   supabase.from("idea_posts").select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug,tags").eq("user_id",id).in("status",ownerStatus).order("created_at",{ascending:false}).limit(100),
+   ...(profilePublicId?[supabase.from("idea_posts").select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug,tags").eq("profile_id",profilePublicId).in("status",ownerStatus).order("created_at",{ascending:false}).limit(100)]:[])
+  ];
+  const ownerResults=await Promise.all(ownerQueries);
+  const ownerRows=ownerResults.flatMap((q:any)=>q.data||[]) as Post[];
+  if(ownerRows.length){
+   loadedPosts=Array.from(new Map([...loadedPosts,...ownerRows].map((x:any)=>[x.id,x])).values()) as Post[];
+  }
+ }
+
  if(!loadedPosts.length){
   const {data:rpcPosts,error}=await supabase.rpc("get_anvya_profile_posts",{
    target_user_id:id,
@@ -285,14 +301,15 @@ export default function IdeasProfile(){
  setPosts(loadedPosts);
  setLoading(false);
 
- if(!profilePublicId){
-  const [{count:followers},{count:followingCountValue}]=await Promise.all([
-   supabase.from("idea_follows").select("follower_id",{count:"exact",head:true}).eq("following_id",id),
-   supabase.from("idea_follows").select("following_id",{count:"exact",head:true}).eq("follower_id",id)
-  ]);
-  setFollowerCount(followers||0);
-  setFollowingCount(followingCountValue||0);
- }
+ // Always reconcile relationship counters directly. The owner must see the
+ // real follower/following totals even if the server summary endpoint is stale
+ // or unavailable.
+ const [{count:followers},{count:followingCountValue}]=await Promise.all([
+  supabase.from("idea_follows").select("follower_id",{count:"exact",head:true}).eq("following_id",id),
+  supabase.from("idea_follows").select("following_id",{count:"exact",head:true}).eq("follower_id",id)
+ ]);
+ setFollowerCount(followers||0);
+ setFollowingCount(followingCountValue||0);
  const shareIds=(resharesResult.data||[]).map((x:any)=>x.post_id);
  if(shareIds.length){
   const {data:rp}=await supabase.from("idea_posts").select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,tags,image_url,created_at,status,slug").in("id",shareIds).eq("status","approved");
