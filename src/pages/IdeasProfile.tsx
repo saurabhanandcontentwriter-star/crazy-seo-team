@@ -295,27 +295,41 @@ export default function IdeasProfile(){
     }
    }
   }
-  // Guaranteed profile fallback for the canonical Google September 2026 ANVYA article.
-  // If production data/RLS is temporarily unavailable, keep the published article
-  // visible on Saurabh's profile so Posts, Activity and Anvya News never render 0.
-  if(!loadedPosts.length&&profilePublicId==="CST-76A57C84E0"){
-   loadedPosts=[{
-    id:"anvya-google-september-2026-spam-update-fallback",
-    user_id:id,
-    profile_id:profilePublicId,
-    display_name:p?.display_name||"Saurabh Anand",
-    profile_image_url:p?.avatar_url||null,
-    title:"Google September 2026 Spam Update: What SEO Professionals Need to Know",
-    content:"<p>Google's September 2026 Spam Update is a reminder that sustainable SEO depends on useful content, technical quality, and a site that genuinely serves its audience. For SEO professionals, the right response is not to make random changes after a ranking movement. Start with evidence from Google Search Console, analytics, crawl data, and your recent publishing history.</p><h2>What to Check After a Spam Update</h2><p>Review pages that lost impressions, clicks, or rankings and compare them with pages that remained stable. Look for thin or repetitive content, aggressive keyword targeting, copied sections, doorway-style pages, automatically generated pages without meaningful editorial value, and low-quality links. Check whether important pages are indexed correctly and whether your internal linking clearly connects related topics.</p><h2>Technical SEO Checks</h2><p>Run a crawl and review canonical tags, indexability, redirects, robots.txt, XML sitemaps, duplicate URLs, structured data, and Core Web Vitals. A technical issue may not be the only reason for a traffic change, but it can make it harder for search engines to discover and understand your strongest pages.</p><h2>Content Quality and Search Intent</h2><p>Refresh pages around real search intent instead of adding keywords simply to increase density. Strengthen first-hand insights, examples, original research, clear explanations, useful visuals, and trustworthy references. Remove pages that exist only to capture search traffic without providing a meaningful answer.</p><h2>What SEO Teams Should Do Next</h2><p>Document the pages affected, identify common patterns, make focused improvements, and monitor Search Console and analytics over time. Avoid large sitewide changes before you understand the pattern. The practical goal after a spam update is to build a cleaner, more useful website that deserves visibility for the queries it targets.</p>",
-    post_type:"blog",
-    visibility:"public",
-    subject:"Google September 2026 Spam Update",
-    image_url:null,
-    created_at:"2026-09-27T10:00:00Z",
-    status:"approved",
-    slug:"google-september-2026-spam-update",
-    tags:["Google SEO","Spam Update","SEO"]
-   } as Post];
+  // Use the exact post object already loaded by the public ANVYA feed.
+  // The profile must never invent a second/fake copy of the article.
+  if(profilePublicId==="CST-76A57C84E0"){
+   const canonicalTitle="google september 2026 spam update: what seo professionals need to know";
+   const existing=loadedPosts.find((x:Post)=>{
+    const slug=String(x.slug||"").toLowerCase();
+    const title=String(x.title||"").trim().toLowerCase();
+    return slug==="google-september-2026-spam-update" || title===canonicalTitle;
+   });
+   if(existing){
+    loadedPosts=[existing,...loadedPosts.filter((x:Post)=>x.id!==existing.id)];
+   }else{
+    // Pull the same approved/public dataset used by /anvya and locate the
+    // canonical article by slug/title. This guarantees profile and feed use
+    // the identical database row, ID, content, author and metadata.
+    const {data:feed,error:feedError}=await supabase.from("idea_posts")
+      .select("*")
+      .eq("status","approved")
+      .eq("visibility","public")
+      .or("scheduled_for.is.null,scheduled_for.lte."+new Date().toISOString())
+      .order("created_at",{ascending:false})
+      .limit(100);
+    if(!feedError){
+     const exact=(feed||[]).find((row:any)=>{
+      const slug=String(row.slug||"").trim().toLowerCase();
+      const title=String(row.title||"").trim().toLowerCase();
+      return slug==="google-september-2026-spam-update" || title===canonicalTitle;
+     });
+     if(exact){
+      loadedPosts=[exact as Post,...loadedPosts.filter((x:Post)=>x.id!==exact.id)];
+     }
+    }else{
+     console.warn("ANVYA profile canonical feed lookup failed:",feedError.message);
+    }
+   }
   }
   if(rpcError) console.error("ANVYA profile posts RPC fallback:",rpcError);
   directResults.forEach((r:any)=>{if(r.error)console.error("ANVYA direct profile posts query failed:",r.error)});
