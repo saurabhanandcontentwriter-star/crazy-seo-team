@@ -34,9 +34,17 @@ function sanitizeRichHtml(input:string){
  });
  return doc.body.innerHTML;
 }
-function ProfileAnvyaNews(){
+function ProfileAnvyaNews({profile}:{profile:Profile}){
  const [stories,setStories]=useState<Post[]>([]);
- useEffect(()=>{(async()=>{const {data:pub}=await supabase.from("idea_posts").select("id,user_id,profile_id,display_name,title,content,post_type,visibility,created_at,status,slug").eq("status","approved").eq("visibility","public").in("post_type",["post","blog"]).order("created_at",{ascending:false}).limit(5);setStories((pub as Post[])||[])})()},[]);
+ useEffect(()=>{(async()=>{
+  const {data:pub}=await supabase.from("idea_posts").select("id,user_id,profile_id,display_name,title,content,post_type,visibility,created_at,status,slug").eq("status","approved").eq("visibility","public").in("post_type",["post","blog"]).order("created_at",{ascending:false}).limit(5);
+  let rows=(pub as Post[])||[];
+  if(profile.public_id){
+   const {data:own}=await supabase.from("idea_posts").select("id,user_id,profile_id,display_name,title,content,post_type,visibility,created_at,status,slug").eq("profile_id",profile.public_id).in("status",["approved","pending"]).in("post_type",["post","blog"]).order("created_at",{ascending:false}).limit(5);
+   if(own?.length) rows=own as Post[];
+  }
+  setStories(rows.slice(0,5));
+ })()},[profile.public_id]);
  const visiblePosts=stories;
  const ago=(d:string)=>{const m=Math.max(1,Math.floor((Date.now()-new Date(d).getTime())/60000));return m<60?m+"m ago":m<1440?Math.floor(m/60)+"h ago":Math.floor(m/1440)+"d ago"};
  return <Card className="rounded-2xl border shadow-sm overflow-hidden">
@@ -375,7 +383,7 @@ export default function IdeasProfile(){
       </Card>
 
       <div className="hidden space-y-5 xl:block">
-        <ProfileAnvyaNews/>
+        <ProfileAnvyaNews profile={p}/>
         <Card className="rounded-2xl border shadow-sm">
           <CardContent className="p-5">
             <div className="flex items-center justify-between"><h3 className="font-black">Professional Highlights</h3><Badge variant="outline">ANVYA</Badge></div>
