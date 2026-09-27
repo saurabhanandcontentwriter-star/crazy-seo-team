@@ -138,9 +138,9 @@ export default function IdeasProfile(){
  ]);
  setVerification(verificationResult.data||null);
  let loadedPosts=(postsResult.data as Post[])||[];
- if(!loadedPosts.length && p?.public_id){
-  const {data:profilePosts}=await supabase.from("idea_posts").select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").eq("profile_id",p.public_id).order("created_at",{ascending:false});
-  loadedPosts=(profilePosts as Post[])||[];
+ if(p?.public_id && me===id){
+  const {data:secureResult}=await supabase.functions.invoke("crm-ideas-users",{body:{action:"profile_posts",public_id:p.public_id}});
+  if(Array.isArray((secureResult as any)?.posts)) loadedPosts=(secureResult as any).posts as Post[];
  }
  if(!loadedPosts.length){
   const {data:publicPosts}=await supabase.from("idea_posts").select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").eq("user_id",id).eq("status","approved").eq("visibility","public").order("created_at",{ascending:false});
