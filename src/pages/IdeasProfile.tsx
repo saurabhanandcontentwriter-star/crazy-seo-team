@@ -34,8 +34,10 @@ function sanitizeRichHtml(input:string){
  });
  return doc.body.innerHTML;
 }
-function ProfileAnvyaNews({posts}:{posts:Post[]}){
- const visiblePosts=posts.filter(x=>["post","blog"].includes(String(x.post_type||"").toLowerCase())).slice(0,5);
+function ProfileAnvyaNews(){
+ const [stories,setStories]=useState<Post[]>([]);
+ useEffect(()=>{(async()=>{const {data}=await supabase.from("idea_posts").select("id,user_id,display_name,title,content,post_type,visibility,created_at,status,slug").eq("status","approved").eq("visibility","public").in("post_type",["post","blog"]).order("created_at",{ascending:false}).limit(5);setStories((data as Post[])||[])})()},[]);
+ const visiblePosts=stories;
  const ago=(d:string)=>{const m=Math.max(1,Math.floor((Date.now()-new Date(d).getTime())/60000));return m<60?m+"m ago":m<1440?Math.floor(m/60)+"h ago":Math.floor(m/1440)+"d ago"};
  return <Card className="rounded-2xl border shadow-sm overflow-hidden">
   <CardContent className="p-0">
@@ -127,7 +129,12 @@ export default function IdeasProfile(){
   user&&id===user.id?supabase.from("idea_friendships").select("requester_id").eq("addressee_id",user.id).eq("status","pending"):Promise.resolve({data:[]})
  ]);
  setVerification(verificationResult.data||null);
- setPosts((postsResult.data as Post[])||[]);
+ let loadedPosts=(postsResult.data as Post[])||[];
+ if(!loadedPosts.length){
+  const {data:publicPosts}=await supabase.from("idea_posts").select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").eq("user_id",id).eq("status","approved").eq("visibility","public").order("created_at",{ascending:false});
+  loadedPosts=(publicPosts as Post[])||[];
+ }
+ setPosts(loadedPosts);
  const [{count:followers},{count:followingCountValue}]=await Promise.all([supabase.from("idea_follows").select("follower_id",{count:"exact",head:true}).eq("following_id",id),supabase.from("idea_follows").select("following_id",{count:"exact",head:true}).eq("follower_id",id)]);setFollowerCount(followers||0);setFollowingCount(followingCountValue||0);
  const shareIds=(resharesResult.data||[]).map((x:any)=>x.post_id);
  if(shareIds.length){
@@ -364,7 +371,7 @@ export default function IdeasProfile(){
       </Card>
 
       <div className="hidden space-y-5 xl:block">
-        <ProfileAnvyaNews posts={posts}/>
+        <ProfileAnvyaNews/>
         <Card className="rounded-2xl border shadow-sm">
           <CardContent className="p-5">
             <div className="flex items-center justify-between"><h3 className="font-black">Professional Highlights</h3><Badge variant="outline">ANVYA</Badge></div>
