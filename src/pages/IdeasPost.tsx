@@ -40,17 +40,25 @@ export default function IdeasPost(){
   const selectFields="id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
   let {data,error}=await supabase.from("idea_posts").select(selectFields).eq("slug",requestedSlug).maybeSingle();
 
-  // Resolve older short ANVYA URLs when the stored slug is based on the full title.
+  // Resolve short/legacy ANVYA URLs even when the stored slug has a unique suffix.
   if((error||!data) && requestedSlug){
-   const legacyTitle=requestedSlug.replace(/[-_]+/g," ").replace(/\s+/g," ").trim();
-   if(legacyTitle){
-    const fallback=await supabase.from("idea_posts").select(selectFields)
-      .eq("status","approved")
-      .ilike("title",legacyTitle+"%")
-      .order("created_at",{ascending:false})
-      .limit(1)
-      .maybeSingle();
-    if(!fallback.error&&fallback.data){data=fallback.data;error=null;}
+   const slugFallback=await supabase.from("idea_posts").select(selectFields)
+     .ilike("slug",requestedSlug+"%")
+     .order("created_at",{ascending:false})
+     .limit(1)
+     .maybeSingle();
+   if(!slugFallback.error&&slugFallback.data){
+    data=slugFallback.data;error=null;
+   }else{
+    const legacyTitle=requestedSlug.replace(/[-_]+/g," ").replace(/\s+/g," ").trim();
+    if(legacyTitle){
+     const titleFallback=await supabase.from("idea_posts").select(selectFields)
+       .ilike("title",legacyTitle+"%")
+       .order("created_at",{ascending:false})
+       .limit(1)
+       .maybeSingle();
+     if(!titleFallback.error&&titleFallback.data){data=titleFallback.data;error=null;}
+    }
    }
   }
 
