@@ -62,6 +62,16 @@ Deno.serve(async (req) => {
       // The authenticated Supabase session is still required above.
     }
 
+    if (body.action === "my_posts") {
+      const { data, error } = await admin
+        .from("idea_posts")
+        .select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug")
+        .eq("user_id", actor.id)
+        .order("created_at", { ascending: false });
+      if (error) return fail(error.message, 400);
+      return ok({ posts: data ?? [] });
+    }
+
     if (body.action === "list") {
       // Keep the CRM list resilient while production migrations catch up.
       // Optional Ideas tables must not turn a valid admin request into a 4xx/5xx.
