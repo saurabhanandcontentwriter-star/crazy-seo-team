@@ -143,11 +143,17 @@ export default function IdeasProfile(){
   ];
   const directResults=await Promise.all(directQueries);
   loadedPosts=Array.from(new Map(directResults.flatMap((r:any)=>r.data||[]).map((x:any)=>[x.id,x])).values()) as Post[];
-  // Final public fallback: use the same approved/public visibility path as the ANVYA feed.
+  // Final public-feed fallback: profile-specific RLS can block author filters even when
+  // the public ANVYA feed is readable. Load the same approved/public feed path and
+  // filter the matching author/profile client-side.
   if(!loadedPosts.length){
-   const publicFallback=await supabase.from("idea_posts").select(selectFields).eq("status","approved").eq("visibility","public").or(`user_id.eq.${id}${profilePublicId?`,profile_id.eq.${profilePublicId}`:""}`).order("created_at",{ascending:false}).limit(100);
-   loadedPosts=(publicFallback.data||[]) as Post[];
-   if(publicFallback.error) console.error("ANVYA public profile posts fallback failed:",publicFallback.error);
+   const publicFeed=await supabase.from("idea_posts").select(selectFields).eq("status","approved").eq("visibility","public").or("scheduled_for.is.null,scheduled_for.lte."+new Date().toISOString()).order("created_at",{ascending:false}).limit(100);
+   if(publicFeed.error){
+    console.error("ANVYA public feed fallback failed:",publicFeed.error);
+   }else{
+    const rows=(publicFeed.data||[]) as Post[];
+    loadedPosts=rows.filter(x=>x.user_id===id||!!profilePublicId&&x.profile_id===profilePublicId);
+   }
   }
   if(rpcError) console.error("ANVYA profile posts RPC fallback:",rpcError);
   directResults.forEach((r:any)=>{if(r.error)console.error("ANVYA direct profile posts query failed:",r.error)});
