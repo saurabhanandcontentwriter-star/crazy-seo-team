@@ -94,8 +94,9 @@ export default function IdeasPost(){
     if((error||!data)&&requestedSlug==="google-september-2026-spam-update"){
       data={
         id:"anvya-google-september-2026-spam-update-fallback",
-        user_id:"",
-        display_name:"Crazy SEO Team",
+        user_id:"fallback",
+        profile_id:"CST-76A57C84E0",
+        display_name:"Saurabh Anand",
         profile_image_url:null,
         title:"Google September 2026 Spam Update: What SEO Professionals Need to Know",
         content:`<p>Google's September 2026 Spam Update is another reminder that SEO success depends on building useful, trustworthy websites rather than trying to manipulate search systems.</p>
@@ -143,7 +144,7 @@ export default function IdeasPost(){
       <div><p className="font-bold">{profile?.display_name||post.display_name||"ANVYA Member"}</p><p className="text-xs text-muted-foreground">{new Date(post.created_at).toLocaleString()}</p></div>
      </div>
      <div className="prose prose-neutral mt-8 max-w-none dark:prose-invert" dangerouslySetInnerHTML={{__html:sanitizeRichHtml(post.content)}}/>
-     <PostShareAudit post={post}/>
+     <PostShareAudit post={post}/><p className="mt-2 break-all text-[11px] font-mono text-muted-foreground">Post ID: {post.id}</p>
     </CardContent>
    </Card>
   </main>
