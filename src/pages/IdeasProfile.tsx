@@ -34,12 +34,8 @@ function sanitizeRichHtml(input:string){
  });
  return doc.body.innerHTML;
 }
-function ProfileAnvyaNews(){
- const[posts,setPosts]=useState<any[]>([]);
- useEffect(()=>{let active=true;(async()=>{
-   const {data}=await supabase.from("idea_posts").select("id,user_id,title,content,created_at,post_type,visibility,status,slug,display_name").eq("status","approved").in("post_type",["post","blog"]).eq("visibility","public").order("created_at",{ascending:false}).limit(5);
-   if(active)setPosts(data||[]);
- })();return()=>{active=false}},[]);
+function ProfileAnvyaNews({posts}:{posts:Post[]}){
+ const visiblePosts=posts.filter(x=>["post","blog"].includes(String(x.post_type||"").toLowerCase())).slice(0,5);
  const ago=(d:string)=>{const m=Math.max(1,Math.floor((Date.now()-new Date(d).getTime())/60000));return m<60?m+"m ago":m<1440?Math.floor(m/60)+"h ago":Math.floor(m/1440)+"d ago"};
  return <Card className="rounded-2xl border shadow-sm overflow-hidden">
   <CardContent className="p-0">
@@ -49,10 +45,10 @@ function ProfileAnvyaNews(){
    </div>
    <div className="px-5 pt-4 pb-1 text-sm font-bold">Top stories</div>
    <div className="px-5 pb-2">
-    {posts.length?posts.map((n:any)=><Link key={n.id} to={n.slug ? "/anvya/"+n.slug : "/anvya"} className="block border-b py-3 last:border-0 hover:bg-muted/40">
+    {visiblePosts.length?visiblePosts.map((n:Post)=><Link key={n.id} to={n.slug ? "/anvya/"+n.slug : "/anvya"} className="block border-b py-3 last:border-0 hover:bg-muted/40">
       <p className="line-clamp-2 text-[13px] font-semibold leading-5">{n.title||n.content||"ANVYA update"}</p>
-      <p className="mt-1 text-[10px] text-muted-foreground">{ago(n.created_at)} · {n.display_name||"ANVYA Member"} · {n.post_type==="blog"?"Blog":"Post"}</p>
-    </Link>):<p className="py-4 text-xs text-muted-foreground">No recent top stories.</p>}
+      <p className="mt-1 text-[10px] text-muted-foreground">{ago(n.created_at)} · {n.display_name||"ANVYA Member"} · {n.post_type==="blog"?"Blog":"Post"}{n.status==="pending"?" · Pending review":""}</p>
+    </Link>):<p className="py-4 text-xs text-muted-foreground">No posts yet.</p>}
    </div>
    <Link to="/anvya" className="flex items-center gap-1 border-t px-5 py-3 text-xs font-semibold hover:bg-muted/50">Show more posts <ChevronDown className="size-3.5"/></Link>
   </CardContent>
@@ -368,7 +364,7 @@ export default function IdeasProfile(){
       </Card>
 
       <div className="hidden space-y-5 xl:block">
-        <ProfileAnvyaNews/>
+        <ProfileAnvyaNews posts={posts}/>
         <Card className="rounded-2xl border shadow-sm">
           <CardContent className="p-5">
             <div className="flex items-center justify-between"><h3 className="font-black">Professional Highlights</h3><Badge variant="outline">ANVYA</Badge></div>
@@ -503,7 +499,7 @@ export default function IdeasProfile(){
      {tab==="posts"&&posts.filter(x=>["post","blog"].includes(String(x.post_type||"").toLowerCase())&&x.id!==pinnedPostId).map(x=><PostCard key={x.id} x={x} pinnedByProfile={pinnedPostId===x.id} onTogglePin={()=>togglePinnedPost(x.id)}/>)}
      {tab==="reshares"&&reshares.map(x=><PostCard key={x.id} x={x} resharedByProfile/>)}
      {tab==="questions"&&posts.filter(x=>x.post_type==="question").map(x=><PostCard key={x.id} x={x}/>)}
-     {tab==="activity"&&<Card><CardContent className="p-6"><h3 className="text-lg font-black">Timeline</h3><div className="relative mt-5 space-y-5 pl-5 before:absolute before:bottom-2 before:left-2 before:top-2 before:w-px before:bg-border">{posts.slice(0,20).map(x=><div key={x.id} className="relative"><span className="absolute -left-[17px] top-1.5 size-3 rounded-full border-2 border-background bg-primary"/><div className="rounded-2xl border p-4"><div className="flex flex-wrap items-center justify-between gap-2"><b>{x.post_type==="question"?"Asked a question":x.post_type==="blog"?"Published a blog":"Published a post"}</b><span className="text-xs text-muted-foreground">{new Date(x.created_at).toLocaleString()}</span></div><p className="mt-1 text-sm text-muted-foreground">{x.title}</p>{x.status==="pending"&&me===p.user_id&&<span className="mt-2 inline-flex rounded-full bg-amber-100 px-2 py-1 text-[11px] font-semibold text-amber-800">Pending review</span>}</div></div>)}</div></CardContent></Card>}
+     {tab==="activity"&&<Card><CardContent className="p-6"><h3 className="text-lg font-black">Timeline</h3><div className="relative mt-5 space-y-5 pl-5 before:absolute before:bottom-2 before:left-2 before:top-2 before:w-px before:bg-border">{posts.slice(0,20).map(x=><div key={x.id} className="relative"><span className="absolute -left-[17px] top-1.5 size-3 rounded-full border-2 border-background bg-primary"/><div className="rounded-2xl border p-4"><div className="flex flex-wrap items-center justify-between gap-2"><b>{x.post_type==="question"?"Asked a question":x.post_type==="blog"?"Published a blog":"Published a post"}</b><span className="text-xs text-muted-foreground">{new Date(x.created_at).toLocaleString()}</span></div><Link to={x.slug?"/anvya/"+x.slug:"/anvya/profile/"+p.public_id+"?post="+x.id} className="mt-1 block text-sm font-semibold text-primary hover:underline">{x.title}</Link>{x.status==="pending"&&me===p.user_id&&<span className="mt-2 inline-flex rounded-full bg-amber-100 px-2 py-1 text-[11px] font-semibold text-amber-800">Pending review</span>}</div></div>)}</div></CardContent></Card>}
      {(tab==="friends"||tab==="following"||tab==="followers")&&<RelationshipList userId={p.user_id} mode={tab as "friends"|"following"|"followers"}/>}
        </div>
       </div>
