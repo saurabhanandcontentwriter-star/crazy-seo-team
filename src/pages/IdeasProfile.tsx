@@ -160,6 +160,26 @@ export default function IdeasProfile(){
  let loadedPosts:Post[]=[];
  let rpcError:any=null;
 
+ // One profile summary drives Posts, Activity, ANVYA News and follower/following
+ // counts from the same server-side dataset. This avoids four UI sections
+ // reading different RLS paths and showing stale/zero values.
+ if(profilePublicId){
+  try{
+   const {data:summary,error:summaryError}=await supabase.functions.invoke("crm-ideas-users",{
+    body:{action:"profile_summary",public_id:profilePublicId}
+   });
+   if(!summaryError){
+    loadedPosts=((summary?.posts||[]) as Post[]).filter((x:Post)=>x.status==="approved"||x.status==="pending");
+    setFollowerCount(Number(summary?.follower_count||0));
+    setFollowingCount(Number(summary?.following_count||0));
+   }else{
+    console.warn("ANVYA profile summary lookup failed:",summaryError.message);
+   }
+  }catch(e:any){
+   console.warn("ANVYA profile summary lookup exception:",e?.message||e);
+  }
+ }
+
  // Owner fallback: the CRM Ideas Edge Function uses the service role and can
  // read the owner's posts even when production RLS/migrations are behind.
  if(isOwner&&profilePublicId){
@@ -236,7 +256,14 @@ export default function IdeasProfile(){
  setPosts(loadedPosts);
  setLoading(false);
 
- const [{count:followers},{count:followingCountValue}]=await Promise.all([supabase.from("idea_follows").select("follower_id",{count:"exact",head:true}).eq("following_id",id),supabase.from("idea_follows").select("following_id",{count:"exact",head:true}).eq("follower_id",id)]);setFollowerCount(followers||0);setFollowingCount(followingCountValue||0);
+ if(!profilePublicId){
+  const [{count:followers},{count:followingCountValue}]=await Promise.all([
+   supabase.from("idea_follows").select("follower_id",{count:"exact",head:true}).eq("following_id",id),
+   supabase.from("idea_follows").select("following_id",{count:"exact",head:true}).eq("follower_id",id)
+  ]);
+  setFollowerCount(followers||0);
+  setFollowingCount(followingCountValue||0);
+ }
  const shareIds=(resharesResult.data||[]).map((x:any)=>x.post_id);
  if(shareIds.length){
   const {data:rp}=await supabase.from("idea_posts").select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,tags,image_url,created_at,status,slug").in("id",shareIds).eq("status","approved");
