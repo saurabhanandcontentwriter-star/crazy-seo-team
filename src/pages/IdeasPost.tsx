@@ -37,6 +37,7 @@ export default function IdeasPost(){
   const {data:userData}=await supabase.auth.getUser();
   const viewerId=userData.user?.id||null;
   const requestedSlug=decodeURIComponent(slug).trim();
+  if(requestedSlug==="google-september-2026-spam-update-what-seo-professionals-need-to-know-689dfd0b"){nav("/anvya/google-september-2026-spam-update",{replace:true});return;}
   const selectFields="id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
   let {data,error}=await supabase.from("idea_posts").select(selectFields).eq("slug",requestedSlug).eq("status","approved").eq("visibility","public").maybeSingle();
   if((error||!data)&&requestedSlug==="google-september-2026-spam-update-what-seo-professionals-need-to-know-689dfd0b"){
