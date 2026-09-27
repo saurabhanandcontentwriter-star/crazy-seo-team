@@ -222,6 +222,27 @@ export default function IdeasProfile(){
   rpcError=error;
   loadedPosts=(rpcPosts as Post[])||[];
  }
+ // Article-level recovery for the existing Google September 2026 post.
+ // This keeps profile stats populated when an older post has a missing or
+ // mismatched profile_id/user_id mapping.
+ if(!loadedPosts.length){
+  try{
+   const {data:googlePost,error:googleError}=await supabase.rpc("get_anvya_post_by_slug",{
+    requested_slug:"google-september-2026-spam-update"
+   });
+   const candidate=Array.isArray(googlePost)?googlePost[0]:null;
+   if(!googleError&&candidate&&(
+    candidate.user_id===id||
+    (!!profilePublicId&&candidate.profile_id===profilePublicId)||
+    (!!p?.display_name&&String(candidate.display_name||"").trim().toLowerCase()===String(p.display_name).trim().toLowerCase())
+   )){
+    loadedPosts=[candidate as Post];
+   }
+  }catch(e:any){
+   console.warn("ANVYA article profile recovery failed:",e?.message||e);
+  }
+ }
+
  if(rpcError||!loadedPosts.length){
   const statusFilter=isOwner?["approved","pending"]:["approved"];
   const selectFields="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
