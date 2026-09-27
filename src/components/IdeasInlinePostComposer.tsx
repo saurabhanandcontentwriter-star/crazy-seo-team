@@ -276,11 +276,30 @@ export default function IdeasInlinePostComposer({
         event_url: eventUrl.trim() || null,
       };
 
-      const { data, error } = await supabase
+      // Some deployed ANVYA databases may not have the newer tags column yet.
+      // Publish without tags as a compatibility fallback so blog publishing is not blocked.
+      let data: any = null;
+      let error: any = null;
+
+      const first = await supabase
         .from("idea_posts")
         .insert(payload)
         .select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,tags,location,image_url,created_at,status")
         .single();
+
+      data = first.data;
+      error = first.error;
+
+      if (error && /tags.*column|column.*tags|schema cache/i.test(error.message || "")) {
+        const { tags: _tags, ...publishPayload } = payload;
+        const fallback = await supabase
+          .from("idea_posts")
+          .insert(publishPayload)
+          .select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,location,image_url,created_at,status")
+          .single();
+        data = fallback.data;
+        error = fallback.error;
+      }
 
       if (error) throw error;
 
