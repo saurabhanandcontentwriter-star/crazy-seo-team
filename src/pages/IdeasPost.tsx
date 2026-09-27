@@ -46,7 +46,7 @@ export default function IdeasPost(){
   const viewerId=userData.user?.id||null;
   const requestedSlug=decodeURIComponent(slug).trim();
   if(requestedSlug==="google-september-2026-spam-update-what-seo-professionals-need-to-know-689dfd0b"){nav("/anvya/google-september-2026-spam-update",{replace:true});return;}
-  const selectFields="id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
+  const selectFields="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
   let {data,error}=await supabase.from("idea_posts").select(selectFields).eq("slug",requestedSlug).eq("status","approved").eq("visibility","public").maybeSingle();
   if((error||!data)&&requestedSlug==="google-september-2026-spam-update"){
    const googlePosts=await supabase.from("idea_posts").select(selectFields).or("slug.ilike.%google-september-2026-spam-update%,title.ilike.Google September 2026 Spam Update:%").eq("status","approved").eq("visibility","public").order("created_at",{ascending:false}).limit(1);
@@ -88,35 +88,6 @@ export default function IdeasPost(){
     if(candidate){data=candidate;error=null;}
    }
   }
-    // Guaranteed public fallback for the canonical Google September 2026
-    // article. This keeps the canonical URL renderable even when an older
-    // production database/RLS deployment has not yet exposed the row.
-    if((error||!data)&&requestedSlug==="google-september-2026-spam-update"){
-      data={
-        id:"anvya-google-september-2026-spam-update-fallback",
-        user_id:"fallback",
-        profile_id:"CST-76A57C84E0",
-        display_name:"Saurabh Anand",
-        profile_image_url:null,
-        title:"Google September 2026 Spam Update: What SEO Professionals Need to Know",
-        content:`<p>Google's September 2026 Spam Update is another reminder that SEO success depends on building useful, trustworthy websites rather than trying to manipulate search systems.</p>
-        <p>For SEO professionals, the first step is to separate a real ranking change from normal traffic fluctuation. Check Google Search Console for changes in impressions, clicks, indexing and query-level performance, then compare affected pages with their previous performance.</p>
-        <h2>What to review after the update</h2>
-        <p>Review thin or repetitive pages, automatically generated content that provides little original value, excessive keyword targeting, unnatural links, doorway-style pages and other tactics designed primarily to influence rankings. Site owners should also check whether important pages provide clear answers, original information and a useful experience for visitors.</p>
-        <p>Technical SEO remains important too. Verify indexability, canonical URLs, redirects, structured data, internal links and Core Web Vitals. A spam-related update does not mean every traffic decline is caused by spam; several technical, content and demand factors can affect organic visibility at the same time.</p>
-        <h2>What SEO teams should do</h2>
-        <p>Do not react by making large sitewide changes without evidence. Segment affected URLs, identify common patterns and improve the underlying quality issues first. Keep a dated record of changes so future ranking movements can be evaluated accurately.</p>
-        <p>The practical takeaway is simple: focus on people-first content, transparent site practices, strong technical foundations and genuine value. SEO teams should monitor Search Console and analytics closely after the update and use page-level evidence before deciding what to change.</p>`,
-        post_type:"blog",
-        visibility:"public",
-        subject:"SEO",
-        image_url:null,
-        created_at:new Date().toISOString(),
-        status:"approved",
-        slug:"google-september-2026-spam-update"
-      };
-      error=null;
-    }
     if(error||!data){if(active)setLoading(false);return}
   const owner=data.user_id===viewerId;
   if(data.status!=="approved"&&!owner){if(active)setLoading(false);return}
