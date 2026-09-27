@@ -36,7 +36,24 @@ export default function IdeasPost(){
   if(!slug){nav("/anvya",{replace:true});return}
   const {data:userData}=await supabase.auth.getUser();
   const viewerId=userData.user?.id||null;
-  const {data,error}=await supabase.from("idea_posts").select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").eq("slug",decodeURIComponent(slug)).maybeSingle();
+  const requestedSlug=decodeURIComponent(slug).trim();
+  const selectFields="id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
+  let {data,error}=await supabase.from("idea_posts").select(selectFields).eq("slug",requestedSlug).maybeSingle();
+
+  // Resolve older short ANVYA URLs when the stored slug is based on the full title.
+  if((error||!data) && requestedSlug){
+   const legacyTitle=requestedSlug.replace(/[-_]+/g," ").replace(/\s+/g," ").trim();
+   if(legacyTitle){
+    const fallback=await supabase.from("idea_posts").select(selectFields)
+      .eq("status","approved")
+      .ilike("title",legacyTitle+"%")
+      .order("created_at",{ascending:false})
+      .limit(1)
+      .maybeSingle();
+    if(!fallback.error&&fallback.data){data=fallback.data;error=null;}
+   }
+  }
+
   if(error||!data){if(active)setLoading(false);return}
   const owner=data.user_id===viewerId;
   if(data.status!=="approved"&&!owner){if(active)setLoading(false);return}
