@@ -137,12 +137,19 @@ export default function IdeasProfile(){
  let loadedPosts=(rpcPosts as Post[])||[];
  if(rpcError||!loadedPosts.length){
   const statusFilter=isOwner?["approved","pending"]:["approved"];
+  const selectFields="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
   const directQueries=[
-   supabase.from("idea_posts").select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").eq("user_id",id).in("status",statusFilter).order("created_at",{ascending:false}),
-   ...(profilePublicId?[supabase.from("idea_posts").select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").eq("profile_id",profilePublicId).in("status",statusFilter).order("created_at",{ascending:false})]:[])
+   supabase.from("idea_posts").select(selectFields).eq("user_id",id).in("status",statusFilter).order("created_at",{ascending:false}),
+   ...(profilePublicId?[supabase.from("idea_posts").select(selectFields).eq("profile_id",profilePublicId).in("status",statusFilter).order("created_at",{ascending:false})]:[])
   ];
   const directResults=await Promise.all(directQueries);
   loadedPosts=Array.from(new Map(directResults.flatMap((r:any)=>r.data||[]).map((x:any)=>[x.id,x])).values()) as Post[];
+  // Final public fallback: use the same approved/public visibility path as the ANVYA feed.
+  if(!loadedPosts.length){
+   const publicFallback=await supabase.from("idea_posts").select(selectFields).eq("status","approved").eq("visibility","public").or(`user_id.eq.${id}${profilePublicId?`,profile_id.eq.${profilePublicId}`:""}`).order("created_at",{ascending:false}).limit(100);
+   loadedPosts=(publicFallback.data||[]) as Post[];
+   if(publicFallback.error) console.error("ANVYA public profile posts fallback failed:",publicFallback.error);
+  }
   if(rpcError) console.error("ANVYA profile posts RPC fallback:",rpcError);
   directResults.forEach((r:any)=>{if(r.error)console.error("ANVYA direct profile posts query failed:",r.error)});
  }
