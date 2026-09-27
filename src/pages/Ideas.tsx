@@ -17,18 +17,24 @@ useEffect(()=>{let active=true;(async()=>{try{const congratulations=sessionStora
 
 function AnvyaNewsCard(){
  const[news,setNews]=useState<any[]>([]);
- useEffect(()=>{let active=true;(async()=>{const{data}=await supabase.from("news_articles").select("id,title,summary,category,published_at,source").order("published_at",{ascending:false}).limit(5);if(active)setNews(data||[])})();return()=>{active=false}},[]);
+ useEffect(()=>{let active=true;(async()=>{const{data}=await supabase.from("news_articles").select("id,title,summary,category,published_at,source,source_url").order("published_at",{ascending:false}).limit(5);if(active)setNews(data||[])})();return()=>{active=false}},[]);
  const ago=(d:string)=>{const m=Math.max(1,Math.floor((Date.now()-new Date(d).getTime())/60000));return m<60?`${m}m ago`:m<1440?`${Math.floor(m/60)}h ago`:`${Math.floor(m/1440)}d ago`};
  return <aside className="fixed right-5 top-24 z-40 hidden w-[270px] overflow-hidden rounded-2xl border bg-card/95 shadow-sm backdrop-blur lg:block">
-   <div className="flex items-center justify-between border-b px-4 py-3"><div className="flex items-center gap-2"><Newspaper className="size-4"/><h3 className="font-semibold">Anvya News</h3></div><Info className="size-4 text-muted-foreground"/></div>
+   <div className="flex items-center justify-between border-b px-4 py-3">
+    <Link to="/news" className="flex items-center gap-2 hover:text-primary"><Newspaper className="size-4"/><h3 className="font-semibold">Anvya News</h3></Link>
+    <Link to="/news" aria-label="Open Anvya News" className="rounded p-1 hover:bg-muted"><Info className="size-4 text-muted-foreground"/></Link>
+   </div>
    <div className="px-4 pt-3 pb-1 text-sm font-semibold">Top stories</div>
    <div className="px-4 pb-2">
-    {news.length?news.map((n:any)=><div key={n.id} className="cursor-pointer border-b py-2.5 last:border-0 hover:bg-muted/40">
-      <p className="line-clamp-2 text-[13px] font-medium leading-5">{n.title}</p>
-      <p className="mt-1 text-[10px] text-muted-foreground">{ago(n.published_at)} · {n.source||n.category||"Anvya News"}</p>
-    </div>):<p className="py-4 text-xs text-muted-foreground">No recent stories.</p>}
+    {news.length?news.map((n:any)=>{
+      const href=n.source_url||"/news";
+      return <a key={n.id} href={href} target={n.source_url?"_blank":undefined} rel={n.source_url?"noopener noreferrer":undefined} className="block border-b py-2.5 last:border-0 hover:bg-muted/40">
+        <p className="line-clamp-2 text-[13px] font-medium leading-5">{n.title}</p>
+        <p className="mt-1 text-[10px] text-muted-foreground">{ago(n.published_at)} · {n.source||n.category||"Anvya News"}</p>
+      </a>
+    }):<p className="py-4 text-xs text-muted-foreground">No recent stories.</p>}
    </div>
-   <div className="flex cursor-pointer items-center gap-1 border-t px-4 py-3 text-xs font-medium hover:bg-muted/50">Show more news <ChevronDown className="size-3.5"/></div>
+   <Link to="/news" className="flex items-center gap-1 border-t px-4 py-3 text-xs font-medium hover:bg-muted/50">Show more news <ChevronDown className="size-3.5"/></Link>
  </aside>
 }
 
