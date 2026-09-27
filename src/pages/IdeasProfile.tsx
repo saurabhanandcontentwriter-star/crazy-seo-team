@@ -38,11 +38,10 @@ function ProfileAnvyaNews({profile,isOwner}:{profile:Profile;isOwner:boolean}){
  const [stories,setStories]=useState<Post[]>([]);
  useEffect(()=>{(async()=>{
   if(isOwner && profile.public_id){
-   const {data:secureResult}=await supabase.functions.invoke("crm-ideas-users",{body:{action:"profile_posts",public_id:profile.public_id}});
-   if(Array.isArray((secureResult as any)?.posts)){
-    setStories(((secureResult as any).posts as Post[]).filter(x=>["post","blog"].includes(String(x.post_type||"").toLowerCase())).slice(0,5));
-    return;
-   }
+   const {data:crmResult}=await supabase.functions.invoke("crm-ideas-users",{body:{action:"list"}});
+   const allPosts=Array.isArray((crmResult as any)?.posts)?(crmResult as any).posts as Post[]:[];
+   const own=allPosts.filter(x=>(x.user_id===profile.user_id || x.profile_id===profile.public_id)&&["post","blog"].includes(String(x.post_type||"").toLowerCase())).sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime()).slice(0,5);
+   if(own.length){setStories(own);return;}
   }
   const {data:pub}=await supabase.from("idea_posts").select("id,user_id,profile_id,display_name,title,content,post_type,visibility,created_at,status,slug").eq("status","approved").eq("visibility","public").in("post_type",["post","blog"]).order("created_at",{ascending:false}).limit(5);
   setStories((pub as Post[])||[]);
@@ -140,9 +139,10 @@ export default function IdeasProfile(){
  ]);
  setVerification(verificationResult.data||null);
  let loadedPosts=(postsResult.data as Post[])||[];
- if(p?.public_id && me===id){
-  const {data:secureResult}=await supabase.functions.invoke("crm-ideas-users",{body:{action:"profile_posts",public_id:p.public_id}});
-  if(Array.isArray((secureResult as any)?.posts)) loadedPosts=(secureResult as any).posts as Post[];
+ if(!loadedPosts.length && me===id){
+  const {data:crmResult}=await supabase.functions.invoke("crm-ideas-users",{body:{action:"list"}});
+  const allPosts=Array.isArray((crmResult as any)?.posts)?(crmResult as any).posts as Post[]:[];
+  loadedPosts=allPosts.filter(x=>x.user_id===id || (p?.public_id && x.profile_id===p.public_id)).sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime());
  }
  if(!loadedPosts.length){
   const {data:publicPosts}=await supabase.from("idea_posts").select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").eq("user_id",id).eq("status","approved").eq("visibility","public").order("created_at",{ascending:false});
