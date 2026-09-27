@@ -19,14 +19,14 @@ type PortalData=Record<string,any[]>;
 type Idea={id:string;user_id:string|null;public_id:string|null;email:string|null;owner_name:string|null;display_name:string;profile_id:string|null;subject:string;title:string;content:string;image_url:string|null;profile_image_url:string|null;device_type:string|null;location:string|null;status:string;created_at:string;ai_detection_score:number|null;moderation_score:number|null;moderation_reason:string|null;moderation_links:any[]|null;tags?:string[]|null;post_type?:string|null;visibility?:string|null;event_location?:string|null};
 const sanitizeRichHtml=(html:string)=>{
  const doc=new DOMParser().parseFromString(html,"text/html");
- const allowed=["P","H1","H2","H3","STRONG","EM","UL","OL","LI","A","BR"];
+ const allowed=["P","H1","H2","H3","STRONG","EM","UL","OL","LI","A","BR","IMG"];
  doc.body.querySelectorAll("*").forEach(el=>{
   if(!allowed.includes(el.tagName)){el.replaceWith(...Array.from(el.childNodes));return}
   Array.from(el.attributes).forEach(attr=>{
    if(el.tagName==="A"&&attr.name.toLowerCase()==="href"&&/^https:\/\//i.test(attr.value)) return;
    el.removeAttribute(attr.name);
   });
-  if(el.tagName==="A"){el.setAttribute("target","_blank");el.setAttribute("rel","noopener noreferrer");}
+  if(el.tagName==="A"){el.setAttribute("target","_blank");el.setAttribute("rel","noopener noreferrer");}if(el.tagName==="IMG"){el.setAttribute("loading","lazy");el.setAttribute("alt",el.getAttribute("alt")||"Article image");el.setAttribute("class","my-4 max-w-full rounded-xl object-contain");}
  });
  return doc.body.innerHTML;
 };
