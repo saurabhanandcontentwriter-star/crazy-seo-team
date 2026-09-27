@@ -124,7 +124,11 @@ export default function IdeasPost(){
   setIsOwner(owner);
   setPost(data);
   const {data:p}=await supabase.from("idea_profiles").select("user_id,display_name,avatar_url,profile_slug,public_id,bio").eq("user_id",data.user_id).maybeSingle();
-  if(active)setProfile(p);
+  if(active)setProfile(p||(
+    data.profile_id
+      ? {public_id:data.profile_id,display_name:data.display_name,avatar_url:data.profile_image_url||null}
+      : null
+  ));
   setLoading(false);
  })();return()=>{active=false}},[slug,nav]);
  if(loading)return <div className="min-h-screen flex items-center justify-center"><Loader2 className="size-8 animate-spin text-primary"/></div>;
@@ -141,7 +145,12 @@ export default function IdeasPost(){
      <h1 className="mt-4 text-3xl font-black leading-tight md:text-5xl">{title}</h1>
      <div className="mt-4 flex items-center gap-3">
       {profile?.avatar_url||post.profile_image_url?<img src={profile?.avatar_url||post.profile_image_url} alt="" className="size-10 rounded-full object-cover"/>:null}
-      <div><p className="font-bold">{profile?.display_name||post.display_name||"ANVYA Member"}</p><p className="text-xs text-muted-foreground">{new Date(post.created_at).toLocaleString()}</p></div>
+      <div>
+       {profile?.public_id
+         ? <Link to={"/anvya/profile/"+profile.public_id} className="font-bold hover:text-primary hover:underline">{profile?.display_name||post.display_name||"ANVYA Member"}</Link>
+         : <p className="font-bold">{profile?.display_name||post.display_name||"ANVYA Member"}</p>}
+       <p className="text-xs text-muted-foreground">{new Date(post.created_at).toLocaleString()}</p>
+      </div>
      </div>
      <div className="prose prose-neutral mt-8 max-w-none dark:prose-invert" dangerouslySetInnerHTML={{__html:sanitizeRichHtml(post.content)}}/>
      <PostShareAudit post={post}/><p className="mt-2 break-all text-[11px] font-mono text-muted-foreground">Post ID: {post.id}</p>
