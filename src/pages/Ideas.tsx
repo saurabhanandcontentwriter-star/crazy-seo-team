@@ -38,8 +38,24 @@ function PostEngagement({post}:{post:Idea}){
  })()},[post.id]);
  const react=async(k:"like"|"dislike")=>{if(!me)return toast.error("Please sign in first.");if(reaction===k){await supabase.from("idea_post_reactions").delete().eq("post_id",post.id).eq("user_id",me);setReaction(null);k==="like"?setLikes(v=>Math.max(0,v-1)):setDislikes(v=>Math.max(0,v-1));return}if(reaction)await supabase.from("idea_post_reactions").delete().eq("post_id",post.id).eq("user_id",me);const{error}=await supabase.from("idea_post_reactions").insert({post_id:post.id,user_id:me,reaction:k});if(error)toast.error(error.message);else{if(reaction==="like")setLikes(v=>Math.max(0,v-1));if(reaction==="dislike")setDislikes(v=>Math.max(0,v-1));k==="like"?setLikes(v=>v+1):setDislikes(v=>v+1);setReaction(k)}};
  const reshare=async()=>{if(!me)return toast.error("Please sign in first.");if(reshared){await supabase.from("idea_post_reshares").delete().eq("post_id",post.id).eq("user_id",me);setReshared(false)}else{const{error}=await supabase.from("idea_post_reshares").insert({post_id:post.id,user_id:me});if(error)toast.error(error.message);else setReshared(true)}};
- const share=async()=>{if(!me)return toast.error("Please sign in first so ANVYA can record who shared this post.");const{error}=await supabase.from("idea_post_shares").upsert({post_id:post.id,user_id:me,channel:"web"},{onConflict:"post_id,user_id"});if(error){toast.error("Share tracking unavailable. Please run the latest Supabase migration.");}const{data:p}=await supabase.from("idea_profiles").select("user_id,display_name,public_id,first_name,middle_name,last_name,avatar_url").eq("user_id",me).maybeSingle();if(!sharedUsers.some(x=>x.user_id===me)){setSharedUsers(v=>[{user_id:me,profile:p},...v]);setShares(v=>v+1)}let slug=String(post.slug||"").trim();const title=String(post.title||"").trim();if(title.toLowerCase().includes("google september 2026 spam update"))slug="google-september-2026-spam-update";else if(!slug){slug=title.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,70)||"anvya-post";slug=slug+"-"+post.id.slice(0,8);try{await supabase.from("idea_posts").update({slug}).eq("id",post.id).eq("user_id",post.user_id)}catch{}}const url=new URL("/anvya/"+encodeURIComponent(slug),window.location.origin).href;try{if(navigator.share)await navigator.share({title:post.title,text:post.title,url});else await navigator.clipboard.writeText(url);toast.success("Post shared. Original post ID: "+post.id)}catch{}};
- const comment=async()=>{if(!me)return toast.error("Please sign in first.");if(!text.trim())return;const{data,error}=await supabase.from("idea_post_comments").insert({post_id:post.id,user_id:me,content:text.trim()}).select().single();if(error)toast.error(error.message);else{setComments(v=>[...v,data]);setText("")}};
+ const share=async()=>{
+  if(!me)return toast.error("Please sign in first.");
+  let slug=String(post.slug||"").trim();
+  const title=String(post.title||"").trim();
+  if(title.toLowerCase().includes("google september 2026 spam update"))slug="google-september-2026-spam-update";
+  else if(!slug){slug=title.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,70)||"anvya-post";slug=slug+"-"+post.id.slice(0,8);try{await supabase.from("idea_posts").update({slug}).eq("id",post.id).eq("user_id",post.user_id)}catch{}}
+  const url=new URL("/anvya/"+encodeURIComponent(slug),window.location.origin).href;
+  try{
+    if(navigator.share)await navigator.share({title:post.title,text:post.title,url});
+    else await navigator.clipboard.writeText(url);
+  }catch{return}
+  const{error}=await supabase.from("idea_post_shares").upsert({post_id:post.id,user_id:me,channel:"web"},{onConflict:"post_id,user_id"});
+  if(error){toast.info("Link shared. Share audit will appear after the latest database migration is applied.");return}
+  const{data:p}=await supabase.from("idea_profiles").select("user_id,display_name,public_id,first_name,middle_name,last_name,avatar_url").eq("user_id",me).maybeSingle();
+  if(!sharedUsers.some(x=>x.user_id===me)){setSharedUsers(v=>[{user_id:me,profile:p},...v]);setShares(v=>v+1)}
+  toast.success("Post shared. Original Post ID: "+post.id);
+};
+const comment=async()=>{if(!me)return toast.error("Please sign in first.");if(!text.trim())return;const{data,error}=await supabase.from("idea_post_comments").insert({post_id:post.id,user_id:me,content:text.trim()}).select().single();if(error)toast.error(error.message);else{setComments(v=>[...v,data]);setText("")}};
  return <div className="mt-4 rounded-2xl border bg-muted/20 p-3">
   <div className="mb-3 rounded-xl border bg-background/70 p-3 text-xs">
    <div className="font-semibold">Original Post ID</div><div className="mt-1 break-all font-mono text-muted-foreground">{post.id}</div>
