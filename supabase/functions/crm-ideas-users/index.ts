@@ -44,13 +44,19 @@ Deno.serve(async (req) => {
     });
 
     const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-    if (!token) return fail("Authentication required.", 401);
-
-    const { data: { user: actor }, error: actorError } = await admin.auth.getUser(token);
-    if (actorError || !actor) return fail("Authentication required.", 401);
 
     let body: any = {};
     try { body = await req.json(); } catch {}
+
+    const publicProfileRequest =
+      body.action === "profile_summary" && !!String(body.public_id ?? "").trim();
+
+    let actor: any = null;
+    if (token) {
+      const { data: { user } } = await admin.auth.getUser(token);
+      actor = user || null;
+    }
+    if (!actor && !publicProfileRequest) return fail("Authentication required.", 401);
 
     const selfDelete = body.action === "delete_self";
 
@@ -60,6 +66,46 @@ Deno.serve(async (req) => {
       // stored ANVYA data instead of rejecting valid CRM sessions because an
       // email/role allowlist is stale.
       // The authenticated Supabase session is still required above.
+    }
+
+    if (body.action === "profile_summary" && body.public_id) {
+      const publicId = String(body.public_id).trim();
+      const { data: profile, error: profileError } = await admin
+        .from("idea_profiles")
+        .select("user_id,public_id")
+        .eq("public_id", publicId)
+        .maybeSingle();
+      if (profileError) return fail(profileError.message, 400);
+      if (!profile) return ok({ posts: [], follower_count: 0, following_count: 0 });
+
+      const isOwner = actor?.id === profile.user_id;
+      let postsQuery = admin
+        .from("idea_posts")
+        .select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug,tags")
+        .eq("profile_id", publicId)
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      postsQuery = isOwner
+        ? postsQuery.in("status", ["approved", "pending"])
+        : postsQuery.eq("status", "approved").eq("visibility", "public");
+
+      const [{ data: posts, error: postsError }, { count: followerCount, error: followersError }, { count: followingCount, error: followingError }] =
+        await Promise.all([
+          postsQuery,
+          admin.from("idea_follows").select("follower_id", { count: "exact", head: true }).eq("following_id", profile.user_id),
+          admin.from("idea_follows").select("following_id", { count: "exact", head: true }).eq("follower_id", profile.user_id),
+        ]);
+
+      if (postsError) return fail(postsError.message, 400);
+      if (followersError) return fail(followersError.message, 400);
+      if (followingError) return fail(followingError.message, 400);
+
+      return ok({
+        posts: posts ?? [],
+        follower_count: followerCount ?? 0,
+        following_count: followingCount ?? 0,
+      });
     }
 
     if (body.action === "my_posts" || body.action === "profile_posts") {
