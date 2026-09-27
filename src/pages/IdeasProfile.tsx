@@ -131,22 +131,14 @@ export default function IdeasProfile(){
  setVerification(verificationResult.data||null);
 
  const postSelect="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
- const fetchProfilePosts=async(statuses:string[],publicOnly:boolean)=>{
-  const build=(column:string,value:string)=>{
-   let q=supabase.from("idea_posts").select(postSelect).eq(column,value).in("status",statuses).order("created_at",{ascending:false});
-   if(publicOnly) q=q.eq("visibility","public");
-   return q;
-  };
-  const queries=[build("user_id",id),...(profilePublicId?[build("profile_id",profilePublicId)]:[])];
-  const results=await Promise.all(queries);
-  const rows=results.flatMap((r:any)=>r.data||[]) as Post[];
-  results.forEach((r:any)=>{if(r.error)console.error("ANVYA profile posts query failed:",r.error)});
-  return Array.from(new Map(rows.map(x=>[x.id,x])).values()).sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime());
- };
-
- // Owner sees approved + pending posts. Everyone else sees only approved public posts.
- const loadedPosts=await fetchProfilePosts(postStatuses,!isOwner);
+ const {data:rpcPosts,error:rpcError}=await supabase.rpc("get_anvya_profile_posts",{
+  target_user_id:id,
+  target_profile_id:profilePublicId||null,
+ });
+ if(rpcError) console.error("ANVYA profile posts RPC failed:",rpcError);
+ const loadedPosts=(rpcPosts as Post[])||[];
  setPosts(loadedPosts);
+
  const [{count:followers},{count:followingCountValue}]=await Promise.all([supabase.from("idea_follows").select("follower_id",{count:"exact",head:true}).eq("following_id",id),supabase.from("idea_follows").select("following_id",{count:"exact",head:true}).eq("follower_id",id)]);setFollowerCount(followers||0);setFollowingCount(followingCountValue||0);
  const shareIds=(resharesResult.data||[]).map((x:any)=>x.post_id);
  if(shareIds.length){
@@ -515,7 +507,7 @@ export default function IdeasProfile(){
        initialTarget={p.user_id !== me ? { user_id: p.user_id, display_name: p.display_name, avatar_url: p.avatar_url, public_id: p.public_id } : null}
       />
      ) : null} 
-     {tab==="posts"&&posts.filter(x=>["post","blog"].includes(String(x.post_type||"").toLowerCase())&&x.id!==pinnedPostId).map(x=><PostCard key={x.id} x={x} pinnedByProfile={pinnedPostId===x.id} onTogglePin={()=>togglePinnedPost(x.id)}/>)}
+     {tab==="posts"&&posts.filter(x=>x.id!==pinnedPostId).map(x=><PostCard key={x.id} x={x} pinnedByProfile={pinnedPostId===x.id} onTogglePin={()=>togglePinnedPost(x.id)}/>)}
      {tab==="reshares"&&reshares.map(x=><PostCard key={x.id} x={x} resharedByProfile/>)}
      {tab==="questions"&&posts.filter(x=>x.post_type==="question").map(x=><PostCard key={x.id} x={x}/>)}
      {tab==="activity"&&<Card><CardContent className="p-6"><h3 className="text-lg font-black">Timeline</h3>{posts.length?<div className="relative mt-5 space-y-5 pl-5 before:absolute before:bottom-2 before:left-2 before:top-2 before:w-px before:bg-border">{posts.slice(0,20).map(x=><div key={x.id} className="relative"><span className="absolute -left-[17px] top-1.5 size-3 rounded-full border-2 border-background bg-primary"/><div className="rounded-2xl border p-4"><div className="flex flex-wrap items-center justify-between gap-2"><b>{x.post_type==="question"?"Asked a question":x.post_type==="blog"?"Published a blog":"Published a post"}</b><span className="text-xs text-muted-foreground">{new Date(x.created_at).toLocaleString()}</span></div><Link to={x.slug?"/anvya/"+x.slug:"/anvya/profile/"+(x.profile_id||p.public_id||p.user_id)+"?post="+x.id} className="mt-1 block text-sm font-semibold text-primary hover:underline">{x.title||"Untitled post"}</Link>{x.status==="pending"&&me===p.user_id&&<span className="mt-2 inline-flex rounded-full bg-amber-100 px-2 py-1 text-[11px] font-semibold text-amber-800">Pending review</span>}</div></div>)}</div>:<div className="mt-5 rounded-xl border border-dashed p-5 text-center text-sm text-muted-foreground">No activity yet for this user.</div>}</CardContent></Card>}
