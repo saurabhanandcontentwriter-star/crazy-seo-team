@@ -1,3 +1,4 @@
+// Deployment compatibility update: profile summary endpoint uses the production GitHub environment secret.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const cors = {
