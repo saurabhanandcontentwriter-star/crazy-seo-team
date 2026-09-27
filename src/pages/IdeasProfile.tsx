@@ -37,26 +37,24 @@ function sanitizeRichHtml(input:string){
 function ProfileAnvyaNews(){
  const[posts,setPosts]=useState<any[]>([]);
  useEffect(()=>{let active=true;(async()=>{
-   const {data:profile}=await supabase.from("idea_profiles").select("user_id,display_name,profile_slug,public_id").or("profile_slug.ilike.anvya,public_id.eq.ANVYA").limit(1).maybeSingle();
-   if(!profile?.user_id){if(active)setPosts([]);return;}
-   const {data}=await supabase.from("idea_posts").select("id,title,content,created_at,post_type,visibility,status,slug").eq("status","approved").order("created_at",{ascending:false}).limit(5);
+   const {data}=await supabase.from("idea_posts").select("id,user_id,title,content,created_at,post_type,visibility,status,slug,display_name").eq("status","approved").in("post_type",["post","blog"]).eq("visibility","public").order("created_at",{ascending:false}).limit(5);
    if(active)setPosts(data||[]);
  })();return()=>{active=false}},[]);
- const ago=(d:string)=>{const m=Math.max(1,Math.floor((Date.now()-new Date(d).getTime())/60000));return m<60?`${m}m ago`:m<1440?`${Math.floor(m/60)}h ago`:`${Math.floor(m/1440)}d ago`};
+ const ago=(d:string)=>{const m=Math.max(1,Math.floor((Date.now()-new Date(d).getTime())/60000));return m<60?m+"m ago":m<1440?Math.floor(m/60)+"h ago":Math.floor(m/1440)+"d ago"};
  return <Card className="rounded-2xl border shadow-sm overflow-hidden">
   <CardContent className="p-0">
    <div className="flex items-center justify-between border-b px-5 py-4">
-    <Link to="/anvya/profile/anvya" className="flex items-center gap-2 hover:text-primary"><Newspaper className="size-4"/><h3 className="font-black">Anvya News</h3></Link>
-    <Link to="/anvya/profile/anvya" aria-label="Open Anvya profile" className="rounded p-1 hover:bg-muted"><Info className="size-4 text-muted-foreground"/></Link>
+    <Link to="/anvya" className="flex items-center gap-2 hover:text-primary"><Newspaper className="size-4"/><h3 className="font-black">Anvya News</h3></Link>
+    <Link to="/anvya" aria-label="Open ANVYA" className="rounded p-1 hover:bg-muted"><Info className="size-4 text-muted-foreground"/></Link>
    </div>
    <div className="px-5 pt-4 pb-1 text-sm font-bold">Top stories</div>
    <div className="px-5 pb-2">
-    {posts.length?posts.map((n:any)=><Link key={n.id} to={n.slug ? `/anvya/${n.slug}` : `/anvya/profile/anvya?post=${n.id}`} className="block border-b py-3 last:border-0 hover:bg-muted/40">
-      <p className="line-clamp-2 text-[13px] font-semibold leading-5">{n.title||n.content||"Anvya update"}</p>
-      <p className="mt-1 text-[10px] text-muted-foreground">{ago(n.created_at)} · Anvya</p>
-    </Link>):<p className="py-4 text-xs text-muted-foreground">No recent Anvya stories.</p>}
+    {posts.length?posts.map((n:any)=><Link key={n.id} to={n.slug ? "/anvya/"+n.slug : "/anvya"} className="block border-b py-3 last:border-0 hover:bg-muted/40">
+      <p className="line-clamp-2 text-[13px] font-semibold leading-5">{n.title||n.content||"ANVYA update"}</p>
+      <p className="mt-1 text-[10px] text-muted-foreground">{ago(n.created_at)} · {n.display_name||"ANVYA Member"} · {n.post_type==="blog"?"Blog":"Post"}</p>
+    </Link>):<p className="py-4 text-xs text-muted-foreground">No recent top stories.</p>}
    </div>
-   <Link to="/anvya/profile/anvya" className="flex items-center gap-1 border-t px-5 py-3 text-xs font-semibold hover:bg-muted/50">Show more posts <ChevronDown className="size-3.5"/></Link>
+   <Link to="/anvya" className="flex items-center gap-1 border-t px-5 py-3 text-xs font-semibold hover:bg-muted/50">Show more posts <ChevronDown className="size-3.5"/></Link>
   </CardContent>
  </Card>;
 }
