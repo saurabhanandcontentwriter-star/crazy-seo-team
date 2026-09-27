@@ -12,7 +12,7 @@ import {toast} from "sonner";
 import IdeasMessages from "@/components/IdeasMessages";
 import IdeasInlinePostComposer from "@/components/IdeasInlinePostComposer";
 import CreatorProfilePanel from "@/components/CreatorProfilePanel";
-import {ArrowLeft,LogIn,LogOut,UserPlus,UserCheck,Users,FileText,Activity,HelpCircle,Save,ExternalLink,Loader2,UserCircle2,Camera,ShieldCheck,Upload,Clock3,Bookmark,FileEdit,BarChart3,Moon,Sun,Languages,Globe2,Settings2,MessageCircle,Quote,Facebook,Linkedin,Instagram,Twitter,Mail,Send,Home,Compass,Bell,Plus,Crown,Calendar,Link2,PawPrint,Trash2} from "lucide-react";
+import {ArrowLeft,LogIn,LogOut,UserPlus,UserCheck,Users,FileText,Activity,HelpCircle,Save,ExternalLink,Loader2,UserCircle2,Camera,ShieldCheck,Upload,Clock3,Bookmark,FileEdit,BarChart3,Moon,Sun,Languages,Globe2,Settings2,MessageCircle,Quote,Facebook,Linkedin,Instagram,Twitter,Mail,Send,Home,Compass,Bell,Plus,Crown,Calendar,Link2,PawPrint,Trash2,Newspaper,Info,ChevronDown} from "lucide-react";
 
 type Profile={experience?:any[];education_details?:any[];projects?:any[];certificates?:any[];medium_url?:string|null;user_id:string;display_name:string;working?:string|null;company?:string|null;education?:string|null;date_of_birth?:string|null;first_name?:string|null;middle_name?:string|null;last_name?:string|null;state?:string|null;country?:string|null;bio:string|null;avatar_url:string|null;cover_url:string|null;location:string|null;website_url:string|null;linkedin_url:string|null;github_url:string|null;instagram_url:string|null;twitter_url:string|null;medium_url?:string|null;public_id?:string|null;reputation_points?:number;level?:number;verified?:boolean;profile_slug?:string|null;is_creator?:boolean;creator_types?:string[]|null;creator_since?:string|null;creator_rules_accepted_at?:string|null};
 type Post={id:string;user_id:string;display_name:string|null;profile_image_url:string|null;title:string;content:string;post_type:string;visibility:string;subject:string;image_url:string|null;created_at:string;status:string;tags?:string[]};
@@ -34,6 +34,28 @@ function sanitizeRichHtml(input:string){
  });
  return doc.body.innerHTML;
 }
+function ProfileAnvyaNews(){
+ const[news,setNews]=useState<any[]>([]);
+ useEffect(()=>{let active=true;(async()=>{const{data}=await supabase.from("news_articles").select("id,title,summary,category,published_at,source,source_url").order("published_at",{ascending:false}).limit(5);if(active)setNews(data||[])})();return()=>{active=false}},[]);
+ const ago=(d:string)=>{const m=Math.max(1,Math.floor((Date.now()-new Date(d).getTime())/60000));return m<60?`${m}m ago`:m<1440?`${Math.floor(m/60)}h ago`:`${Math.floor(m/1440)}d ago`};
+ return <Card className="rounded-2xl border shadow-sm overflow-hidden">
+  <CardContent className="p-0">
+   <div className="flex items-center justify-between border-b px-5 py-4">
+    <Link to="/news" className="flex items-center gap-2 hover:text-primary"><Newspaper className="size-4"/><h3 className="font-black">Anvya News</h3></Link>
+    <Link to="/news" aria-label="Open Anvya News" className="rounded p-1 hover:bg-muted"><Info className="size-4 text-muted-foreground"/></Link>
+   </div>
+   <div className="px-5 pt-4 pb-1 text-sm font-bold">Top stories</div>
+   <div className="px-5 pb-2">
+    {news.length?news.map((n:any)=>{const href=n.source_url||"/news";return <a key={n.id} href={href} target={n.source_url?"_blank":undefined} rel={n.source_url?"noopener noreferrer":undefined} className="block border-b py-3 last:border-0 hover:bg-muted/40">
+      <p className="line-clamp-2 text-[13px] font-semibold leading-5">{n.title}</p>
+      <p className="mt-1 text-[10px] text-muted-foreground">{ago(n.published_at)} · {n.source||n.category||"Anvya News"}</p>
+    </a>;}):<p className="py-4 text-xs text-muted-foreground">No recent stories.</p>}
+   </div>
+   <Link to="/news" className="flex items-center gap-1 border-t px-5 py-3 text-xs font-semibold hover:bg-muted/50">Show more news <ChevronDown className="size-3.5"/></Link>
+  </CardContent>
+ </Card>;
+}
+
 export default function IdeasProfile(){
  // Keep profile UI clean: no literal newline escape should ever be rendered as JSX text.
  const {userId}=useParams(); const nav=useNavigate();
@@ -342,6 +364,7 @@ export default function IdeasProfile(){
       </Card>
 
       <div className="hidden space-y-5 xl:block">
+        <ProfileAnvyaNews/>
         <Card className="rounded-2xl border shadow-sm">
           <CardContent className="p-5">
             <div className="flex items-center justify-between"><h3 className="font-black">Professional Highlights</h3><Badge variant="outline">ANVYA</Badge></div>
