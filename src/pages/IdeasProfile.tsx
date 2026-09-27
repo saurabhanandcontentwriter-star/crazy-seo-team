@@ -157,11 +157,34 @@ export default function IdeasProfile(){
  ]);
  setVerification(verificationResult.data||null);
 
- const {data:rpcPosts,error:rpcError}=await supabase.rpc("get_anvya_profile_posts",{
-  target_user_id:id,
-  target_profile_id:profilePublicId||null,
- });
- let loadedPosts=(rpcPosts as Post[])||[];
+ let loadedPosts:Post[]=[];
+ let rpcError:any=null;
+
+ // Owner fallback: the CRM Ideas Edge Function uses the service role and can
+ // read the owner's posts even when production RLS/migrations are behind.
+ if(isOwner&&profilePublicId){
+  try{
+   const {data:ownerPosts,error:ownerPostsError}=await supabase.functions.invoke("crm-ideas-users",{
+    body:{action:"profile_posts",public_id:profilePublicId}
+   });
+   if(!ownerPostsError){
+    loadedPosts=((ownerPosts?.posts||[]) as Post[]).filter((x:Post)=>x.status==="approved"||x.status==="pending");
+   }else{
+    console.warn("ANVYA owner Edge Function post lookup failed:",ownerPostsError.message);
+   }
+  }catch(e:any){
+   console.warn("ANVYA owner Edge Function post lookup exception:",e?.message||e);
+  }
+ }
+
+ if(!loadedPosts.length){
+  const {data:rpcPosts,error}=await supabase.rpc("get_anvya_profile_posts",{
+   target_user_id:id,
+   target_profile_id:profilePublicId||null,
+  });
+  rpcError=error;
+  loadedPosts=(rpcPosts as Post[])||[];
+ }
  if(rpcError||!loadedPosts.length){
   const statusFilter=isOwner?["approved","pending"]:["approved"];
   const selectFields="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
