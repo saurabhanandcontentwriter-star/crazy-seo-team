@@ -179,10 +179,6 @@ export default function IdeasAdmin() {
   };
 
   const review = async (row: Idea, status: "approved" | "rejected") => {
-    if (status === "approved" && !row.moderation_checked_at) {
-      toast.error("Run/complete the content detector check before approval.");
-      return;
-    }
     if (status === "rejected" && !reason[row.id]?.trim()) {
       toast.error("Add rejection reason.");
       return;
@@ -191,7 +187,7 @@ export default function IdeasAdmin() {
     setBusy(row.id);
     const nextReason = status === "rejected"
       ? reason[row.id].trim()
-      : "Approved after content detector review.";
+      : "Approved by admin review.";
 
     const { data, error } = await supabase.functions.invoke("crm-ideas-users", {
       body: {
@@ -222,7 +218,7 @@ export default function IdeasAdmin() {
             </div>
             <h1 className="mt-1 text-3xl font-black tracking-tight">SEO Blog Style Moderation</h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Every community post is displayed as a complete article for content-detector review before approval.
+              Review and publish community posts directly from this admin queue.
             </p>
           </div>
           <Button variant="outline" onClick={load}>Refresh</Button>
@@ -364,8 +360,9 @@ export default function IdeasAdmin() {
                         className="min-h-24 rounded-2xl"
                       />
                       <div className="mt-3 flex flex-wrap gap-2">
-                        <Button onClick={() => review(r, "approved")} disabled={busy === r.id || !r.moderation_checked_at}>
-                          <Check className="mr-2 size-4" />Approve after detector check
+                        <Button onClick={() => review(r, "approved")} disabled={busy === r.id}>
+                          {busy === r.id ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Check className="mr-2 size-4" />}
+                          Approve & Publish
                         </Button>
                         <Button variant="destructive" onClick={() => review(r, "rejected")} disabled={busy === r.id}>
                           <X className="mr-2 size-4" />Reject
@@ -374,7 +371,6 @@ export default function IdeasAdmin() {
                           {busy === r.id ? <Loader2 className="mr-2 size-4 animate-spin" /> : <XCircle className="mr-2 size-4" />}
                           Delete {String(r.post_type || "").toLowerCase() === "blog" ? "Blog" : "Post"}
                         </Button>
-                        {!r.moderation_checked_at && <span className="self-center text-xs font-semibold text-amber-600">Detector check required before approval</span>}
                       </div>
                     </div>
                   )}
