@@ -130,7 +130,6 @@ export default function IdeasProfile(){
  ]);
  setVerification(verificationResult.data||null);
 
- const postSelect="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
  const {data:rpcPosts,error:rpcError}=await supabase.rpc("get_anvya_profile_posts",{
   target_user_id:id,
   target_profile_id:profilePublicId||null,
