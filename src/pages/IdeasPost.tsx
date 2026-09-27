@@ -52,6 +52,34 @@ export default function IdeasPost(){
     if(candidate.slug===requestedSlug||canonicalGoogle){data=candidate;error=null;}
    }
   }
+
+  // Last-resort public-feed lookup: if the article is approved/public but its
+  // legacy slug/profile mapping is inconsistent, the public ANVYA feed can
+  // still identify it without depending on author-specific RLS.
+  if((error||!data)&&requestedSlug){
+   const feed=await supabase.from("idea_posts")
+    .select(selectFields)
+    .eq("status","approved")
+    .eq("visibility","public")
+    .order("created_at",{ascending:false})
+    .limit(100);
+   if(!feed.error){
+    const target=requestedSlug.toLowerCase();
+    const normalizedTarget=target.replace(/[^a-z0-9]+/g," ").trim();
+    const candidate=(feed.data||[]).find((row:any)=>{
+      const rowSlug=String(row.slug||"").toLowerCase();
+      const rowTitle=String(row.title||"").toLowerCase();
+      const normalizedTitle=rowTitle.replace(/[^a-z0-9]+/g," ").trim();
+      return rowSlug===target
+        || rowSlug.startsWith(target+"-")
+        || rowSlug.includes(target)
+        || normalizedTitle===normalizedTarget
+        || (target==="google-september-2026-spam-update" &&
+            normalizedTitle==="google september 2026 spam update what seo professionals need to know");
+    });
+    if(candidate){data=candidate;error=null;}
+   }
+  }
     if(error||!data){if(active)setLoading(false);return}
   const owner=data.user_id===viewerId;
   if(data.status!=="approved"&&!owner){if(active)setLoading(false);return}
