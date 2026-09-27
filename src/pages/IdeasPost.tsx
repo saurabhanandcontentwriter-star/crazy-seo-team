@@ -37,16 +37,11 @@ export default function IdeasPost(){
   const {data:userData}=await supabase.auth.getUser();
   const viewerId=userData.user?.id||null;
   const requestedSlug=decodeURIComponent(slug).trim();
-  const idSuffixMatch=requestedSlug.match(/-([0-9a-f]{8})$/i); const postIdPrefix=idSuffixMatch?.[1]||null;
   const selectFields="id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
   let {data,error}=await supabase.from("idea_posts").select(selectFields).eq("slug",requestedSlug).eq("status","approved").eq("visibility","public").maybeSingle();
-  if((error||!data)&&postIdPrefix){
-   const exact=await supabase.from("idea_posts").select(selectFields).ilike("id",postIdPrefix+"%").eq("status","approved").eq("visibility","public").maybeSingle();
-   if(!exact.error&&exact.data){data=exact.data;error=null;}
-  }
   if((error||!data)&&requestedSlug){
    const rpc=await supabase.rpc("get_anvya_post_by_slug",{requested_slug:requestedSlug});
-   if(!rpc.error&&Array.isArray(rpc.data)&&rpc.data.length){data=rpc.data[0];error=null;}
+   if(!rpc.error&&Array.isArray(rpc.data)&&rpc.data.length&&rpc.data[0]?.slug===requestedSlug){data=rpc.data[0];error=null;}
   }
   if(error||!data){if(active)setLoading(false);return}
   const owner=data.user_id===viewerId;
