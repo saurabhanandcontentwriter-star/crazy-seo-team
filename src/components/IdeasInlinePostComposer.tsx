@@ -275,7 +275,7 @@ export default function IdeasInlinePostComposer({
         content: richContent,
         image_url: imageUrl,
         device_type: /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Laptop/Desktop",
-        status: "pending",
+        status: "approved",
         visibility,
         post_type: mode,
         event_start: eventStartIso,
