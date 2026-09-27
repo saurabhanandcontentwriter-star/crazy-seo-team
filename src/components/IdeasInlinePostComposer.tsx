@@ -49,6 +49,11 @@ const sanitizeRichHtml = (html: string) => {
       const name = a.name.toLowerCase();
       if (name.startsWith("on") || ["style", "class", "id"].includes(name)) el.removeAttribute(a.name);
     });
+    if (el.tagName.toLowerCase() === "img") {
+      const src = el.getAttribute("src") || "";
+      if (!/^https:\/\//i.test(src)) el.remove();
+      else el.setAttribute("alt", el.getAttribute("alt") || "Article image");
+    }
     if (el.tagName.toLowerCase() === "a") {
       const href = el.getAttribute("href") || "";
       if (!/^https:\/\//i.test(href)) el.removeAttribute("href");
@@ -71,6 +76,7 @@ export default function IdeasInlinePostComposer({
   onClose: () => void;
 }) {
   const editorRef = useRef<HTMLDivElement | null>(null);
+  const savedRangeRef = useRef<Range | null>(null);
   const [mode, setMode] = useState<ComposerMode>("post");
   const [title, setTitle] = useState("");
   const [contentText, setContentText] = useState("");
@@ -120,6 +126,13 @@ export default function IdeasInlinePostComposer({
     document.execCommand(command, false, value);
   };
 
+  const rememberSelection = () => {
+    const selection = window.getSelection();
+    if (!selection || !selection.rangeCount || !editorRef.current) return;
+    const range = selection.getRangeAt(0);
+    if (editorRef.current.contains(range.commonAncestorContainer)) savedRangeRef.current = range.cloneRange();
+  };
+
   const addLink = () => {
     const url = window.prompt("Enter HTTPS link");
     if (!url) return;
@@ -129,6 +142,45 @@ export default function IdeasInlinePostComposer({
     }
     editorRef.current?.focus();
     document.execCommand("createLink", false, url);
+  };
+
+  const uploadInlineImage = async (userId: string, file: File) => {
+    if (!validateImage(file)) throw new Error("Use JPG, PNG or WEBP up to 5 MB.");
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const path = userId + "/blog-inline-" + crypto.randomUUID() + "." + ext;
+    const storage = supabase.storage.from("idea-images");
+    const upload = await storage.upload(path, file, { contentType: file.type, cacheControl: "3600", upsert: false });
+    if (upload.error) throw new Error(upload.error.message || "Image upload failed.");
+    const url = storage.getPublicUrl(path).data.publicUrl;
+    if (!url) throw new Error("Image URL could not be created.");
+    return url;
+  };
+
+  const insertInlineImage = async (file: File) => {
+    if (mode !== "blog") return;
+    if (!validateImage(file)) return toast.error("Use JPG, PNG or WEBP up to 5 MB.");
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || user.id !== profile.user_id) return toast.error("Please sign in to your own profile first.");
+    try {
+      setBusy(true);
+      const url = await uploadInlineImage(user.id, file);
+      const editor = editorRef.current;
+      if (!editor) return;
+      editor.focus();
+      const selection = window.getSelection();
+      const range = savedRangeRef.current;
+      if (range && editor.contains(range.commonAncestorContainer)) {
+        selection?.removeAllRanges(); selection?.addRange(range);
+      } else {
+        const fallback = document.createRange(); fallback.selectNodeContents(editor); fallback.collapse(false);
+        selection?.removeAllRanges(); selection?.addRange(fallback);
+      }
+      document.execCommand("insertHTML", false, '<img src="' + url.replace(/"/g, "&quot;") + '" alt="Article image" style="max-width:100%;height:auto;border-radius:12px;margin:12px 0;" />');
+      rememberSelection();
+      toast.success("Article photo added.");
+    } catch (e: any) {
+      toast.error(e?.message || "Image upload failed.");
+    } finally { setBusy(false); }
   };
 
   const validateImage = (file: File) =>
@@ -426,10 +478,24 @@ export default function IdeasInlinePostComposer({
               <Button type="button" size="sm" variant="ghost" onClick={() => format("unlink")} title="Remove link">
                 <Unlink className="size-4" />
               </Button>
+              {mode === "blog" && (
+                <>
+                  <Button type="button" size="sm" variant="ghost"
+                    onMouseDown={(e) => { e.preventDefault(); rememberSelection(); }}
+                    onClick={() => document.getElementById("anvya-blog-inline-image")?.click()}
+                    title="Upload photo inside article" aria-label="Upload photo inside article">
+                    <ImagePlus className="size-4" /><span className="ml-1 hidden sm:inline">Photo</span>
+                  </Button>
+                  <input id="anvya-blog-inline-image" type="file" accept="image/jpeg,image/png,image/webp" className="hidden"
+                    onChange={(e) => { const file=e.target.files?.[0]; e.currentTarget.value=""; if(file) void insertInlineImage(file); }} />
+                </>
+              )}
             </div>
             )}
             <div
               ref={editorRef}
+              onKeyUp={rememberSelection}
+              onMouseUp={rememberSelection}
               onInput={(e) => {
                 const el = e.currentTarget;
                 let text = el.innerText || "";
