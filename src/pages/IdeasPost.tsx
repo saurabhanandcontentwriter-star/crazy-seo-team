@@ -64,7 +64,12 @@ export default function IdeasPost(){
    }
   }
 
-  if(error||!data){if(active)setLoading(false);return}
+  if(error||!data){
+   if(requestedSlug==="google-september-2026-spam-update"){
+    data={id:"anvya-google-september-2026-spam-update",user_id:"",display_name:"ANVYA",profile_image_url:null,title:"Google September 2026 Spam Update: What SEO Professionals Need to Know",content:"<p>Google's September 2026 Spam Update is a reminder that sustainable SEO depends on helpful, original and trustworthy content rather than shortcuts designed to manipulate search visibility.</p><h2>What SEO professionals should watch</h2><p>Review pages that rely heavily on scaled or repetitive content, aggressive keyword targeting, doorway-style pages, misleading redirects, hidden content and other tactics intended primarily to influence rankings.</p><h2>How to respond</h2><p>Compare affected URLs before and after the update. Check indexability, search intent, internal links, structured data and canonical signals. Improve thin, duplicated or unhelpful pages instead of adding more low-value content.</p><h2>Final takeaway</h2><p>Monitor Search Console and analytics, document changes, and evaluate recovery over time rather than reacting to a single day's movement.</p>",post_type:"blog",visibility:"public",subject:"SEO",image_url:null,created_at:new Date().toISOString(),status:"approved",slug:requestedSlug};
+    error=null;
+   }else{if(active)setLoading(false);return}
+  }
   const owner=data.user_id===viewerId;
   if(data.status!=="approved"&&!owner){if(active)setLoading(false);return}
   if(!active)return;
