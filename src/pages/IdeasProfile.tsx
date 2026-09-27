@@ -248,6 +248,14 @@ export default function IdeasProfile(){
    }else{
     const rows=(publicFeed.data||[]) as Post[];
     loadedPosts=rows.filter(x=>x.user_id===id||!!profilePublicId&&x.profile_id===profilePublicId);
+
+    // Compatibility for historical posts whose profile_id/user_id was stored
+    // before the current profile mapping. The public feed still contains the
+    // post, so retain it on the matching author's profile by display name.
+    if(!loadedPosts.length&&p?.display_name){
+      const authorName=String(p.display_name).trim().toLowerCase();
+      loadedPosts=rows.filter(x=>String(x.display_name||"").trim().toLowerCase()===authorName);
+    }
    }
   }
   if(rpcError) console.error("ANVYA profile posts RPC fallback:",rpcError);
