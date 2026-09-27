@@ -31,12 +31,17 @@ function sanitizeRichHtml(input:string){
 
 export default function IdeasPost(){
  const {slug}=useParams(); const nav=useNavigate();
- const [post,setPost]=useState<any>(null); const [profile,setProfile]=useState<any>(null); const [loading,setLoading]=useState(true);
+ const [post,setPost]=useState<any>(null); const [profile,setProfile]=useState<any>(null); const [loading,setLoading]=useState(true); const [isOwner,setIsOwner]=useState(false);
  useEffect(()=>{let active=true;(async()=>{
   if(!slug){nav("/anvya",{replace:true});return}
-  const {data,error}=await supabase.from("idea_posts").select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").eq("slug",decodeURIComponent(slug)).eq("status","approved").maybeSingle();
+  const {data:userData}=await supabase.auth.getUser();
+  const viewerId=userData.user?.id||null;
+  const {data,error}=await supabase.from("idea_posts").select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").eq("slug",decodeURIComponent(slug)).maybeSingle();
   if(error||!data){if(active)setLoading(false);return}
+  const owner=data.user_id===viewerId;
+  if(data.status!=="approved"&&!owner){if(active)setLoading(false);return}
   if(!active)return;
+  setIsOwner(owner);
   setPost(data);
   const {data:p}=await supabase.from("idea_profiles").select("user_id,display_name,avatar_url,profile_slug,public_id,bio").eq("user_id",data.user_id).maybeSingle();
   if(active)setProfile(p);
@@ -52,7 +57,7 @@ export default function IdeasPost(){
    <Card className="mt-6 overflow-hidden rounded-3xl">
     {post.image_url&&<img src={post.image_url} alt={title} className="max-h-[520px] w-full object-cover"/>}
     <CardContent className="p-6 md:p-10">
-     <div className="flex flex-wrap gap-2"><Badge>{post.post_type||"post"}</Badge>{post.subject&&<Badge variant="outline">{post.subject}</Badge>}</div>
+     <div className="flex flex-wrap gap-2"><Badge>{post.post_type||"post"}</Badge>{post.subject&&<Badge variant="outline">{post.subject}</Badge>}{post.status==="pending"&&isOwner&&<Badge variant="outline">Pending review</Badge>}</div>
      <h1 className="mt-4 text-3xl font-black leading-tight md:text-5xl">{title}</h1>
      <div className="mt-4 flex items-center gap-3">
       {profile?.avatar_url||post.profile_image_url?<img src={profile?.avatar_url||post.profile_image_url} alt="" className="size-10 rounded-full object-cover"/>:null}
