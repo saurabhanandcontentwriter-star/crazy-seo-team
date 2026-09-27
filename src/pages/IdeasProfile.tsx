@@ -37,11 +37,14 @@ function sanitizeRichHtml(input:string){
 }
 function ProfileAnvyaNews({posts}:{posts:Post[]}){
  const visiblePosts=posts.slice(0,5);
- const ago=(d:string)=>{const m=Math.max(1,Math.floor((Date.now()-new Date(d).getTime())/60000));return m<60?m+"m ago":m<1440?Math.floor(m/60)+"h ago":Math.floor(m/1440)+"d ago"};
  const postUrl=(n:Post)=>{
   const existing=String(n.slug||"").trim();
   const fallback=slugify(String(n.title||n.content||"anvya-post").replace(/<[^>]*>/g," ").trim().slice(0,120))||"anvya-post";
   return "/anvya/"+encodeURIComponent(existing||fallback);
+ };
+ const metaDescription=(content:string)=>{
+  const text=String(content||"").replace(/<[^>]*>/g," ").replace(/&nbsp;/gi," ").replace(/\s+/g," ").trim();
+  return text.split(" ").filter(Boolean).slice(0,50).join(" ")+(text.split(" ").filter(Boolean).length>50?"…":"");
  };
  return <Card className="rounded-2xl border shadow-sm overflow-hidden">
   <CardContent className="p-0">
@@ -52,7 +55,8 @@ function ProfileAnvyaNews({posts}:{posts:Post[]}){
    <div className="px-5 pt-4 pb-1 text-sm font-bold">Top stories</div>
    <div className="px-5 pb-2">
     {visiblePosts.length?visiblePosts.map((n:Post)=><Link key={n.id} to={postUrl(n)} className="block border-b py-3 last:border-0 hover:bg-muted/40">
-      <div className="flex gap-3">{n.image_url&&<img src={n.image_url} alt={n.title||"ANVYA post"} className="h-16 w-20 shrink-0 rounded-xl object-cover"/>}<div className="min-w-0 flex-1"><p className="line-clamp-2 text-[13px] font-semibold leading-5">{n.title||n.content||"ANVYA update"}</p><div className="mt-1 line-clamp-2 text-[11px] leading-4 text-muted-foreground" dangerouslySetInnerHTML={{__html:sanitizeRichHtml(n.content||"")}}/><p className="mt-1 text-[10px] text-muted-foreground">{ago(n.created_at)} · {n.display_name||"ANVYA Member"} · {n.post_type||"Post"}{n.status==="pending"?" · Pending review":""}</p></div></div>
+      <p className="line-clamp-2 text-[13px] font-semibold leading-5">{n.title||"ANVYA update"}</p>
+      <p className="mt-1 line-clamp-4 text-[11px] leading-4 text-muted-foreground">{metaDescription(n.content)}</p>
     </Link>):<p className="py-4 text-xs text-muted-foreground">No posts yet.</p>}
    </div>
    <Link to="/anvya" className="flex items-center gap-1 border-t px-5 py-3 text-xs font-semibold hover:bg-muted/50">Show more posts <ChevronDown className="size-3.5"/></Link>
