@@ -120,16 +120,18 @@ export default function IdeasProfile(){
  if(userId==="me"&&user?.id===id&&profile?.public_id){nav("/anvya/profile/"+profile.public_id,{replace:true});return}
  if(!profile&&user?.id!==id){setLoading(false);return}
  setLoading(false);
+ const profilePublicId=profile?.public_id||"";
+ const isOwner=user?.id===id;
+ const postStatuses=isOwner?["approved","pending"]:["approved"];
  const [verificationResult,postsResult,resharesResult,incomingResult]=await Promise.all([
-  user&&id===user.id?supabase.from("idea_verification_requests").select("id,status,rejection_reason,created_at").eq("user_id",id).maybeSingle():Promise.resolve({data:null}),
-  supabase.from("idea_posts").select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").or(p?.public_id ? `user_id.eq.${id},profile_id.eq.${p.public_id}` : `user_id.eq.${id}`).in("status", user&&id===user.id ? ["approved","pending"] : ["approved"]).order("created_at",{ascending:false}),
+  isOwner?supabase.from("idea_verification_requests").select("id,status,rejection_reason,created_at").eq("user_id",id).maybeSingle():Promise.resolve({data:null}),
+  supabase.from("idea_posts").select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").or(profilePublicId ? `user_id.eq.${id},profile_id.eq.${profilePublicId}` : `user_id.eq.${id}`).in("status",postStatuses).order("created_at",{ascending:false}),
   supabase.from("idea_post_reshares").select("post_id").eq("user_id",id).order("created_at",{ascending:false}),
-  user&&id===user.id?supabase.from("idea_friendships").select("requester_id").eq("addressee_id",user.id).eq("status","pending"):Promise.resolve({data:[]})
+  isOwner?supabase.from("idea_friendships").select("requester_id").eq("addressee_id",user.id).eq("status","pending"):Promise.resolve({data:[]})
  ]);
  setVerification(verificationResult.data||null);
  let loadedPosts=(postsResult.data as Post[])||[];
- if(me===id){
-  const profilePublicId=p?.public_id||"";
+ if(isOwner){
   const ownerQuery=supabase.from("idea_posts")
    .select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug")
    .or(profilePublicId ? `user_id.eq.${id},profile_id.eq.${profilePublicId}` : `user_id.eq.${id}`)
@@ -142,7 +144,7 @@ export default function IdeasProfile(){
  if(!loadedPosts.length){
   const {data:publicPosts,error:publicError}=await supabase.from("idea_posts")
    .select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug")
-   .eq("user_id",id).eq("status","approved").eq("visibility","public")
+   .or(profilePublicId ? `user_id.eq.${id},profile_id.eq.${profilePublicId}` : `user_id.eq.${id}`).eq("status","approved").eq("visibility","public")
    .order("created_at",{ascending:false});
   if(publicError) console.error("ANVYA public posts query failed:",publicError);
   loadedPosts=(publicPosts as Post[])||[];
