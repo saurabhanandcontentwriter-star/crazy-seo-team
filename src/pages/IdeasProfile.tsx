@@ -123,32 +123,26 @@ export default function IdeasProfile(){
  const profilePublicId=profile?.public_id||"";
  const isOwner=user?.id===id;
  const postStatuses=isOwner?["approved","pending"]:["approved"];
- const [verificationResult,postsResult,resharesResult,incomingResult]=await Promise.all([
+ const [verificationResult,resharesResult,incomingResult]=await Promise.all([
   isOwner?supabase.from("idea_verification_requests").select("id,status,rejection_reason,created_at").eq("user_id",id).maybeSingle():Promise.resolve({data:null}),
-  supabase.from("idea_posts").select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").or(profilePublicId ? `user_id.eq.${id},profile_id.eq.${profilePublicId}` : `user_id.eq.${id}`).in("status",postStatuses).order("created_at",{ascending:false}),
   supabase.from("idea_post_reshares").select("post_id").eq("user_id",id).order("created_at",{ascending:false}),
   isOwner?supabase.from("idea_friendships").select("requester_id").eq("addressee_id",user.id).eq("status","pending"):Promise.resolve({data:[]})
  ]);
  setVerification(verificationResult.data||null);
- let loadedPosts=(postsResult.data as Post[])||[];
- if(isOwner){
-  const ownerQuery=supabase.from("idea_posts")
-   .select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug")
-   .or(profilePublicId ? `user_id.eq.${id},profile_id.eq.${profilePublicId}` : `user_id.eq.${id}`)
-   .in("status",["approved","pending"])
-   .order("created_at",{ascending:false});
-  const {data:ownerPosts,error:ownerError}=await ownerQuery;
-  if(ownerError) console.error("ANVYA owner posts query failed:",ownerError);
-  if(ownerPosts?.length) loadedPosts=ownerPosts as Post[];
- }
- if(!loadedPosts.length){
-  const {data:publicPosts,error:publicError}=await supabase.from("idea_posts")
-   .select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug")
-   .or(profilePublicId ? `user_id.eq.${id},profile_id.eq.${profilePublicId}` : `user_id.eq.${id}`).eq("status","approved").eq("visibility","public")
-   .order("created_at",{ascending:false});
-  if(publicError) console.error("ANVYA public posts query failed:",publicError);
-  loadedPosts=(publicPosts as Post[])||[];
- }
+
+ const postSelect="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
+ const fetchProfilePosts=async(statuses:string[])=>{
+  const queries=[
+   supabase.from("idea_posts").select(postSelect).eq("user_id",id).in("status",statuses).order("created_at",{ascending:false}),
+   ...(profilePublicId?[supabase.from("idea_posts").select(postSelect).eq("profile_id",profilePublicId).in("status",statuses).order("created_at",{ascending:false})]:[])
+  ];
+  const results=await Promise.all(queries);
+  const rows=results.flatMap((r:any)=>r.data||[]) as Post[];
+  results.forEach((r:any)=>{if(r.error)console.error("ANVYA profile posts query failed:",r.error)});
+  return Array.from(new Map(rows.map(x=>[x.id,x])).values()).sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime());
+ };
+
+ const loadedPosts=await fetchProfilePosts(postStatuses);
  setPosts(loadedPosts);
  const [{count:followers},{count:followingCountValue}]=await Promise.all([supabase.from("idea_follows").select("follower_id",{count:"exact",head:true}).eq("following_id",id),supabase.from("idea_follows").select("following_id",{count:"exact",head:true}).eq("follower_id",id)]);setFollowerCount(followers||0);setFollowingCount(followingCountValue||0);
  const shareIds=(resharesResult.data||[]).map((x:any)=>x.post_id);
@@ -521,7 +515,7 @@ export default function IdeasProfile(){
      {tab==="posts"&&posts.filter(x=>["post","blog"].includes(String(x.post_type||"").toLowerCase())&&x.id!==pinnedPostId).map(x=><PostCard key={x.id} x={x} pinnedByProfile={pinnedPostId===x.id} onTogglePin={()=>togglePinnedPost(x.id)}/>)}
      {tab==="reshares"&&reshares.map(x=><PostCard key={x.id} x={x} resharedByProfile/>)}
      {tab==="questions"&&posts.filter(x=>x.post_type==="question").map(x=><PostCard key={x.id} x={x}/>)}
-     {tab==="activity"&&<Card><CardContent className="p-6"><h3 className="text-lg font-black">Timeline</h3><div className="relative mt-5 space-y-5 pl-5 before:absolute before:bottom-2 before:left-2 before:top-2 before:w-px before:bg-border">{posts.slice(0,20).map(x=><div key={x.id} className="relative"><span className="absolute -left-[17px] top-1.5 size-3 rounded-full border-2 border-background bg-primary"/><div className="rounded-2xl border p-4"><div className="flex flex-wrap items-center justify-between gap-2"><b>{x.post_type==="question"?"Asked a question":x.post_type==="blog"?"Published a blog":"Published a post"}</b><span className="text-xs text-muted-foreground">{new Date(x.created_at).toLocaleString()}</span></div><Link to={x.slug?"/anvya/"+x.slug:"/anvya/profile/"+p.public_id+"?post="+x.id} className="mt-1 block text-sm font-semibold text-primary hover:underline">{x.title}</Link>{x.status==="pending"&&me===p.user_id&&<span className="mt-2 inline-flex rounded-full bg-amber-100 px-2 py-1 text-[11px] font-semibold text-amber-800">Pending review</span>}</div></div>)}</div></CardContent></Card>}
+     {tab==="activity"&&<Card><CardContent className="p-6"><h3 className="text-lg font-black">Timeline</h3>{posts.length?<div className="relative mt-5 space-y-5 pl-5 before:absolute before:bottom-2 before:left-2 before:top-2 before:w-px before:bg-border">{posts.slice(0,20).map(x=><div key={x.id} className="relative"><span className="absolute -left-[17px] top-1.5 size-3 rounded-full border-2 border-background bg-primary"/><div className="rounded-2xl border p-4"><div className="flex flex-wrap items-center justify-between gap-2"><b>{x.post_type==="question"?"Asked a question":x.post_type==="blog"?"Published a blog":"Published a post"}</b><span className="text-xs text-muted-foreground">{new Date(x.created_at).toLocaleString()}</span></div><Link to={x.slug?"/anvya/"+x.slug:"/anvya/profile/"+(x.profile_id||p.public_id||p.user_id)+"?post="+x.id} className="mt-1 block text-sm font-semibold text-primary hover:underline">{x.title||"Untitled post"}</Link>{x.status==="pending"&&me===p.user_id&&<span className="mt-2 inline-flex rounded-full bg-amber-100 px-2 py-1 text-[11px] font-semibold text-amber-800">Pending review</span>}</div></div>)}</div>:<div className="mt-5 rounded-xl border border-dashed p-5 text-center text-sm text-muted-foreground">No activity yet for this user.</div>}</CardContent></Card>}
      {(tab==="friends"||tab==="following"||tab==="followers")&&<RelationshipList userId={p.user_id} mode={tab as "friends"|"following"|"followers"}/>}
        </div>
       </div>
