@@ -130,6 +130,10 @@ export default function IdeasProfile(){
  ]);
  setVerification(verificationResult.data||null);
  let loadedPosts=(postsResult.data as Post[])||[];
+ if(!loadedPosts.length && user?.id===id){
+  const {data:ownResult}=await supabase.functions.invoke("crm-ideas-users",{body:{action:"my_posts"}});
+  if(Array.isArray((ownResult as any)?.posts)) loadedPosts=(ownResult as any).posts as Post[];
+ }
  if(!loadedPosts.length){
   const {data:publicPosts}=await supabase.from("idea_posts").select("id,user_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug").eq("user_id",id).eq("status","approved").eq("visibility","public").order("created_at",{ascending:false});
   loadedPosts=(publicPosts as Post[])||[];
