@@ -42,7 +42,7 @@ function ProfileAnvyaNews(){
    const {data}=await supabase.from("idea_posts").select("id,title,content,created_at,post_type,visibility,status").eq("user_id",profile.user_id).eq("status","approved").order("created_at",{ascending:false}).limit(5);
    if(active)setPosts(data||[]);
  })();return()=>{active=false}},[]);
- const ago=(d:string)=>{const m=Math.max(1,Math.floor((Date.now()-new Date(d).getTime())/60000));return m<60?\`${m}m ago\`:m<1440?\`${Math.floor(m/60)}h ago\`:\`${Math.floor(m/1440)}d ago\`};
+ const ago=(d:string)=>{const m=Math.max(1,Math.floor((Date.now()-new Date(d).getTime())/60000));return m<60?`${m}m ago`:m<1440?`${Math.floor(m/60)}h ago`:`${Math.floor(m/1440)}d ago`};
  return <Card className="rounded-2xl border shadow-sm overflow-hidden">
   <CardContent className="p-0">
    <div className="flex items-center justify-between border-b px-5 py-4">
@@ -51,7 +51,7 @@ function ProfileAnvyaNews(){
    </div>
    <div className="px-5 pt-4 pb-1 text-sm font-bold">Top stories</div>
    <div className="px-5 pb-2">
-    {posts.length?posts.map((n:any)=><Link key={n.id} to={\`/anvya/profile/anvya?post=${n.id}\`} className="block border-b py-3 last:border-0 hover:bg-muted/40">
+    {posts.length?posts.map((n:any)=><Link key={n.id} to={`/anvya/profile/anvya?post=${n.id}`} className="block border-b py-3 last:border-0 hover:bg-muted/40">
       <p className="line-clamp-2 text-[13px] font-semibold leading-5">{n.title||n.content||"Anvya update"}</p>
       <p className="mt-1 text-[10px] text-muted-foreground">{ago(n.created_at)} · Anvya</p>
     </Link>):<p className="py-4 text-xs text-muted-foreground">No recent Anvya stories.</p>}
