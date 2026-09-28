@@ -48,8 +48,13 @@ function sanitizeRichHtml(input:string){
  });
  return doc.body.innerHTML;
 }
-function ProfileAnvyaNews({posts}:{posts:Post[]}){
- const visiblePosts=posts.slice(0,5);
+function ProfileAnvyaNews({posts:_posts}:{posts:Post[]}){
+ const [visiblePosts,setVisiblePosts]=useState<Post[]>([]);
+ useEffect(()=>{let cancelled=false;(async()=>{
+  const selectFields="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
+  const {data,error}=await supabase.from("idea_posts").select(selectFields).eq("status","approved").eq("visibility","public").order("created_at",{ascending:false}).limit(5);
+  if(!cancelled){if(!error&&data?.length)setVisiblePosts(data as Post[]);else setVisiblePosts(_posts.slice(0,5));}
+ })();return()=>{cancelled=true}},[_posts]);
  const postUrl=(n:Post)=>n.slug?"/anvya/"+encodeURIComponent(n.slug):"/anvya/profile/"+(n.profile_id||n.user_id)+"?post="+encodeURIComponent(n.id);
  const ago=(d:string)=>{const m=Math.max(1,Math.floor((Date.now()-new Date(d).getTime())/60000));return m<60?m+"m ago":m<1440?Math.floor(m/60)+"h ago":Math.floor(m/1440)+"d ago"};
  return <Card className="rounded-2xl border shadow-sm overflow-hidden">
