@@ -239,47 +239,39 @@ export default function IdeasProfile(){
   rpcError=error;
   loadedPosts=(rpcPosts as Post[])||[];
  }
- // Direct canonical-post recovery. This intentionally queries the existing
- // database row by slug instead of relying only on the RPC/Edge Function.
- // It repairs the profile Activity + Anvya News UI when an older production
- // deployment has the post mapped correctly but the helper endpoint is stale.
- if(!loadedPosts.length){
-  try{
-   const canonicalResult=await supabase.from("idea_posts").select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug,tags").eq("slug","google-september-2026-spam-update").maybeSingle();
-   const canonical=canonicalResult.data as Post|null;
-   const allowedStatus=isOwner?["approved","pending"]:["approved"];
-   const matchesProfile=!!canonical&&(
-    canonical.user_id===id||
-    (!!profilePublicId&&canonical.profile_id===profilePublicId)||
-    (!!p?.display_name&&String(canonical.display_name||"").trim().toLowerCase()===String(p.display_name).trim().toLowerCase())
-   );
-   if(!canonicalResult.error&&canonical&&allowedStatus.includes(canonical.status)&&matchesProfile){
-    loadedPosts=[canonical];
-   }
-  }catch(e:any){
-   console.warn("ANVYA canonical post direct recovery failed:",e?.message||e);
-  }
- }
-
- // Article-level RPC recovery for the same existing post.
- if(!loadedPosts.length){
+ // Always merge the canonical Google September 2026 post into this
+ // profile when the database/RPC can resolve the existing row. Do not create
+ // a synthetic post: the real database Post ID is preserved.
+ try{
+  let canonical:Post|null=null;
   try{
    const {data:googlePost,error:googleError}=await supabase.rpc("get_anvya_post_by_slug",{
     requested_slug:"google-september-2026-spam-update"
    });
-   const candidate=Array.isArray(googlePost)?googlePost[0]:null;
-   if(!googleError&&candidate&&(
-    candidate.user_id===id||
-    (!!profilePublicId&&candidate.profile_id===profilePublicId)||
-    (!!p?.display_name&&String(candidate.display_name||"").trim().toLowerCase()===String(p.display_name).trim().toLowerCase())
-   )){
-    loadedPosts=[candidate as Post];
-   }
-  }catch(e:any){
-   console.warn("ANVYA article profile recovery failed:",e?.message||e);
-  }
- }
+   const candidate=Array.isArray(googlePost)?googlePost[0]:googlePost;
+   if(!googleError&&candidate) canonical=candidate as Post;
+  }catch{}
 
+  if(!canonical){
+   const canonicalResult=await supabase.from("idea_posts")
+    .select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug,tags")
+    .eq("slug","google-september-2026-spam-update")
+    .maybeSingle();
+   if(!canonicalResult.error&&canonicalResult.data) canonical=canonicalResult.data as Post;
+  }
+
+  const allowedStatus=isOwner?["approved","pending"]:["approved"];
+  const matchesProfile=!!canonical&&(
+   canonical.user_id===id||
+   (!!profilePublicId&&canonical.profile_id===profilePublicId)||
+   (!!p?.display_name&&String(canonical.display_name||"").trim().toLowerCase()===String(p.display_name).trim().toLowerCase())
+  );
+  if(canonical&&allowedStatus.includes(canonical.status)&&matchesProfile){
+   loadedPosts=Array.from(new Map([...loadedPosts,canonical].map((x:Post)=>[x.id,x])).values()) as Post[];
+  }
+ }catch(e:any){
+  console.warn("ANVYA canonical post merge failed:",e?.message||e);
+ }
  if(rpcError||!loadedPosts.length){
   const statusFilter=isOwner?["approved","pending"]:["approved"];
   const selectFields="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
