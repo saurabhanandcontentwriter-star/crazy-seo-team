@@ -113,6 +113,20 @@ export default function IdeasProfile(){
         }
       }
     }
+    // Direct/session profile route must also reconcile the real canonical
+    // Google post. This preserves the stored Post ID and never creates a row.
+    try{
+      const canonicalResult=await supabase.from("idea_posts")
+        .select(selectFields)
+        .eq("slug","google-september-2026-spam-update")
+        .in("status",["approved","pending"])
+        .maybeSingle();
+      if(!canonicalResult.error&&canonicalResult.data){
+        directPosts=Array.from(new Map([...directPosts,canonicalResult.data as Post].map((x:Post)=>[x.id,x])).values()) as Post[];
+      }
+    }catch(e:any){
+      console.warn("ANVYA direct canonical post lookup failed:",e?.message||e);
+    }
     setPosts(directPosts);
     setLoading(false);return;
    }
