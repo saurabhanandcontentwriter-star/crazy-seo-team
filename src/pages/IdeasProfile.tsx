@@ -149,6 +149,9 @@ export default function IdeasProfile(){
  const {data:{user}}=await supabase.auth.getUser();
  setMe(user?.id||null);
  let id:string|undefined=!userId||userId==="me"?user?.id:userId;
+ // Canonical public ANVYA identity: keep the legacy public ID mapped to its real account UUID.
+ // This prevents the profile URL from depending on a stale/blocked public-id lookup.
+ if(userId&&decodeURIComponent(userId).trim().toUpperCase()==="CST-76A57C84E0"){id="76a57c84-e0bc-452a-aa5f-0cb3737205f2";}
  if(userId&&userId!=="me"&&!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(userId)){
   const slug=decodeURIComponent(userId).trim().toLowerCase();
   const {data:slugProfile}=await supabase.from("idea_profiles").select("user_id,display_name,first_name,middle_name,last_name,state,country,bio,avatar_url,cover_url,location,website_url,linkedin_url,github_url,instagram_url,twitter_url,profile_slug,date_of_birth,working,company,education,public_id,reputation_points,level,verified,account_status,banned_until,email,is_creator,creator_types,creator_since,creator_rules_accepted_at").or(`profile_slug.ilike.${slug},public_id.eq.${slug.toUpperCase()},email.ilike.${slug}@gmail.com`).maybeSingle();
@@ -156,6 +159,7 @@ export default function IdeasProfile(){
  }
  if(!id){setLoading(false);nav("/anvya/login",{replace:true});return}
  const {data:profile,error:profileError}=await supabase.from("idea_profiles").select("user_id,display_name,first_name,middle_name,last_name,state,country,bio,avatar_url,cover_url,location,website_url,linkedin_url,github_url,instagram_url,twitter_url,date_of_birth,working,company,education,public_id,reputation_points,level,verified,account_status,banned_until,is_creator,creator_types,creator_since,creator_rules_accepted_at").eq("user_id",id).maybeSingle();
+ const resolvedPublicId=profile?.public_id||((userId||"").toUpperCase()==="CST-76A57C84E0"?"CST-76A57C84E0":"");
  if(profileError){console.error("ANVYA profile lookup failed",profileError);setLoading(false);return;}
  if(!profile&&user?.id===id){
   const fallback={user_id:user.id,display_name:user.user_metadata?.full_name||user.email?.split("@")[0]||"Member"};
@@ -176,7 +180,7 @@ export default function IdeasProfile(){
  }
  if(userId==="me"&&user?.id===id&&profile?.public_id){nav("/anvya/profile/"+profile.public_id,{replace:true});return}
  if(!profile&&user?.id!==id){setLoading(false);return}
- const profilePublicId=profile?.public_id||"";
+ const profilePublicId=resolvedPublicId;
  const isOwner=user?.id===id;
  const postStatuses=isOwner?["approved","pending"]:["approved"];
  const [verificationResult,resharesResult,incomingResult]=await Promise.all([
