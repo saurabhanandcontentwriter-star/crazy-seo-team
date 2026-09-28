@@ -46,8 +46,6 @@ export type Database = {
           hero_image: string | null
           hero_image_alt: string | null
           id: string
-          meta_description: string | null
-          meta_title: string | null
           published: boolean
           published_at: string
           slug: string
@@ -70,8 +68,6 @@ export type Database = {
           hero_image?: string | null
           hero_image_alt?: string | null
           id?: string
-          meta_description?: string | null
-          meta_title?: string | null
           published?: boolean
           published_at?: string
           slug: string
