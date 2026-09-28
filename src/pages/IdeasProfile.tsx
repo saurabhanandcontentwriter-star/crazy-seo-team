@@ -371,32 +371,36 @@ export default function IdeasProfile(){
  // post when older rows have a stale user_id/profile_id mapping.
  if(profilePublicId==="CST-76A57C84E0"){
   try{
+   // Use the exact same approved/public dataset as /anvya/. Do not depend on
+   // profile_id/user_id RLS mapping for this legacy CST profile.
    const profileFeed=await supabase.from("idea_posts")
-    .select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug,tags")
+    .select("*")
     .eq("status","approved")
     .eq("visibility","public")
-    .or("scheduled_for.is.null,scheduled_for.lte."+new Date().toISOString())
     .order("created_at",{ascending:false})
     .limit(100);
 
    if(!profileFeed.error){
     const rows=(profileFeed.data||[]) as Post[];
     const authorName=String(p?.display_name||"").trim().toLowerCase();
-    const matching=rows.filter(x=>
+    const matching=rows.filter((x:any)=>
      x.user_id===id ||
-     (!!profilePublicId&&x.profile_id===profilePublicId) ||
+     x.profile_id===profilePublicId ||
      (!!authorName&&String(x.display_name||"").trim().toLowerCase()===authorName)
     );
-    const google=rows.find(x=>
+    const google=rows.find((x:any)=>
      String(x.slug||"").toLowerCase()==="google-september-2026-spam-update" ||
      String(x.title||"").trim().toLowerCase().startsWith("google september 2026 spam update")
     );
-    const required=matching.length?matching:(google?[google]:[]);
+    // For CST-76A57C84E0 the canonical stored Google post must be visible
+    // even if its historical author/profile mapping is different.
+    const required=[...matching];
+    if(google&&!required.some((x:any)=>x.id===google.id))required.push(google);
     if(required.length){
-     loadedPosts=Array.from(new Map([...loadedPosts,...required].map((x:Post)=>[x.id,x])).values()) as Post[];
+     loadedPosts=Array.from(new Map([...loadedPosts,...required].map((x:any)=>[x.id,x])).values()) as Post[];
     }
    }else{
-    console.warn("ANVYA CST public profile reconciliation failed:",profileFeed.error.message);
+    console.warn("ANVYA CST public feed lookup failed:",profileFeed.error.message);
    }
   }catch(e:any){
    console.warn("ANVYA CST public profile reconciliation exception:",e?.message||e);
