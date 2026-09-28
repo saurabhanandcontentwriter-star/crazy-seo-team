@@ -72,6 +72,20 @@ export default function IdeasPost(){
    }
   }
 
+  // For the canonical shared Google URL, ask the service-role profile endpoint for the real stored post.
+  // This reads the database row only; it never creates a fallback post or invents a Post ID.
+  if((error||!data)&&requestedSlug==="google-september-2026-spam-update"){
+   try{
+    const {data:ownerPosts,error:ownerPostsError}=await supabase.functions.invoke("crm-ideas-users",{
+     body:{action:"profile_posts",public_id:"CST-76A57C84E0"}
+    });
+    if(!ownerPostsError){
+     const candidate=(ownerPosts?.posts||[]).find((row:any)=>String(row.slug||"").toLowerCase()==="google-september-2026-spam-update");
+     if(candidate){data=candidate;error=null;}
+    }
+   }catch{}
+  }
+
   // Last-resort public-feed lookup: if the article is approved/public but its
   // legacy slug/profile mapping is inconsistent, the public ANVYA feed can
   // still identify it without depending on author-specific RLS.
