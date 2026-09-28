@@ -22,7 +22,7 @@ function requestedSlugForSeo(slug:string,post:any){
  }
  return String(post?.content||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim().slice(0,155);
 }
-\nfunction sanitizeRichHtml(input:string){
+function sanitizeRichHtml(input:string){
  const doc=new DOMParser().parseFromString(input||"","text/html");
  doc.querySelectorAll("script,style,iframe,object,embed,form").forEach(el=>el.remove());
  doc.querySelectorAll("*").forEach(el=>{
