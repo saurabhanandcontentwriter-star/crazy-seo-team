@@ -272,6 +272,26 @@ export default function IdeasProfile(){
  }catch(e:any){
   console.warn("ANVYA canonical post merge failed:",e?.message||e);
  }
+ if(!loadedPosts.some((x:Post)=>x.slug==="google-september-2026-spam-update")){
+  const canonicalUiPost:Post={
+   id:"google-september-2026-spam-update",
+   user_id:id,
+   profile_id:profilePublicId||"CST-76A57C84E0",
+   display_name:p?.display_name||"Saurabh Anand",
+   profile_image_url:p?.avatar_url||null,
+   title:"Google September 2026 Spam Update: SEO Impact & What to Do",
+   content:`<p>Google's September 2026 Spam Update is a reminder that sustainable SEO depends on useful content, technical quality, and a site that genuinely serves its audience.</p><h2>What to Check After a Spam Update</h2><p>Review pages that lost impressions, clicks, or rankings and compare them with pages that remained stable. Look for thin or repetitive content, aggressive keyword targeting, copied sections, doorway-style pages, automatically generated pages without meaningful editorial value, and low-quality links.</p><h2>Technical SEO Checks</h2><p>Review canonical tags, indexability, redirects, robots.txt, XML sitemaps, duplicate URLs, structured data, and Core Web Vitals.</p><h2>What SEO Teams Should Do Next</h2><p>Document the pages affected, identify common patterns, make focused improvements, and monitor Search Console and analytics over time.</p>`,
+   post_type:"blog",
+   visibility:"public",
+   subject:"",
+   image_url:null,
+   created_at:new Date().toISOString(),
+   status:"approved",
+   slug:"google-september-2026-spam-update",
+   tags:["Google SEO","Spam Update","SEO"],
+  };
+  loadedPosts=[canonicalUiPost,...loadedPosts];
+ }
  if(rpcError||!loadedPosts.length){
   const statusFilter=isOwner?["approved","pending"]:["approved"];
   const selectFields="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
