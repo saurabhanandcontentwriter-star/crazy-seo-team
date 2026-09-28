@@ -54,7 +54,11 @@ export default function IdeasPost(){
   const requestedSlug=decodeURIComponent(slug).trim();
   if(requestedSlug==="google-september-2026-spam-update-what-seo-professionals-need-to-know-689dfd0b"){nav("/anvya/google-september-2026-spam-update",{replace:true});return;}
   const selectFields="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
-  let {data,error}=await supabase.from("idea_posts").select(selectFields).eq("slug",requestedSlug).eq("status","approved").eq("visibility","public").maybeSingle();
+  // Canonical public lookup first. This resolves the real database post by
+  // slug and never manufactures article content or a synthetic Post ID.
+  let {data,error}=await supabase.rpc("get_anvya_post_by_slug",{requested_slug:requestedSlug});
+  if(!error && Array.isArray(data) && data.length){data=data[0];}
+  else {data=null;}
   if((error||!data)&&requestedSlug==="google-september-2026-spam-update"){
    const googlePosts=await supabase.from("idea_posts").select(selectFields).or("slug.ilike.%google-september-2026-spam-update%,title.ilike.Google September 2026 Spam Update:%").eq("status","approved").eq("visibility","public").order("created_at",{ascending:false}).limit(1);
    if(!googlePosts.error&&googlePosts.data?.length){data=googlePosts.data[0];error=null;}
