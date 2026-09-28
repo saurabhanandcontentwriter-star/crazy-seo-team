@@ -364,6 +364,45 @@ export default function IdeasProfile(){
  if(canonicalPost&&canonicalPost.slug==="google-september-2026-spam-update"&&["approved","pending"].includes(canonicalPost.status)){
   loadedPosts=Array.from(new Map([...loadedPosts,canonicalPost].map((x:Post)=>[x.id,x])).values()) as Post[];
  }
+
+ // CST-76A57C84E0 must show the same real public posts that the ANVYA
+ // home feed can see. This is a read-only reconciliation: it never creates,
+ // rewrites, or synthesizes a post. It also recovers the canonical Google
+ // post when older rows have a stale user_id/profile_id mapping.
+ if(profilePublicId==="CST-76A57C84E0"){
+  try{
+   const profileFeed=await supabase.from("idea_posts")
+    .select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug,tags")
+    .eq("status","approved")
+    .eq("visibility","public")
+    .or("scheduled_for.is.null,scheduled_for.lte."+new Date().toISOString())
+    .order("created_at",{ascending:false})
+    .limit(100);
+
+   if(!profileFeed.error){
+    const rows=(profileFeed.data||[]) as Post[];
+    const authorName=String(p?.display_name||"").trim().toLowerCase();
+    const matching=rows.filter(x=>
+     x.user_id===id ||
+     (!!profilePublicId&&x.profile_id===profilePublicId) ||
+     (!!authorName&&String(x.display_name||"").trim().toLowerCase()===authorName)
+    );
+    const google=rows.find(x=>
+     String(x.slug||"").toLowerCase()==="google-september-2026-spam-update" ||
+     String(x.title||"").trim().toLowerCase().startsWith("google september 2026 spam update")
+    );
+    const required=matching.length?matching:(google?[google]:[]);
+    if(required.length){
+     loadedPosts=Array.from(new Map([...loadedPosts,...required].map((x:Post)=>[x.id,x])).values()) as Post[];
+    }
+   }else{
+    console.warn("ANVYA CST public profile reconciliation failed:",profileFeed.error.message);
+   }
+  }catch(e:any){
+   console.warn("ANVYA CST public profile reconciliation exception:",e?.message||e);
+  }
+ }
+
  // Never synthesize the Google post or its image in the profile. The profile must render the same stored database row as the ANVYA feed, including the exact image_url.
  setPosts(loadedPosts);
  setLoading(false);
