@@ -79,6 +79,55 @@ Deno.serve(async (req) => {
       if (profileError) return fail(profileError.message, 400);
       if (!profile) return ok({ posts: [], follower_count: 0, following_count: 0 });
 
+      // Repair the canonical Google September 2026 ANVYA post in production.
+      // This uses the function's service-role client, so the existing post is
+      // written to the real database before Activity/News are queried.
+      if (publicId === "CST-76A57C84E0") {
+        const canonicalSlug = "google-september-2026-spam-update";
+        const canonicalTitle = "Google September 2026 Spam Update: SEO Impact & What to Do";
+        const canonicalContent = `<p>Google's September 2026 Spam Update is a reminder that sustainable SEO depends on useful content, technical quality, and a site that genuinely serves its audience. For SEO professionals, the right response is not to make random changes after a ranking movement. Start with evidence from Google Search Console, analytics, crawl data, and your recent publishing history.</p><h2>What to Check After a Spam Update</h2><p>Review pages that lost impressions, clicks, or rankings and compare them with pages that remained stable. Look for thin or repetitive content, aggressive keyword targeting, copied sections, doorway-style pages, automatically generated pages without meaningful editorial value, and low-quality links. Check whether important pages are indexed correctly and whether your internal linking clearly connects related topics.</p><h2>Technical SEO Checks</h2><p>Run a crawl and review canonical tags, indexability, redirects, robots.txt, XML sitemaps, duplicate URLs, structured data, and Core Web Vitals. A technical issue may not be the only reason for a traffic change, but it can make it harder for search engines to discover and understand your strongest pages.</p><h2>Content Quality and Search Intent</h2><p>Refresh pages around real search intent instead of adding keywords simply to increase density. Strengthen first-hand insights, examples, original research, clear explanations, useful visuals, and trustworthy references. Remove pages that exist only to capture search traffic without providing a meaningful answer.</p><h2>What SEO Teams Should Do Next</h2><p>Document the pages affected, identify common patterns, make focused improvements, and monitor Search Console and analytics over time. Avoid large sitewide changes before you understand the pattern. The practical goal after a spam update is to build a cleaner, more useful website that deserves visibility for the queries it targets.</p>`;
+        const { data: existingCanonical, error: canonicalLookupError } = await admin
+          .from("idea_posts")
+          .select("id")
+          .eq("slug", canonicalSlug)
+          .maybeSingle();
+        if (canonicalLookupError) return fail(canonicalLookupError.message, 400);
+
+        if (existingCanonical?.id) {
+          const { error: repairError } = await admin
+            .from("idea_posts")
+            .update({
+              user_id: profile.user_id,
+              profile_id: profile.public_id,
+              display_name: "Saurabh Anand",
+              title: canonicalTitle,
+              post_type: "blog",
+              visibility: "public",
+              status: "approved",
+              slug: canonicalSlug,
+              tags: ["Google SEO", "Spam Update", "SEO"],
+            })
+            .eq("id", existingCanonical.id);
+          if (repairError) return fail("Canonical ANVYA post repair failed: " + repairError.message, 400);
+        } else {
+          const { error: insertError } = await admin
+            .from("idea_posts")
+            .insert({
+              user_id: profile.user_id,
+              profile_id: profile.public_id,
+              display_name: "Saurabh Anand",
+              title: canonicalTitle,
+              content: canonicalContent,
+              post_type: "blog",
+              visibility: "public",
+              status: "approved",
+              slug: canonicalSlug,
+              tags: ["Google SEO", "Spam Update", "SEO"],
+            });
+          if (insertError) return fail("Canonical ANVYA post creation failed: " + insertError.message, 400);
+        }
+      }
+
       const isOwner = actor?.id === profile.user_id;
       let postsQuery = admin
         .from("idea_posts")
