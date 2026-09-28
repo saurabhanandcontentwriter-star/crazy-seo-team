@@ -31,41 +31,41 @@ jobs:
 
       - name: Apply canonical ANVYA post migration
         env:
-          SUPABASE_ACCESS_TOKEN: \${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
           python - <<'PY'
           import json, os, urllib.request, urllib.error
           ref = "pbkyoszlgyhpygofemij"
-          sql = r"""do $
-declare
-  target_user uuid;
-  target_profile text;
-begin
-  select p.user_id, p.public_id into target_user, target_profile
-  from public.idea_profiles p
-  where p.public_id = 'CST-76A57C84E0' limit 1;
-  if target_user is null then
-    raise exception 'ANVYA profile CST-76A57C84E0 not found';
-  end if;
-  update public.idea_posts
-  set user_id=target_user,
-      profile_id=coalesce(target_profile,'CST-76A57C84E0'),
-      display_name='Saurabh Anand',
-      title='Google September 2026 Spam Update: SEO Impact & What to Do',
-      post_type='blog', visibility='public', status='approved',
-      slug='google-september-2026-spam-update',
-      tags=array['Google SEO','Spam Update','SEO']
-  where slug='google-september-2026-spam-update'
-     or lower(trim(title))=lower('Google September 2026 Spam Update: What SEO Professionals Need to Know');
-  if not found then
-    insert into public.idea_posts(user_id,profile_id,display_name,title,content,post_type,visibility,status,slug,tags)
-    values(target_user,coalesce(target_profile,'CST-76A57C84E0'),'Saurabh Anand',
-      'Google September 2026 Spam Update: SEO Impact & What to Do',
-      '<p>Google''s September 2026 Spam Update is a reminder that sustainable SEO depends on useful content, technical quality, and a site that genuinely serves its audience.</p>',
-      'blog','public','approved','google-september-2026-spam-update',array['Google SEO','Spam Update','SEO']);
-  end if;
-end $;"""
+          sql = r"""do $anvya$
+          declare
+            target_user uuid;
+            target_profile text;
+          begin
+            select p.user_id, p.public_id into target_user, target_profile
+            from public.idea_profiles p
+            where p.public_id = 'CST-76A57C84E0' limit 1;
+            if target_user is null then
+              raise exception 'ANVYA profile CST-76A57C84E0 not found';
+            end if;
+            update public.idea_posts
+            set user_id=target_user,
+                profile_id=coalesce(target_profile,'CST-76A57C84E0'),
+                display_name='Saurabh Anand',
+                title='Google September 2026 Spam Update: SEO Impact & What to Do',
+                post_type='blog', visibility='public', status='approved',
+                slug='google-september-2026-spam-update',
+                tags=array['Google SEO','Spam Update','SEO']
+            where slug='google-september-2026-spam-update'
+               or lower(trim(title))=lower('Google September 2026 Spam Update: What SEO Professionals Need to Know');
+            if not found then
+              insert into public.idea_posts(user_id,profile_id,display_name,title,content,post_type,visibility,status,slug,tags)
+              values(target_user,coalesce(target_profile,'CST-76A57C84E0'),'Saurabh Anand',
+                'Google September 2026 Spam Update: SEO Impact & What to Do',
+                '<p>Google''s September 2026 Spam Update is a reminder that sustainable SEO depends on useful content, technical quality, and a site that genuinely serves its audience.</p>',
+                'blog','public','approved','google-september-2026-spam-update',array['Google SEO','Spam Update','SEO']);
+            end if;
+          end $anvya$;"""
           req = urllib.request.Request(
               f"https://api.supabase.com/v1/projects/{ref}/database/query",
               data=json.dumps({"query": sql}).encode(),
