@@ -141,7 +141,7 @@ export default function IdeasProfile(){
     }catch(e:any){
       console.warn("ANVYA direct canonical post lookup failed:",e?.message||e);
     }
-    setPosts(directPosts.filter((x:Post)=>String(x.slug||"").toLowerCase() !== "google-september-2026-spam-update"));
+    setPosts(directPosts);
     setLoading(false);return;
    }
   }catch{sessionStorage.removeItem("ideas_direct_profile")}
@@ -383,7 +383,7 @@ export default function IdeasProfile(){
    tags:["Google SEO","Spam Update","SEO"]
   } as Post];
  }
- setPosts(loadedPosts.filter((x:Post)=>String(x.slug||"").toLowerCase() !== "google-september-2026-spam-update"));
+ setPosts(loadedPosts);
  setLoading(false);
 
  // Always reconcile relationship counters directly. The owner must see the
