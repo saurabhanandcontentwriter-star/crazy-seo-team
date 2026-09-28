@@ -49,28 +49,32 @@ function sanitizeRichHtml(input:string){
  return doc.body.innerHTML;
 }
 function ProfileAnvyaNews({posts:_posts}:{posts:Post[]}){
- const [visiblePosts,setVisiblePosts]=useState<Post[]>([]);
+ type NewsItem={id:string;slug:string;title:string;category:string;source:string|null;published_at:string;image_url:string|null};
+ const [stories,setStories]=useState<NewsItem[]>([]);
  useEffect(()=>{let cancelled=false;(async()=>{
-  const selectFields="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
-  const {data,error}=await supabase.from("idea_posts").select(selectFields).eq("status","approved").eq("visibility","public").order("created_at",{ascending:false}).limit(5);
-  if(!cancelled){if(!error&&data?.length)setVisiblePosts(data as Post[]);else setVisiblePosts(_posts.slice(0,5));}
- })();return()=>{cancelled=true}},[_posts]);
- const postUrl=(n:Post)=>n.slug?"/anvya/"+encodeURIComponent(n.slug):"/anvya/profile/"+(n.profile_id||n.user_id)+"?post="+encodeURIComponent(n.id);
+  const {data,error}=await supabase.from("news_articles").select("id,slug,title,category,source,published_at,image_url").order("published_at",{ascending:false}).limit(5);
+  if(cancelled)return;
+  if(!error&&data?.length)setStories(data as NewsItem[]);
+  else setStories([]);
+ })();return()=>{cancelled=true}},[]);
  const ago=(d:string)=>{const m=Math.max(1,Math.floor((Date.now()-new Date(d).getTime())/60000));return m<60?m+"m ago":m<1440?Math.floor(m/60)+"h ago":Math.floor(m/1440)+"d ago"};
  return <Card className="rounded-2xl border shadow-sm overflow-hidden">
   <CardContent className="p-0">
    <div className="flex items-center justify-between border-b px-5 py-4">
-    <Link to="/anvya" className="flex items-center gap-2 hover:text-primary"><Newspaper className="size-4"/><h3 className="font-black">Anvya News</h3></Link>
-    <Link to="/anvya" aria-label="Open ANVYA" className="rounded p-1 hover:bg-muted"><Info className="size-4 text-muted-foreground"/></Link>
+    <Link to="/news" className="flex items-center gap-2 hover:text-primary"><Newspaper className="size-4"/><h3 className="font-black">Anvya News</h3></Link>
+    <Link to="/news" aria-label="Open ANVYA News" className="rounded p-1 hover:bg-muted"><Info className="size-4 text-muted-foreground"/></Link>
    </div>
    <div className="px-5 pt-4 pb-1 text-sm font-bold">Top stories</div>
    <div className="px-5 pb-2">
-    {visiblePosts.length?visiblePosts.map((n:Post)=><Link key={n.id} to={postUrl(n)} className="block border-b py-3 last:border-0 hover:bg-muted/40">
-      <p className="line-clamp-2 text-[13px] font-semibold leading-5">{n.title||"ANVYA update"}</p>
-      <p className="mt-1 text-[10px] text-muted-foreground">{ago(n.created_at)} · {n.display_name||"ANVYA Member"} · {n.post_type==="blog"?"Blog":n.post_type==="question"?"Question":"Post"}{n.status==="pending"?" · Pending review":""}</p>
-    </Link>):<p className="py-4 text-xs text-muted-foreground">No posts yet.</p>}
+    {stories.length?stories.map((n:NewsItem)=><Link key={n.id} to="/news" className="flex gap-3 border-b py-3 last:border-0 hover:bg-muted/40">
+      {n.image_url&&<img src={n.image_url} alt="" className="h-12 w-16 shrink-0 rounded-lg object-cover"/>}
+      <div className="min-w-0">
+       <p className="line-clamp-2 text-[13px] font-semibold leading-5">{n.title||"ANVYA News update"}</p>
+       <p className="mt-1 text-[10px] text-muted-foreground">{ago(n.published_at)} · {n.source||"Crazy SEO Team"} · {n.category||"News"}</p>
+      </div>
+    </Link>):<p className="py-4 text-xs text-muted-foreground">No news available right now.</p>}
    </div>
-   <Link to="/anvya" className="flex items-center gap-1 border-t px-5 py-3 text-xs font-semibold hover:bg-muted/50">Show more posts <ChevronDown className="size-3.5"/></Link>
+   <Link to="/news" className="flex items-center gap-1 border-t px-5 py-3 text-xs font-semibold hover:bg-muted/50">Show all news <ChevronDown className="size-3.5"/></Link>
   </CardContent>
  </Card>;
 }
