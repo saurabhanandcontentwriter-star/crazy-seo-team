@@ -46,7 +46,7 @@ export default function IdeasPost(){
   const viewerId=userData.user?.id||null;
   const requestedSlug=decodeURIComponent(slug).trim();
   if(requestedSlug==="google-september-2026-spam-update-what-seo-professionals-need-to-know-689dfd0b"){nav("/anvya/google-september-2026-spam-update",{replace:true});return;}
-  const selectFields="id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug";
+  const selectFields="id,user_id,profile_id,display_name,profile_image_url,title,meta_title,meta_description,content,post_type,visibility,subject,image_url,created_at,status,slug";
   let {data,error}=await supabase.from("idea_posts").select(selectFields).eq("slug",requestedSlug).eq("status","approved").eq("visibility","public").maybeSingle();
   if((error||!data)&&requestedSlug==="google-september-2026-spam-update"){
    const googlePosts=await supabase.from("idea_posts").select(selectFields).or("slug.ilike.%google-september-2026-spam-update%,title.ilike.Google September 2026 Spam Update:%").eq("status","approved").eq("visibility","public").order("created_at",{ascending:false}).limit(1);
@@ -106,7 +106,7 @@ export default function IdeasPost(){
  if(!post)return <div className="min-h-screen bg-background p-6"><div className="mx-auto max-w-2xl py-20 text-center"><h1 className="text-2xl font-black">Post not found</h1><p className="mt-2 text-muted-foreground">This ANVYA post may still be under review or the URL is no longer available.</p><Button className="mt-5" onClick={()=>nav("/anvya")}>Back to ANVYA</Button></div></div>;
  const title=post.title||"ANVYA Post"; const canonical=`https://crazyseoteam.in/anvya/${post.slug}`;
  return <div className="min-h-screen bg-background">
-  <Helmet><title>{title} | ANVYA</title><meta name="description" content={String(post.content||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim().slice(0,155)}/><link rel="canonical" href={canonical}/></Helmet>
+  <Helmet><title>{post.meta_title||title} | ANVYA</title><meta name="description" content={post.meta_description||String(post.content||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim().slice(0,155)}/><link rel="canonical" href={canonical}/><meta property="og:title" content={post.meta_title||title}/><meta property="og:description" content={post.meta_description||""}/><meta property="og:url" content={canonical}/><meta property="og:type" content="article"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content={post.meta_title||title}/><meta name="twitter:description" content={post.meta_description||""}/></Helmet>
   <main className="mx-auto max-w-3xl px-4 py-10 md:py-16">
    <Link to={profile?.public_id?"/anvya/profile/"+profile.public_id:"/anvya"} className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-primary"><ArrowLeft className="size-4"/>Back to profile</Link>
    <Card className="mt-6 overflow-hidden rounded-3xl">
