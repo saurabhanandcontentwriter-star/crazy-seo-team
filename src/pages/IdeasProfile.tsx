@@ -376,7 +376,7 @@ export default function IdeasProfile(){
    post_type:"blog",
    visibility:"public",
    subject:"SEO Update",
-   image_url:"/images/google-september-2026-spam-update-cover.svg",
+   image_url:"https://developers.google.com/static/search/images/home-social-share-lockup.jpg",
    created_at:"2026-09-28T10:00:00.000Z",
    status:"approved",
    slug:"google-september-2026-spam-update",
