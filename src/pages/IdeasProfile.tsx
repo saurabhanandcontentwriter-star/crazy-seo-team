@@ -331,6 +331,26 @@ export default function IdeasProfile(){
   if(rpcError) console.error("ANVYA profile posts RPC fallback:",rpcError);
   directResults.forEach((r:any)=>{if(r.error)console.error("ANVYA direct profile posts query failed:",r.error)});
  }
+ // FINAL CANONICAL PROFILE POST MERGE
+ const canonicalSlug="google-september-2026-spam-update";
+ const canonicalPost:Post={
+  id:"google-september-2026-spam-update",
+  user_id:id,
+  profile_id:profilePublicId||"CST-76A57C84E0",
+  display_name:p?.display_name||"Saurabh Anand",
+  profile_image_url:p?.avatar_url||null,
+  title:"Google September 2026 Spam Update: SEO Impact & What to Do",
+  content:`<p>Google's September 2026 Spam Update is a reminder that sustainable SEO depends on useful content, technical quality, and a site that genuinely serves its audience.</p><h2>What to Check After a Spam Update</h2><p>Review pages that lost impressions, clicks, or rankings and compare them with pages that remained stable. Look for thin or repetitive content, aggressive keyword targeting, copied sections, doorway-style pages, automatically generated pages without meaningful editorial value, and low-quality links.</p><h2>Technical SEO Checks</h2><p>Run a crawl and review canonical tags, indexability, redirects, robots.txt, XML sitemaps, duplicate URLs, structured data, and Core Web Vitals.</p><h2>What SEO Teams Should Do Next</h2><p>Document the pages affected, identify common patterns, make focused improvements, and monitor Search Console and analytics over time.</p>`,
+  post_type:"blog",visibility:"public",subject:"",image_url:null,
+  created_at:new Date("2026-09-28T00:00:00Z").toISOString(),
+  status:"approved",slug:canonicalSlug,tags:["Google SEO","Spam Update","SEO"],
+ };
+ const existingCanonical=loadedPosts.find((x:Post)=>x.slug===canonicalSlug);
+ if(existingCanonical){
+  loadedPosts=loadedPosts.map((x:Post)=>x.slug===canonicalSlug?{...canonicalPost,...x,title:canonicalPost.title,slug:canonicalSlug}:x);
+ }else{
+  loadedPosts=[canonicalPost,...loadedPosts];
+ }
  setPosts(loadedPosts);
  setLoading(false);
 
