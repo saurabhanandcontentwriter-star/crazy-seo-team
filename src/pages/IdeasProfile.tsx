@@ -17,6 +17,20 @@ import {ArrowLeft,LogIn,LogOut,UserPlus,UserCheck,Users,FileText,Activity,HelpCi
 type Profile={experience?:any[];education_details?:any[];projects?:any[];certificates?:any[];medium_url?:string|null;user_id:string;display_name:string;working?:string|null;company?:string|null;education?:string|null;date_of_birth?:string|null;first_name?:string|null;middle_name?:string|null;last_name?:string|null;state?:string|null;country?:string|null;bio:string|null;avatar_url:string|null;cover_url:string|null;location:string|null;website_url:string|null;linkedin_url:string|null;github_url:string|null;instagram_url:string|null;twitter_url:string|null;medium_url?:string|null;public_id?:string|null;reputation_points?:number;level?:number;verified?:boolean;profile_slug?:string|null;is_creator?:boolean;creator_types?:string[]|null;creator_since?:string|null;creator_rules_accepted_at?:string|null};
 type Post={id:string;user_id:string;profile_id?:string|null;display_name:string|null;profile_image_url:string|null;title:string;content:string;post_type:string;visibility:string;subject:string;image_url:string|null;created_at:string;status:string;slug?:string|null;tags?:string[]};
 
+function formatPresence(online:boolean,lastSeen:string|null){
+ if(online)return "Active now";
+ if(!lastSeen)return "Offline";
+ const diff=Math.max(0,Date.now()-new Date(lastSeen).getTime());
+ const minutes=Math.floor(diff/60000);
+ if(minutes<1)return "Last seen just now";
+ if(minutes<60)return "Last seen "+minutes+"m ago";
+ const hours=Math.floor(minutes/60);
+ if(hours<24)return "Last seen "+hours+"h ago";
+ const days=Math.floor(hours/24);
+ if(days<7)return "Last seen "+days+"d ago";
+ return "Last seen "+new Date(lastSeen).toLocaleDateString();
+}
+
 function sanitizeRichHtml(input:string){
  const cleanedInput=input.replace(/\\\\n/g,"<br>");
  const parser=new DOMParser();
@@ -567,6 +581,7 @@ export default function IdeasProfile(){
               </div>
               <p className="mt-1 text-sm font-medium text-muted-foreground">@{p.profile_slug||p.public_id||"anvya-member"}</p>
               <p className="mt-2 text-sm font-semibold">{[p.working,p.company].filter(Boolean).join("  |  ")||"ANVYA member"}</p>
+              <div className={"mt-1 flex items-center gap-2 text-xs font-semibold "+(profileOnline?"text-emerald-600":"text-muted-foreground")}><span className={"size-2 rounded-full "+(profileOnline?"bg-emerald-500":"bg-muted-foreground/50")}/>{formatPresence(profileOnline,profileLastSeen)}</div>
               <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
                 <span>📍 {[p.location,p.state,p.country].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(", ")||"ANVYA Community"}</span>
                 {p.website_url&&<a href={String(p.website_url)} target="_blank" rel="noreferrer" className="font-semibold text-primary hover:underline">🔗 {String(p.website_url).replace(/^https?:\/\//,"").replace(/\/$/,"")}</a>}
