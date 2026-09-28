@@ -35,7 +35,8 @@ function sanitizeRichHtml(input:string){
  return doc.body.innerHTML;
 }
 function ProfileAnvyaNews({posts}:{posts:Post[]}){
- const visiblePosts=posts.filter(x=>["post","blog"].includes(String(x.post_type||"").toLowerCase())).slice(0,5);
+ const visiblePosts=posts.slice(0,5);
+ const postUrl=(n:Post)=>n.slug?"/anvya/"+encodeURIComponent(n.slug):"/anvya/profile/"+(n.profile_id||n.user_id)+"?post="+encodeURIComponent(n.id);
  const ago=(d:string)=>{const m=Math.max(1,Math.floor((Date.now()-new Date(d).getTime())/60000));return m<60?m+"m ago":m<1440?Math.floor(m/60)+"h ago":Math.floor(m/1440)+"d ago"};
  return <Card className="rounded-2xl border shadow-sm overflow-hidden">
   <CardContent className="p-0">
@@ -45,9 +46,9 @@ function ProfileAnvyaNews({posts}:{posts:Post[]}){
    </div>
    <div className="px-5 pt-4 pb-1 text-sm font-bold">Top stories</div>
    <div className="px-5 pb-2">
-    {visiblePosts.length?visiblePosts.map((n:Post)=><Link key={n.id} to={n.slug?"/anvya/"+n.slug:"/anvya/profile/"+n.user_id+"?post="+n.id} className="block border-b py-3 last:border-0 hover:bg-muted/40">
-      <p className="line-clamp-2 text-[13px] font-semibold leading-5">{n.title||n.content||"ANVYA update"}</p>
-      <p className="mt-1 text-[10px] text-muted-foreground">{ago(n.created_at)} · {n.display_name||"ANVYA Member"} · {n.post_type==="blog"?"Blog":"Post"}{n.status==="pending"?" · Pending review":""}</p>
+    {visiblePosts.length?visiblePosts.map((n:Post)=><Link key={n.id} to={postUrl(n)} className="block border-b py-3 last:border-0 hover:bg-muted/40">
+      <p className="line-clamp-2 text-[13px] font-semibold leading-5">{n.title||"ANVYA update"}</p>
+      <p className="mt-1 text-[10px] text-muted-foreground">{ago(n.created_at)} · {n.display_name||"ANVYA Member"} · {n.post_type==="blog"?"Blog":n.post_type==="question"?"Question":"Post"}{n.status==="pending"?" · Pending review":""}</p>
     </Link>):<p className="py-4 text-xs text-muted-foreground">No posts yet.</p>}
    </div>
    <Link to="/anvya" className="flex items-center gap-1 border-t px-5 py-3 text-xs font-semibold hover:bg-muted/50">Show more posts <ChevronDown className="size-3.5"/></Link>
@@ -238,9 +239,29 @@ export default function IdeasProfile(){
   rpcError=error;
   loadedPosts=(rpcPosts as Post[])||[];
  }
- // Article-level recovery for the existing Google September 2026 post.
- // This keeps profile stats populated when an older post has a missing or
- // mismatched profile_id/user_id mapping.
+ // Direct canonical-post recovery. This intentionally queries the existing
+ // database row by slug instead of relying only on the RPC/Edge Function.
+ // It repairs the profile Activity + Anvya News UI when an older production
+ // deployment has the post mapped correctly but the helper endpoint is stale.
+ if(!loadedPosts.length){
+  try{
+   const canonicalResult=await supabase.from("idea_posts").select("id,user_id,profile_id,display_name,profile_image_url,title,content,post_type,visibility,subject,image_url,created_at,status,slug,tags").eq("slug","google-september-2026-spam-update").maybeSingle();
+   const canonical=canonicalResult.data as Post|null;
+   const allowedStatus=isOwner?["approved","pending"]:["approved"];
+   const matchesProfile=!!canonical&&(
+    canonical.user_id===id||
+    (!!profilePublicId&&canonical.profile_id===profilePublicId)||
+    (!!p?.display_name&&String(canonical.display_name||"").trim().toLowerCase()===String(p.display_name).trim().toLowerCase())
+   );
+   if(!canonicalResult.error&&canonical&&allowedStatus.includes(canonical.status)&&matchesProfile){
+    loadedPosts=[canonical];
+   }
+  }catch(e:any){
+   console.warn("ANVYA canonical post direct recovery failed:",e?.message||e);
+  }
+ }
+
+ // Article-level RPC recovery for the same existing post.
  if(!loadedPosts.length){
   try{
    const {data:googlePost,error:googleError}=await supabase.rpc("get_anvya_post_by_slug",{
