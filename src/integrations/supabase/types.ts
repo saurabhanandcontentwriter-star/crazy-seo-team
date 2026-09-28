@@ -1233,6 +1233,8 @@ export type Database = {
           image_alt: string | null
           image_url: string | null
           location: string | null
+          meta_description: string | null
+          meta_title: string | null
           slug: string | null
           mobile: string | null
           moderation_checked_at: string | null
@@ -1271,6 +1273,8 @@ export type Database = {
           image_alt?: string | null
           image_url?: string | null
           location?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           slug?: string | null
           mobile?: string | null
           moderation_checked_at?: string | null
@@ -1309,6 +1313,8 @@ export type Database = {
           image_alt?: string | null
           image_url?: string | null
           location?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           slug?: string | null
           mobile?: string | null
           moderation_checked_at?: string | null
