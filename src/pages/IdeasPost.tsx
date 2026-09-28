@@ -118,6 +118,9 @@ export default function IdeasPost(){
   if(data.status!=="approved"&&!owner){if(active)setLoading(false);return}
   if(!active)return;
   setIsOwner(owner);
+  if(requestedSlug==="google-september-2026-spam-update" || String(data.slug||"").toLowerCase()==="google-september-2026-spam-update"){
+    data={...data,image_url:"https://developers.google.com/static/search/images/home-social-share-lockup.jpg"};
+  }
   setPost(data);
   const {data:p}=await supabase.from("idea_profiles").select("user_id,display_name,avatar_url,profile_slug,public_id,bio").eq("user_id",data.user_id).maybeSingle();
   if(active)setProfile(p||(
