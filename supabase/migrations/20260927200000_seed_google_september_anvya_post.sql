@@ -1,4 +1,5 @@
 -- Ensure the canonical Google September 2026 ANVYA article is a real published post
+-- Production apply trigger: canonical profile/activity repair.
 -- owned by the Saurabh Anand profile, rather than a frontend-only fallback.
 
 do $$
