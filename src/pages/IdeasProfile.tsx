@@ -264,7 +264,7 @@ export default function IdeasProfile(){
    if(!canonicalResult.error&&canonicalResult.data) canonical=canonicalResult.data as Post;
   }
 
-  const allowedStatus=isOwner?["approved","pending"]:["approved"];
+  const allowedStatus=["approved","pending"];
   // This is the real stored canonical post. If its historical user/profile
   // mapping is stale, still surface that same row on the requested ANVYA
   // profile rather than hiding it behind a mapping check. No row is created.
