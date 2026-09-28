@@ -364,29 +364,7 @@ export default function IdeasProfile(){
  if(canonicalPost&&canonicalPost.slug==="google-september-2026-spam-update"&&["approved","pending"].includes(canonicalPost.status)){
   loadedPosts=Array.from(new Map([...loadedPosts,canonicalPost].map((x:Post)=>[x.id,x])).values()) as Post[];
  }
- // ANVYA profile fallback: if the production post/RPC endpoints are temporarily
- // unavailable, keep the profile activity and Anvya News visible for Saurabh's
- // public profile instead of rendering a misleading Posts = 0 / No posts yet.
- // This is presentation-only and does not insert a database row.
- if(!loadedPosts.length&&profilePublicId==="CST-76A57C84E0"){
-  loadedPosts=[{
-   id:"anvya-google-september-2026-spam-update",
-   user_id:id,
-   profile_id:profilePublicId,
-   display_name:p?.display_name||"Saurabh Anand",
-   profile_image_url:p?.avatar_url||null,
-   title:"Google September 2026 Spam Update: What SEO Professionals Need to Know",
-   content:"<p>Google's September 2026 Spam Update is a reminder that sustainable SEO depends on useful content, technical quality, and a site that genuinely serves its audience. For SEO professionals, the right response is not to make random changes after a ranking movement. Start with evidence from Google Search Console, analytics, crawl data, and your recent publishing history.</p><h2>What to Check After a Spam Update</h2><p>Review pages that lost impressions, clicks, or rankings and compare them with pages that remained stable. Look for thin or repetitive content, aggressive keyword targeting, copied sections, doorway-style pages, automatically generated pages without meaningful editorial value, and low-quality links. Check whether important pages are indexed correctly and whether your internal linking clearly connects related topics.</p><h2>Technical SEO Checks</h2><p>Run a crawl and review canonical tags, indexability, redirects, robots.txt, XML sitemaps, duplicate URLs, structured data, and Core Web Vitals. A technical issue may not be the only reason for a traffic change, but it can make it harder for search engines to discover and understand your strongest pages.</p><h2>Content Quality and Search Intent</h2><p>Refresh pages around real search intent instead of adding keywords simply to increase density. Strengthen first-hand insights, examples, original research, clear explanations, useful visuals, and trustworthy references. Remove pages that exist only to capture search traffic without providing a meaningful answer.</p><h2>What SEO Teams Should Do Next</h2><p>Document the pages affected, identify common patterns, make focused improvements, and monitor Search Console and analytics over time. Avoid large sitewide changes before you understand the pattern. The practical goal after a spam update is to build a cleaner, more useful website that deserves visibility for the queries it targets.</p>",
-   post_type:"blog",
-   visibility:"public",
-   subject:"SEO Update",
-   image_url:"https://developers.google.com/static/search/images/home-social-share-lockup.jpg",
-   created_at:"2026-09-28T10:00:00.000Z",
-   status:"approved",
-   slug:"google-september-2026-spam-update",
-   tags:["Google SEO","Spam Update","SEO"]
-  } as Post];
- }
+ // Never synthesize the Google post or its image in the profile. The profile must render the same stored database row as the ANVYA feed, including the exact image_url.
  setPosts(loadedPosts);
  setLoading(false);
 
