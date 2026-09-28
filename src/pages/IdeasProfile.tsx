@@ -246,6 +246,7 @@ export default function IdeasProfile(){
  // Always merge the canonical Google September 2026 post into this
  // profile when the database/RPC can resolve the existing row. Do not create
  // a synthetic post: the real database Post ID is preserved.
+ let canonicalPost:Post|null=null;
  try{
   let canonical:Post|null=null;
   try{
@@ -269,6 +270,7 @@ export default function IdeasProfile(){
   // mapping is stale, still surface that same row on the requested ANVYA
   // profile rather than hiding it behind a mapping check. No row is created.
   if(canonical&&canonical.slug==="google-september-2026-spam-update"&&allowedStatus.includes(canonical.status)){
+   canonicalPost=canonical;
    loadedPosts=Array.from(new Map([...loadedPosts,canonical].map((x:Post)=>[x.id,x])).values()) as Post[];
   }
  }catch(e:any){
@@ -323,6 +325,12 @@ export default function IdeasProfile(){
   }
   if(rpcError) console.error("ANVYA profile posts RPC fallback:",rpcError);
   directResults.forEach((r:any)=>{if(r.error)console.error("ANVYA direct profile posts query failed:",r.error)});
+ }
+ // A later legacy fallback can return an empty array even after the canonical
+ // row was resolved above. Re-merge the same stored row at the very end so the
+ // profile never drops back to Posts = 0. No post is created here.
+ if(canonicalPost&&canonicalPost.slug==="google-september-2026-spam-update"&&["approved","pending"].includes(canonicalPost.status)){
+  loadedPosts=Array.from(new Map([...loadedPosts,canonicalPost].map((x:Post)=>[x.id,x])).values()) as Post[];
  }
  setPosts(loadedPosts);
  setLoading(false);
