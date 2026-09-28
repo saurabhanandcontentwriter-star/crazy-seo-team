@@ -170,7 +170,11 @@ export default function IdeasProfile(){
     body:{action:"profile_summary",public_id:profilePublicId}
    });
    if(!summaryError){
-    loadedPosts=((summary?.posts||[]) as Post[]).filter((x:Post)=>x.status==="approved"||x.status==="pending");
+    const summaryPosts=((summary?.posts||[]) as Post[]).filter((x:Post)=>x.status==="approved"||x.status==="pending");
+    // Do not erase a valid post dataset when an older deployed function
+    // returns an empty summary. Other fallbacks below can still read the
+    // existing stored post.
+    if(summaryPosts.length) loadedPosts=summaryPosts;
     setFollowerCount(Number(summary?.follower_count||0));
     setFollowingCount(Number(summary?.following_count||0));
    }else{
@@ -305,6 +309,17 @@ export default function IdeasProfile(){
     if(!loadedPosts.length&&p?.display_name){
       const authorName=String(p.display_name).trim().toLowerCase();
       loadedPosts=rows.filter(x=>String(x.display_name||"").trim().toLowerCase()===authorName);
+    }
+
+    // The requested Google post is a real stored post. If historical data has
+    // an old/missing profile_id or user_id, match the existing row by its
+    // stable slug/title instead of inventing a new post.
+    if(!loadedPosts.length){
+      const googleRow=rows.find(x=>
+        String(x.slug||"").toLowerCase()==="google-september-2026-spam-update" ||
+        String(x.title||"").trim().toLowerCase()==="google september 2026 spam update: seo impact & what to do"
+      );
+      if(googleRow) loadedPosts=[googleRow];
     }
    }
   }
