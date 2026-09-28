@@ -83,7 +83,7 @@ function ProfileAnvyaNews({posts:_posts}:{posts:Post[]}){
 export default function IdeasProfile(){
  // Keep profile UI clean: no literal newline escape should ever be rendered as JSX text.
  const {userId}=useParams(); const nav=useNavigate();
- const [me,setMe]=useState<string|null>(null),[p,setP]=useState<Profile|null>(null),[verification,setVerification]=useState<any>(null),[posts,setPosts]=useState<Post[]>([]),[followerCount,setFollowerCount]=useState(0),[followingCount,setFollowingCount]=useState(0),[tab,setTab]=useState("posts"),[reshares,setReshares]=useState<Post[]>([]),[following,setFollowing]=useState(false),[friendStatus,setFriendStatus]=useState<string|null>(null),[edit,setEdit]=useState(false),[saving,setSaving]=useState(false),[loading,setLoading]=useState(true),[form,setForm]=useState<Partial<Profile>>({}),[avatarFile,setAvatarFile]=useState<File|null>(null),[coverFile,setCoverFile]=useState<File|null>(null),[requesters,setRequesters]=useState<Profile[]>([]);
+ const [me,setMe]=useState<string|null>(null),[p,setP]=useState<Profile|null>(null),[verification,setVerification]=useState<any>(null),[posts,setPosts]=useState<Post[]>([]),[followerCount,setFollowerCount]=useState(0),[followingCount,setFollowingCount]=useState(0),[tab,setTab]=useState("posts"),[reshares,setReshares]=useState<Post[]>([]),[following,setFollowing]=useState(false),[friendStatus,setFriendStatus]=useState<string|null>(null),[edit,setEdit]=useState(false),[saving,setSaving]=useState(false),[loading,setLoading]=useState(true),[form,setForm]=useState<Partial<Profile>>({}),[avatarFile,setAvatarFile]=useState<File|null>(null),[coverFile,setCoverFile]=useState<File|null>(null),[requesters,setRequesters]=useState<Profile[]>([]),[suggestedProfiles,setSuggestedProfiles]=useState<Profile[]>([]),[suggestionBusy,setSuggestionBusy]=useState(false);
  const [section,setSection]=useState("content"),[darkMode,setDarkMode]=useState(false),[language,setLanguage]=useState("English"),[region,setRegion]=useState("Global"),[draftCount,setDraftCount]=useState(0),[profileOnline,setProfileOnline]=useState(false),[profileLastSeen,setProfileLastSeen]=useState<string|null>(null),[pinnedPostId,setPinnedPostId]=useState<string|null>(null),[showPostComposer,setShowPostComposer]=useState(false),[notificationCount,setNotificationCount]=useState(0),[mobileMenuOpen,setMobileMenuOpen]=useState(false);
  useEffect(()=>{const syncDraft=()=>setDraftCount(Number(localStorage.getItem("ideas-draft-count")||0));syncDraft();window.addEventListener("anvya-draft-changed",syncDraft);return()=>window.removeEventListener("anvya-draft-changed",syncDraft)},[]);
  useEffect(()=>{let cancelled=false;let channel:any=null;(async()=>{if(!me)return;const {data:myPosts}=await supabase.from("idea_posts").select("id").eq("user_id",me);const ids=(myPosts||[]).map(x=>x.id);if(!ids.length){if(!cancelled)setNotificationCount(0);return}const [comments,reshares]=await Promise.all([supabase.from("idea_post_comments").select("id").in("post_id",ids).neq("user_id",me),supabase.from("idea_post_reshares").select("post_id,user_id,created_at").in("post_id",ids).neq("user_id",me)]);if(!cancelled)setNotificationCount((comments.data||[]).length+(reshares.data||[]).length);channel=supabase.channel("anvya-notification-count-"+me).on("postgres_changes",{event:"INSERT",schema:"public",table:"idea_post_comments"},payload=>{const row:any=payload.new;if(row?.user_id!==me&&ids.includes(row?.post_id))setNotificationCount(v=>v+1)}).on("postgres_changes",{event:"INSERT",schema:"public",table:"idea_post_reshares"},payload=>{const row:any=payload.new;if(row?.user_id!==me&&ids.includes(row?.post_id))setNotificationCount(v=>v+1)}).subscribe()})();return()=>{cancelled=true;if(channel)supabase.removeChannel(channel)}},[me]);
@@ -446,6 +446,33 @@ export default function IdeasProfile(){
   ]);
   setFollowing(!!f.data);setFriendStatus(fr.data?.status||null);
  }
+
+ // Instagram-style discovery: show real ANVYA profile IDs that the current
+ // user is not already following. Never create fake/synthetic suggestions.
+ if(user?.id){
+  try{
+   setSuggestionBusy(true);
+   const {data:myFollowing}=await supabase.from("idea_follows").select("following_id").eq("follower_id",user.id);
+   const excluded=new Set([user.id,...(myFollowing||[]).map((x:any)=>x.following_id)]);
+   const {data:people,error:peopleError}=await supabase.from("idea_profiles")
+     .select("user_id,display_name,avatar_url,location,state,country,verified,level,reputation_points,public_id,profile_slug")
+     .order("updated_at",{ascending:false})
+     .limit(20);
+   if(!peopleError){
+    setSuggestedProfiles((people||[]).filter((x:any)=>!excluded.has(x.user_id)).slice(0,6) as Profile[]);
+   }else{
+    console.warn("ANVYA profile suggestions lookup failed:",peopleError.message);
+    setSuggestedProfiles([]);
+   }
+  }catch(e:any){
+   console.warn("ANVYA profile suggestions exception:",e?.message||e);
+   setSuggestedProfiles([]);
+  }finally{
+   setSuggestionBusy(false);
+  }
+ }else{
+  setSuggestedProfiles([]);
+ }
  if(profile?.user_id===id&&!profile.public_id){
   const publicId="CST-"+id.replace(/-/g,"").slice(0,10).toUpperCase();
   setP(prev=>prev?{...prev,public_id:publicId}:prev);
@@ -506,6 +533,15 @@ export default function IdeasProfile(){
  const toggleFollow=async()=>{if(!me||!p)return toast.error("Please sign in first.");if(following){const {error}=await supabase.from("idea_follows").delete().eq("follower_id",me).eq("following_id",p.user_id);if(error)toast.error(error.message);else{setFollowing(false);toast.success("Unfollowed.")}}else{const {error}=await supabase.from("idea_follows").insert({follower_id:me,following_id:p.user_id});if(error)toast.error(error.message);else{setFollowing(true);toast.success("Following.")}}};
  const respondFriend=async(requester:string,status:"accepted"|"rejected")=>{if(!me)return;const {error}=await supabase.from("idea_friendships").update({status,updated_at:new Date().toISOString()}).eq("requester_id",requester).eq("addressee_id",me);if(error)toast.error(error.message);else{setRequesters(x=>x.filter(y=>y.user_id!==requester));toast.success(status==="accepted"?"Friend request accepted.":"Friend request rejected.");}};
  const friend=async()=>{if(!me||!p)return toast.error("Please sign in first.");if(friendStatus==="accepted"||friendStatus==="pending")return;const {error}=await supabase.from("idea_friendships").insert({requester_id:me,addressee_id:p.user_id});if(error)toast.error(error.message);else{setFriendStatus("pending");toast.success("Friend request sent.")}};
+ const followSuggested=async(targetId:string)=>{
+  if(!me)return toast.info("Sign in to follow people.");
+  if(targetId===me)return;
+  const {error}=await supabase.from("idea_follows").insert({follower_id:me,following_id:targetId});
+  if(error){toast.error(error.message);return;}
+  setSuggestedProfiles(items=>items.filter(x=>x.user_id!==targetId));
+  setFollowingCount(v=>v+1);
+  toast.success("Following.");
+ };
  const uploadImage=async(file:File,kind:"avatar"|"cover")=>{if(!me)throw new Error("Please sign in again.");if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>5*1024*1024)throw new Error("Use JPG, PNG or WEBP up to 5 MB.");const ext=(file.name.split(".").pop()||"jpg").toLowerCase();const path=`${me}/${kind}-${crypto.randomUUID()}.${ext}`;const storage=supabase.storage.from("idea-images");const up=await storage.upload(path,file,{contentType:file.type,cacheControl:"3600",upsert:false});if(up.error){console.error("ANVYA image upload failed",up.error);throw new Error(up.error.message||"Image upload failed. Please try again.");}const url=storage.getPublicUrl(path).data.publicUrl;if(!url)throw new Error("Image URL could not be created.");return url};
  const save=async()=>{if(!me)return;setSaving(true);try{let avatar=form.avatar_url,cover=form.cover_url;if(avatarFile)avatar=await uploadImage(avatarFile,"avatar");if(coverFile)cover=await uploadImage(coverFile,"cover");const payload={...form,user_id:me,display_name:[form.first_name,form.middle_name,form.last_name].filter(Boolean).join(" ").trim()||String(form.display_name||"").trim()||"Member",updated_at:new Date().toISOString()};const {data,error}=await supabase.from("idea_profiles").upsert({...payload,avatar_url:avatar,cover_url:cover}).select().single();if(error)toast.error(error.message);else{setP(data);setForm(data);setEdit(false);setAvatarFile(null);setCoverFile(null);toast.success("Profile updated.")}}catch(e:any){toast.error(e?.message||"Could not update profile")}setSaving(false)};
  const social=[["Website",p?.website_url],["LinkedIn",p?.linkedin_url],["GitHub",p?.github_url],["Instagram",p?.instagram_url],["X",p?.twitter_url]].filter(x=>x[1]);
@@ -787,7 +823,51 @@ export default function IdeasProfile(){
     {me===p.user_id&&pinnedPost&&<div className="mt-5"><div className="mb-2 flex items-center gap-2 px-1"><Badge variant="secondary">📌 Pinned Post</Badge><span className="text-xs text-muted-foreground">Featured at the top of your profile</span></div><PostCard x={pinnedPost} pinnedByProfile onTogglePin={()=>togglePinnedPost(pinnedPost.id)}/></div>}
     {me===p.user_id&&requesters.length>0&&<Card className="mt-5"><CardContent className="p-6"><h3 className="mb-4 text-lg font-bold">Friend Requests</h3>{requesters.map(r=><div key={r.user_id} className="flex items-center gap-3 border-b py-3"><div className="size-10 overflow-hidden rounded-full bg-muted">{r.avatar_url?<img src={r.avatar_url} className="size-full object-cover" alt={r.display_name}/>:<UserCircle2 className="size-full p-2"/>}</div><div className="flex-1"><p className="font-bold">{r.display_name}</p><p className="text-xs text-muted-foreground">{r.location||"ANVYA Community"}</p></div><Button size="sm" onClick={()=>respondFriend(r.user_id,"accepted")}><UserCheck className="mr-1 size-4"/>Accept</Button><Button size="sm" variant="outline" onClick={()=>respondFriend(r.user_id,"rejected")}>Reject</Button></div>)}</CardContent></Card>}
     {me===p.user_id&&<VerificationCard profile={p} request={verification} onSubmitted={v=>setVerification(v)}/>}
-    <ProfileProgress userId={p.user_id} posts={posts.length} level={p.level||1} points={p.reputation_points||0}/><ProfileSection section={section} setSection={setSection} posts={posts} draftCount={draftCount} me={me} profile={p} darkMode={darkMode} setDarkMode={setDarkMode} language={language} setLanguage={v=>{setLanguage(v);localStorage.setItem("ideas-language",v)}} region={region} setRegion={v=>{setRegion(v);localStorage.setItem("ideas-region",v)}} saveTheme={saveTheme}/><div className="mt-6 flex flex-wrap items-center gap-2"><Button variant={tab==="posts"?"default":"outline"} onClick={()=>setTab("posts")}><FileText className="mr-2 size-4"/>Posts</Button>{me===p.user_id&&<Button onClick={()=>{setTab("posts");setShowPostComposer(true)}}><Plus className="mr-2 size-4"/>Create Post from Profile</Button>}<Button variant={tab==="messages"?"default":"outline"} onClick={()=>setTab("messages")}><MessageCircle className="mr-2 size-4"/>Messages</Button><Button variant={tab==="reshares"?"default":"outline"} onClick={()=>setTab("reshares")}><Activity className="mr-2 size-4"/>Reshares</Button><Button variant={tab==="activity"?"default":"outline"} onClick={()=>setTab("activity")}><Activity className="mr-2 size-4"/>Activity</Button><Button variant={tab==="friends"?"default":"outline"} onClick={()=>setTab("friends")}><Users className="mr-2 size-4"/>Friends</Button><Button variant={tab==="followers"?"default":"outline"} onClick={()=>setTab("followers")}><Users className="mr-2 size-4"/>Followers</Button><Button variant={tab==="following"?"default":"outline"} onClick={()=>setTab("following")}><UserPlus className="mr-2 size-4"/>Following</Button><Button variant={tab==="questions"?"default":"outline"} onClick={()=>setTab("questions")}><HelpCircle className="mr-2 size-4"/>Questions</Button></div>
+    <ProfileProgress userId={p.user_id} posts={posts.length} level={p.level||1} points={p.reputation_points||0}/>
+    {me===p.user_id&&(requesters.length>0||suggestedProfiles.length>0)&&<div className="mt-5 grid gap-4 lg:grid-cols-2">
+      {requesters.length>0&&<Card className="rounded-2xl border shadow-sm">
+        <CardContent className="p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div><h3 className="font-black">Follow Requests</h3><p className="text-xs text-muted-foreground">People requesting to connect with you.</p></div>
+            <Badge variant="secondary">{requesters.length}</Badge>
+          </div>
+          <div className="mt-3 space-y-2">
+            {requesters.slice(0,5).map(r=><div key={r.user_id} className="flex items-center gap-3 rounded-xl border bg-muted/20 p-3">
+              <Link to={"/anvya/profile/"+encodeURIComponent(r.public_id||r.user_id)} className="size-10 shrink-0 overflow-hidden rounded-full bg-muted">
+                {r.avatar_url?<img src={r.avatar_url} className="size-full object-cover" alt={r.display_name}/>:<UserCircle2 className="size-full p-2"/>}
+              </Link>
+              <div className="min-w-0 flex-1">
+                <Link to={"/anvya/profile/"+encodeURIComponent(r.public_id||r.user_id)} className="block truncate font-bold hover:text-primary">{r.display_name||"ANVYA Member"}</Link>
+                <p className="truncate text-[11px] text-muted-foreground">{r.public_id||"ANVYA profile ID"}</p>
+              </div>
+              <Button size="sm" onClick={()=>respondFriend(r.user_id,"accepted")}><UserCheck className="mr-1 size-4"/>Accept</Button>
+              <Button size="sm" variant="outline" onClick={()=>respondFriend(r.user_id,"rejected")}>Reject</Button>
+            </div>)}
+          </div>
+        </CardContent>
+      </Card>}
+      {suggestedProfiles.length>0&&<Card className="rounded-2xl border shadow-sm">
+        <CardContent className="p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div><h3 className="font-black">Suggested for you</h3><p className="text-xs text-muted-foreground">Discover ANVYA members you are not following.</p></div>
+            <Users className="size-5 text-primary"/>
+          </div>
+          {suggestionBusy?<div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin"/>Finding profiles...</div>:<div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {suggestedProfiles.map(s=><div key={s.user_id} className="flex items-center gap-3 rounded-xl border bg-muted/20 p-3">
+              <Link to={"/anvya/profile/"+encodeURIComponent(s.public_id||s.user_id)} className="size-10 shrink-0 overflow-hidden rounded-full bg-muted">
+                {s.avatar_url?<img src={s.avatar_url} className="size-full object-cover" alt={s.display_name}/>:<UserCircle2 className="size-full p-2"/>}
+              </Link>
+              <div className="min-w-0 flex-1">
+                <Link to={"/anvya/profile/"+encodeURIComponent(s.public_id||s.user_id)} className="block truncate font-bold hover:text-primary">{s.display_name||"ANVYA Member"}</Link>
+                <p className="truncate text-[11px] text-muted-foreground">{s.public_id||s.profile_slug||"ANVYA profile ID"}</p>
+              </div>
+              <Button size="sm" className="rounded-full" onClick={()=>followSuggested(s.user_id)}><UserPlus className="mr-1 size-4"/>Follow</Button>
+            </div>)}
+          </div>}
+        </CardContent>
+      </Card>}
+    </div>}
+    <ProfileSection section={section} setSection={setSection} posts={posts} draftCount={draftCount} me={me} profile={p} darkMode={darkMode} setDarkMode={setDarkMode} language={language} setLanguage={v=>{setLanguage(v);localStorage.setItem("ideas-language",v)}} region={region} setRegion={v=>{setRegion(v);localStorage.setItem("ideas-region",v)}} saveTheme={saveTheme}/><div className="mt-6 flex flex-wrap items-center gap-2"><Button variant={tab==="posts"?"default":"outline"} onClick={()=>setTab("posts")}><FileText className="mr-2 size-4"/>Posts</Button>{me===p.user_id&&<Button onClick={()=>{setTab("posts");setShowPostComposer(true)}}><Plus className="mr-2 size-4"/>Create Post from Profile</Button>}<Button variant={tab==="messages"?"default":"outline"} onClick={()=>setTab("messages")}><MessageCircle className="mr-2 size-4"/>Messages</Button><Button variant={tab==="reshares"?"default":"outline"} onClick={()=>setTab("reshares")}><Activity className="mr-2 size-4"/>Reshares</Button><Button variant={tab==="activity"?"default":"outline"} onClick={()=>setTab("activity")}><Activity className="mr-2 size-4"/>Activity</Button><Button variant={tab==="friends"?"default":"outline"} onClick={()=>setTab("friends")}><Users className="mr-2 size-4"/>Friends</Button><Button variant={tab==="followers"?"default":"outline"} onClick={()=>setTab("followers")}><Users className="mr-2 size-4"/>Followers</Button><Button variant={tab==="following"?"default":"outline"} onClick={()=>setTab("following")}><UserPlus className="mr-2 size-4"/>Following</Button><Button variant={tab==="questions"?"default":"outline"} onClick={()=>setTab("questions")}><HelpCircle className="mr-2 size-4"/>Questions</Button></div>
     <div className="mt-5 space-y-4">
      {tab==="posts"&&me===p.user_id&&!showPostComposer&&<div className="rounded-2xl border bg-muted/20 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="font-bold">Post from your profile</p><p className="text-xs text-muted-foreground">Write and publish here — no separate page or navigation.</p></div><Button onClick={()=>setShowPostComposer(true)}><Plus className="mr-2 size-4"/>Write a Post</Button></div></div>}
      {tab==="posts"&&me===p.user_id&&showPostComposer&&<IdeasInlinePostComposer profile={p} onClose={()=>setShowPostComposer(false)} onCreated={(post)=>setPosts(v=>[post,...v])}/>} 
