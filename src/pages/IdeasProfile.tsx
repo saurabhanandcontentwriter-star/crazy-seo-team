@@ -62,4 +62,4 @@ function ProfileAnvyaNews({posts}:{posts:Post[]}){
    <Link to="/anvya" className="flex items-center gap-1 border-t px-5 py-3 text-xs font-semibold hover:bg-muted/50">Show more posts <ChevronDown className="size-3.5"/></Link>
   </CardContent>
  </Card>;
-}}
+}
