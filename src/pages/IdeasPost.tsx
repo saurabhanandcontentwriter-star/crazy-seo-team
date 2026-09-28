@@ -15,7 +15,14 @@ function PostShareAudit({post}:{post:any}){
  return <div className="mt-4 rounded-2xl border bg-muted/20 p-4"><div className="text-xs font-semibold">Original Post ID</div><div className="mt-1 break-all font-mono text-xs text-muted-foreground">{String(post.id).startsWith("anvya-")?"Database Post ID unavailable on fallback page":post.id}</div><div className="mt-3 flex flex-wrap items-center gap-2"><Button size="sm" variant="outline" onClick={share}>↗️ Share {shares.length?shares.length:""}</Button>{shares.length>0&&<details className="basis-full rounded-xl border bg-background/70 p-2"><summary className="cursor-pointer text-xs font-medium">Shared by {shares.length} {shares.length===1?"person":"people"}</summary><div className="mt-2 flex flex-wrap gap-2">{shares.map(s=><Link key={s.id} to={"/anvya/profile/"+s.user_id} className="inline-flex items-center gap-2 rounded-full border px-2 py-1 text-xs hover:bg-muted"><span className="size-5 overflow-hidden rounded-full bg-muted">{s.profile?.avatar_url?<img src={s.profile.avatar_url} alt="" className="size-full object-cover"/>:null}</span><span>{s.profile?.display_name||[s.profile?.first_name,s.profile?.middle_name,s.profile?.last_name].filter(Boolean).join(" ")||s.profile?.public_id||"User"}</span><span className="font-mono text-[10px] text-muted-foreground">{post.id}</span></Link>)}</div></details>}</div></div>
 }
 
-function requestedSlugForSeo(slug:string,post:any){\n const normalized=String(slug||post?.slug||\"\").toLowerCase();\n if(normalized===\"google-september-2026-spam-update\"){\n  return \"Google September 2026 Spam Update explained: SEO impact, content quality checks, technical fixes, and practical steps to protect search visibility.\";\n }\n return String(post?.content||\"\").replace(/<[^>]*>/g,\" \").replace(/\\s+/g,\" \").trim().slice(0,155);\n}\n\nfunction sanitizeRichHtml(input:string){
+function requestedSlugForSeo(slug:string,post:any){
+ const normalized=String(slug||post?.slug||"").toLowerCase();
+ if(normalized==="google-september-2026-spam-update"){
+  return "Google September 2026 Spam Update explained: SEO impact, content quality checks, technical fixes, and practical steps to protect search visibility.";
+ }
+ return String(post?.content||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim().slice(0,155);
+}
+\nfunction sanitizeRichHtml(input:string){
  const doc=new DOMParser().parseFromString(input||"","text/html");
  doc.querySelectorAll("script,style,iframe,object,embed,form").forEach(el=>el.remove());
  doc.querySelectorAll("*").forEach(el=>{
