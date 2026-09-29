@@ -22,7 +22,7 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
  const[myName,setMyName]=useState("ANVYA Member"); const[myPresence,setMyPresence]=useState<string|null>(null);
  const[search,setSearch]=useState("");const[results,setResults]=useState<MsgProfile[]>([]);const[inbox,setInbox]=useState<InboxItem[]>([]);
  const[messages,setMessages]=useState<Msg[]>([]);const[text,setText]=useState("");const[loading,setLoading]=useState(false);const[sending,setSending]=useState(false);
- const[presence,setPresence]=useState<{online:boolean;last_seen_at:string}|null>(null);const[inboxLoading,setInboxLoading]=useState(true);const[messageView,setMessageView]=useState<"all"|"unread"|"drafts"|"requests">("all");const[requestCount,setRequestCount]=useState(0);const[draftCount,setDraftCount]=useState(0); const[callType,setCallType]=useState<"audio"|"video"|null>(null);const[callState,setCallState]=useState<"idle"|"calling"|"incoming"|"connected">("idle");const[callerName,setCallerName]=useState("");const[callerType,setCallerType]=useState<"audio"|"video">("audio"); const[callError,setCallError]=useState(""); const[ringing,setRinging]=useState(false); const localVideoRef=useRef<HTMLVideoElement|null>(null),remoteVideoRef=useRef<HTMLVideoElement|null>(null),pcRef=useRef<RTCPeerConnection|null>(null),streamRef=useRef<MediaStream|null>(null),callChannelRef=useRef<any>(null),userCallChannelRef=useRef<any>(null),ringTimerRef=useRef<any>(null),pendingOfferRef=useRef<any>(null),pendingIceRef=useRef<any[]>([]);
+ const[presence,setPresence]=useState<{online:boolean;last_seen_at:string}|null>(null);const[inboxLoading,setInboxLoading]=useState(true);const[messageView,setMessageView]=useState<"all"|"unread"|"drafts"|"requests">("all");const[requestCount,setRequestCount]=useState(0);const[draftCount,setDraftCount]=useState(0); const[callType,setCallType]=useState<"audio"|"video"|null>(null);const[callState,setCallState]=useState<"idle"|"calling"|"incoming"|"connected">("idle");const[callerName,setCallerName]=useState("");const[callerType,setCallerType]=useState<"audio"|"video">("audio"); const[callError,setCallError]=useState(""); const[ringing,setRinging]=useState(false); const[ringAudio,setRingAudio]=useState(false); const localVideoRef=useRef<HTMLVideoElement|null>(null),remoteVideoRef=useRef<HTMLVideoElement|null>(null),pcRef=useRef<RTCPeerConnection|null>(null),streamRef=useRef<MediaStream|null>(null),callChannelRef=useRef<any>(null),userCallChannelRef=useRef<any>(null),ringTimerRef=useRef<any>(null),callStateRef=useRef<"idle"|"calling"|"incoming"|"connected">("idle"),pendingOfferRef=useRef<any>(null),pendingIceRef=useRef<any[]>([]);
  useEffect(()=>{setTarget(initialTarget||null)},[initialTarget?.user_id]);
 
  useEffect(()=>{
@@ -33,7 +33,7 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
    if(payload?.to!==me||payload?.from===me)return;
    pendingOfferRef.current=payload;
    setTarget({user_id:payload.from,display_name:payload.name||"ANVYA Member",avatar_url:payload.avatar_url||null,public_id:payload.public_id||null});
-   setCallerName(payload.name||"ANVYA Member");setCallerType(payload.kind==="video"?"video":"audio");setCallType(payload.kind==="video"?"video":"audio");setCallState("incoming");setRinging(true);
+   setCallerName(payload.name||"ANVYA Member");setCallerType(payload.kind==="video"?"video":"audio");setCallType(payload.kind==="video"?"video":"audio");callStateRef.current="incoming";setCallState("incoming");setRinging(true);setRingAudio(true);playRingtone();
    if(typeof Notification!=="undefined"){
     if(Notification.permission==="granted")new Notification((payload.kind==="video"?"📹 Video call":"📞 Incoming call")+" · "+(payload.name||"ANVYA Member"),{body:"ANVYA par call aa rahi hai."});
     else if(Notification.permission==="default")void Notification.requestPermission();
@@ -46,12 +46,31 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
 
 
 
+ const playRingtone=()=>{
+  try{
+   const AudioCtx=(window.AudioContext||((window as any).webkitAudioContext));
+   if(!AudioCtx)return;
+   const ctx=new AudioCtx();const gain=ctx.createGain();gain.connect(ctx.destination);
+   gain.gain.value=0.0001;const osc=ctx.createOscillator();osc.type="sine";osc.frequency.value=880;osc.connect(gain);osc.start();
+   const started=Date.now();const timer=window.setInterval(()=>{
+    const elapsed=Date.now()-started;
+    if(elapsed>25000){clearInterval(timer);osc.stop();void ctx.close();return;}
+    const on=((elapsed%1800)<450);
+    gain.gain.setTargetAtTime(on?0.12:0.0001,ctx.currentTime,0.03);
+   },100);
+   ringTimerRef.current=timer;
+  }catch{}
+ };
+ const stopRingtone=()=>{
+  if(ringTimerRef.current){clearInterval(ringTimerRef.current);ringTimerRef.current=null;}
+  setRinging(false);setRingAudio(false);
+ };
  const closeCall=async(notify=true)=>{
   if(notify&&target){await userCallChannelRef.current?.send({type:"broadcast",event:"call_end",payload:{from:me,to:target.user_id}});await callChannelRef.current?.send({type:"broadcast",event:"call_end",payload:{from:me,to:target.user_id}});}
   streamRef.current?.getTracks().forEach(t=>t.stop());streamRef.current=null;
   pcRef.current?.close();pcRef.current=null;pendingOfferRef.current=null;pendingIceRef.current=[];
   if(localVideoRef.current)localVideoRef.current.srcObject=null;if(remoteVideoRef.current)remoteVideoRef.current.srcObject=null;
-  setCallType(null);setCallState("idle");setCallerName("");setCallError("");setRinging(false);if(ringTimerRef.current){clearInterval(ringTimerRef.current);ringTimerRef.current=null;}
+  setCallType(null);callStateRef.current="idle";setCallState("idle");setCallerName("");setCallError("");stopRingtone();
  };
 
  const setupPeer=async(kind:"audio"|"video")=>{
@@ -78,7 +97,7 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
   }).on("broadcast",{event:"call_answer"},async({payload}:any)=>{
    if(payload?.to!==me||!pcRef.current)return;
    await pcRef.current.setRemoteDescription(new RTCSessionDescription(payload.answer));
-   setCallState("connected");
+   callStateRef.current="connected";stopRingtone();setCallState("connected");
   }).on("broadcast",{event:"call_ice"},async({payload}:any)=>{
    if(payload?.to!==me||!payload?.candidate)return;
    if(pcRef.current?.remoteDescription)await pcRef.current.addIceCandidate(payload.candidate).catch(()=>{});
@@ -93,17 +112,20 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
   if(!target||target.user_id===me)return;
   if(!navigator.mediaDevices?.getUserMedia){toast.error("Calling is not supported by this browser.");return;}
   try{
-   setCallError("");setCallType(kind);setCallState("calling");
+   setCallError("");setCallType(kind);callStateRef.current="calling";setCallState("calling");setRinging(true);
    const pc=await setupPeer(kind);
    const offer=await pc.createOffer();await pc.setLocalDescription(offer);
-   await userCallChannelRef.current?.send({type:"broadcast",event:"call_offer",payload:{from:me,to:target.user_id,name:myName,avatar_url:null,public_id:null,kind,offer}});
+   const sendOffer=()=>void userCallChannelRef.current?.send({type:"broadcast",event:"call_offer",payload:{from:me,to:target.user_id,name:myName,avatar_url:null,public_id:null,kind,offer}});
+   await sendOffer();
+   if(ringTimerRef.current)clearInterval(ringTimerRef.current);
+   ringTimerRef.current=window.setInterval(()=>{if(callStateRef.current==="calling")void sendOffer();},1800);
   }catch(e:any){setCallError(e?.message||"Camera/microphone permission is required.");setCallState("idle");streamRef.current?.getTracks().forEach(t=>t.stop());streamRef.current=null;pcRef.current?.close();pcRef.current=null;}
  };
 
  const acceptCall=async()=>{
   const pending=pendingOfferRef.current;if(!pending||!target)return;
   try{
-   setCallError("");setCallType(pending.kind==="video"?"video":"audio");setCallState("connected");
+   setCallError("");setCallType(pending.kind==="video"?"video":"audio");callStateRef.current="connected";stopRingtone();setCallState("connected");
    const pc=await setupPeer(pending.kind==="video"?"video":"audio");
    await pc.setRemoteDescription(new RTCSessionDescription(pending.offer));
    for(const candidate of pendingIceRef.current.splice(0))await pc.addIceCandidate(candidate).catch(()=>{});
@@ -138,7 +160,7 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
     {(callState!=="idle"||callError)&&<div className="fixed inset-0 z-[100] grid place-items-center bg-black/70 p-4">
     <Card className="w-full max-w-lg overflow-hidden rounded-3xl border-0 shadow-2xl">
      <CardContent className="p-0">
-      {callState==="incoming"?<div className="p-7 text-center"><div className="mx-auto mb-4 grid size-20 place-items-center rounded-full bg-primary/10"><Phone className="size-9 text-primary"/></div><p className="text-xl font-black">{callerName||target?.display_name} is calling</p><p className="mt-1 text-sm text-muted-foreground">{callerType==="video"?"Video call":"Audio call"}</p><div className="mt-6 flex justify-center gap-3"><Button variant="outline" className="rounded-full" onClick={rejectCall}>Decline</Button><Button className="rounded-full" onClick={()=>void acceptCall()}><Phone className="mr-2 size-4"/>Accept</Button></div></div>:<div className="relative bg-slate-950 p-3">
+      {callState==="incoming"?<div className="p-7 text-center"><div className="mb-3 flex items-center justify-center gap-2 text-sm font-black text-emerald-600"><span className="size-3 animate-ping rounded-full bg-emerald-500"/><span>INCOMING CALL — RINGING</span></div><div className="mx-auto mb-4 grid size-20 place-items-center rounded-full bg-primary/10"><Phone className="size-9 text-primary"/></div><p className="text-xl font-black">{callerName||target?.display_name} is calling</p><p className="mt-1 text-sm text-muted-foreground">{callerType==="video"?"Video call":"Audio call"}</p><div className="mt-6 flex justify-center gap-3"><Button variant="outline" className="rounded-full" onClick={rejectCall}>Decline</Button><Button className="rounded-full" onClick={()=>void acceptCall()}><Phone className="mr-2 size-4"/>Accept</Button></div></div>:<div className="relative bg-slate-950 p-3">
        {callType==="video"?<><video ref={remoteVideoRef} autoPlay playsInline className="aspect-video w-full rounded-2xl bg-black object-cover"/><video ref={localVideoRef} autoPlay playsInline muted className="absolute right-6 top-6 h-28 w-40 rounded-xl border-2 border-white/70 bg-black object-cover"/></>:<div className="grid min-h-64 place-items-center text-center text-white"><div><div className="mx-auto grid size-20 place-items-center rounded-full bg-white/10"><Phone className="size-8"/></div><p className="mt-4 font-bold">{callState==="calling"?"Calling":"Connected"}</p><p className="text-sm text-white/70">{target?.display_name}</p></div></div>}
        {callError&&<p className="mt-2 rounded-xl bg-red-500/20 p-2 text-xs text-red-200">{callError}</p>}
        <div className="flex justify-center py-3"><Button variant="destructive" className="rounded-full" onClick={()=>void closeCall(true)}>End call</Button></div>
