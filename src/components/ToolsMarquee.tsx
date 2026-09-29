@@ -4,7 +4,6 @@ const tools = [
   { name: "Google Analytics", logo: "https://cdn.simpleicons.org/googleanalytics" },
   { name: "Meta Ads", logo: "https://cdn.simpleicons.org/meta" },
   { name: "LinkedIn", logo: "inline-linkedin" },
-  { name: "LinkedIn Ads", logo: "inline-linkedin" },
   { name: "SEMRush", logo: "https://cdn.simpleicons.org/semrush" },
   { name: "HubSpot", logo: "https://cdn.simpleicons.org/hubspot" },
 ];
