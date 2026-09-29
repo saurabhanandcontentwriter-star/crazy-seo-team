@@ -3,12 +3,12 @@ const tools = [
   { name: "Google Ads", logo: "https://cdn.simpleicons.org/googleads" },
   { name: "Google Analytics", logo: "https://cdn.simpleicons.org/googleanalytics" },
   { name: "Meta Ads", logo: "https://cdn.simpleicons.org/meta" },
-  { name: "LinkedIn Ads", logo: "https://cdn.simpleicons.org/linkedin" },
-  { name: "Ahrefs", logo: "https://cdn.simpleicons.org/ahrefs" },
+  { name: "LinkedIn Ads", logo: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/linkedin.svg" },
+  { name: "Ahrefs", logo: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/ahrefs.svg" },
   { name: "SEMRush", logo: "https://cdn.simpleicons.org/semrush" },
-  { name: "Moz", logo: "https://cdn.simpleicons.org/moz" },
+  { name: "Moz", logo: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/moz.svg" },
   { name: "HubSpot", logo: "https://cdn.simpleicons.org/hubspot" },
-  { name: "Screaming Frog", logo: "https://cdn.simpleicons.org/screamingfrog" },
+  { name: "Screaming Frog", logo: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/screamingfrog.svg" },
 ];
 
 const ToolsMarquee = () => (
