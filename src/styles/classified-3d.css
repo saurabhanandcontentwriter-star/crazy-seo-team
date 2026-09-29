@@ -67,3 +67,89 @@
     transition-duration: .01ms !important;
   }
 }
+
+
+/* ═════════ Crazy SEO Team — International 3D Motion System ═════════ */
+.cst-3d-site {
+  position: relative;
+  overflow: clip;
+  background:
+    radial-gradient(circle at 8% 8%, rgba(37,99,235,.055), transparent 22%),
+    radial-gradient(circle at 92% 18%, rgba(99,102,241,.045), transparent 24%),
+    linear-gradient(180deg,#ffffff 0%,#f8fafc 48%,#ffffff 100%);
+}
+.cst-3d-site::before,
+.cst-3d-site::after {
+  content:"";
+  position:absolute;
+  z-index:0;
+  pointer-events:none;
+  border-radius:42% 58% 63% 37% / 42% 34% 66% 58%;
+  filter:blur(1px);
+  transform-style:preserve-3d;
+  animation:cstBlobFloat 14s ease-in-out infinite;
+}
+.cst-3d-site::before {
+  width:420px;height:420px;left:-180px;top:18%;
+  background:linear-gradient(145deg,rgba(96,165,250,.10),rgba(255,255,255,.02));
+  box-shadow:inset 22px 18px 50px rgba(255,255,255,.9),inset -25px -30px 60px rgba(37,99,235,.07),0 40px 100px rgba(15,23,42,.04);
+}
+.cst-3d-site::after {
+  width:360px;height:360px;right:-160px;top:58%;
+  background:linear-gradient(145deg,rgba(129,140,248,.09),rgba(255,255,255,.02));
+  box-shadow:inset 18px 16px 45px rgba(255,255,255,.9),inset -25px -30px 55px rgba(79,70,229,.06),0 40px 100px rgba(15,23,42,.04);
+  animation-delay:-6s;
+}
+.cst-3d-site > * { position:relative; z-index:1; }
+.cst-3d-site section {
+  scroll-margin-top:100px;
+  position:relative;
+}
+.cst-reveal {
+  opacity:0;
+  transform:translate3d(0,42px,0) scale(.985);
+  transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1);
+}
+.cst-reveal-visible { opacity:1; transform:none; }
+.cst-3d-site .glass-card,
+.cst-3d-site .rounded-xl.border,
+.cst-3d-site .rounded-2xl.border,
+.cst-3d-site .rounded-3xl.border {
+  transform-style:preserve-3d;
+  transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s ease,border-color .4s ease;
+  box-shadow:0 18px 50px rgba(15,23,42,.065);
+}
+.cst-3d-site .glass-card:hover,
+.cst-3d-site .rounded-xl.border:hover,
+.cst-3d-site .rounded-2xl.border:hover,
+.cst-3d-site .rounded-3xl.border:hover {
+  transform:perspective(1200px) translateY(-7px) rotateX(1.5deg) rotateY(-1deg);
+  box-shadow:0 30px 70px rgba(15,23,42,.11);
+}
+.cst-3d-site section:nth-of-type(even) {
+  background:linear-gradient(180deg,rgba(248,250,252,.72),rgba(255,255,255,.96));
+}
+.cst-public-nav {
+  backdrop-filter:blur(18px) saturate(150%);
+  -webkit-backdrop-filter:blur(18px) saturate(150%);
+}
+.cst-public-nav .cst-nav-inner {
+  background:rgba(255,255,255,.86);
+  border-bottom:1px solid rgba(226,232,240,.78);
+  box-shadow:0 8px 30px rgba(15,23,42,.045);
+}
+.cst-3d-site img {
+  transition:transform .7s cubic-bezier(.22,1,.36,1),filter .5s ease;
+}
+.cst-3d-site .group:hover img {
+  transform:scale(1.025) translateZ(8px);
+}
+@keyframes cstBlobFloat {
+  0%,100% { transform:translate3d(0,0,0) rotate(-4deg) scale(1); }
+  33% { transform:translate3d(34px,-20px,35px) rotate(4deg) scale(1.045); }
+  66% { transform:translate3d(-20px,24px,-10px) rotate(-1deg) scale(.97); }
+}
+@media (prefers-reduced-motion:reduce) {
+  .cst-reveal { opacity:1; transform:none; transition:none; }
+  .cst-3d-site::before,.cst-3d-site::after { animation:none; }
+}
