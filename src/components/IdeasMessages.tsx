@@ -171,8 +171,8 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
  const send=async()=>{
   if(!target||target.user_id===me)return;const body=text.trim();if(!body)return;setSending(true);
   if(editingId){
-   const{data,error}=await supabase.from("idea_messages").update({message:body}).eq("id",editingId).eq("sender_id",me).select("id,sender_id,receiver_id,message,created_at,read_at").single();
-   if(error)toast.error(error.message);else{setMessages(v=>v.map(x=>x.id===editingId?data as Msg:x));setText("");setEditingId(null);toast.success("Message edited.");}
+   const{error}=await supabase.from("idea_messages").update({message:body}).eq("id",editingId).eq("sender_id",me);
+   if(error)toast.error(error.message);else{setMessages(v=>v.map(x=>x.id===editingId?{...x,message:body}:x));setText("");setEditingId(null);toast.success("Message edited.");}
   }else{
    const{data,error}=await supabase.from("idea_messages").insert({sender_id:me,receiver_id:target.user_id,message:body}).select("id,sender_id,receiver_id,message,created_at,read_at").single();
    if(error)toast.error(error.message);else{setMessages(v=>[...v,data as Msg]);setText("");void loadInbox();}
@@ -182,8 +182,8 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
  const editMessage=(m:Msg)=>{if(m.sender_id!==me||m.message==="[This message was unsent]")return;setEditingId(m.id);setText(m.message);};
  const unsendMessage=async(m:Msg)=>{
   if(m.sender_id!==me||m.message==="[This message was unsent]")return;
-  const{data,error}=await supabase.from("idea_messages").update({message:"[This message was unsent]"}).eq("id",m.id).eq("sender_id",me).select("id,sender_id,receiver_id,message,created_at,read_at").single();
-  if(error)toast.error(error.message);else{setMessages(v=>v.map(x=>x.id===m.id?data as Msg:x));toast.success("Message unsent.");}
+  const{error}=await supabase.from("idea_messages").update({message:"[This message was unsent]"}).eq("id",m.id).eq("sender_id",me);
+  if(error)toast.error(error.message);else{setMessages(v=>v.map(x=>x.id===m.id?{...x,message:"[This message was unsent]"}:x));toast.success("Message unsent.");}
  };
  const online=isOnline(presence?.last_seen_at),unreadTotal=useMemo(()=>inbox.reduce((n,x)=>n+x.unread,0),[inbox]);
 
