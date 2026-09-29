@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import AdvertisingCarousel from "@/components/AdvertisingCarousel";
 const StatsBar = lazy(() => import("@/components/StatsBar"));
 const ToolsMarquee = lazy(() => import("@/components/ToolsMarquee"));
 const AboutSection = lazy(() => import("@/components/AboutSection"));
@@ -58,6 +59,7 @@ const Index = () => {
         <PortfolioSection />
         <IndustriesSection />
         <WhyChooseUs />
+        <AdvertisingCarousel />
         <BlogSection />
         <CTASection />
         <FAQSection />
