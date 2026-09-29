@@ -6,7 +6,7 @@ const tools = [
   { name: "LinkedIn Ads", logo: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/linkedin.svg" },
   { name: "Ahrefs", logo: "https://ahrefs.com/logo" },
   { name: "SEMRush", logo: "https://cdn.simpleicons.org/semrush" },
-  { name: "Moz", logo: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/moz.svg" },
+  { name: "Moz", logo: "https://cdn.simpleicons.org/moz/000000" },
   { name: "HubSpot", logo: "https://cdn.simpleicons.org/hubspot" },
   { name: "Screaming Frog", logo: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/screamingfrog.svg" },
 ];
