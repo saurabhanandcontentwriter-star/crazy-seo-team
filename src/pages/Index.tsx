@@ -1,22 +1,22 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import ToolsMarquee from "@/components/ToolsMarquee";
-import StatsBar from "@/components/StatsBar";
-import PortfolioSection from "@/components/PortfolioSection";
-import IndustriesSection from "@/components/IndustriesSection";
-import AboutSection from "@/components/AboutSection";
-import WhyChooseUs from "@/components/WhyChooseUs";
-import BlogSection from "@/components/BlogSection";
-import CTASection from "@/components/CTASection";
-import FAQSection from "@/components/FAQSection";
-import Footer from "@/components/Footer";
-import CookieConsent from "@/components/CookieConsent";
-import ServicesPreview from "@/components/ServicesPreview";
-import TestimonialsSection from "@/components/TestimonialsSection";
-import ContactSection from "@/components/ContactSection";
+const StatsBar = lazy(() => import("@/components/StatsBar"));
+const ToolsMarquee = lazy(() => import("@/components/ToolsMarquee"));
+const AboutSection = lazy(() => import("@/components/AboutSection"));
+const ServicesPreview = lazy(() => import("@/components/ServicesPreview"));
+const PortfolioSection = lazy(() => import("@/components/PortfolioSection"));
+const IndustriesSection = lazy(() => import("@/components/IndustriesSection"));
+const WhyChooseUs = lazy(() => import("@/components/WhyChooseUs"));
+const TestimonialsSection = lazy(() => import("@/components/TestimonialsSection"));
+const BlogSection = lazy(() => import("@/components/BlogSection"));
+const CTASection = lazy(() => import("@/components/CTASection"));
+const FAQSection = lazy(() => import("@/components/FAQSection"));
+const ContactSection = lazy(() => import("@/components/ContactSection"));
+const Footer = lazy(() => import("@/components/Footer"));
+const CookieConsent = lazy(() => import("@/components/CookieConsent"));
 
 const Index = () => {
   const location = useLocation();
@@ -51,20 +51,22 @@ const Index = () => {
       </Helmet>
       <Navbar />
       <HeroSection />
-      <StatsBar />
-      <ToolsMarquee />
-      <AboutSection />
-      <ServicesPreview />
-      <PortfolioSection />
-      <IndustriesSection />
-      <WhyChooseUs />
-      <TestimonialsSection />
-      <BlogSection />
-      <CTASection />
-      <FAQSection />
-      <ContactSection />
-      <Footer />
-      <CookieConsent />
+      <Suspense fallback={<div className="min-h-[35vh] bg-white" />}>
+        <StatsBar />
+        <ToolsMarquee />
+        <AboutSection />
+        <ServicesPreview />
+        <PortfolioSection />
+        <IndustriesSection />
+        <WhyChooseUs />
+        <TestimonialsSection />
+        <BlogSection />
+        <CTASection />
+        <FAQSection />
+        <ContactSection />
+        <Footer />
+        <CookieConsent />
+      </Suspense>
     </div>
   );
 };
