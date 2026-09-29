@@ -8,7 +8,7 @@ const tools = [
   { name: "SEMRush", logo: "https://cdn.simpleicons.org/semrush" },
   { name: "Moz", logo: "https://cdn.simpleicons.org/moz/000000" },
   { name: "HubSpot", logo: "https://cdn.simpleicons.org/hubspot" },
-  { name: "Screaming Frog", logo: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/screamingfrog.svg" },
+  { name: "Screaming Frog", logo: "https://www.screamingfrog.co.uk/wp-content/uploads/2010/09/logo-screaming-frog.png" },
 ];
 
 const ToolsMarquee = () => (
