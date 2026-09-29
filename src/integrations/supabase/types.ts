@@ -1059,6 +1059,8 @@ export type Database = {
           id: string
           message: string
           read_at: string | null
+          edited_at: string | null
+          deleted_at: string | null
           receiver_id: string
           sender_id: string
         }
@@ -1067,6 +1069,8 @@ export type Database = {
           id?: string
           message: string
           read_at?: string | null
+          edited_at?: string | null
+          deleted_at?: string | null
           receiver_id: string
           sender_id: string
         }
@@ -1075,6 +1079,8 @@ export type Database = {
           id?: string
           message?: string
           read_at?: string | null
+          edited_at?: string | null
+          deleted_at?: string | null
           receiver_id?: string
           sender_id?: string
         }
