@@ -101,7 +101,7 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
   const pc=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
   pcRef.current=pc;
   stream.getTracks().forEach(t=>pc.addTrack(t,stream));
-  pc.ontrack=e=>{const stream=e.streams[0];if(remoteVideoRef.current){remoteVideoRef.current.srcObject=stream;void remoteVideoRef.current.play().catch(()=>{});}else{const audio=document.createElement("audio");audio.autoplay=true;audio.playsInline=true;audio.srcObject=stream;audio.volume=1;document.body.appendChild(audio);setRemoteAudio(audio);void audio.play().catch(()=>{});}};
+  pc.ontrack=e=>{const stream=e.streams[0];const videoTrack=stream.getVideoTracks()[0];const audioTrack=stream.getAudioTracks()[0];if(videoTrack&&remoteVideoRef.current){remoteVideoRef.current.srcObject=stream;void remoteVideoRef.current.play().catch(()=>{});}if(audioTrack){const audio=document.createElement("audio");audio.autoplay=true;audio.playsInline=true;audio.srcObject=new MediaStream([audioTrack]);audio.volume=1;document.body.appendChild(audio);setRemoteAudio(audio);void audio.play().catch(()=>{});}};
   pc.onicecandidate=e=>{if(e.candidate&&callChannelRef.current&&target)void callChannelRef.current.send({type:"broadcast",event:"call_ice",payload:{from:me,to:target.user_id,candidate:e.candidate}});};
   return pc;
  };
