@@ -22,12 +22,24 @@ const Index = () => {
   const location = useLocation();
 
   useEffect(() => {
+    const reveal = Array.from(document.querySelectorAll<HTMLElement>(".cst-3d-site section"));
+    reveal.forEach((el) => el.classList.add("cst-reveal"));
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("cst-reveal-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -60px 0px" });
+    reveal.forEach((el) => observer.observe(el));
     const scrollTo = (location.state as any)?.scrollTo;
     if (scrollTo) {
       setTimeout(() => {
         document.getElementById(scrollTo)?.scrollIntoView({ behavior: "smooth" });
       }, 100);
     }
+    return () => observer.disconnect();
   }, [location.state]);
 
   return (
