@@ -549,6 +549,13 @@ export default function IdeasProfile(){
   setRequestStates(v=>({...v,[targetId]:"pending"}));
   toast.success("Request sent.");
  };
+ const messageSuggested=async(target:Profile)=>{
+  if(!me)return toast.info("Sign in to message people.");
+  if(target.user_id===me)return;
+  sessionStorage.setItem("ideas_message_target",JSON.stringify({user_id:target.user_id,display_name:target.display_name,avatar_url:target.avatar_url||null,public_id:target.public_id||null}));
+  setP(target);
+  setTab("messages");
+ };
  const uploadImage=async(file:File,kind:"avatar"|"cover")=>{if(!me)throw new Error("Please sign in again.");if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>5*1024*1024)throw new Error("Use JPG, PNG or WEBP up to 5 MB.");const ext=(file.name.split(".").pop()||"jpg").toLowerCase();const path=`${me}/${kind}-${crypto.randomUUID()}.${ext}`;const storage=supabase.storage.from("idea-images");const up=await storage.upload(path,file,{contentType:file.type,cacheControl:"3600",upsert:false});if(up.error){console.error("ANVYA image upload failed",up.error);throw new Error(up.error.message||"Image upload failed. Please try again.");}const url=storage.getPublicUrl(path).data.publicUrl;if(!url)throw new Error("Image URL could not be created.");return url};
  const save=async()=>{if(!me)return;setSaving(true);try{let avatar=form.avatar_url,cover=form.cover_url;if(avatarFile)avatar=await uploadImage(avatarFile,"avatar");if(coverFile)cover=await uploadImage(coverFile,"cover");const payload={...form,user_id:me,display_name:[form.first_name,form.middle_name,form.last_name].filter(Boolean).join(" ").trim()||String(form.display_name||"").trim()||"Member",updated_at:new Date().toISOString()};const {data,error}=await supabase.from("idea_profiles").upsert({...payload,avatar_url:avatar,cover_url:cover}).select().single();if(error)toast.error(error.message);else{setP(data);setForm(data);setEdit(false);setAvatarFile(null);setCoverFile(null);toast.success("Profile updated.")}}catch(e:any){toast.error(e?.message||"Could not update profile")}setSaving(false)};
  const social=[["Website",p?.website_url],["LinkedIn",p?.linkedin_url],["GitHub",p?.github_url],["Instagram",p?.instagram_url],["X",p?.twitter_url]].filter(x=>x[1]);
@@ -868,7 +875,10 @@ export default function IdeasProfile(){
                 <Link to={"/anvya/profile/"+encodeURIComponent(s.public_id||s.user_id)} className="block truncate font-bold hover:text-primary">{s.display_name||"ANVYA Member"}</Link>
                 <p className="truncate text-[11px] text-muted-foreground">{s.public_id||s.profile_slug||"ANVYA profile ID"}</p>
               </div>
-              <Button size="sm" className="rounded-full" disabled={requestStates[s.user_id]==="pending"||requestStates[s.user_id]==="accepted"} onClick={()=>followSuggested(s.user_id)}>{requestStates[s.user_id]==="accepted"?<><UserCheck className="mr-1 size-4"/>Friends</>:requestStates[s.user_id]==="pending"?<><Clock3 className="mr-1 size-4"/>Requested</>:<><UserPlus className="mr-1 size-4"/>Request</>}</Button>
+              <div className="flex shrink-0 gap-1">
+                <Button size="sm" variant="outline" className="rounded-full px-2" title={"Message "+(s.display_name||"user")} onClick={()=>messageSuggested(s)}><MessageCircle className="size-4"/><span className="sr-only">Message</span></Button>
+                <Button size="sm" className="rounded-full" disabled={requestStates[s.user_id]==="pending"||requestStates[s.user_id]==="accepted"} onClick={()=>followSuggested(s.user_id)}>{requestStates[s.user_id]==="accepted"?<><UserCheck className="mr-1 size-4"/>Friends</>:requestStates[s.user_id]==="pending"?<><Clock3 className="mr-1 size-4"/>Requested</>:<><UserPlus className="mr-1 size-4"/>Request</>}</Button>
+              </div>
             </div>)}
           </div>}
         </CardContent>
