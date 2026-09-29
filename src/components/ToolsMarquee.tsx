@@ -3,6 +3,7 @@ const tools = [
   { name: "Google Ads", logo: "https://cdn.simpleicons.org/googleads" },
   { name: "Google Analytics", logo: "https://cdn.simpleicons.org/googleanalytics" },
   { name: "Meta Ads", logo: "https://cdn.simpleicons.org/meta" },
+  { name: "LinkedIn", logo: "https://cdn.simpleicons.org/linkedin" },
   { name: "LinkedIn Ads", logo: "https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/linkedin.svg" },
   { name: "SEMRush", logo: "https://cdn.simpleicons.org/semrush" },
   { name: "HubSpot", logo: "https://cdn.simpleicons.org/hubspot" },
