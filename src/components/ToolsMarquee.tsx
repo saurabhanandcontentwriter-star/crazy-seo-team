@@ -4,7 +4,7 @@ const tools = [
   { name: "Google Analytics", logo: "https://cdn.simpleicons.org/googleanalytics" },
   { name: "Meta Ads", logo: "https://cdn.simpleicons.org/meta" },
   { name: "LinkedIn Ads", logo: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/linkedin.svg" },
-  { name: "Ahrefs", logo: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/ahrefs.svg" },
+  { name: "Ahrefs", logo: "https://ahrefs.com/logo" },
   { name: "SEMRush", logo: "https://cdn.simpleicons.org/semrush" },
   { name: "Moz", logo: "https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/moz.svg" },
   { name: "HubSpot", logo: "https://cdn.simpleicons.org/hubspot" },
