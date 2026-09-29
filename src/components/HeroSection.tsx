@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { ArrowRight, Sparkles, Play, TrendingUp, Bot, Zap, ShieldCheck, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
 import ContactFormDialog from "@/components/ContactFormDialog";
 
 const HeroSection = () => {
@@ -56,7 +55,7 @@ const HeroSection = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid lg:grid-cols-2 gap-14 items-center">
             {/* Left: copy */}
-            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
+            <div className="cst-hero-enter">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs font-semibold text-slate-700 mb-6">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <Sparkles size={12} className="text-blue-600" />
@@ -105,11 +104,10 @@ const HeroSection = () => {
                   </div>
                 ))}
               </div>
-            </motion.div>
+            </div>
 
             {/* Right: dashboard preview */}
-            <motion.div initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.15 }}
-              className="relative">
+            <div className="relative cst-hero-enter cst-hero-enter-delay">
               {/* Soft 3D floating blobs */}
               <div className="pointer-events-none absolute -inset-10 -z-10">
                 <div className="absolute -left-12 top-10 h-40 w-40 rounded-[42%_58%_63%_37%/42%_34%_66%_58%] bg-blue-200/30 shadow-[inset_18px_14px_35px_rgba(255,255,255,.9),inset_-18px_-20px_35px_rgba(37,99,235,.10),0_30px_70px_rgba(15,23,42,.07)] blur-[1px] animate-float" />
@@ -192,7 +190,7 @@ const HeroSection = () => {
               <div className="absolute -bottom-4 -left-2 glass rounded-full px-3 py-1.5 text-[11px] text-slate-900 font-semibold flex items-center gap-1.5">
                 <Bot size={12} className="text-blue-600" /> Gemini · Claude · Perplexity
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
