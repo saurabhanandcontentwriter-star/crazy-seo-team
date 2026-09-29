@@ -110,11 +110,10 @@ const HeroSection = () => {
             {/* Right: dashboard preview */}
             <motion.div initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.15 }}
               className="relative">
-              {/* Orbit rings behind card */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-[420px] h-[420px] rounded-full border border-blue-400/30 animate-ring" />
-                <div className="absolute w-[320px] h-[320px] rounded-full border border-purple-400/30 animate-ring" style={{ animationDelay: "0.6s" }} />
-                <div className="absolute w-[220px] h-[220px] rounded-full border border-cyan-400/30 animate-ring" style={{ animationDelay: "1.2s" }} />
+              {/* Soft 3D floating blobs */}
+              <div className="pointer-events-none absolute -inset-10 -z-10">
+                <div className="absolute -left-12 top-10 h-40 w-40 rounded-[42%_58%_63%_37%/42%_34%_66%_58%] bg-blue-200/30 shadow-[inset_18px_14px_35px_rgba(255,255,255,.9),inset_-18px_-20px_35px_rgba(37,99,235,.10),0_30px_70px_rgba(15,23,42,.07)] blur-[1px] animate-float" />
+                <div className="absolute -right-8 bottom-8 h-28 w-28 rounded-[58%_42%_37%_63%/52%_61%_39%_48%] bg-indigo-200/25 shadow-[inset_14px_12px_28px_rgba(255,255,255,.9),inset_-16px_-18px_30px_rgba(79,70,229,.10),0_25px_60px_rgba(15,23,42,.06)] blur-[1px] animate-float" style={{animationDelay:"-2s"}} />
               </div>
 
               <div className="relative glass rounded-3xl p-5 md:p-6">
