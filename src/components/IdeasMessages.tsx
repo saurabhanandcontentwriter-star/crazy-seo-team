@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useState} from "react";
+import {useEffect,useMemo,useRef,useState} from "react";
 import {supabase} from "@/integrations/supabase/client";
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
@@ -22,8 +22,77 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
  const[myName,setMyName]=useState("ANVYA Member"); const[myPresence,setMyPresence]=useState<string|null>(null);
  const[search,setSearch]=useState("");const[results,setResults]=useState<MsgProfile[]>([]);const[inbox,setInbox]=useState<InboxItem[]>([]);
  const[messages,setMessages]=useState<Msg[]>([]);const[text,setText]=useState("");const[loading,setLoading]=useState(false);const[sending,setSending]=useState(false);
- const[presence,setPresence]=useState<{online:boolean;last_seen_at:string}|null>(null);const[inboxLoading,setInboxLoading]=useState(true);const[messageView,setMessageView]=useState<"all"|"unread"|"drafts"|"requests">("all");const[requestCount,setRequestCount]=useState(0);const[draftCount,setDraftCount]=useState(0);
+ const[presence,setPresence]=useState<{online:boolean;last_seen_at:string}|null>(null);const[inboxLoading,setInboxLoading]=useState(true);const[messageView,setMessageView]=useState<"all"|"unread"|"drafts"|"requests">("all");const[requestCount,setRequestCount]=useState(0);const[draftCount,setDraftCount]=useState(0); const[callType,setCallType]=useState<"audio"|"video"|null>(null);const[callState,setCallState]=useState<"idle"|"calling"|"incoming"|"connected">("idle");const[callerName,setCallerName]=useState("");const[callerType,setCallerType]=useState<"audio"|"video">("audio"); const[callError,setCallError]=useState(""); const localVideoRef=useRef<HTMLVideoElement|null>(null),remoteVideoRef=useRef<HTMLVideoElement|null>(null),pcRef=useRef<RTCPeerConnection|null>(null),streamRef=useRef<MediaStream|null>(null),callChannelRef=useRef<any>(null),pendingOfferRef=useRef<any>(null),pendingIceRef=useRef<any[]>([]);
  useEffect(()=>{setTarget(initialTarget||null)},[initialTarget?.user_id]);
+
+ const closeCall=async(notify=true)=>{
+  if(notify&&callChannelRef.current&&target)await callChannelRef.current.send({type:"broadcast",event:"call_end",payload:{from:me,to:target.user_id}});
+  streamRef.current?.getTracks().forEach(t=>t.stop());streamRef.current=null;
+  pcRef.current?.close();pcRef.current=null;pendingOfferRef.current=null;pendingIceRef.current=[];
+  if(localVideoRef.current)localVideoRef.current.srcObject=null;if(remoteVideoRef.current)remoteVideoRef.current.srcObject=null;
+  setCallType(null);setCallState("idle");setCallerName("");setCallError("");
+ };
+
+ const setupPeer=async(kind:"audio"|"video")=>{
+  const stream=await navigator.mediaDevices.getUserMedia({audio:true,video:kind==="video"});
+  streamRef.current=stream;
+  if(localVideoRef.current){localVideoRef.current.srcObject=stream;void localVideoRef.current.play().catch(()=>{});}
+  const pc=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+  pcRef.current=pc;
+  stream.getTracks().forEach(t=>pc.addTrack(t,stream));
+  pc.ontrack=e=>{if(remoteVideoRef.current){remoteVideoRef.current.srcObject=e.streams[0];void remoteVideoRef.current.play().catch(()=>{});}};
+  pc.onicecandidate=e=>{if(e.candidate&&callChannelRef.current&&target)void callChannelRef.current.send({type:"broadcast",event:"call_ice",payload:{from:me,to:target.user_id,candidate:e.candidate}});};
+  return pc;
+ };
+
+ useEffect(()=>{
+  if(!me||!target||target.user_id===me)return;
+  const room="anvya-call-"+[me,target.user_id].sort().join("-");
+  const channel=supabase.channel(room);
+  callChannelRef.current=channel;
+  channel.on("broadcast",{event:"call_offer"},async({payload}:any)=>{
+   if(payload?.to!==me)return;
+   pendingOfferRef.current=payload;
+   setCallerName(payload.name||target.display_name);setCallerType(payload.kind==="video"?"video":"audio");setCallState("incoming");
+  }).on("broadcast",{event:"call_answer"},async({payload}:any)=>{
+   if(payload?.to!==me||!pcRef.current)return;
+   await pcRef.current.setRemoteDescription(new RTCSessionDescription(payload.answer));
+   setCallState("connected");
+  }).on("broadcast",{event:"call_ice"},async({payload}:any)=>{
+   if(payload?.to!==me||!payload?.candidate)return;
+   if(pcRef.current?.remoteDescription)await pcRef.current.addIceCandidate(payload.candidate).catch(()=>{});
+   else pendingIceRef.current.push(payload.candidate);
+  }).on("broadcast",{event:"call_end"},({payload}:any)=>{
+   if(payload?.to===me){void closeCall(false);}
+  }).subscribe();
+  return()=>{if(callChannelRef.current===channel)callChannelRef.current=null;void supabase.removeChannel(channel);};
+ },[me,target?.user_id]);
+
+ const startCall=async(kind:"audio"|"video")=>{
+  if(!target||target.user_id===me)return;
+  if(!navigator.mediaDevices?.getUserMedia){toast.error("Calling is not supported by this browser.");return;}
+  try{
+   setCallError("");setCallType(kind);setCallState("calling");
+   const pc=await setupPeer(kind);
+   const offer=await pc.createOffer();await pc.setLocalDescription(offer);
+   await callChannelRef.current?.send({type:"broadcast",event:"call_offer",payload:{from:me,to:target.user_id,name:myName,kind,offer}});
+  }catch(e:any){setCallError(e?.message||"Camera/microphone permission is required.");setCallState("idle");streamRef.current?.getTracks().forEach(t=>t.stop());streamRef.current=null;pcRef.current?.close();pcRef.current=null;}
+ };
+
+ const acceptCall=async()=>{
+  const pending=pendingOfferRef.current;if(!pending||!target)return;
+  try{
+   setCallError("");setCallType(pending.kind==="video"?"video":"audio");setCallState("connected");
+   const pc=await setupPeer(pending.kind==="video"?"video":"audio");
+   await pc.setRemoteDescription(new RTCSessionDescription(pending.offer));
+   for(const candidate of pendingIceRef.current.splice(0))await pc.addIceCandidate(candidate).catch(()=>{});
+   const answer=await pc.createAnswer();await pc.setLocalDescription(answer);
+   await callChannelRef.current?.send({type:"broadcast",event:"call_answer",payload:{from:me,to:target.user_id,answer}});
+   pendingOfferRef.current=null;
+  }catch(e:any){setCallError(e?.message||"Could not accept the call.");void closeCall(false);}
+ };
+
+ const rejectCall=()=>{void closeCall(true)};
  useEffect(()=>{(async()=>{const{data}=await supabase.from("idea_profiles").select("display_name").eq("user_id",me).maybeSingle();if(data?.display_name)setMyName(data.display_name);const{data:p}=await supabase.from("idea_presence").select("last_seen_at").eq("user_id",me).maybeSingle();if(p?.last_seen_at)setMyPresence(p.last_seen_at)})()},[me]);
 
  const loadInbox=async()=>{if(!me)return;setInboxLoading(true);const{data,error}=await supabase.from("idea_messages").select("id,sender_id,receiver_id,message,created_at,read_at").or("sender_id.eq."+me+",receiver_id.eq."+me).order("created_at",{ascending:false}).limit(300);if(error){console.error(error);setInbox([]);setInboxLoading(false);return;}const rows=(data||[])as Msg[],latest=new Map<string,InboxItem>();rows.forEach(m=>{const other=m.sender_id===me?m.receiver_id:m.sender_id;if(!other||latest.has(other))return;latest.set(other,{user_id:other,display_name:"Ideas Member",avatar_url:null,public_id:null,last_message:m.message,last_message_at:m.created_at,unread:0,last_seen_at:null});});const ids=[...latest.keys()];if(ids.length){const{data:profiles}=await supabase.from("idea_profiles").select("user_id,display_name,avatar_url,public_id").in("user_id",ids);(profiles||[]).forEach((p:any)=>{const x=latest.get(p.user_id);if(x)Object.assign(x,{display_name:p.display_name||"Ideas Member",avatar_url:p.avatar_url||null,public_id:p.public_id||null})});const{data:presenceRows}=await supabase.from("idea_presence").select("user_id,last_seen_at,online").in("user_id",ids);(presenceRows||[]).forEach((p:any)=>{const x=latest.get(p.user_id);if(x)x.last_seen_at=p.last_seen_at||null});for(const id of ids){const x=latest.get(id);if(x)x.unread=rows.filter(m=>m.sender_id===id&&m.receiver_id===me&&!m.read_at).length;}}setInbox([...latest.values()].sort((a,b)=>new Date(b.last_message_at).getTime()-new Date(a.last_message_at).getTime()));setInboxLoading(false);};
@@ -44,8 +113,19 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
    <div className="border-b px-3 py-2"><div className="grid grid-cols-4 gap-1"><button onClick={()=>setMessageView("all")} className={`rounded-xl px-2 py-2 text-[11px] font-bold ${messageView==="all"?"bg-primary text-primary-foreground":"hover:bg-muted"}`}><Inbox className="mx-auto mb-1 size-4"/><span>All</span></button><button onClick={()=>setMessageView("unread")} className={`rounded-xl px-2 py-2 text-[11px] font-bold ${messageView==="unread"?"bg-primary text-primary-foreground":"hover:bg-muted"}`}><MessageCircle className="mx-auto mb-1 size-4"/><span>Unread{unreadTotal>0?" ("+unreadTotal+")":""}</span></button><button onClick={()=>setMessageView("drafts")} className={`rounded-xl px-2 py-2 text-[11px] font-bold ${messageView==="drafts"?"bg-primary text-primary-foreground":"hover:bg-muted"}`}><FileEdit className="mx-auto mb-1 size-4"/><span>Drafts{draftCount>0?" ("+draftCount+")":""}</span></button><button onClick={()=>setMessageView("requests")} className={`rounded-xl px-2 py-2 text-[11px] font-bold ${messageView==="requests"?"bg-primary text-primary-foreground":"hover:bg-muted"}`}><UserPlus className="mx-auto mb-1 size-4"/><span>Requests{requestCount>0?" ("+requestCount+")":""}</span></button></div></div><div className="max-h-[500px] overflow-y-auto px-2 pb-3">{inboxLoading&&<p className="py-8 text-center text-xs text-muted-foreground">Loading chats…</p>}{!inboxLoading&&inbox.filter(x=>messageView==="unread"?x.unread>0:true).length===0&&<div className="px-5 py-12 text-center"><MessageCircle className="mx-auto size-8 text-muted-foreground"/><p className="mt-3 text-sm font-semibold">{messageView==="unread"?"No unread messages":"No messages yet"}</p><p className="mt-1 text-xs text-muted-foreground">Search a member to start chatting.</p></div>}{inbox.filter(x=>messageView==="unread"?x.unread>0:true).map(x=><button key={x.user_id} onClick={()=>selectTarget({user_id:x.user_id,display_name:x.display_name,avatar_url:x.avatar_url,public_id:x.public_id})} className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition ${target?.user_id===x.user_id?"bg-muted":"hover:bg-muted/70"}`}><div className="relative size-12 shrink-0 overflow-hidden rounded-full bg-muted">{x.avatar_url?<img src={x.avatar_url} className="size-full object-cover" alt={x.display_name}/>:<UserCircle2 className="size-full p-2 text-muted-foreground"/>}<span className={`absolute bottom-0 right-0 size-3 rounded-full border-2 border-background ${isOnline(x.last_seen_at)?"bg-green-500":"bg-muted-foreground"}`}/></div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><p className="truncate text-sm font-bold">{x.display_name}</p>{x.unread>0&&<span className="size-2 rounded-full bg-blue-600"/>}</div><div className="flex items-center gap-2 text-[11px]"><span className={isOnline(x.last_seen_at)?"font-semibold text-green-600":"text-muted-foreground"}>{isOnline(x.last_seen_at)?"Active now":"Not active"}</span><span className="text-muted-foreground">·</span><span className="text-muted-foreground">{formatMessageTime(x.last_message_at)}</span></div></div><div className="shrink-0 text-[10px] text-muted-foreground">{formatDayLabel(x.last_message_at)}</div></button>)}</div>
   </aside>
   <section className={target?"flex min-h-[620px] flex-col":"hidden md:flex md:items-center md:justify-center"}>{!target?<div className="max-w-sm px-8 text-center"><div className="mx-auto grid size-20 place-items-center rounded-full bg-gradient-to-br from-violet-600/15 to-blue-600/15"><MessageCircle className="size-9 text-primary"/></div><h3 className="mt-5 text-xl font-black">Your messages</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">Select a conversation or search for an ANVYA member to send a direct message.</p></div>:
-   <><div className="flex items-center gap-3 border-b bg-background/95 px-4 py-3 backdrop-blur"><Button size="icon" variant="ghost" className="md:hidden rounded-full" onClick={()=>setTarget(null)}><ArrowLeft className="size-5"/></Button><div className="relative size-11 shrink-0 overflow-hidden rounded-full bg-muted">{target.avatar_url?<img src={target.avatar_url} className="size-full object-cover" alt={target.display_name}/>:<UserCircle2 className="size-full p-2 text-muted-foreground"/>}<span className={`absolute bottom-0 right-0 size-3 rounded-full border-2 border-background ${online?"bg-green-500":"bg-muted-foreground"}`}/></div><div className="min-w-0 flex-1"><p className="truncate font-bold">{target.display_name}</p><p className="text-[11px] text-muted-foreground">{target.public_id||"ANVYA member"} · {online?"Active now":formatLastSeen(presence?.last_seen_at)}</p></div><div className="ml-auto hidden items-center gap-1 sm:flex"><Button size="icon" variant="ghost" className="rounded-full"><Phone className="size-4"/></Button><Button size="icon" variant="ghost" className="rounded-full"><Video className="size-4"/></Button><Button size="icon" variant="ghost" className="rounded-full"><MoreHorizontal className="size-4"/></Button></div></div>
-    <div className="flex-1 space-y-1 overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(124,58,237,0.06),transparent_45%)] px-3 py-5 sm:px-7">{loading&&<p className="text-xs text-muted-foreground">Loading conversation…</p>}{!loading&&messages.length===0&&<div className="py-20 text-center"><div className="mx-auto grid size-16 place-items-center rounded-full bg-muted"><MessageCircle className="size-7 text-muted-foreground"/></div><p className="mt-3 text-sm font-semibold">Say hello 👋</p><p className="text-xs text-muted-foreground">Start the conversation with {target.display_name}.</p></div>}
+   <><div className="flex items-center gap-3 border-b bg-background/95 px-4 py-3 backdrop-blur"><Button size="icon" variant="ghost" className="md:hidden rounded-full" onClick={()=>setTarget(null)}><ArrowLeft className="size-5"/></Button><div className="relative size-11 shrink-0 overflow-hidden rounded-full bg-muted">{target.avatar_url?<img src={target.avatar_url} className="size-full object-cover" alt={target.display_name}/>:<UserCircle2 className="size-full p-2 text-muted-foreground"/>}<span className={`absolute bottom-0 right-0 size-3 rounded-full border-2 border-background ${online?"bg-green-500":"bg-muted-foreground"}`}/></div><div className="min-w-0 flex-1"><p className="truncate font-bold">{target.display_name}</p><p className="text-[11px] text-muted-foreground">{target.public_id||"ANVYA member"} · {online?"Active now":formatLastSeen(presence?.last_seen_at)}</p></div><div className="ml-auto flex items-center gap-1"><Button size="icon" variant="ghost" className="rounded-full" title="Audio call" onClick={()=>void startCall("audio")} disabled={callState!=="idle"}><Phone className="size-4"/></Button><Button size="icon" variant="ghost" className="rounded-full" title="Video call" onClick={()=>void startCall("video")} disabled={callState!=="idle"}><Video className="size-4"/></Button><Button size="icon" variant="ghost" className="rounded-full" title="More"><MoreHorizontal className="size-4"/></Button></div></div>
+    {(callState!=="idle"||callError)&&<div className="fixed inset-0 z-[100] grid place-items-center bg-black/70 p-4">
+    <Card className="w-full max-w-lg overflow-hidden rounded-3xl border-0 shadow-2xl">
+     <CardContent className="p-0">
+      {callState==="incoming"?<div className="p-7 text-center"><div className="mx-auto mb-4 grid size-20 place-items-center rounded-full bg-primary/10"><Phone className="size-9 text-primary"/></div><p className="text-xl font-black">{callerName||target?.display_name} is calling</p><p className="mt-1 text-sm text-muted-foreground">{callerType==="video"?"Video call":"Audio call"}</p><div className="mt-6 flex justify-center gap-3"><Button variant="outline" className="rounded-full" onClick={rejectCall}>Decline</Button><Button className="rounded-full" onClick={()=>void acceptCall()}><Phone className="mr-2 size-4"/>Accept</Button></div></div>:<div className="relative bg-slate-950 p-3">
+       {callType==="video"?<><video ref={remoteVideoRef} autoPlay playsInline className="aspect-video w-full rounded-2xl bg-black object-cover"/><video ref={localVideoRef} autoPlay playsInline muted className="absolute right-6 top-6 h-28 w-40 rounded-xl border-2 border-white/70 bg-black object-cover"/></>:<div className="grid min-h-64 place-items-center text-center text-white"><div><div className="mx-auto grid size-20 place-items-center rounded-full bg-white/10"><Phone className="size-8"/></div><p className="mt-4 font-bold">{callState==="calling"?"Calling":"Connected"}</p><p className="text-sm text-white/70">{target?.display_name}</p></div></div>}
+       {callError&&<p className="mt-2 rounded-xl bg-red-500/20 p-2 text-xs text-red-200">{callError}</p>}
+       <div className="flex justify-center py-3"><Button variant="destructive" className="rounded-full" onClick={()=>void closeCall(true)}>End call</Button></div>
+      </div>}
+     </CardContent>
+    </Card>
+   </div>}
+   <div className="flex-1 space-y-1 overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(124,58,237,0.06),transparent_45%)] px-3 py-5 sm:px-7">{loading&&<p className="text-xs text-muted-foreground">Loading conversation…</p>}{!loading&&messages.length===0&&<div className="py-20 text-center"><div className="mx-auto grid size-16 place-items-center rounded-full bg-muted"><MessageCircle className="size-7 text-muted-foreground"/></div><p className="mt-3 text-sm font-semibold">Say hello 👋</p><p className="text-xs text-muted-foreground">Start the conversation with {target.display_name}.</p></div>}
      {messages.map((m,i)=>{const showDay=i===0||formatDayLabel(messages[i-1].created_at)!==formatDayLabel(m.created_at);return <div key={m.id}>{showDay&&<div className="my-5 flex items-center gap-3"><div className="h-px flex-1 bg-border"/><span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{formatDayLabel(m.created_at)}</span><div className="h-px flex-1 bg-border"/></div>}<div className={`mb-1 flex items-end gap-2 ${m.sender_id===me?"justify-end":"justify-start"}`}>{m.sender_id!==me&&<div className="size-7 shrink-0 overflow-hidden rounded-full bg-muted"><UserCircle2 className="size-full p-1 text-muted-foreground"/></div>}<div className={`max-w-[78%] px-3.5 py-2.5 text-sm shadow-sm sm:max-w-[65%] ${m.sender_id===me?"rounded-[22px] rounded-br-md bg-gradient-to-r from-violet-600 to-blue-600 text-white":"rounded-[22px] rounded-bl-md border bg-card"}`}><p className="whitespace-pre-wrap break-words leading-5">{m.message}</p><div className={`mt-1 flex items-center justify-end gap-1 text-[9px] ${m.sender_id===me?"text-white/70":"text-muted-foreground"}`}><span>{formatMessageTime(m.created_at)}</span>{m.sender_id===me&&<span>{m.read_at?"✓✓":"✓"}</span>}</div></div></div></div>})}
     </div>
     <div className="border-t bg-background/95 p-3 backdrop-blur sm:p-4"><div className="flex items-center gap-2 rounded-full border bg-muted/40 p-1.5 shadow-sm"><Input className="h-9 border-0 bg-transparent px-3 shadow-none focus-visible:ring-0" value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();void send()}}} placeholder={`Message ${target.display_name}…`} maxLength={5000}/><Button size="icon" className="size-9 shrink-0 rounded-full bg-gradient-to-r from-violet-600 to-blue-600" onClick={()=>void send()} disabled={sending||!text.trim()}><Send className="size-4"/></Button></div><p className="mt-1 px-3 text-[10px] text-muted-foreground">Press Enter to send</p></div></>}
