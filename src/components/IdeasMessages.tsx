@@ -138,7 +138,11 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
    setCallError("");setCallType(kind);callStateRef.current="calling";callLogSentRef.current=false;callStartedAtRef.current=null;setCallState("calling");setRinging(true);
    const pc=await setupPeer(kind);
    const offer=await pc.createOffer();await pc.setLocalDescription(offer);
-   const sendOffer=()=>void outgoingNotifyChannelRef.current?.send({type:"broadcast",event:"call_offer",payload:{from:me,to:target.user_id,name:myName,avatar_url:null,public_id:null,kind,offer}});
+   if(outgoingNotifyChannelRef.current){void supabase.removeChannel(outgoingNotifyChannelRef.current);outgoingNotifyChannelRef.current=null;}
+   const notifyChannel=supabase.channel("anvya-user-calls-"+target.user_id);
+   outgoingNotifyChannelRef.current=notifyChannel;
+   await new Promise<void>((resolve,reject)=>{let settled=false;notifyChannel.subscribe((status:string)=>{if(status==="SUBSCRIBED"&&!settled){settled=true;resolve();}else if((status==="CHANNEL_ERROR"||status==="TIMED_OUT")&&!settled){settled=true;reject(new Error("Unable to connect to recipient call channel."));}})});
+   const sendOffer=()=>void notifyChannel.send({type:"broadcast",event:"call_offer",payload:{from:me,to:target.user_id,name:myName,avatar_url:null,public_id:null,kind,offer}});
    await sendOffer();
    if(ringTimerRef.current)clearInterval(ringTimerRef.current);
    ringTimerRef.current=window.setInterval(()=>{if(callStateRef.current==="calling")void sendOffer();},1800);
