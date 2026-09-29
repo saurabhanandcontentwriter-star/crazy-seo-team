@@ -8,7 +8,7 @@ import {toast} from "sonner";
 import {MessageCircle,Send,Search,UserCircle2,ArrowLeft,MoreHorizontal,Phone,Video,FileEdit,UserPlus,Inbox,Bell} from "lucide-react";
 
 type MsgProfile={user_id:string;display_name:string;avatar_url:string|null;public_id?:string|null};
-type Msg={id:string;sender_id:string;receiver_id:string;message:string;created_at:string;read_at?:string|null};
+type Msg={id:string;sender_id:string;receiver_id:string;message:string;created_at:string;read_at?:string|null}; type CallLog={kind:"audio"|"video";status:"missed"|"rejected"|"outgoing_missed"|"completed";caller_id:string;receiver_id:string;duration?:number}; const CALL_PREFIX="__ANVYA_CALL__";
 type InboxItem=MsgProfile&{last_message:string;last_message_at:string;unread:number;last_seen_at:string|null};
 
 const onlineCutoff=90*1000;
@@ -17,12 +17,18 @@ function formatMessageTime(value:string){return new Date(value).toLocaleTimeStri
 function formatDayLabel(value:string){const d=new Date(value),today=new Date(),yesterday=new Date();yesterday.setDate(today.getDate()-1);if(d.toDateString()===today.toDateString())return"Today";if(d.toDateString()===yesterday.toDateString())return"Yesterday";return d.toLocaleDateString([],{day:"numeric",month:"short",year:"numeric"});}
 function formatLastSeen(value:string|null|undefined){if(!value)return"Never seen";const diff=Math.max(0,Date.now()-new Date(value).getTime());if(diff<60_000)return"Last seen just now";if(diff<3_600_000)return"Last seen "+Math.floor(diff/60_000)+" min ago";if(diff<86_400_000)return"Last seen "+Math.floor(diff/3_600_000)+" hr ago";return"Last seen "+new Date(value).toLocaleString();}
 
+function CallMessage({log,me,onReturn}:{log:CallLog;me:string;onReturn:(kind:"audio"|"video")=>void}){
+ const title=log.status==="missed"?"Missed call":log.status==="outgoing_missed"?"No answer":log.status==="rejected"?"Call declined":"Call";
+ const label=log.kind==="video"?"Video call":"Voice call";
+ return <div className="flex min-w-[230px] items-center gap-3 rounded-2xl bg-black/10 p-2"><div className="text-xl">{log.kind==="video"?"📹":"📞"}</div><div className="min-w-0 flex-1"><p className="font-bold">{title}</p><p className="text-[11px] opacity-75">{label}{log.duration?" · "+Math.floor(log.duration/60)+":"+String(log.duration%60).padStart(2,"0"):""}</p></div>{log.status!=="completed"&&<button type="button" className="rounded-full bg-background px-3 py-1.5 text-xs font-bold text-foreground" onClick={()=>onReturn(log.kind)}>↩ Return call</button>}</div>;
+}
+
 export default function IdeasMessages({me,initialTarget}:{me:string;initialTarget?:MsgProfile|null}){
  const[target,setTarget]=useState<MsgProfile|null>(initialTarget||null);
  const[myName,setMyName]=useState("ANVYA Member"); const[myPresence,setMyPresence]=useState<string|null>(null);
  const[search,setSearch]=useState("");const[results,setResults]=useState<MsgProfile[]>([]);const[inbox,setInbox]=useState<InboxItem[]>([]);
  const[messages,setMessages]=useState<Msg[]>([]);const[text,setText]=useState("");const[editingId,setEditingId]=useState<string|null>(null);const[loading,setLoading]=useState(false);const[sending,setSending]=useState(false);
- const[presence,setPresence]=useState<{online:boolean;last_seen_at:string}|null>(null);const[inboxLoading,setInboxLoading]=useState(true);const[messageView,setMessageView]=useState<"all"|"unread"|"drafts"|"requests">("all");const[requestCount,setRequestCount]=useState(0);const[draftCount,setDraftCount]=useState(0); const[callType,setCallType]=useState<"audio"|"video"|null>(null);const[callState,setCallState]=useState<"idle"|"calling"|"incoming"|"connected">("idle");const[callerName,setCallerName]=useState("");const[callerType,setCallerType]=useState<"audio"|"video">("audio"); const[callError,setCallError]=useState(""); const[ringing,setRinging]=useState(false); const[notificationReady,setNotificationReady]=useState(typeof Notification!=="undefined"&&Notification.permission==="granted"); const[ringAudio,setRingAudio]=useState(false); const localVideoRef=useRef<HTMLVideoElement|null>(null),remoteVideoRef=useRef<HTMLVideoElement|null>(null),pcRef=useRef<RTCPeerConnection|null>(null),streamRef=useRef<MediaStream|null>(null),callChannelRef=useRef<any>(null),userCallChannelRef=useRef<any>(null),ringTimerRef=useRef<any>(null),callStateRef=useRef<"idle"|"calling"|"incoming"|"connected">("idle"),pendingOfferRef=useRef<any>(null),pendingIceRef=useRef<any[]>([]);
+ const[presence,setPresence]=useState<{online:boolean;last_seen_at:string}|null>(null);const[inboxLoading,setInboxLoading]=useState(true);const[messageView,setMessageView]=useState<"all"|"unread"|"drafts"|"requests">("all");const[requestCount,setRequestCount]=useState(0);const[draftCount,setDraftCount]=useState(0); const[callType,setCallType]=useState<"audio"|"video"|null>(null);const[callState,setCallState]=useState<"idle"|"calling"|"incoming"|"connected">("idle");const[callerName,setCallerName]=useState("");const[callerType,setCallerType]=useState<"audio"|"video">("audio"); const[callError,setCallError]=useState(""); const[ringing,setRinging]=useState(false); const[notificationReady,setNotificationReady]=useState(typeof Notification!=="undefined"&&Notification.permission==="granted"); const[ringAudio,setRingAudio]=useState(false); const localVideoRef=useRef<HTMLVideoElement|null>(null),remoteVideoRef=useRef<HTMLVideoElement|null>(null),pcRef=useRef<RTCPeerConnection|null>(null),streamRef=useRef<MediaStream|null>(null),callChannelRef=useRef<any>(null),userCallChannelRef=useRef<any>(null),ringTimerRef=useRef<any>(null),callStateRef=useRef<"idle"|"calling"|"incoming"|"connected">("idle"),pendingOfferRef=useRef<any>(null),pendingIceRef=useRef<any[]>([]),callStartedAtRef=useRef<number|null>(null),callLogSentRef=useRef(false),incomingTimerRef=useRef<any>(null);
  useEffect(()=>{setTarget(initialTarget||null)},[initialTarget?.user_id]);
 
  const enableCallNotifications=async()=>{
@@ -58,7 +64,9 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
    if(payload?.to!==me||payload?.from===me)return;
    pendingOfferRef.current=payload;
    setTarget({user_id:payload.from,display_name:payload.name||"ANVYA Member",avatar_url:payload.avatar_url||null,public_id:payload.public_id||null});
-   setCallerName(payload.name||"ANVYA Member");setCallerType(payload.kind==="video"?"video":"audio");setCallType(payload.kind==="video"?"video":"audio");callStateRef.current="incoming";setCallState("incoming");setRinging(true);setRingAudio(true);playRingtone();
+   setCallerName(payload.name||"ANVYA Member");setCallerType(payload.kind==="video"?"video":"audio");setCallType(payload.kind==="video"?"video":"audio");callLogSentRef.current=false;callStartedAtRef.current=null;callStateRef.current="incoming";setCallState("incoming");setRinging(true);setRingAudio(true);playRingtone();
+   if(incomingTimerRef.current)clearTimeout(incomingTimerRef.current);
+   incomingTimerRef.current=window.setTimeout(async()=>{if(callStateRef.current==="incoming"&&pendingOfferRef.current?.from===payload.from){await sendCallLog(payload.from,{kind:payload.kind==="video"?"video":"audio",status:"missed",caller_id:payload.from,receiver_id:me});await userCallChannelRef.current?.send({type:"broadcast",event:"call_missed",payload:{from:me,to:payload.from,name:myName,kind:payload.kind}});pendingOfferRef.current=null;void closeCall(false);}},25000);
    showCallNotification(payload);
   }).on("broadcast",{event:"call_end"},({payload}:any)=>{
    if(payload?.to===me){setRinging(false);void closeCall(false);}
@@ -87,8 +95,12 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
   if(ringTimerRef.current){clearInterval(ringTimerRef.current);ringTimerRef.current=null;}
   setRinging(false);setRingAudio(false);
  };
+ const sendCallLog=async(targetId:string,log:CallLog)=>{if(!targetId)return;await supabase.from("idea_messages").insert({sender_id:me,receiver_id:targetId,message:CALL_PREFIX+JSON.stringify(log)});void loadInbox();};
+ const callDuration=()=>callStartedAtRef.current?Math.max(1,Math.round((Date.now()-callStartedAtRef.current)/1000)):0;
  const closeCall=async(notify=true)=>{
-  if(notify&&target){await userCallChannelRef.current?.send({type:"broadcast",event:"call_end",payload:{from:me,to:target.user_id}});await callChannelRef.current?.send({type:"broadcast",event:"call_end",payload:{from:me,to:target.user_id}});}
+  if(incomingTimerRef.current){clearTimeout(incomingTimerRef.current);incomingTimerRef.current=null;}
+  if(notify&&target){await userCallChannelRef.current?.send({type:"broadcast",event:"call_end",payload:{from:me,to:target.user_id,reason:callStateRef.current==="incoming"?"rejected":"ended"}});await callChannelRef.current?.send({type:"broadcast",event:"call_end",payload:{from:me,to:target.user_id,reason:callStateRef.current==="incoming"?"rejected":"ended"}});}
+  if(notify&&target&&callStateRef.current==="connected"&&!callLogSentRef.current){await sendCallLog(target.user_id,{kind:callType||"audio",status:"completed",caller_id:me,receiver_id:target.user_id,duration:callDuration()});callLogSentRef.current=true;}
   streamRef.current?.getTracks().forEach(t=>t.stop());streamRef.current=null;
   pcRef.current?.close();pcRef.current=null;pendingOfferRef.current=null;pendingIceRef.current=[];
   if(localVideoRef.current)localVideoRef.current.srcObject=null;if(remoteVideoRef.current)remoteVideoRef.current.srcObject=null;
@@ -124,9 +136,11 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
    if(payload?.to!==me||!payload?.candidate)return;
    if(pcRef.current?.remoteDescription)await pcRef.current.addIceCandidate(payload.candidate).catch(()=>{});
    else pendingIceRef.current.push(payload.candidate);
-  }).on("broadcast",{event:"call_end"},({payload}:any)=>{
-   if(payload?.to===me){void closeCall(false);}
-  }).subscribe();
+  }).on("broadcast",{event:"call_end"},async({payload}:any)=>{
+   if(payload?.to!==me)return;
+   if(callStateRef.current==="calling"&&target){await sendCallLog(target.user_id,{kind:callType||"audio",status:payload?.reason==="rejected"?"rejected":"outgoing_missed",caller_id:me,receiver_id:target.user_id});}
+   void closeCall(false);
+  }).on("broadcast",{event:"call_missed"},({payload}:any)=>{if(payload?.to===me)toast.info("Missed call from "+(payload.name||"ANVYA Member"));}).subscribe();
   return()=>{if(callChannelRef.current===channel)callChannelRef.current=null;void supabase.removeChannel(channel);};
  },[me,target?.user_id]);
 
@@ -134,7 +148,7 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
   if(!target||target.user_id===me)return;
   if(!navigator.mediaDevices?.getUserMedia){toast.error("Calling is not supported by this browser.");return;}
   try{
-   setCallError("");setCallType(kind);callStateRef.current="calling";setCallState("calling");setRinging(true);
+   setCallError("");setCallType(kind);callStateRef.current="calling";callLogSentRef.current=false;callStartedAtRef.current=null;setCallState("calling");setRinging(true);
    const pc=await setupPeer(kind);
    const offer=await pc.createOffer();await pc.setLocalDescription(offer);
    const sendOffer=()=>void userCallChannelRef.current?.send({type:"broadcast",event:"call_offer",payload:{from:me,to:target.user_id,name:myName,avatar_url:null,public_id:null,kind,offer}});
@@ -147,7 +161,7 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
  const acceptCall=async()=>{
   const pending=pendingOfferRef.current;if(!pending||!target)return;
   try{
-   setCallError("");setCallType(pending.kind==="video"?"video":"audio");callStateRef.current="connected";stopRingtone();setCallState("connected");
+   setCallError("");setCallType(pending.kind==="video"?"video":"audio");callStateRef.current="connected";callStartedAtRef.current=Date.now();callLogSentRef.current=false;stopRingtone();if(incomingTimerRef.current)clearTimeout(incomingTimerRef.current);setCallState("connected");
    const pc=await setupPeer(pending.kind==="video"?"video":"audio");
    await pc.setRemoteDescription(new RTCSessionDescription(pending.offer));
    for(const candidate of pendingIceRef.current.splice(0))await pc.addIceCandidate(candidate).catch(()=>{});
@@ -179,7 +193,7 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
   }
   setSending(false);
  };
- const editMessage=(m:Msg)=>{if(m.sender_id!==me||m.message==="[This message was unsent]")return;setEditingId(m.id);setText(m.message);};
+ const parseCallLog=(message:string):CallLog|null=>{if(!message.startsWith(CALL_PREFIX))return null;try{return JSON.parse(message.slice(CALL_PREFIX.length)) as CallLog}catch{return null;}}; const editMessage=(m:Msg)=>{if(m.sender_id!==me||m.message==="[This message was unsent]"||parseCallLog(m.message))return;setEditingId(m.id);setText(m.message);};
  const unsendMessage=async(m:Msg)=>{
   if(m.sender_id!==me||m.message==="[This message was unsent]")return;
   const{error}=await supabase.from("idea_messages").update({message:"[This message was unsent]"}).eq("id",m.id).eq("sender_id",me);
@@ -207,7 +221,7 @@ export default function IdeasMessages({me,initialTarget}:{me:string;initialTarge
     </Card>
    </div>}
    <div className="flex-1 space-y-1 overflow-y-auto bg-[radial-gradient(circle_at_top,rgba(124,58,237,0.06),transparent_45%)] px-3 py-5 sm:px-7">{loading&&<p className="text-xs text-muted-foreground">Loading conversation…</p>}{!loading&&messages.length===0&&<div className="py-20 text-center"><div className="mx-auto grid size-16 place-items-center rounded-full bg-muted"><MessageCircle className="size-7 text-muted-foreground"/></div><p className="mt-3 text-sm font-semibold">Say hello 👋</p><p className="text-xs text-muted-foreground">Start the conversation with {target.display_name}.</p></div>}
-     {messages.map((m,i)=>{const showDay=i===0||formatDayLabel(messages[i-1].created_at)!==formatDayLabel(m.created_at);return <div key={m.id}>{showDay&&<div className="my-5 flex items-center gap-3"><div className="h-px flex-1 bg-border"/><span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{formatDayLabel(m.created_at)}</span><div className="h-px flex-1 bg-border"/></div>}<div className={`mb-1 flex items-end gap-2 ${m.sender_id===me?"justify-end":"justify-start"}`}>{m.sender_id!==me&&<div className="size-7 shrink-0 overflow-hidden rounded-full bg-muted"><UserCircle2 className="size-full p-1 text-muted-foreground"/></div>}<div className={`group relative max-w-[78%] px-3.5 py-2.5 text-sm shadow-sm sm:max-w-[65%] ${m.sender_id===me?"rounded-[22px] rounded-br-md bg-gradient-to-r from-violet-600 to-blue-600 text-white":"rounded-[22px] rounded-bl-md border bg-card"}`}><p className="whitespace-pre-wrap break-words leading-5">{m.message==="[This message was unsent]"?<span className="italic opacity-70">This message was unsent</span>:m.message}</p><div className={`mt-1 flex items-center justify-end gap-1 text-[9px] ${m.sender_id===me?"text-white/70":"text-muted-foreground"}`}><span>{formatMessageTime(m.created_at)}</span>{<span>· edited</span>}{m.sender_id===me&&<span>{m.read_at?"✓✓":"✓"}</span>}</div>{m.sender_id===me&&!m.deleted_at&&<div className="absolute -top-8 right-0 hidden items-center gap-1 rounded-full border bg-background p-1 text-foreground shadow-md group-hover:flex"><button type="button" className="rounded-full px-2 py-1 text-[11px] font-semibold hover:bg-muted" onClick={()=>editMessage(m)}>Edit</button><button type="button" className="rounded-full px-2 py-1 text-[11px] font-semibold text-destructive hover:bg-muted" onClick={()=>void unsendMessage(m)}>Unsend</button></div>}</div></div></div>})}
+     {messages.map((m,i)=>{const showDay=i===0||formatDayLabel(messages[i-1].created_at)!==formatDayLabel(m.created_at);return <div key={m.id}>{showDay&&<div className="my-5 flex items-center gap-3"><div className="h-px flex-1 bg-border"/><span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">{formatDayLabel(m.created_at)}</span><div className="h-px flex-1 bg-border"/></div>}<div className={`mb-1 flex items-end gap-2 ${m.sender_id===me?"justify-end":"justify-start"}`}>{m.sender_id!==me&&<div className="size-7 shrink-0 overflow-hidden rounded-full bg-muted"><UserCircle2 className="size-full p-1 text-muted-foreground"/></div>}<div className={`group relative max-w-[78%] px-3.5 py-2.5 text-sm shadow-sm sm:max-w-[65%] ${m.sender_id===me?"rounded-[22px] rounded-br-md bg-gradient-to-r from-violet-600 to-blue-600 text-white":"rounded-[22px] rounded-bl-md border bg-card"}`}><p className="whitespace-pre-wrap break-words leading-5">{parseCallLog(m.message)?<CallMessage log={parseCallLog(m.message)!} me={me} onReturn={(kind)=>{if(target)void startCall(kind)}}/>:m.message==="[This message was unsent]"?<span className="italic opacity-70">This message was unsent</span>:m.message}</p><div className={`mt-1 flex items-center justify-end gap-1 text-[9px] ${m.sender_id===me?"text-white/70":"text-muted-foreground"}`}><span>{formatMessageTime(m.created_at)}</span>{<span>· edited</span>}{m.sender_id===me&&<span>{m.read_at?"✓✓":"✓"}</span>}</div>{m.sender_id===me&&!m.deleted_at&&<div className="absolute -top-8 right-0 hidden items-center gap-1 rounded-full border bg-background p-1 text-foreground shadow-md group-hover:flex"><button type="button" className="rounded-full px-2 py-1 text-[11px] font-semibold hover:bg-muted" onClick={()=>editMessage(m)}>Edit</button><button type="button" className="rounded-full px-2 py-1 text-[11px] font-semibold text-destructive hover:bg-muted" onClick={()=>void unsendMessage(m)}>Unsend</button></div>}</div></div></div>})}
     </div>
     <div className="border-t bg-background/95 p-3 backdrop-blur sm:p-4"><div className="flex items-center gap-2 rounded-full border bg-muted/40 p-1.5 shadow-sm"><Input className="h-9 border-0 bg-transparent px-3 shadow-none focus-visible:ring-0" value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();void send()}}} placeholder={`Message ${target.display_name}…`} maxLength={5000}/><Button size="icon" className="size-9 shrink-0 rounded-full bg-gradient-to-r from-violet-600 to-blue-600" onClick={()=>void send()} disabled={sending||!text.trim()}><Send className="size-4"/></Button></div><p className="mt-1 px-3 text-[10px] text-muted-foreground">Press Enter to send</p></div></>}
   </section>
