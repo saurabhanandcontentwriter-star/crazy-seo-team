@@ -153,3 +153,8 @@
   .cst-reveal { opacity:1; transform:none; transition:none; }
   .cst-3d-site::before,.cst-3d-site::after { animation:none; }
 }
+
+.cst-hero-enter{animation:cstHeroEnter .55s cubic-bezier(.22,1,.36,1) both}
+.cst-hero-enter-delay{animation-delay:.08s}
+@keyframes cstHeroEnter{from{opacity:0;transform:translate3d(0,18px,0) scale(.99)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.cst-hero-enter{animation:none}}
