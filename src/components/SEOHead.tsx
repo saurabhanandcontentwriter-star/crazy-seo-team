@@ -101,7 +101,7 @@ export default function SEOHead() {
   const isAnvyaPost = !!anvyaSlug;
   const isIdeas = basePath === "/anvya" || basePath === "/anvya/explore";
   const isPostAd = basePath === "/post-ad";
-  const isPrivateOrUtility = ["/anvya/login", "/anvya/settings", "/anvya/analytics", "/anvya/notifications", "/anvya/saved"].includes(basePath);
+  const isPrivateOrUtility = location.pathname.startsWith("/admin") || location.pathname.startsWith("/crm") || ["/anvya/login", "/anvya/settings", "/anvya/analytics", "/anvya/notifications", "/anvya/saved"].includes(basePath);
   const meta = service
     ? { title: service.metaTitle, description: service.metaDescription, keywords: [service.title, service.category, "SEO", "AI search", "GEO", "AEO", "LLM optimization"].join(", ") }
     : industry
@@ -172,8 +172,6 @@ export default function SEOHead() {
     <meta name="robots" content={isPrivateOrUtility ? "noindex, nofollow, noarchive" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
     <meta name="googlebot" content={isPrivateOrUtility ? "noindex, nofollow, noarchive" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
     <meta name="bingbot" content={isPrivateOrUtility ? "noindex, nofollow, noarchive" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
-    <meta name="ai-content-declaration" content="AI-assisted SEO and content optimization may be used; factual claims should be verified against cited or authoritative sources." />
-    <meta name="ai-topic" content={CORE_TOPICS} />
     <meta name="content-language" content="en-IN" />
     <meta name="geo.region" content="IN" />
     <meta name="theme-color" content="#ffffff" />
