@@ -7,13 +7,13 @@ import { Button } from "@/components/ui/button";
 const whoWeAre = ["AI SEO Company", "SEO & Content Marketing Agency", "AI Search Optimization Specialists", "Digital Growth Experts", "Automation Experts"];
 const missionEngines = ["Google Search", "Google AI Overview", "ChatGPT Search", "Gemini", "Claude", "Perplexity", "Bing Copilot"];
 const whatWeDo = [
-  { icon: Search, title: "SEO Services", desc: "Technical, on-page, off-page, local, semantic and entity SEO designed around sustainable search visibility." },
-  { icon: Sparkles, title: "AI SEO Services", desc: "GEO, AEO and LLM optimization for AI search experiences across ChatGPT, Gemini, Claude and Perplexity." },
-  { icon: Megaphone, title: "Google Ads", desc: "Search, Shopping, YouTube and Performance Max campaigns supported by conversion-focused measurement." },
-  { icon: PenTool, title: "Content Writing", desc: "Research-led blogs, articles, landing pages, service pages and product content built for people and search." },
-  { icon: Bot, title: "Ghostwriting", desc: "Founder, CEO and LinkedIn thought leadership that turns expertise into a consistent content presence." },
-  { icon: Workflow, title: "AI Automation", desc: "Workflow automation, AI agents and integrations that reduce repetitive work and improve operational speed." },
-  { icon: Code2, title: "AI Software Development", desc: "Custom AI SaaS, dashboards, chatbots, CRMs and business applications built around real workflows." },
+  { title: "SEO Services", desc: "Technical, on-page, off-page, local, semantic and entity SEO designed around sustainable search visibility.", image: "/images/capability-seo.svg", points: ["Technical and on-page SEO", "Semantic and entity optimization", "Local and off-page SEO", "Search visibility foundations"] },
+  { title: "AI SEO Services", desc: "GEO, AEO and LLM optimization for AI search experiences across ChatGPT, Gemini, Claude and Perplexity.", image: "/images/capability-ai.svg", points: ["GEO and AEO optimization", "AI-search visibility strategy", "LLM-friendly content structure", "Answer and citation readiness"] },
+  { title: "Google Ads", desc: "Search, Shopping, YouTube and Performance Max campaigns supported by conversion-focused measurement.", image: "/images/capability-ads.svg", points: ["Search and Shopping campaigns", "YouTube and Performance Max", "Conversion-focused tracking", "Campaign optimization"] },
+  { title: "Content Writing", desc: "Research-led blogs, articles, landing pages, service pages and product content built for people and search.", image: "/images/capability-content.svg", points: ["SEO blogs and articles", "Landing and service pages", "Search-intent content", "Human-first brand voice"] },
+  { title: "Ghostwriting", desc: "Founder, CEO and LinkedIn thought leadership that turns expertise into a consistent content presence.", image: "/images/capability-ghost.svg", points: ["Founder and CEO content", "LinkedIn thought leadership", "Personal brand strategy", "Consistent publishing systems"] },
+  { title: "AI Automation", desc: "Workflow automation, AI agents and integrations that reduce repetitive work and improve operational speed.", image: "/images/capability-automation.svg", points: ["AI agents and workflows", "Process automation", "Tool and API integrations", "Operational efficiency"] },
+  { title: "AI Software Development", desc: "Custom AI SaaS, dashboards, chatbots, CRMs and business applications built around real workflows.", image: "/images/capability-software.svg", points: ["Custom AI SaaS products", "Dashboards and CRMs", "AI chatbots and agents", "Business workflow software"] },
 ];
 const counters = [
   { value: 12500, suffix: "+", label: "SEO Audits Completed" },
@@ -124,7 +124,34 @@ const AboutSection = () => (
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-14"><p className="text-sm font-bold uppercase tracking-[0.16em] text-primary mb-3">Capabilities</p><h2 className="text-3xl md:text-5xl font-black mb-4">What We Do</h2><p className="text-muted-foreground max-w-2xl mx-auto leading-7">A full-stack growth engine covering SEO, AI search, content, advertising, automation and custom AI software.</p></div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">{whatWeDo.map(({ icon: Icon, title, desc }) => <div key={title} className="group p-7 glass-card glass-sheen transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"><div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform"><Icon className="w-5 h-5 text-primary" /></div><h3 className="text-xl font-bold mb-2">{title}</h3><p className="text-sm text-muted-foreground leading-7">{desc}</p></div>)}</div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">{whatWeDo.map(({ title, desc, image, points }) => {
+            const [flipped, setFlipped] = useState(false);
+            return <div key={title} className="[perspective:1200px] h-[330px]">
+              <button type="button" onClick={() => setFlipped((v) => !v)} className="group relative h-full w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-3xl">
+                <div className={`relative h-full w-full transition-transform duration-700 [transform-style:preserve-3d] ${flipped ? "[transform:rotateY(180deg)]" : ""}`}>
+                  <div className="absolute inset-0 [backface-visibility:hidden] rounded-3xl border border-border/70 bg-card/80 p-7 shadow-lg transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-2xl">
+                    <div className="mb-6 flex items-center justify-between">
+                      <span className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border/70 bg-background p-2 shadow-sm transition-transform duration-500 group-hover:scale-105 group-hover:rotate-2">
+                        <img src={image} alt="" width="52" height="52" className="h-12 w-12 object-contain" />
+                      </span>
+                      <span className="rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">3D</span>
+                    </div>
+                    <h3 className="text-xl font-bold mb-3">{title}</h3>
+                    <p className="text-sm text-muted-foreground leading-7">{desc}</p>
+                    <p className="mt-5 text-xs font-semibold text-primary">Click to view points →</p>
+                  </div>
+                  <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card p-7 shadow-2xl">
+                    <div className="flex items-center justify-between mb-5">
+                      <h3 className="text-lg font-bold">{title}</h3>
+                      <span className="text-xs font-semibold text-muted-foreground">Back</span>
+                    </div>
+                    <ul className="space-y-3">{points.map((point) => <li key={point} className="flex items-start gap-3 text-sm text-muted-foreground"><span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">✓</span><span>{point}</span></li>)}</ul>
+                    <span className="absolute bottom-6 left-7 text-xs font-semibold text-primary">Click to flip back</span>
+                  </div>
+                </div>
+              </button>
+            </div>;
+          })}</div>
           <div className="text-center mt-12"><Link to="/services"><Button size="lg" className="gradient-cta text-primary-foreground">Explore All Services</Button></Link></div>
         </div>
       </section>
