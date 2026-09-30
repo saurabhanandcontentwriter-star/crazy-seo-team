@@ -11,7 +11,7 @@ const tools = [
 const ToolsMarquee = () => (
   <section className="py-10 border-y border-border bg-secondary/50 overflow-hidden">
     <p className="text-center text-sm font-medium text-muted-foreground mb-6">
-      Powered by Industry-Leading Tools
+      Our Partners
     </p>
     <div className="relative overflow-hidden">
       <div className="flex animate-marquee whitespace-nowrap">
