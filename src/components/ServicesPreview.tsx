@@ -1,13 +1,10 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowUpRight, Sparkles } from "lucide-react";
 
-const journey = [
-  { step: "01", title: "Search", desc: "People look for a solution with real intent." },
-  { step: "02", title: "AI Answer", desc: "AI helps them discover and compare options." },
-  { step: "03", title: "Content", desc: "They explore useful information before deciding." },
-  { step: "04", title: "Trust", desc: "Proof, expertise and consistency build confidence." },
-  { step: "05", title: "Visit", desc: "They arrive at your digital experience." },
-  { step: "06", title: "Convert", desc: "Attention becomes a meaningful business action." },
+const projects = [
+  { title: "Saurabh Anand", type: "Personal Website", desc: "Personal portfolio showcasing SEO, AI, technology, projects and professional work.", image: "/images/workbench-saurabh.svg", href: "https://saurabhanandseo.com/" },
+  { title: "Crazy SEO Team", type: "Agency Platform", desc: "Modern SEO and AI growth platform connecting search, content, automation and digital systems.", image: "/images/workbench-crazy-seo.svg", href: "https://crazyseoteam.in/" },
+  { title: "Sneha — AI Voice Assistant", type: "AI Solution", desc: "AI-powered voice experience designed to handle enquiries, explain services and capture leads.", image: "/images/workbench-sneha.svg", href: "#" },
 ];
 
 const ServicesPreview = () => (
@@ -16,61 +13,47 @@ const ServicesPreview = () => (
       <div className="absolute -top-32 left-1/4 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
       <div className="absolute -bottom-32 right-1/4 h-80 w-80 rounded-full bg-accent/10 blur-3xl" />
     </div>
-
     <div className="relative container mx-auto max-w-6xl">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.5 }}
-        className="text-center mb-12"
-      >
+      <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: .5 }} className="text-center mb-14">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-primary">
-          <Sparkles size={11} /> How it works
+          <Sparkles size={11} /> The Workbench
         </span>
-        <h2 className="mt-4 text-3xl md:text-5xl font-black tracking-tight text-foreground">
-          How People <span className="gradient-text">Find You</span>
-        </h2>
-        <p className="mt-4 text-muted-foreground max-w-2xl mx-auto leading-7">
-          The journey from first search to final decision — across search, AI, content, trust and conversion.
-        </p>
+        <h2 className="mt-4 text-3xl md:text-5xl font-black tracking-tight text-foreground">THE <span className="gradient-text">WORKBENCH.</span></h2>
+        <p className="mt-4 text-muted-foreground max-w-2xl mx-auto leading-7">Where ideas are tested, systems are built and better outcomes take shape.</p>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.97 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: true, margin: "-60px" }}
-        transition={{ duration: 0.6 }}
-        className="mb-10 overflow-hidden rounded-[2rem] border border-border/70 bg-card shadow-xl"
-      >
-        <img
-          src="/images/how-people-find-you.svg"
-          alt="How people find your brand: Search, AI Answer, Content, Trust, Visit and Convert"
-          width="1600"
-          height="620"
-          loading="lazy"
-          className="block h-auto w-full"
-        />
-      </motion.div>
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {journey.map((item, i) => (
-          <motion.div
-            key={item.step}
-            initial={{ opacity: 0, y: 20 }}
+      <div className="grid gap-7 lg:grid-cols-3">
+        {projects.map((project, i) => (
+          <motion.a
+            key={project.title}
+            href={project.href}
+            target={project.href.startsWith("http") ? "_blank" : undefined}
+            rel={project.href.startsWith("http") ? "noopener noreferrer" : undefined}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.4, delay: (i % 3) * 0.07 }}
-            whileHover={{ y: -5 }}
-            className="group rounded-2xl border border-border/70 bg-card p-5 shadow-sm transition-all duration-300 hover:border-primary/30 hover:shadow-xl"
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: .5, delay: i * .08 }}
+            whileHover={{ y: -10, rotateX: 2 }}
+            className="group block [perspective:1200px]"
           >
-            <div className="flex items-start justify-between">
-              <span className="text-xs font-black tracking-widest text-primary">{item.step}</span>
-              <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-primary" />
+            <div className="relative overflow-hidden rounded-[2rem] border border-border/70 bg-card shadow-xl transition-all duration-500 group-hover:border-primary/30 group-hover:shadow-2xl">
+              <div className="relative aspect-[16/10] overflow-hidden bg-muted/30 p-3">
+                <div className="h-full w-full overflow-hidden rounded-[1.35rem] border border-white/50 bg-background shadow-lg transition-transform duration-500 group-hover:[transform:rotateY(-3deg)_rotateX(2deg)_scale(1.03)]">
+                  <img src={project.image} alt={project.title} width="900" height="560" loading="lazy" className="h-full w-full object-cover" />
+                </div>
+                <span className="absolute left-6 top-6 rounded-full border border-white/70 bg-white/80 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary backdrop-blur">{project.type}</span>
+                <span className="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/80 text-primary shadow-lg backdrop-blur transition-transform group-hover:rotate-12 group-hover:scale-110"><ArrowUpRight className="h-5 w-5" /></span>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-black">{project.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">{project.desc}</p>
+                <div className="mt-5 flex items-center justify-between">
+                  <span className="text-sm font-bold text-primary">View Project</span>
+                  <span className="text-xs text-muted-foreground">Open ↗</span>
+                </div>
+              </div>
             </div>
-            <h3 className="mt-4 text-lg font-bold group-hover:text-primary transition-colors">{item.title}</h3>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.desc}</p>
-          </motion.div>
+          </motion.a>
         ))}
       </div>
     </div>
