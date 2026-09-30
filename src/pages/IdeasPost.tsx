@@ -149,7 +149,7 @@ export default function IdeasPost(){
       </div>
      </div>
      <div className="prose prose-neutral mt-8 max-w-none dark:prose-invert" dangerouslySetInnerHTML={{__html:sanitizeRichHtml(post.content)}}/>
-     <PostShareAudit post={post}/>
+     
     </CardContent>
    </Card>
   </main>
