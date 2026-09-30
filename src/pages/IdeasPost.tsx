@@ -95,7 +95,7 @@ export default function IdeasPost(){
  const title=post.title||"ANVYA Post"; const canonical=`https://crazyseoteam.in/anvya/${post.slug}`;
  return <div className="min-h-screen bg-background">
   <Helmet><title>{title} | ANVYA</title><meta name="description" content={requestedSlugForSeo(requestedSlug,post)}/><link rel="canonical" href={canonical}/><meta property="og:title" content={title}/><meta property="og:description" content={requestedSlugForSeo(requestedSlug,post)}/><meta property="og:url" content={canonical}/><meta property="og:type" content="article"/><meta name="twitter:card" content="summary_large_image"/><meta name="twitter:title" content={title}/><meta name="twitter:description" content={requestedSlugForSeo(requestedSlug,post)}/></Helmet>
-  <main className="mx-auto max-w-3xl px-4 py-10 md:py-16">
+  <main data-anvya-post-page="true" className="mx-auto max-w-3xl px-4 py-10 md:py-16">
    <Link to={profile?.public_id?"/anvya/profile/"+profile.public_id:"/anvya"} className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-primary"><ArrowLeft className="size-4"/>Back to profile</Link>
    <Card className="mt-6 overflow-hidden rounded-3xl">
     {post.image_url&&<img src={post.image_url} alt={title} className="max-h-[520px] w-full object-cover"/>}
