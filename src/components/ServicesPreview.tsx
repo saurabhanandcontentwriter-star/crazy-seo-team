@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 const projects = [
-  { title: "Saurabh Anand", type: "Personal Website", desc: "Personal portfolio showcasing SEO, AI, technology, projects and professional work.", image: "https://saurabhanandseo.com/images/saurabh-anand-hero.webp", href: "https://saurabhanandseo.com/" },
+  { title: "ANVYA", type: "Community Platform", desc: "Ideas, services and community discovery platform for sharing knowledge, discussions and connections.", image: "/images/workbench-anvya.svg", href: "https://www.crazyseoteam.in/anvya" },
   { title: "Crazy SEO Team", type: "Agency Platform", desc: "Modern SEO and AI growth platform connecting search, content, automation and digital systems.", image: "https://saurabhanandseo.com/assets/crazyseo-site-C6Aq4HzM.png", href: "https://crazyseoteam.in/" },
   { title: "Sneha — AI Voice Assistant", type: "AI Solution", desc: "AI-powered voice experience designed to handle enquiries, explain services and capture leads.", image: "https://www.crazyseoteam.in/assets/ai-avatar-B8cDnzUB.jpg", href: "#" },
 ];
