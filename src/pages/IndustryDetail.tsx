@@ -1,4 +1,6 @@
 import { Link, useParams } from "react-router-dom";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { ArrowLeft, ArrowUpRight, CheckCircle2 } from "lucide-react";
 import healthcare from "@/assets/industries-healthcare.svg";
 import realestate from "@/assets/industries-realestate.svg";
@@ -40,7 +42,9 @@ const IndustryDetail = () => {
   }
 
   return (
-    <main className="min-h-screen bg-background px-4 pt-36 pb-20">
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <main className="px-4 pt-36 pb-20">
       <div className="mx-auto max-w-6xl">
         <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-primary">
           <ArrowLeft size={16} /> All Industries
@@ -75,7 +79,9 @@ const IndustryDetail = () => {
           </div>
         </div>
       </div>
-    </main>
+      </main>
+      <Footer />
+    </div>
   );
 };
 
