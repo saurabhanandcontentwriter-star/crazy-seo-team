@@ -15,13 +15,6 @@ const whatWeDo = [
   { title: "AI Automation", desc: "Workflow automation, AI agents and integrations that reduce repetitive work and improve operational speed.", image: "/images/capability-automation.svg", points: ["AI agents and workflows", "Process automation", "Tool and API integrations", "Operational efficiency"] },
   { title: "AI Software Development", desc: "Custom AI SaaS, dashboards, chatbots, CRMs and business applications built around real workflows.", image: "/images/capability-software.svg", points: ["Custom AI SaaS products", "Dashboards and CRMs", "AI chatbots and agents", "Business workflow software"] },
 ];
-const counters = [
-  { value: 12500, suffix: "+", label: "SEO Audits Completed" },
-  { value: 45000, suffix: "+", label: "Articles Published" },
-  { value: 1000000, suffix: "+", label: "Keywords Ranked" },
-  { value: 8700, suffix: "+", label: "AI Visibility Improvements" },
-  { value: 500, suffix: "+", label: "Projects Delivered" },
-];
 const principles = [
   { icon: Database, title: "Data Before Guesswork", text: "We use technical signals, search data, content performance and business context to shape strategy instead of relying on assumptions." },
   { icon: Cpu, title: "Built for AI-Era Search", text: "Modern visibility is broader than a traditional blue-link ranking. We think about entities, answers, citations, intent and machine-readable context." },
@@ -160,8 +153,25 @@ const AboutSection = () => {
 
       <section className="py-24 bg-muted/30">
         <div className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center mb-14"><p className="text-sm font-bold uppercase tracking-[0.16em] text-primary mb-3">Our Work</p><h2 className="text-3xl md:text-5xl font-black mb-4">Results in Numbers</h2><p className="text-muted-foreground max-w-2xl mx-auto">Compounding activity across SEO, AI search, content and digital growth programs.</p></div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">{counters.map((c) => <Counter key={c.label} target={c.value} suffix={c.suffix} label={c.label} />)}</div>
+          <div className="text-center mb-14"><p className="text-sm font-bold uppercase tracking-[0.16em] text-primary mb-3">Our Work</p><h2 className="text-3xl md:text-5xl font-black mb-4">Built to Turn Search Into Growth</h2><p className="text-muted-foreground max-w-2xl mx-auto leading-7">From technical SEO foundations to AI-search visibility, content and automation — every capability is designed around measurable business outcomes.</p></div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              { title: "Search Visibility", tag: "SEO", image: "/images/capability-seo.svg", desc: "Build stronger organic visibility with technical, semantic and on-page SEO.", points: ["Technical SEO foundations", "Semantic optimization", "Search intent mapping", "Visibility measurement"] },
+              { title: "AI Search Ready", tag: "AI SEARCH", image: "/images/capability-ai.svg", desc: "Prepare your brand for AI-powered discovery, answers and conversational search.", points: ["GEO and AEO", "AI-search optimization", "LLM-friendly structure", "Citation readiness"] },
+              { title: "Content Engine", tag: "CONTENT", image: "/images/capability-content.svg", desc: "Turn strategy into useful content that supports discovery, trust and conversion.", points: ["Content strategy", "SEO briefs and articles", "Landing pages", "Thought leadership"] },
+              { title: "Performance Growth", tag: "GROWTH", image: "/images/capability-ads.svg", desc: "Connect paid acquisition and organic growth with clear performance measurement.", points: ["Google Ads", "Campaign optimization", "Conversion tracking", "Performance reporting"] },
+              { title: "Automation & AI", tag: "AUTOMATION", image: "/images/capability-automation.svg", desc: "Reduce repetitive work with AI agents, workflows and intelligent integrations.", points: ["AI agents", "Workflow automation", "API integrations", "Operational systems"] },
+              { title: "Custom AI Software", tag: "SOFTWARE", image: "/images/capability-software.svg", desc: "Build AI-powered products and internal systems around the way your business actually works.", points: ["AI SaaS products", "Dashboards and CRMs", "Custom applications", "Business workflows"] },
+            ].map(({ title, tag, image, desc, points }) => <div key={title} className="group relative overflow-hidden rounded-3xl border border-border/70 bg-card p-7 shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+              <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/10 blur-2xl transition-all duration-500 group-hover:bg-primary/20" />
+              <div className="relative flex items-start justify-between mb-6">
+                <span className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border/70 bg-background p-2 shadow-sm"><img src={image} alt="" width="52" height="52" className="h-12 w-12 object-contain" /></span>
+                <span className="rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">{tag}</span>
+              </div>
+              <h3 className="text-xl font-bold mb-3">{title}</h3><p className="text-sm text-muted-foreground leading-7 mb-5">{desc}</p>
+              <div className="grid grid-cols-2 gap-2">{points.map((point) => <span key={point} className="rounded-xl bg-muted/50 px-3 py-2 text-xs font-medium text-muted-foreground">{point}</span>)}</div>
+            </div>)}
+          </div>
         </div>
       </section>
 
