@@ -3,7 +3,7 @@ const tools = [
   { name: "Google Ads", logo: "https://cdn.simpleicons.org/googleads" },
   { name: "Google Analytics", logo: "https://cdn.simpleicons.org/googleanalytics" },
   { name: "Meta Ads", logo: "https://cdn.simpleicons.org/meta" },
-  { name: "LinkedIn", logo: "https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/linkedin.svg" },
+  { name: "LinkedIn", logo: "https://www.linkedin.com/favicon.ico" },
   { name: "SEMRush", logo: "https://cdn.simpleicons.org/semrush" },
   { name: "HubSpot", logo: "https://cdn.simpleicons.org/hubspot" },
 ];
@@ -41,10 +41,8 @@ const ToolsMarquee = () => (
                 loading="lazy"
                 decoding="async"
                 referrerPolicy="no-referrer"
-                className="h-5 w-5 object-contain"
-                onError={(event) => {
-                  event.currentTarget.style.visibility = "hidden";
-                }}
+                className="h-6 w-6 object-contain"
+                
               />
             </span>
             {tool.name}
