@@ -8,7 +8,6 @@ const StatsBar = lazy(() => import("@/components/StatsBar"));
 const ToolsMarquee = lazy(() => import("@/components/ToolsMarquee"));
 const AboutSection = lazy(() => import("@/components/AboutSection"));
 const ServicesPreview = lazy(() => import("@/components/ServicesPreview"));
-const IndustriesSection = lazy(() => import("@/components/IndustriesSection"));
 const WhyChooseUs = lazy(() => import("@/components/WhyChooseUs"));
 const BlogSection = lazy(() => import("@/components/BlogSection"));
 const CTASection = lazy(() => import("@/components/CTASection"));
@@ -55,7 +54,6 @@ const Index = () => {
         <ToolsMarquee />
         <AboutSection />
         <ServicesPreview />
-        <IndustriesSection />
         <WhyChooseUs />
         <AdvertisingCarousel />
         <BlogSection />
