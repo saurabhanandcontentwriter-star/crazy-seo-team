@@ -137,7 +137,6 @@ const AboutSection = () => {
                       <span className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border/70 bg-background p-2 shadow-sm transition-transform duration-500 group-hover:scale-105 group-hover:rotate-2">
                         <img src={image} alt="" width="52" height="52" className="h-12 w-12 object-contain" />
                       </span>
-                      <span className="rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">3D</span>
                     </div>
                     <h3 className="text-xl font-bold mb-3">{title}</h3>
                     <p className="text-sm text-muted-foreground leading-7">{desc}</p>
