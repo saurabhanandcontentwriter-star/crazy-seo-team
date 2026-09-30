@@ -32,12 +32,9 @@ const projects = [
 const PortfolioSection = () => (
   <section id="results" className="py-20 px-4 bg-secondary/30">
     <div className="container mx-auto">
-      <p className="text-sm font-semibold text-primary text-center mb-2">Our Work</p>
       <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-3">
-        Real Results for Real Brands
       </h2>
       <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-14">
-        See how we've helped businesses across various industries scale their operations and dominate their markets.
       </p>
 
       <div className="grid md:grid-cols-2 gap-6">
