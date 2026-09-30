@@ -1,10 +1,13 @@
 import { motion } from "framer-motion";
 import { ArrowUpRight, Sparkles } from "lucide-react";
+import workbenchSaurabh from "@/assets/workbench-saurabh.svg";
+import workbenchCrazySeo from "@/assets/workbench-crazy-seo.svg";
+import workbenchSneha from "@/assets/workbench-sneha.svg";
 
 const projects = [
-  { title: "Saurabh Anand", type: "Personal Website", desc: "Personal portfolio showcasing SEO, AI, technology, projects and professional work.", image: "/images/workbench-saurabh.svg", href: "https://saurabhanandseo.com/" },
-  { title: "Crazy SEO Team", type: "Agency Platform", desc: "Modern SEO and AI growth platform connecting search, content, automation and digital systems.", image: "/images/workbench-crazy-seo.svg", href: "https://crazyseoteam.in/" },
-  { title: "Sneha — AI Voice Assistant", type: "AI Solution", desc: "AI-powered voice experience designed to handle enquiries, explain services and capture leads.", image: "/images/workbench-sneha.svg", href: "#" },
+  { title: "Saurabh Anand", type: "Personal Website", desc: "Personal portfolio showcasing SEO, AI, technology, projects and professional work.", image: workbenchSaurabh, href: "https://saurabhanandseo.com/" },
+  { title: "Crazy SEO Team", type: "Agency Platform", desc: "Modern SEO and AI growth platform connecting search, content, automation and digital systems.", image: workbenchCrazySeo, href: "https://crazyseoteam.in/" },
+  { title: "Sneha — AI Voice Assistant", type: "AI Solution", desc: "AI-powered voice experience designed to handle enquiries, explain services and capture leads.", image: workbenchSneha, href: "#" },
 ];
 
 const ServicesPreview = () => (
