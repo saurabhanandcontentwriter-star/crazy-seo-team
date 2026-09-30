@@ -153,40 +153,47 @@ const AboutSection = () => {
 
       <section className="py-24 bg-muted/30 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
-          <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-accent/10 blur-3xl" />
+          <div className="absolute -top-32 left-1/4 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute -bottom-32 right-1/4 h-80 w-80 rounded-full bg-accent/10 blur-3xl" />
         </div>
         <div className="relative container mx-auto px-4 max-w-6xl">
-          <div className="text-center mb-16">
+          <div className="text-center mb-14">
             <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary mb-3">The Visibility Lab</p>
-            <h2 className="text-3xl md:text-5xl font-black mb-4">What We Look At Before We Build</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto leading-7">Great growth starts with the signals most teams overlook. We connect the pieces before choosing the tactics.</p>
+            <h2 className="text-3xl md:text-5xl font-black mb-4">Signals Behind Real Growth</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto leading-7">We don't start with random tactics. We find the signals, connect the dots and turn them into action.</p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { n: "01", title: "Search Signals", text: "Queries, intent, SERPs and emerging search behavior reveal what people are actually looking for.", icon: Search },
-              { n: "02", title: "Entity Signals", text: "We map the facts, relationships and context that help search systems understand a brand.", icon: Layers3 },
-              { n: "03", title: "Content Signals", text: "We identify missing topics, weak pages and opportunities to make useful information easier to discover.", icon: PenTool },
-              { n: "04", title: "Trust Signals", text: "Authority, consistency, evidence and brand presence shape whether users and search systems trust the information.", icon: Globe2 },
-              { n: "05", title: "Conversion Signals", text: "Traffic only matters when the experience helps visitors take the next meaningful business action.", icon: Target },
-              { n: "06", title: "Automation Signals", text: "Where repetitive work exists, we look for workflows, agents and systems that can make the operation smarter.", icon: Workflow },
-            ].map(({ n, title, text, icon: Icon }) => (
-              <div key={n} className="group relative rounded-3xl border border-border/70 bg-card/80 p-7 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:border-primary/30 hover:shadow-2xl">
-                <div className="flex items-start justify-between mb-7">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                    <Icon className="h-5 w-5" />
+              { n: "01", title: "Search Signals", text: "Queries, intent and SERPs show what people are actively trying to discover.", icon: Search, stat: "DISCOVER" },
+              { n: "02", title: "Entity Signals", text: "Facts, relationships and context help search systems understand your brand.", icon: Layers3, stat: "UNDERSTAND" },
+              { n: "03", title: "Content Signals", text: "Topic gaps and weak pages reveal where useful content can create an advantage.", icon: PenTool, stat: "BUILD" },
+              { n: "04", title: "Trust Signals", text: "Authority, consistency and evidence strengthen how your brand is perceived.", icon: Globe2, stat: "TRUST" },
+              { n: "05", title: "Conversion Signals", text: "We connect visibility with the actions that actually matter to the business.", icon: Target, stat: "CONVERT" },
+              { n: "06", title: "Automation Signals", text: "Repetitive workflows become opportunities for smarter AI-powered systems.", icon: Workflow, stat: "SCALE" },
+            ].map(({ n, title, text, icon: Icon, stat }) => (
+              <div key={n} className="group relative min-h-[285px] overflow-hidden rounded-[2rem] border border-border/70 bg-card p-7 shadow-lg transition-all duration-500 hover:-translate-y-3 hover:border-primary/40 hover:shadow-2xl">
+                <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-primary/10 blur-2xl transition-all duration-500 group-hover:scale-150 group-hover:bg-primary/20" />
+                <div className="absolute bottom-0 left-0 h-1 w-0 bg-primary transition-all duration-500 group-hover:w-full" />
+                <div className="relative flex items-center justify-between">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/15 bg-primary/10 text-primary shadow-sm transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+                    <Icon className="h-6 w-6" />
                   </div>
-                  <span className="text-4xl font-black tracking-tight text-muted-foreground/20">{n}</span>
+                  <span className="text-5xl font-black tracking-tight text-muted-foreground/10 transition-colors duration-500 group-hover:text-primary/15">{n}</span>
                 </div>
-                <h3 className="text-xl font-bold mb-3">{title}</h3>
-                <p className="text-sm text-muted-foreground leading-7">{text}</p>
-                <div className="mt-6 h-1 w-10 rounded-full bg-primary/30 transition-all duration-500 group-hover:w-20 group-hover:bg-primary" />
+                <div className="relative mt-7">
+                  <span className="inline-flex rounded-full border border-border bg-muted/60 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{stat}</span>
+                  <h3 className="mt-3 text-xl font-bold transition-colors duration-300 group-hover:text-primary">{title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">{text}</p>
+                </div>
+                <div className="relative mt-6 flex items-center gap-2 text-xs font-semibold text-primary opacity-70 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100">Explore signal <span>→</span></div>
               </div>
             ))}
           </div>
-          <div className="mt-10 rounded-3xl border border-primary/15 bg-primary/5 px-6 py-5 text-center">
-            <p className="text-sm md:text-base font-semibold">Signal → Insight → Action → Improvement</p>
-            <p className="text-xs text-muted-foreground mt-1">A continuous loop instead of a one-time marketing campaign.</p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 rounded-[1.5rem] border border-primary/15 bg-card/70 px-6 py-5 shadow-sm">
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">SIGNAL</span><span className="text-muted-foreground">→</span>
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">INSIGHT</span><span className="text-muted-foreground">→</span>
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">ACTION</span><span className="text-muted-foreground">→</span>
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">IMPROVEMENT</span>
           </div>
         </div>
       </section>
