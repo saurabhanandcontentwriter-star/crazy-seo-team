@@ -420,7 +420,6 @@
   /* Workbench / cards */
   #services .grid.lg\\:grid-cols-3 { grid-template-columns: minmax(0, 1fr); }
   #services .p-6 { padding: 1.1rem; }
-  #services .aspect-\\[16\\/10\\] { aspect-ratio: 16 / 10; }
 
   /* About story visual */
   .about-story-image { min-height: 250px; }
