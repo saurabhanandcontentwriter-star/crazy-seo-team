@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { getServiceBySlug } from "@/data/services";
 
 const SITE = "https://crazyseoteam.in";
 const BRAND = "Crazy SEO Team";
@@ -67,9 +68,22 @@ const faqSets: Record<string, Array<{ q: string; a: string }>> = {
     { q: "Are the articles SEO focused?", a: "Yes. Articles are structured to be useful to readers while covering search intent, semantic topics and modern SEO practices." },
   ],
 };
+const industryMeta: Record<string, { title: string; description: string; keywords: string }> = {
+  "e-commerce": { title: "E-Commerce SEO & Digital Growth | Crazy SEO Team", description: "E-Commerce SEO, product optimization, shopping visibility and conversion-focused digital growth strategies from Crazy SEO Team.", keywords: "ecommerce SEO, e-commerce SEO, product SEO, shopping SEO, ecommerce marketing" },
+  education: { title: "Education SEO & Digital Marketing | Crazy SEO Team", description: "Education SEO, admissions growth, content strategy and search visibility solutions for education brands and institutions.", keywords: "education SEO, education marketing, admissions SEO, education digital marketing" },
+  healthcare: { title: "Healthcare SEO & Patient Growth | Crazy SEO Team", description: "Healthcare SEO, local search visibility, trusted content and patient-growth strategies for healthcare organizations.", keywords: "healthcare SEO, medical SEO, healthcare marketing, local SEO, patient growth" },
+  "real-estate": { title: "Real Estate SEO & Lead Generation | Crazy SEO Team", description: "Real estate SEO, property search visibility, local SEO and lead-generation strategies for property businesses.", keywords: "real estate SEO, property SEO, real estate marketing, local SEO, property leads" },
+  "saas-tech": { title: "SaaS & Technology SEO | Crazy SEO Team", description: "SaaS and technology SEO, B2B content, programmatic SEO and demand-generation strategies for software companies.", keywords: "SaaS SEO, technology SEO, B2B SEO, programmatic SEO, SaaS marketing" },
+  "finance-fintech": { title: "Finance & Fintech SEO | Crazy SEO Team", description: "Finance and fintech SEO, authority-focused content, technical optimization and digital acquisition strategies.", keywords: "fintech SEO, finance SEO, fintech marketing, financial content SEO" },
+  "travel-hospitality": { title: "Travel & Hospitality SEO | Crazy SEO Team", description: "Travel and hospitality SEO, local visibility, content strategy and booking-focused digital growth.", keywords: "travel SEO, hospitality SEO, hotel SEO, tourism marketing, booking SEO" },
+  legal: { title: "Legal SEO & Search Visibility | Crazy SEO Team", description: "Legal SEO, local search, authority content and qualified lead-generation strategies for law firms and legal businesses.", keywords: "legal SEO, law firm SEO, lawyer SEO, legal marketing, local SEO" },
+  "local-businesses": { title: "Local SEO for Businesses | Crazy SEO Team", description: "Local SEO, Google Maps visibility, business profile optimization and local lead generation for service-area businesses.", keywords: "local SEO, Google Maps SEO, local business SEO, Google Business Profile, local leads" },
+};
+
 function getBasePath(pathname: string) {
   if (pathname.startsWith("/blog/")) return "/blog";
   if (pathname.startsWith("/services/")) return "/services";
+  if (pathname.startsWith("/industries/")) return "/industries";
   if (pathname.startsWith("/classifieds")) return "/classifieds";
   return pathname.replace(/\/$/, "") || "/";
 }
@@ -77,6 +91,10 @@ function getBasePath(pathname: string) {
 export default function SEOHead() {
   const location = useLocation();
   const basePath = getBasePath(location.pathname);
+  const serviceSlug = location.pathname.match(/^\/services\/([^/]+)$/)?.[1] || null;
+  const service = serviceSlug ? getServiceBySlug(serviceSlug) : null;
+  const industrySlug = location.pathname.match(/^\/industries\/([^/]+)$/)?.[1] || null;
+  const industry = industrySlug ? industryMeta[industrySlug] : null;
   const [listing, setListing] = useState<any>(null);
   const [anvyaPost, setAnvyaPost] = useState<any>(null);
   const anvyaSlug = location.pathname.match(/^\/anvya\/([^/]+)$/)?.[1] || null;
@@ -84,7 +102,11 @@ export default function SEOHead() {
   const isIdeas = basePath === "/anvya" || basePath === "/anvya/explore";
   const isPostAd = basePath === "/post-ad";
   const isPrivateOrUtility = ["/anvya/login", "/anvya/settings", "/anvya/analytics", "/anvya/notifications", "/anvya/saved"].includes(basePath);
-  const meta = pageMeta[basePath] ?? { title: `${BRAND} | AI SEO, GEO, AEO & Digital Growth`, description: "Crazy SEO Team helps businesses improve SEO, AI search visibility, content performance and digital growth.", keywords: CORE_TOPICS };
+  const meta = service
+    ? { title: service.metaTitle, description: service.metaDescription, keywords: [service.title, service.category, "SEO", "AI search", "GEO", "AEO", "LLM optimization"].join(", ") }
+    : industry
+      ? industry
+      : pageMeta[basePath] ?? { title: `${BRAND} | AI SEO, GEO, AEO & Digital Growth`, description: "Crazy SEO Team helps businesses improve SEO, AI search visibility, content performance and digital growth.", keywords: CORE_TOPICS };
   const canonical = `${SITE}${location.pathname === "/" ? "/" : location.pathname.replace(/\/$/, "")}`;
   const faqs = faqSets[basePath] ?? [];
   const breadcrumbs = location.pathname.split("/").filter(Boolean).map((part, index, arr) => ({ name: part.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()), item: `${SITE}/${arr.slice(0, index + 1).join("/")}` }));
@@ -122,7 +144,7 @@ export default function SEOHead() {
   }, [location.pathname]);
 
   const organization = { "@context": "https://schema.org", "@type": "Organization", "@id": `${SITE}/#organization`, name: BRAND, url: SITE, description: "AI SEO, GEO, AEO, LLM optimization, semantic SEO, NLP and digital growth platform.", knowsAbout: CORE_TOPICS.split(", ").map((x) => x.trim()) };
-  const websiteSchema = { "@context": "https://schema.org", "@type": "WebSite", "@id": `${SITE}/#website`, name: BRAND, url: SITE, description: "AI SEO, GEO, AEO, LLM optimization, semantic SEO and digital marketing platform.", publisher: { "@id": `${SITE}/#organization` }, inLanguage: "en-IN", potentialAction: { "@type": "SearchAction", target: `${SITE}/blog?search={search_term_string}`, "query-input": "required name=search_term_string" } };
+  const websiteSchema = { "@context": "https://schema.org", "@type": "WebSite", "@id": `${SITE}/#website`, name: BRAND, url: SITE, description: "AI SEO, GEO, AEO, LLM optimization, semantic SEO and digital marketing platform.", publisher: { "@id": `${SITE}/#organization` }, inLanguage: "en-IN" };
   const webPageSchema = { "@context": "https://schema.org", "@type": "WebPage", "@id": `${canonical}#webpage`, url: canonical, name: anvyaPost ? `${anvyaPost.title || "ANVYA Post"} | ANVYA | ${BRAND}` : listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title, description: anvyaPost ? String(anvyaPost.content || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) : listing?.description?.slice(0, 160) || meta.description, isPartOf: { "@id": `${SITE}/#website` }, about: { "@id": `${SITE}/#organization` }, inLanguage: "en-IN", keywords: listing ? [listing.category, listing.city, listing.state].filter(Boolean).join(", ") : meta.keywords };
   const collectionSchema = useMemo(() => (basePath === "/classifieds" || isIdeas) ? { "@context": "https://schema.org", "@type": "CollectionPage", name: meta.title, url: canonical, description: meta.description, isPartOf: { "@type": "WebSite", name: BRAND, url: SITE } } : null, [basePath, canonical, meta.title, meta.description, isIdeas]);
   const ideasSchema = isIdeas ? { "@context": "https://schema.org", "@type": "CollectionPage", "@id": `${SITE}/anvya#collection`, name: meta.title, url: canonical, description: meta.description, about: ["AI", "SEO", "Technology", "Travel", "Science", "Economics"], isPartOf: { "@id": `${SITE}/#website` }, publisher: { "@id": `${SITE}/#organization` } } : null;
@@ -133,7 +155,8 @@ export default function SEOHead() {
     ...(listing.seller_name ? { seller: { "@type": "Person", name: listing.seller_name } } : {}), ...(listing.business_name ? { brand: { "@type": "Brand", name: listing.business_name } } : {}),
     ...(listing.city || listing.state ? { areaServed: { "@type": "Place", name: [listing.city, listing.state].filter(Boolean).join(", ") } } : {}),
   } : null, [listing]);
-  const faqSchema = basePath === "/faq" && faqs.length ? { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) } : null;
+  const serviceSchema = service ? { "@context": "https://schema.org", "@type": "Service", "@id": `${canonical}#service`, name: service.title, description: service.description, serviceType: service.category, provider: { "@id": `${SITE}/#organization` }, areaServed: { "@type": "Place", name: "Worldwide" }, url: canonical } : null;
+  const industrySchema = industry && industrySlug ? { "@context": "https://schema.org", "@type": "WebPage", "@id": `${canonical}#industry`, name: industry.title, description: industry.description, url: canonical, about: { "@type": "Thing", name: industrySlug.replace(/-/g, " ") }, isPartOf: { "@id": `${SITE}/#website` } } : null;
   const breadcrumbSchema = breadcrumbs.length ? { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: SITE }, ...breadcrumbs.map((b, i) => ({ "@type": "ListItem", position: i + 2, name: b.name, item: b.item }))] } : null;
 
   return <Helmet>
@@ -161,9 +184,11 @@ export default function SEOHead() {
     <meta property="og:title" content={anvyaPost ? `${anvyaPost.title || "ANVYA Post"} | ANVYA | ${BRAND}` : listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title} />
     <meta property="og:description" content={anvyaPost ? String(anvyaPost.content || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) : listing?.description?.slice(0, 160) || meta.description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:type" content={listing ? "product" : "website"} />
+    <meta property="og:type" content={listing ? "product" : isAnvyaPost ? "article" : "website"} />
     <meta property="og:site_name" content={BRAND} />
     <meta property="og:locale" content="en_IN" />
+    {(anvyaPost?.image_url || listing?.image_url) && <meta property="og:image" content={anvyaPost?.image_url || listing?.image_url} />}
+    {(anvyaPost?.image_url || listing?.image_url) && <meta name="twitter:image" content={anvyaPost?.image_url || listing?.image_url} />}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={anvyaPost ? `${anvyaPost.title || "ANVYA Post"} | ANVYA | ${BRAND}` : listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title} />
     <meta name="twitter:description" content={anvyaPost ? String(anvyaPost.content || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) : listing?.description?.slice(0, 160) || meta.description} />
@@ -176,7 +201,8 @@ export default function SEOHead() {
     {ideasSchema && <script type="application/ld+json">{JSON.stringify(ideasSchema)}</script>}
     {postAdSchema && <script type="application/ld+json">{JSON.stringify(postAdSchema)}</script>}
     {listingSchema && <script type="application/ld+json">{JSON.stringify(listingSchema)}</script>}
-    {faqSchema && <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>}
+    {serviceSchema && <script type="application/ld+json">{JSON.stringify(serviceSchema)}</script>}
+    {industrySchema && <script type="application/ld+json">{JSON.stringify(industrySchema)}</script>}
     {breadcrumbSchema && <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>}
   </Helmet>;
 }
