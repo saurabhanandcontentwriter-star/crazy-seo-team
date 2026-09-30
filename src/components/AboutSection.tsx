@@ -75,7 +75,7 @@ const AboutSection = () => {
         </div>
         <div className="relative container mx-auto px-4 max-w-5xl text-center">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-[0.16em] uppercase mb-7"><Sparkles className="w-4 h-4" /> About Crazy SEO Team</span>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-foreground mb-7 leading-[1.05]">The AI SEO Company Built for the <span className="gradient-text">Generative Search Era</span></h1>
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-foreground mb-7 leading-[1.05]">The AI SEO Company <span className="gradient-text">for Generative Search</span></h1>
           <p className="text-lg md:text-xl text-muted-foreground leading-8 max-w-3xl mx-auto">Crazy SEO Team is an AI-powered SEO and digital growth agency helping businesses build visibility across Google, AI Overviews and generative search. We combine technical SEO, AI search optimization, content engineering, paid growth, automation and custom software into one connected growth system.</p>
           <div className="flex flex-wrap justify-center gap-2.5 mt-9">{whoWeAre.map((t) => <span key={t} className="px-4 py-2 rounded-full bg-card/80 backdrop-blur border border-border text-sm text-foreground shadow-sm hover:-translate-y-1 transition-transform">{t}</span>)}</div>
           <div className="mt-12 flex flex-wrap justify-center gap-4"><Link to="/services"><Button size="lg" className="gradient-cta text-primary-foreground">Explore Our Services</Button></Link><Link to="/contact"><Button size="lg" variant="outline">Talk to Our Team</Button></Link></div>
