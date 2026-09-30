@@ -119,7 +119,7 @@ const AboutSection = () => {
 
       <section className="py-24 bg-background">
         <div className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center mb-14"><p className="text-sm font-bold uppercase tracking-[0.16em] text-primary mb-3">Capabilities</p><h2 className="text-3xl md:text-5xl font-black mb-4">What We Do</h2><p className="text-muted-foreground max-w-2xl mx-auto leading-7">A full-stack growth engine covering SEO, AI search, content, advertising, automation and custom AI software.</p></div>
+          <div className="text-center mb-14"><p className="text-sm font-bold uppercase tracking-[0.16em] text-primary mb-3">Our Capabilities</p><h2 className="text-3xl md:text-5xl font-black mb-4">DISCOVERY, ENGINEERED.</h2><p className="text-muted-foreground max-w-2xl mx-auto leading-7">SEO, AI, content and technology working together to make brands discoverable everywhere people search.</p></div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">{whatWeDo.map(({ title, desc, image, points }) => {
             const flipped = flippedCapability === title;
             return <div key={title} className="[perspective:1200px] h-[330px]">
