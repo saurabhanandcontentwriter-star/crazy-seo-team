@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { Bot, Search, Sparkles, PenTool, Megaphone, Code2, Workflow, Target, Eye, Rocket, BarChart3, BrainCircuit, Layers3, Globe2, CheckCircle2 } from "lucide-react";
+import { Bot, Search, Sparkles, PenTool, Megaphone, Code2, Workflow, Target, Eye, Rocket, BarChart3, BrainCircuit, Layers3, Globe2, CheckCircle2, Database, Cpu, Network } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const whoWeAre = ["AI SEO Company", "SEO & Content Marketing Agency", "AI Search Optimization Specialists", "Digital Growth Experts", "Automation Experts"];
@@ -23,10 +23,10 @@ const counters = [
   { value: 500, suffix: "+", label: "Projects Delivered" },
 ];
 const principles = [
-  { icon: BarChart3, title: "Data Before Guesswork", text: "We use technical signals, search data, content performance and business context to shape strategy instead of relying on assumptions." },
-  { icon: BrainCircuit, title: "Built for AI-Era Search", text: "Modern visibility is broader than a traditional blue-link ranking. We think about entities, answers, citations, intent and machine-readable context." },
-  { icon: Layers3, title: "One Connected Growth System", text: "SEO, content, paid acquisition, automation and software can work together instead of operating as disconnected marketing activities." },
-  { icon: Globe2, title: "Human + AI Collaboration", text: "Automation accelerates research and production while human judgment remains important for quality, context, brand voice and business decisions." },
+  { icon: Database, title: "Data Before Guesswork", text: "We use technical signals, search data, content performance and business context to shape strategy instead of relying on assumptions." },
+  { icon: Cpu, title: "Built for AI-Era Search", text: "Modern visibility is broader than a traditional blue-link ranking. We think about entities, answers, citations, intent and machine-readable context." },
+  { icon: Network, title: "One Connected Growth System", text: "SEO, content, paid acquisition, automation and software can work together instead of operating as disconnected marketing activities." },
+  { icon: BrainCircuit, title: "Human + AI Collaboration", text: "Automation accelerates research and production while human judgment remains important for quality, context, brand voice and business decisions." },
 ];
 const formatNumber = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M` : n >= 1_000 ? `${(n / 1_000).toFixed(n % 1_000 === 0 ? 0 : 1)}K` : n.toString();
 
