@@ -6,7 +6,8 @@ import saas from "@/assets/industries-saas.svg";
 import education from "@/assets/industries-education.svg";
 import finance from "@/assets/industries-finance.svg";
 import legal from "@/assets/industries-legal.svg";
-import home from "@/assets/industries-home.svg";
+import travel from "@/assets/industries-travel.svg";
+import local from "@/assets/industries-local.svg";
 
 const industries = [
   { icon: ShoppingBag, label: "E-Commerce", img: ecommerce, text: "Drive more sales with SEO, content and performance marketing.", keywords: ["Product SEO", "Shopping Ads"], tone: "pink" },
@@ -15,8 +16,9 @@ const industries = [
   { icon: Building2, label: "Real Estate", img: realestate, text: "Generate quality leads and showcase properties effectively.", keywords: ["Property SEO", "Local Growth"], tone: "purple" },
   { icon: Cpu, label: "SaaS & Tech", img: saas, text: "Scale your product with SEO, content and B2B growth.", keywords: ["B2B SEO", "Lead Gen"], tone: "blue" },
   { icon: Landmark, label: "Finance & Fintech", img: finance, text: "Build trust and acquire high-value customers digitally.", keywords: ["Fintech SEO", "Trust Signals"], tone: "green" },
-  { icon: Wrench, label: "Travel & Hospitality", img: home, text: "Attract customers and increase bookings with targeted strategies.", keywords: ["Local SEO", "Booking Growth"], tone: "purple" },
+  { icon: Wrench, label: "Travel & Hospitality", img: travel, text: "Attract travelers and increase bookings with targeted strategies.", keywords: ["Local SEO", "Booking Growth"], tone: "purple" },
   { icon: Scale, label: "Legal", img: legal, text: "Build authority and generate qualified enquiries consistently.", keywords: ["Law SEO", "Lead Generation"], tone: "orange" },
+  { icon: Home, label: "Local Businesses", img: local, text: "Dominate local search and attract nearby customers.", keywords: ["Maps SEO", "Local Leads"], tone: "pink" },
 ];
 
 const toneStyles: Record<string, string> = {
