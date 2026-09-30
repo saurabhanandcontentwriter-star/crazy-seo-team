@@ -1,86 +1,77 @@
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import {
-  Search, Sparkles, Bot, BrainCircuit, Megaphone, LineChart,
-  Gauge, Building2, PenLine, Layers, Code2, Workflow, ArrowRight,
-} from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 
-const items = [
-  { icon: Search, title: "AI SEO", desc: "Rank in Google and in AI answers with entity-first optimization.", slug: "technical-seo" },
-  { icon: Sparkles, title: "GEO Optimization", desc: "Generative Engine Optimization for AI Overviews and assistants.", slug: "geo-optimization" },
-  { icon: BrainCircuit, title: "AEO Optimization", desc: "Answer Engine Optimization built around real user questions.", slug: "aeo-optimization" },
-  { icon: Bot, title: "LLM Optimization", desc: "Get cited by ChatGPT, Gemini, Claude and Perplexity.", slug: "llm-seo-optimization" },
-  { icon: Megaphone, title: "Google Ads", desc: "Search, Performance Max and shopping campaigns that convert.", slug: "google-search-ads" },
-  { icon: LineChart, title: "Performance Marketing", desc: "Full-funnel paid growth with clean attribution.", slug: "conversion-tracking" },
-  { icon: Gauge, title: "SEO Audit", desc: "180-point technical, content and AI-visibility audit.", slug: "technical-seo-audits" },
-  { icon: Building2, title: "Enterprise SEO", desc: "Governance, scale and stakeholder-ready reporting.", slug: "semantic-seo" },
-  { icon: PenLine, title: "Content Marketing", desc: "Editorial systems that compound organic traffic.", slug: "monthly-blog-management" },
-  { icon: Layers, title: "Programmatic SEO", desc: "Template-driven pages built at scale, safely.", slug: "entity-seo" },
-  { icon: Code2, title: "AI Software Development", desc: "Custom SaaS, dashboards and integrations.", slug: "custom-saas-development" },
-  { icon: Workflow, title: "AI Automation & Agents", desc: "Agents and workflows that remove manual work.", slug: "ai-agents" },
+const journey = [
+  { step: "01", title: "Search", desc: "People look for a solution with real intent." },
+  { step: "02", title: "AI Answer", desc: "AI helps them discover and compare options." },
+  { step: "03", title: "Content", desc: "They explore useful information before deciding." },
+  { step: "04", title: "Trust", desc: "Proof, expertise and consistency build confidence." },
+  { step: "05", title: "Visit", desc: "They arrive at your digital experience." },
+  { step: "06", title: "Convert", desc: "Attention becomes a meaningful business action." },
 ];
 
 const ServicesPreview = () => (
-  <section id="services" className="relative py-24 px-4">
-    <div className="container mx-auto max-w-6xl">
+  <section id="services" className="relative overflow-hidden py-24 px-4 bg-background">
+    <div className="pointer-events-none absolute inset-0">
+      <div className="absolute -top-32 left-1/4 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
+      <div className="absolute -bottom-32 right-1/4 h-80 w-80 rounded-full bg-accent/10 blur-3xl" />
+    </div>
+
+    <div className="relative container mx-auto max-w-6xl">
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.5 }}
-        className="text-center mb-14"
+        className="text-center mb-12"
       >
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-700">
-          <Sparkles size={11} /> The Architecture of Discovery
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-primary">
+          <Sparkles size={11} /> How it works
         </span>
-        <h2 className="mt-4 text-3xl md:text-5xl font-bold tracking-tight text-slate-900">
-          Services built for{" "}
-          <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            AI-era search
-          </span>
+        <h2 className="mt-4 text-3xl md:text-5xl font-black tracking-tight text-foreground">
+          How People <span className="gradient-text">Find You</span>
         </h2>
-        <p className="mt-4 text-slate-600 max-w-2xl mx-auto">
-          We design the strategy, content and technology that make brands easier to find, understand and trust.
+        <p className="mt-4 text-muted-foreground max-w-2xl mx-auto leading-7">
+          The journey from first search to final decision — across search, AI, content, trust and conversion.
         </p>
       </motion.div>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((item, i) => (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.97 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.6 }}
+        className="mb-10 overflow-hidden rounded-[2rem] border border-border/70 bg-card shadow-xl"
+      >
+        <img
+          src="/images/how-people-find-you.svg"
+          alt="How people find your brand: Search, AI Answer, Content, Trust, Visit and Convert"
+          width="1600"
+          height="620"
+          loading="lazy"
+          className="block h-auto w-full"
+        />
+      </motion.div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {journey.map((item, i) => (
           <motion.div
-            key={item.title}
-            initial={{ opacity: 0, y: 26 }}
+            key={item.step}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.45, delay: (i % 3) * 0.08 }}
-            whileHover={{ y: -6 }}
-            className="group relative"
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.4, delay: (i % 3) * 0.07 }}
+            whileHover={{ y: -5 }}
+            className="group rounded-2xl border border-border/70 bg-card p-5 shadow-sm transition-all duration-300 hover:border-primary/30 hover:shadow-xl"
           >
-            <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-blue-500/40 via-indigo-500/30 to-purple-500/40 opacity-0 blur transition-opacity duration-300 group-hover:opacity-100" />
-            <Link
-              to={`/services/${item.slug}`}
-              className="relative flex h-full flex-col glass-card border border-slate-200/50 bg-white/60 p-6 backdrop-blur-xl shadow-sm transition-shadow group-hover:shadow-xl group-hover:shadow-blue-500/10"
-            >
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/25 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
-                <item.icon size={20} />
-              </div>
-              <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.desc}</p>
-              <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-blue-600">
-                Learn more
-                <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
-              </span>
-            </Link>
+            <div className="flex items-start justify-between">
+              <span className="text-xs font-black tracking-widest text-primary">{item.step}</span>
+              <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-primary" />
+            </div>
+            <h3 className="mt-4 text-lg font-bold group-hover:text-primary transition-colors">{item.title}</h3>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.desc}</p>
           </motion.div>
         ))}
-      </div>
-
-      <div className="mt-12 text-center">
-        <Link
-          to="/services"
-          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition hover:opacity-95"
-        >
-          View all services <ArrowRight size={16} />
-        </Link>
       </div>
     </div>
   </section>
