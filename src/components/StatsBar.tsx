@@ -1,14 +1,14 @@
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, BarChart3, LineChart, Search, Zap } from "lucide-react";
 
 const features = [
   {
     label: "Discovery",
     title: "Google + AI",
     description: "Get discovered across traditional and AI-powered search.",
-    logos: [
-      { name: "Google Search Console", src: "https://www.google.com/s2/favicons?domain=search.google.com&sz=128" },
-      { name: "Google Analytics", src: "https://www.google.com/s2/favicons?domain=analytics.google.com&sz=128" },
-      { name: "Google Ads", src: "https://www.google.com/s2/favicons?domain=ads.google.com&sz=128" },
+    brands: [
+      { name: "Google", icon: Search },
+      { name: "Analytics", icon: BarChart3 },
+      { name: "Ads", icon: Zap },
     ],
     tone: "from-cyan-400 to-blue-500",
     accent: "text-blue-600",
@@ -18,10 +18,10 @@ const features = [
     label: "Optimization",
     title: "AI-Powered",
     description: "Turn complex SEO data into clear, actionable insights.",
-    logos: [
-      { name: "SEMrush", src: "https://www.google.com/s2/favicons?domain=semrush.com&sz=128" },
-      { name: "Google Analytics", src: "https://www.google.com/s2/favicons?domain=analytics.google.com&sz=128" },
-      { name: "Google Ads", src: "https://www.google.com/s2/favicons?domain=ads.google.com&sz=128" },
+    brands: [
+      { name: "Semrush", icon: LineChart },
+      { name: "Analytics", icon: BarChart3 },
+      { name: "Ads", icon: Zap },
     ],
     tone: "from-blue-400 to-purple-500",
     accent: "text-purple-600",
@@ -31,10 +31,10 @@ const features = [
     label: "Intelligence",
     title: "Search Intelligence",
     description: "Understand how your brand appears across modern search.",
-    logos: [
-      { name: "Google Search Console", src: "https://www.google.com/s2/favicons?domain=search.google.com&sz=128" },
-      { name: "SEMrush", src: "https://www.google.com/s2/favicons?domain=semrush.com&sz=128" },
-      { name: "Google Analytics", src: "https://www.google.com/s2/favicons?domain=analytics.google.com&sz=128" },
+    brands: [
+      { name: "Search", icon: Search },
+      { name: "Semrush", icon: LineChart },
+      { name: "Analytics", icon: BarChart3 },
     ],
     tone: "from-emerald-400 to-cyan-500",
     accent: "text-emerald-600",
@@ -44,10 +44,10 @@ const features = [
     label: "Growth",
     title: "Built to Scale",
     description: "Start simple. Grow your search strategy as your business grows.",
-    logos: [
-      { name: "Google Analytics", src: "https://www.google.com/s2/favicons?domain=analytics.google.com&sz=128" },
-      { name: "Google Ads", src: "https://www.google.com/s2/favicons?domain=ads.google.com&sz=128" },
-      { name: "Google Search Console", src: "https://www.google.com/s2/favicons?domain=search.google.com&sz=128" },
+    brands: [
+      { name: "Analytics", icon: BarChart3 },
+      { name: "Ads", icon: Zap },
+      { name: "Search Console", icon: Search },
     ],
     tone: "from-orange-400 to-amber-500",
     accent: "text-orange-600",
@@ -66,7 +66,7 @@ const StatsBar = () => (
     <div className="container relative mx-auto px-4">
       <div className="mb-12 text-center">
         <div className="mx-auto mb-4 inline-flex items-center gap-2 rounded-full border border-blue-200 bg-white/80 px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.22em] text-blue-600 shadow-sm backdrop-blur">
-          <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]" />
+          <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
           Built for the AI-Search Era
         </div>
         <h2 className="text-4xl font-black tracking-tight text-slate-900 md:text-5xl">
@@ -78,10 +78,10 @@ const StatsBar = () => (
       </div>
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
-        {features.map(({ label, title, description, logos, tone, accent, bg }) => (
+        {features.map(({ label, title, description, brands, tone, accent, bg }) => (
           <article
             key={title}
-            className="group relative min-h-[330px] overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/80 p-6 shadow-[0_14px_45px_rgba(15,23,42,0.06)] backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_22px_60px_rgba(15,23,42,0.12)]"
+            className="group relative min-h-[330px] overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-[0_14px_45px_rgba(15,23,42,0.06)] backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_22px_60px_rgba(15,23,42,0.12)]"
           >
             <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${tone}`} />
             <div className={`absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br ${tone} opacity-10 blur-3xl transition-opacity duration-500 group-hover:opacity-25`} />
@@ -90,25 +90,20 @@ const StatsBar = () => (
               <span className={`rounded-full ${bg} px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] ${accent}`}>
                 {label}
               </span>
-              <div className={`flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/80 ${accent} transition-transform duration-300 group-hover:rotate-45`}>
+              <div className={`flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white ${accent} transition-transform duration-300 group-hover:rotate-45`}>
                 <ArrowUpRight size={17} />
               </div>
             </div>
 
             <div className="relative mt-7 flex h-14 items-center gap-3">
-              {logos.map((logo) => (
+              {brands.map(({ name, icon: Icon }) => (
                 <div
-                  key={logo.name}
-                  title={logo.name}
-                  className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-md"
+                  key={name}
+                  title={name}
+                  className="flex h-12 min-w-12 items-center gap-2 rounded-2xl border border-slate-100 bg-white px-3 shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-md"
                 >
-                  <img
-                    src={logo.src}
-                    alt={logo.name}
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                                    className="h-7 w-7 object-contain"
-                  />
+                  <Icon size={18} className={accent} strokeWidth={2.2} />
+                  <span className="hidden text-[10px] font-bold text-slate-600 xl:inline">{name}</span>
                 </div>
               ))}
             </div>
