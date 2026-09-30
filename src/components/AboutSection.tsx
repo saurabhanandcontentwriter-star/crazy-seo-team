@@ -99,13 +99,66 @@ const AboutSection = () => {
         </div>
       </section>
 
-      <section className="py-24 bg-background">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="max-w-3xl mb-14"><p className="text-sm font-bold uppercase tracking-[0.16em] text-primary mb-3">Our Story</p><h2 className="text-3xl md:text-5xl font-black mb-6">Why Crazy SEO Team Exists</h2><p className="text-lg text-muted-foreground leading-8">Search is no longer only a list of blue links. People discover brands through traditional search, AI answers, social content, maps, marketplaces and conversational assistants. That shift creates a new visibility challenge: businesses need their information to be useful to people and understandable to search systems.</p></div>
-          <div className="space-y-7 text-muted-foreground leading-8 text-lg">
-            <p>Crazy SEO Team was built around that change. Instead of treating SEO, content, advertising and technology as separate departments, we bring them together around a common goal: helping businesses become easier to discover, understand and trust.</p>
-            <p>Our work combines technical foundations with content strategy, semantic relevance, structured data, conversion thinking and AI-search optimization. The result is a more connected approach to digital growth that can support both current search demand and emerging AI discovery experiences.</p>
-            <p>We also believe technology should remove repetitive work rather than make marketing more complicated. That is why our capabilities extend into AI automation, agents, dashboards, CRM systems, SaaS products and custom integrations.</p>
+      <section className="relative overflow-hidden py-24 md:py-28 bg-background">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -left-24 top-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-accent/10 blur-3xl" />
+        </div>
+        <div className="relative container mx-auto max-w-6xl px-4">
+          <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="max-w-3xl">
+              <span className="inline-flex rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-primary">Our Story</span>
+              <h2 className="mt-4 text-3xl font-black tracking-tight md:text-5xl">Built for the way people discover brands now.</h2>
+            </div>
+            <p className="max-w-xl text-sm leading-7 text-muted-foreground md:text-base">Search moved beyond blue links. We built Crazy SEO Team around the intersection of search, AI, content and technology — so brands can be discovered, understood and trusted across modern digital surfaces.</p>
+          </div>
+
+          <div className="grid items-stretch gap-6 lg:grid-cols-[1.15fr_.85fr]">
+            <div className="group relative overflow-hidden rounded-[2rem] border border-border/70 bg-card shadow-xl">
+              <div className="relative aspect-[16/10] overflow-hidden">
+                <img src="/images/about-story-growth.svg" alt="Crazy SEO Team connecting search, AI and digital growth" width="1200" height="820" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.025]" />
+                <div className="absolute inset-x-5 bottom-5 rounded-2xl border border-white/20 bg-black/25 p-4 text-white backdrop-blur-md">
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-white/75">The evolution</p>
+                  <p className="mt-1 text-lg font-black">From search visibility to connected growth.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
+              <div className="group rounded-[2rem] border border-border/70 bg-card p-6 shadow-lg transition-all duration-500 hover:-translate-y-1 hover:shadow-xl">
+                <div className="mb-5 flex items-center gap-4">
+                  <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-primary/15 bg-primary/5 p-3">
+                    <img src="/images/capability-seo.svg" alt="SEO strategy" width="48" height="48" className="h-9 w-9 object-contain transition-transform duration-500 group-hover:scale-110" />
+                  </div>
+                  <div><p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">01 · Foundation</p><h3 className="mt-1 text-xl font-black">Search first.</h3></div>
+                </div>
+                <p className="text-sm leading-7 text-muted-foreground">Technical SEO, content structure, entities, intent and measurement create the foundation for sustainable visibility.</p>
+              </div>
+
+              <div className="group rounded-[2rem] border border-border/70 bg-card p-6 shadow-lg transition-all duration-500 hover:-translate-y-1 hover:shadow-xl">
+                <div className="mb-5 flex items-center gap-4">
+                  <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-accent/15 bg-accent/5 p-3">
+                    <img src="/images/capability-ai.svg" alt="AI search optimization" width="48" height="48" className="h-9 w-9 object-contain transition-transform duration-500 group-hover:scale-110" />
+                  </div>
+                  <div><p className="text-xs font-bold uppercase tracking-[0.14em] text-accent">02 · Evolution</p><h3 className="mt-1 text-xl font-black">AI changes the surface.</h3></div>
+                </div>
+                <p className="text-sm leading-7 text-muted-foreground">AI Overviews, conversational search and answer engines change how people discover information — and how brands need to structure it.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-6 md:grid-cols-3">
+            {[
+              ["Build", "We connect technical foundations, content, paid growth, automation and software around the same business goal."],
+              ["Understand", "We make information clearer for people and search systems through relevance, context, structured data and useful experiences."],
+              ["Grow", "We use performance signals and real business outcomes to improve the next cycle instead of chasing isolated tactics."],
+            ].map(([title, text], index) => (
+              <div key={title} className="rounded-[1.75rem] border border-border/70 bg-card/80 p-6 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg">
+                <span className="text-xs font-black tracking-[0.16em] text-primary">0{index + 3}</span>
+                <h3 className="mt-3 text-xl font-black">{title}</h3>
+                <p className="mt-2 text-sm leading-7 text-muted-foreground">{text}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
