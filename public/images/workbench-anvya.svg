@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" role="img" aria-labelledby="title desc">
+  <title id="title">ANVYA community platform</title>
+  <desc id="desc">ANVYA Ideas, Services and Community platform</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6d28d9"/>
+      <stop offset="0.55" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="orb" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".95"/>
+      <stop offset="1" stop-color="#dbeafe" stop-opacity=".7"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="750" rx="54" fill="url(#bg)"/>
+  <circle cx="1040" cy="120" r="180" fill="#fff" opacity=".08"/>
+  <circle cx="170" cy="640" r="230" fill="#fff" opacity=".07"/>
+  <g transform="translate(600 250)">
+    <circle r="116" fill="url(#orb)" opacity=".98"/>
+    <path d="M0-72c-46 0-83 35-83 78 0 27 14 48 36 63v20c0 10 8 18 18 18h58c10 0 18-8 18-18V69c22-15 36-36 36-63C83-37 46-72 0-72Z" fill="none" stroke="#4f46e5" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M-28 52c12 11 22 16 28 16s16-5 28-16M-25 92h50M-32 112h64" fill="none" stroke="#4f46e5" stroke-width="11" stroke-linecap="round"/>
+  </g>
+  <text x="600" y="505" text-anchor="middle" fill="#fff" font-family="Inter,Arial,sans-serif" font-size="78" font-weight="900" letter-spacing="8">ANVYA</text>
+  <text x="600" y="565" text-anchor="middle" fill="#fff" opacity=".9" font-family="Inter,Arial,sans-serif" font-size="25" font-weight="600">IDEAS • SERVICES • COMMUNITY</text>
+  <rect x="430" y="610" width="340" height="54" rx="27" fill="#fff" opacity=".16"/>
+  <text x="600" y="646" text-anchor="middle" fill="#fff" font-family="Inter,Arial,sans-serif" font-size="18" font-weight="700">Discover • Share • Connect</text>
+</svg>
