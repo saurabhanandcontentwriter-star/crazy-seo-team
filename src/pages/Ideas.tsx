@@ -80,9 +80,6 @@ function PostEngagement({post}:{post:Idea}){
 };
 const comment=async()=>{if(!me)return toast.error("Please sign in first.");if(!text.trim())return;const{data,error}=await supabase.from("idea_post_comments").insert({post_id:post.id,user_id:me,content:text.trim()}).select().single();if(error)toast.error(error.message);else{setComments(v=>[...v,data]);setText("")}};
  return <div className="mt-4 rounded-2xl border bg-muted/20 p-3">
-  <div className="mb-3 rounded-xl border bg-background/70 p-3 text-xs">
-   <div className="font-semibold">Original Post ID</div><div className="mt-1 break-all font-mono text-muted-foreground">{post.id}</div>
-  </div>
   <div className="flex flex-wrap items-center gap-2">
    <Button size="sm" variant={reaction==="like"?"default":"outline"} onClick={()=>react("like")}>👍 Like {likes}</Button>
    <Button size="sm" variant={reaction==="dislike"?"default":"outline"} onClick={()=>react("dislike")}>👎 Dislike {dislikes}</Button>
