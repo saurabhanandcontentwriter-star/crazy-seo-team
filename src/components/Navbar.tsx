@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { Menu, X, ArrowUpRight, Globe2, ChevronDown, Sparkles, Search, Store, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ContactFormDialog from "@/components/ContactFormDialog";
@@ -41,11 +41,19 @@ const Navbar = () => {
   const dayNumber = Math.floor(new Date(quoteDay).getTime() / 86400000);
   const dailyQuote = dailyQuotes[((dayNumber % dailyQuotes.length) + dailyQuotes.length) % dailyQuotes.length];
   const location = useLocation();
-  const navigate = useNavigate();
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`);
   const toolsActive = isActive("/seo-tools") || isActive("/ai-tools");
-  const industries = ["E-Commerce", "Education", "Healthcare", "Real Estate", "SaaS & Tech", "Finance & Fintech", "Travel & Hospitality", "Legal", "Local Businesses"];
-  const goToIndustries = () => { setIndustriesOpen(false); setOpen(false); navigate("/", { state: { scrollTo: "industries" } }); };
+  const industries = [
+    { label: "E-Commerce", slug: "e-commerce" },
+    { label: "Education", slug: "education" },
+    { label: "Healthcare", slug: "healthcare" },
+    { label: "Real Estate", slug: "real-estate" },
+    { label: "SaaS & Tech", slug: "saas-tech" },
+    { label: "Finance & Fintech", slug: "finance-fintech" },
+    { label: "Travel & Hospitality", slug: "travel-hospitality" },
+    { label: "Legal", slug: "legal" },
+    { label: "Local Businesses", slug: "local-businesses" },
+  ];
 
   return (
     <>
@@ -71,7 +79,7 @@ const Navbar = () => {
                     Industries <ChevronDown size={13} className={`transition-transform ${industriesOpen ? "rotate-180" : ""}`} />
                   </button>
                   {industriesOpen && <div className="absolute left-1/2 top-full w-64 -translate-x-1/2 pt-2"><div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
-                    {industries.map((industry) => <button key={industry} type="button" onClick={goToIndustries} className="block w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50">{industry}</button>)}
+                    {industries.map((industry) => <Link key={industry.slug} to={`/industries/${industry.slug}`} onClick={() => setIndustriesOpen(false)} className="block w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50">{industry.label}</Link>)}
                   </div></div>}
                 </div>
               ) : <Link key={link.label} to={link.path} className={`cst-nav-link rounded-full px-3 py-2 text-[13px] font-semibold transition-all ${isActive(link.path) ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:bg-white/80 hover:text-slate-900"}`}><span className="inline-flex items-center gap-1.5">{link.label === "Classifieds" && <Store size={14} />}{link.label === "ANVYA" && <Lightbulb size={14} />} {link.label}</span></Link>)}
