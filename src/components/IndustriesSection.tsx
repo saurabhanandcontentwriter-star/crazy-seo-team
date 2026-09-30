@@ -30,7 +30,7 @@ const toneStyles: Record<string, string> = {
 };
 
 const IndustriesSection = () => (
-  <section className="relative overflow-hidden py-24 px-4 bg-background">
+  <section id="industries" className="relative overflow-hidden py-24 px-4 bg-background">
     <div className="pointer-events-none absolute inset-0">
       <div className="absolute -top-28 left-0 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />
       <div className="absolute top-1/3 right-0 h-96 w-96 rounded-full bg-fuchsia-500/10 blur-3xl" />
