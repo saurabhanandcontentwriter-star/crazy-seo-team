@@ -1,17 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
-<title id="title">Crazy SEO Team digital growth story</title><desc id="desc">A modern visual showing search, AI, content and growth connected as one system.</desc>
+<title id="title">Crazy SEO Team modern search and AI growth visual</title>
+<desc id="desc">A modern editorial illustration showing search discovery, AI answers, content and measurable growth.</desc>
 <defs>
-<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4f46e5"/><stop offset=".55" stop-color="#2563eb"/><stop offset="1" stop-color="#06b6d4"/></linearGradient>
-<filter id="s" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="20" stdDeviation="24" flood-opacity=".18"/></filter>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eef2ff"/><stop offset=".52" stop-color="#f8fafc"/><stop offset="1" stop-color="#ecfeff"/></linearGradient>
+  <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4f46e5"/><stop offset="1" stop-color="#06b6d4"/></linearGradient>
+  <filter id="shadow"><feDropShadow dx="0" dy="18" stdDeviation="24" flood-opacity=".14"/></filter>
 </defs>
-<rect width="1200" height="820" rx="64" fill="#f8fafc"/>
-<circle cx="970" cy="130" r="210" fill="#4f46e5" opacity=".08"/><circle cx="180" cy="690" r="250" fill="#06b6d4" opacity=".08"/>
-<rect x="110" y="105" width="980" height="610" rx="48" fill="url(#g)" filter="url(#s)"/>
-<g fill="#fff" opacity=".12"><circle cx="180" cy="180" r="7"/><circle cx="220" cy="180" r="7"/><circle cx="260" cy="180" r="7"/><circle cx="940" cy="640" r="7"/><circle cx="980" cy="640" r="7"/></g>
-<g transform="translate(600 390)">
-<circle r="150" fill="#fff" opacity=".12"/><circle r="112" fill="#fff" opacity=".94"/>
-<path d="M0-68c-43 0-78 32-78 72 0 26 14 46 34 59v24c0 9 7 16 16 16h56c9 0 16-7 16-16V63c20-13 34-33 34-59 0-40-35-72-78-72Z" fill="none" stroke="#4f46e5" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M-26 52c11 10 20 15 26 15s15-5 26-15M-24 88h48M-30 108h60" fill="none" stroke="#4f46e5" stroke-width="10" stroke-linecap="round"/>
+<rect width="1200" height="820" rx="56" fill="url(#bg)"/>
+<circle cx="1030" cy="110" r="190" fill="#4f46e5" opacity=".07"/><circle cx="130" cy="730" r="220" fill="#06b6d4" opacity=".08"/>
+<rect x="78" y="72" width="1044" height="676" rx="42" fill="#fff" stroke="#e2e8f0" stroke-width="2" filter="url(#shadow)"/>
+<text x="132" y="135" font-family="Inter,Arial,sans-serif" font-size="18" font-weight="800" letter-spacing="4" fill="#4f46e5">CRAZY SEO TEAM</text>
+<text x="132" y="182" font-family="Inter,Arial,sans-serif" font-size="38" font-weight="900" fill="#0f172a">How modern discovery connects</text>
+<text x="132" y="218" font-family="Inter,Arial,sans-serif" font-size="18" fill="#64748b">Search visibility, AI understanding and business growth.</text>
+<!-- search panel -->
+<g transform="translate(132 270)">
+<rect width="410" height="145" rx="28" fill="#f8fafc" stroke="#e2e8f0"/>
+<rect x="26" y="25" width="358" height="52" rx="18" fill="#fff" stroke="#cbd5e1"/>
+<circle cx="58" cy="51" r="13" fill="none" stroke="#4f46e5" stroke-width="5"/><path d="M68 61l11 11" stroke="#4f46e5" stroke-width="5" stroke-linecap="round"/>
+<text x="96" y="59" font-family="Inter,Arial,sans-serif" font-size="16" fill="#64748b">people searching for answers</text>
+<rect x="26" y="97" width="120" height="10" rx="5" fill="#4f46e5" opacity=".18"/><rect x="158" y="97" width="90" height="10" rx="5" fill="#06b6d4" opacity=".18"/><rect x="260" y="97" width="124" height="10" rx="5" fill="#64748b" opacity=".12"/>
 </g>
-<g fill="#fff" font-family="Inter,Arial,sans-serif" text-anchor="middle"><text x="600" y="170" font-size="24" font-weight="800" letter-spacing="5">CRAZY SEO TEAM</text><text x="600" y="655" font-size="42" font-weight="900">SEARCH → AI → GROWTH</text><text x="600" y="694" font-size="20" opacity=".86">One connected digital growth system</text></g>
+<!-- AI panel -->
+<g transform="translate(600 270)">
+<rect width="410" height="145" rx="28" fill="url(#accent)"/>
+<circle cx="66" cy="63" r="32" fill="#fff" opacity=".18"/>
+<path d="M66 43c-14 0-25 10-25 23 0 8 4 15 11 19v8c0 3 2 5 5 5h18c3 0 5-2 5-5v-8c7-4 11-11 11-19 0-13-11-23-25-23Z" fill="none" stroke="#fff" stroke-width="6" stroke-linejoin="round"/>
+<text x="118" y="57" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="800" letter-spacing="2" fill="#fff" opacity=".75">AI DISCOVERY</text>
+<text x="118" y="84" font-family="Inter,Arial,sans-serif" font-size="23" font-weight="800" fill="#fff">Useful. Clear. Citable.</text>
+<rect x="30" y="112" width="150" height="8" rx="4" fill="#fff" opacity=".28"/><rect x="192" y="112" width="96" height="8" rx="4" fill="#fff" opacity=".2"/>
+</g>
+<!-- growth path -->
+<g transform="translate(132 468)">
+<rect width="878" height="220" rx="30" fill="#0f172a"/>
+<text x="34" y="48" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="800" letter-spacing="2" fill="#94a3b8">CONNECTED GROWTH SYSTEM</text>
+<path d="M50 167 C150 155 180 128 270 143 S410 118 500 126 S650 74 750 91 S820 55 846 42" fill="none" stroke="#38bdf8" stroke-width="7" stroke-linecap="round"/>
+<path d="M50 167 C150 155 180 128 270 143 S410 118 500 126 S650 74 750 91 S820 55 846 42" fill="none" stroke="#818cf8" stroke-width="18" opacity=".08"/>
+<g fill="#fff"><circle cx="50" cy="167" r="7"/><circle cx="270" cy="143" r="7"/><circle cx="500" cy="126" r="7"/><circle cx="750" cy="91" r="7"/><circle cx="846" cy="42" r="7"/></g>
+<text x="50" y="203" font-family="Inter,Arial,sans-serif" font-size="12" fill="#94a3b8">DISCOVER</text><text x="270" y="203" font-family="Inter,Arial,sans-serif" font-size="12" fill="#94a3b8">UNDERSTAND</text><text x="500" y="203" font-family="Inter,Arial,sans-serif" font-size="12" fill="#94a3b8">BUILD</text><text x="750" y="203" font-family="Inter,Arial,sans-serif" font-size="12" fill="#94a3b8">GROW</text>
+</g>
 </svg>
