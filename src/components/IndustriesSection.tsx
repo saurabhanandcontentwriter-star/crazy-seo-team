@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { ArrowUpRight, Building2, GraduationCap, HeartPulse, Home, Landmark, Scale, ShoppingBag, Sparkles, Wrench, Cpu } from "lucide-react";
 import healthcare from "@/assets/industries-healthcare.svg";
 import realestate from "@/assets/industries-realestate.svg";
@@ -10,15 +11,15 @@ import travel from "@/assets/industries-travel.svg";
 import local from "@/assets/industries-local.svg";
 
 const industries = [
-  { icon: ShoppingBag, label: "E-Commerce", img: ecommerce, text: "Drive more sales with SEO, content and performance marketing.", keywords: ["Product SEO", "Shopping Ads"], tone: "pink" },
-  { icon: GraduationCap, label: "Education", img: education, text: "Increase admissions and build a stronger digital presence.", keywords: ["EdTech SEO", "Admissions"], tone: "blue" },
-  { icon: HeartPulse, label: "Healthcare", img: healthcare, text: "Reach more patients with trusted digital growth strategies.", keywords: ["Medical SEO", "Patient Growth"], tone: "pink" },
-  { icon: Building2, label: "Real Estate", img: realestate, text: "Generate quality leads and showcase properties effectively.", keywords: ["Property SEO", "Local Growth"], tone: "purple" },
-  { icon: Cpu, label: "SaaS & Tech", img: saas, text: "Scale your product with SEO, content and B2B growth.", keywords: ["B2B SEO", "Lead Gen"], tone: "blue" },
-  { icon: Landmark, label: "Finance & Fintech", img: finance, text: "Build trust and acquire high-value customers digitally.", keywords: ["Fintech SEO", "Trust Signals"], tone: "green" },
-  { icon: Wrench, label: "Travel & Hospitality", img: travel, text: "Attract travelers and increase bookings with targeted strategies.", keywords: ["Local SEO", "Booking Growth"], tone: "purple" },
-  { icon: Scale, label: "Legal", img: legal, text: "Build authority and generate qualified enquiries consistently.", keywords: ["Law SEO", "Lead Generation"], tone: "orange" },
-  { icon: Home, label: "Local Businesses", img: local, text: "Dominate local search and attract nearby customers.", keywords: ["Maps SEO", "Local Leads"], tone: "pink" },
+  { slug: "e-commerce", icon: ShoppingBag, label: "E-Commerce", img: ecommerce, text: "Drive more sales with SEO, content and performance marketing.", keywords: ["Product SEO", "Shopping Ads"], tone: "pink" },
+  { slug: "education", icon: GraduationCap, label: "Education", img: education, text: "Increase admissions and build a stronger digital presence.", keywords: ["EdTech SEO", "Admissions"], tone: "blue" },
+  { slug: "healthcare", icon: HeartPulse, label: "Healthcare", img: healthcare, text: "Reach more patients with trusted digital growth strategies.", keywords: ["Medical SEO", "Patient Growth"], tone: "pink" },
+  { slug: "real-estate", icon: Building2, label: "Real Estate", img: realestate, text: "Generate quality leads and showcase properties effectively.", keywords: ["Property SEO", "Local Growth"], tone: "purple" },
+  { slug: "saas-tech", icon: Cpu, label: "SaaS & Tech", img: saas, text: "Scale your product with SEO, content and B2B growth.", keywords: ["B2B SEO", "Lead Gen"], tone: "blue" },
+  { slug: "finance-fintech", icon: Landmark, label: "Finance & Fintech", img: finance, text: "Build trust and acquire high-value customers digitally.", keywords: ["Fintech SEO", "Trust Signals"], tone: "green" },
+  { slug: "travel-hospitality", icon: Wrench, label: "Travel & Hospitality", img: travel, text: "Attract travelers and increase bookings with targeted strategies.", keywords: ["Local SEO", "Booking Growth"], tone: "purple" },
+  { slug: "legal", icon: Scale, label: "Legal", img: legal, text: "Build authority and generate qualified enquiries consistently.", keywords: ["Law SEO", "Lead Generation"], tone: "orange" },
+  { slug: "local-businesses", icon: Home, label: "Local Businesses", img: local, text: "Dominate local search and attract nearby customers.", keywords: ["Maps SEO", "Local Leads"], tone: "pink" },
 ];
 
 const toneStyles: Record<string, string> = {
@@ -53,7 +54,8 @@ const IndustriesSection = () => (
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {industries.map((ind, index) => (
-          <div
+          <Link
+            to={`/industries/${ind.slug}`}
             key={ind.label}
             className={`group relative overflow-hidden rounded-[1.75rem] border bg-gradient-to-br ${toneStyles[ind.tone]} bg-card/90 shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-primary/30`}
             style={{ animationDelay: `${index * 70}ms` }}
@@ -93,7 +95,7 @@ const IndustriesSection = () => (
                 </span>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
