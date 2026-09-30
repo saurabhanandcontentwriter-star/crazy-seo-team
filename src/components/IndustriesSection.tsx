@@ -1,40 +1,94 @@
-import { Heart, Building, ShoppingCart, Cpu, GraduationCap, Landmark, Scale, Wrench } from "lucide-react";
+import { ArrowUpRight, Building2, GraduationCap, HeartPulse, Home, Landmark, Scale, ShoppingBag, Sparkles, Wrench, Cpu } from "lucide-react";
+import healthcare from "@/assets/industries-healthcare.svg";
+import realestate from "@/assets/industries-realestate.svg";
+import ecommerce from "@/assets/industries-ecommerce.svg";
+import saas from "@/assets/industries-saas.svg";
+import education from "@/assets/industries-education.svg";
+import finance from "@/assets/industries-finance.svg";
+import legal from "@/assets/industries-legal.svg";
+import home from "@/assets/industries-home.svg";
 
 const industries = [
-  { icon: Heart, label: "Healthcare", img: "https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=600&q=80", keywords: ["Medical SEO", "Patient Acquisition"] },
-  { icon: Building, label: "Real Estate", img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80", keywords: ["Property Listings", "Local SEO"] },
-  { icon: ShoppingCart, label: "E-Commerce", img: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80", keywords: ["Product Ads", "Shopping SEO"] },
-  { icon: Cpu, label: "SaaS & Tech", img: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=600&q=80", keywords: ["B2B Marketing", "Lead Gen"] },
-  { icon: GraduationCap, label: "Education", img: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80", keywords: ["Enrollment Ads", "EdTech SEO"] },
-  { icon: Landmark, label: "Finance", img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80", keywords: ["FinTech Marketing", "Trust Building"] },
-  { icon: Scale, label: "Legal", img: "https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=600&q=80", keywords: ["Law Firm SEO", "PPC for Lawyers"] },
-  { icon: Wrench, label: "Home Services", img: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=600&q=80", keywords: ["Local Ads", "Google Maps SEO"] },
+  { icon: ShoppingBag, label: "E-Commerce", img: ecommerce, text: "Drive more sales with SEO, content and performance marketing.", keywords: ["Product SEO", "Shopping Ads"], tone: "pink" },
+  { icon: GraduationCap, label: "Education", img: education, text: "Increase admissions and build a stronger digital presence.", keywords: ["EdTech SEO", "Admissions"], tone: "blue" },
+  { icon: HeartPulse, label: "Healthcare", img: healthcare, text: "Reach more patients with trusted digital growth strategies.", keywords: ["Medical SEO", "Patient Growth"], tone: "pink" },
+  { icon: Building2, label: "Real Estate", img: realestate, text: "Generate quality leads and showcase properties effectively.", keywords: ["Property SEO", "Local Growth"], tone: "purple" },
+  { icon: Cpu, label: "SaaS & Tech", img: saas, text: "Scale your product with SEO, content and B2B growth.", keywords: ["B2B SEO", "Lead Gen"], tone: "blue" },
+  { icon: Landmark, label: "Finance & Fintech", img: finance, text: "Build trust and acquire high-value customers digitally.", keywords: ["Fintech SEO", "Trust Signals"], tone: "green" },
+  { icon: Wrench, label: "Travel & Hospitality", img: home, text: "Attract customers and increase bookings with targeted strategies.", keywords: ["Local SEO", "Booking Growth"], tone: "purple" },
+  { icon: Scale, label: "Legal", img: legal, text: "Build authority and generate qualified enquiries consistently.", keywords: ["Law SEO", "Lead Generation"], tone: "orange" },
 ];
 
+const toneStyles: Record<string, string> = {
+  pink: "from-pink-500/10 to-fuchsia-500/5 border-pink-500/20",
+  blue: "from-blue-500/10 to-cyan-500/5 border-blue-500/20",
+  purple: "from-violet-500/10 to-purple-500/5 border-violet-500/20",
+  green: "from-emerald-500/10 to-teal-500/5 border-emerald-500/20",
+  orange: "from-orange-500/10 to-amber-500/5 border-orange-500/20",
+};
+
 const IndustriesSection = () => (
-  <section className="py-20 px-4">
-    <div className="container mx-auto">
-      <p className="text-sm font-semibold text-primary text-center mb-2">Industries We Serve</p>
-      <h2 className="text-3xl md:text-4xl font-bold text-center text-foreground mb-3">
-        Tailored Strategies for Every Sector
-      </h2>
-      <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-14">
-        We understand that every industry has unique challenges. Our customized approaches ensure you dominate your specific market.
-      </p>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-        {industries.map((ind) => (
-          <div key={ind.label} className="group relative overflow-hidden rounded-xl border border-border bg-card hover:border-primary/30 hover:shadow-lg transition-all duration-500">
-            <div className="h-28 overflow-hidden">
-              <img src={ind.img} alt={`${ind.label} digital marketing`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
-              <div className="absolute inset-0 h-28 bg-gradient-to-b from-transparent to-card" />
+  <section className="relative overflow-hidden py-24 px-4 bg-background">
+    <div className="pointer-events-none absolute inset-0">
+      <div className="absolute -top-28 left-0 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />
+      <div className="absolute top-1/3 right-0 h-96 w-96 rounded-full bg-fuchsia-500/10 blur-3xl" />
+      <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-violet-500/10 blur-3xl" />
+    </div>
+
+    <div className="relative container mx-auto max-w-7xl">
+      <div className="mx-auto max-w-4xl text-center mb-14">
+        <span className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-primary">
+          <Sparkles size={12} /> Industries We Serve
+        </span>
+        <h2 className="mt-5 text-4xl md:text-6xl font-black tracking-tight text-foreground">
+          Tailored <span className="gradient-text">Strategies</span> for Every Sector
+        </h2>
+        <p className="mt-5 mx-auto max-w-3xl text-base md:text-lg leading-8 text-muted-foreground">
+          We understand that every industry has unique challenges. Our customized approaches are built around your market, audience and growth goals.
+        </p>
+        <div className="mx-auto mt-6 h-1 w-32 rounded-full bg-gradient-to-r from-blue-500 via-violet-500 to-pink-500" />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {industries.map((ind, index) => (
+          <div
+            key={ind.label}
+            className={`group relative overflow-hidden rounded-[1.75rem] border bg-gradient-to-br ${toneStyles[ind.tone]} bg-card/90 shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:border-primary/30`}
+            style={{ animationDelay: `${index * 70}ms` }}
+          >
+            <div className="relative aspect-[16/9] overflow-hidden p-2">
+              <div className="h-full w-full overflow-hidden rounded-[1.35rem] bg-muted/20 shadow-inner">
+                <img
+                  src={ind.img}
+                  alt={`${ind.label} digital marketing`}
+                  width="800"
+                  height="420"
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              </div>
+              <div className="absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/70 bg-white/85 text-primary shadow-lg backdrop-blur-md">
+                <ind.icon size={21} />
+              </div>
             </div>
-            <div className="p-4 text-center">
-              <ind.icon size={24} className="text-primary mx-auto mb-2" />
-              <span className="font-semibold text-sm text-foreground block">{ind.label}</span>
-              <div className="flex flex-wrap gap-1 justify-center mt-2">
+
+            <div className="p-5 pt-3">
+              <h3 className="text-lg font-black tracking-tight text-foreground">{ind.label}</h3>
+              <p className="mt-2 min-h-[48px] text-sm leading-6 text-muted-foreground">{ind.text}</p>
+
+              <div className="mt-4 flex flex-wrap gap-1.5">
                 {ind.keywords.map((kw) => (
-                  <span key={kw} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">{kw}</span>
+                  <span key={kw} className="rounded-full border border-primary/10 bg-primary/5 px-2.5 py-1 text-[10px] font-bold text-primary">
+                    {kw}
+                  </span>
                 ))}
+              </div>
+
+              <div className="mt-5 flex items-center justify-between border-t border-border/60 pt-4">
+                <span className="text-sm font-bold text-primary">Learn More</span>
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:rotate-12">
+                  <ArrowUpRight size={17} />
+                </span>
               </div>
             </div>
           </div>
