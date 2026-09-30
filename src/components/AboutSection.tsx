@@ -51,7 +51,10 @@ const Counter = ({ target, suffix, label }: { target: number; suffix: string; la
   return <div ref={ref} className="p-6 glass-card glass-sheen text-center transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"><p className="text-4xl md:text-5xl font-black gradient-text">{formatNumber(value)}{suffix}</p><p className="text-sm text-muted-foreground mt-2">{label}</p></div>;
 };
 
-const AboutSection = () => (
+const AboutSection = () => {
+  const [flippedCapability, setFlippedCapability] = useState<string | null>(null);
+
+  return (
   <>
     <Helmet>
       <title>About Crazy SEO Team | AI SEO, Digital Growth & AI Search</title>
@@ -125,9 +128,9 @@ const AboutSection = () => (
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-14"><p className="text-sm font-bold uppercase tracking-[0.16em] text-primary mb-3">Capabilities</p><h2 className="text-3xl md:text-5xl font-black mb-4">What We Do</h2><p className="text-muted-foreground max-w-2xl mx-auto leading-7">A full-stack growth engine covering SEO, AI search, content, advertising, automation and custom AI software.</p></div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">{whatWeDo.map(({ title, desc, image, points }) => {
-            const [flipped, setFlipped] = useState(false);
+            const flipped = flippedCapability === title;
             return <div key={title} className="[perspective:1200px] h-[330px]">
-              <button type="button" onClick={() => setFlipped((v) => !v)} className="group relative h-full w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-3xl">
+              <button type="button" onClick={() => setFlippedCapability((v) => (v === title ? null : title))} className="group relative h-full w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-3xl">
                 <div className={`relative h-full w-full transition-transform duration-700 [transform-style:preserve-3d] ${flipped ? "[transform:rotateY(180deg)]" : ""}`}>
                   <div className="absolute inset-0 [backface-visibility:hidden] rounded-3xl border border-border/70 bg-card/80 p-7 shadow-lg transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-2xl">
                     <div className="mb-6 flex items-center justify-between">
@@ -179,6 +182,7 @@ const AboutSection = () => (
       </section>
     </main>
   </>
-);
+  );
+};
 
 export default AboutSection;
