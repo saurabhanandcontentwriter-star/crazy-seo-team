@@ -374,3 +374,81 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-aurora, .float-y, .float-y-slow, .spin-slow, .glow-pulse, .gradient-cta-bg { animation: none !important; }
 }
+
+
+/* ── Mobile-first polish ── */
+@media (max-width: 639px) {
+  html, body, #root { max-width: 100%; overflow-x: hidden; }
+  body { -webkit-text-size-adjust: 100%; }
+  img, video, svg { max-width: 100%; }
+
+  /* Keep the fixed navbar compact without letting the announcement push content too far down. */
+  .cst-public-announcement .container { min-height: 42px; padding-top: .45rem; padding-bottom: .45rem; }
+  .cst-public-announcement .text-sm { font-size: .72rem; line-height: 1.25; }
+  .cst-public-nav .cst-nav-inner .container { height: 60px; padding-left: .75rem; padding-right: .75rem; }
+
+  /* Homepage hero */
+  .cst-hero-enter h1,
+  .cst-hero-enter h1.text-5xl { font-size: clamp(2.25rem, 10.5vw, 3rem); line-height: 1.04; letter-spacing: -.035em; }
+  .cst-hero-enter > .inline-flex { max-width: 100%; }
+  .cst-hero-enter > .inline-flex span:last-child { white-space: normal; }
+  .cst-hero-enter .flex.flex-wrap.gap-4 { flex-direction: column; }
+  .cst-hero-enter .flex.flex-wrap.gap-4 > button { width: 100%; justify-content: center; }
+  .cst-hero-enter .grid.grid-cols-3 { gap: .5rem; }
+  .cst-hero-enter .grid.grid-cols-3 > div { min-width: 0; padding: .7rem; }
+  .cst-hero-enter .grid.grid-cols-3 p:first-child { font-size: 1.2rem; }
+  .cst-hero-enter .grid.grid-cols-3 p:last-child { font-size: .62rem; line-height: 1.25; }
+  .cst-hero-enter-delay { margin-top: .5rem; }
+  .cst-hero-enter-delay > .relative.glass { padding: .75rem; border-radius: 1.25rem; }
+  .cst-hero-enter-delay .grid.grid-cols-3 { gap: .5rem; }
+  .cst-hero-enter-delay .grid.grid-cols-3 > div { padding: .6rem; min-width: 0; }
+  .cst-hero-enter-delay .grid.grid-cols-3 .text-2xl { font-size: 1.15rem; }
+  .cst-hero-enter-delay .absolute.-top-4,
+  .cst-hero-enter-delay .absolute.-bottom-4 { display: none; }
+
+  /* Section rhythm: more content per screen, less dead space. */
+  section.py-24 { padding-top: 4rem; padding-bottom: 4rem; }
+  section.py-20 { padding-top: 3.5rem; padding-bottom: 3.5rem; }
+  section.py-16 { padding-top: 3rem; padding-bottom: 3rem; }
+
+  /* Headings should never force horizontal overflow. */
+  h1, h2, h3, h4 { overflow-wrap: anywhere; }
+  .text-7xl { font-size: 2.6rem; line-height: 1.05; }
+  .text-6xl { font-size: 2.35rem; line-height: 1.08; }
+  .text-5xl { font-size: 2rem; line-height: 1.1; }
+
+  /* Workbench / cards */
+  #services .grid.lg\\:grid-cols-3 { grid-template-columns: minmax(0, 1fr); }
+  #services .p-6 { padding: 1.1rem; }
+  #services .aspect-\\[16\\/10\\] { aspect-ratio: 16 / 10; }
+
+  /* About story visual */
+  .about-story-image { min-height: 250px; }
+
+  /* Forms and dialogs */
+  [role="dialog"] { max-width: calc(100vw - 1rem); }
+  input, textarea, select { max-width: 100%; }
+
+  /* Chat launcher stays reachable above mobile browser chrome. */
+  .fixed.bottom-6.right-6 { right: .75rem; bottom: 1rem; }
+  .fixed.bottom-24.right-6 { right: .75rem; bottom: 5.25rem; }
+
+  /* Avoid oversized prose and buttons on narrow screens. */
+  .prose-content { font-size: .95rem; line-height: 1.7; }
+  .prose-content h2 { font-size: 1.5rem; }
+  .prose-content h3 { font-size: 1.2rem; }
+  .container { width: 100%; }
+}
+
+@media (max-width: 380px) {
+  .cst-public-announcement .text-sm { font-size: .66rem; }
+  .cst-hero-enter h1,
+  .cst-hero-enter h1.text-5xl { font-size: 2.05rem; }
+  .cst-hero-enter .grid.grid-cols-3 { gap: .35rem; }
+  .cst-hero-enter .grid.grid-cols-3 > div { padding: .55rem; }
+  .cst-hero-enter .grid.grid-cols-3 p:first-child { font-size: 1.05rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .particle, .animate-mesh, .animate-pulse, .animate-float, .animate-marquee { animation: none !important; }
+}
