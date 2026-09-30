@@ -6,9 +6,9 @@ const features = [
     title: "Google + AI",
     description: "Get discovered across traditional and AI-powered search.",
     logos: [
-      { name: "Google Search Console", src: "https://cdn.simpleicons.org/googlesearchconsole" },
-      { name: "Google Analytics", src: "https://cdn.simpleicons.org/googleanalytics" },
-      { name: "Google Ads", src: "https://cdn.simpleicons.org/googleads" },
+      { name: "Google Search Console", src: "https://www.google.com/s2/favicons?domain=search.google.com&sz=128" },
+      { name: "Google Analytics", src: "https://www.google.com/s2/favicons?domain=analytics.google.com&sz=128" },
+      { name: "Google Ads", src: "https://www.google.com/s2/favicons?domain=ads.google.com&sz=128" },
     ],
     tone: "from-cyan-400 to-blue-500",
     accent: "text-blue-600",
@@ -19,9 +19,9 @@ const features = [
     title: "AI-Powered",
     description: "Turn complex SEO data into clear, actionable insights.",
     logos: [
-      { name: "SEMrush", src: "https://cdn.simpleicons.org/semrush" },
-      { name: "Google Analytics", src: "https://cdn.simpleicons.org/googleanalytics" },
-      { name: "Google Ads", src: "https://cdn.simpleicons.org/googleads" },
+      { name: "SEMrush", src: "https://www.google.com/s2/favicons?domain=semrush.com&sz=128" },
+      { name: "Google Analytics", src: "https://www.google.com/s2/favicons?domain=analytics.google.com&sz=128" },
+      { name: "Google Ads", src: "https://www.google.com/s2/favicons?domain=ads.google.com&sz=128" },
     ],
     tone: "from-blue-400 to-purple-500",
     accent: "text-purple-600",
@@ -32,9 +32,9 @@ const features = [
     title: "Search Intelligence",
     description: "Understand how your brand appears across modern search.",
     logos: [
-      { name: "Google Search Console", src: "https://cdn.simpleicons.org/googlesearchconsole" },
-      { name: "SEMrush", src: "https://cdn.simpleicons.org/semrush" },
-      { name: "Google Analytics", src: "https://cdn.simpleicons.org/googleanalytics" },
+      { name: "Google Search Console", src: "https://www.google.com/s2/favicons?domain=search.google.com&sz=128" },
+      { name: "SEMrush", src: "https://www.google.com/s2/favicons?domain=semrush.com&sz=128" },
+      { name: "Google Analytics", src: "https://www.google.com/s2/favicons?domain=analytics.google.com&sz=128" },
     ],
     tone: "from-emerald-400 to-cyan-500",
     accent: "text-emerald-600",
@@ -45,9 +45,9 @@ const features = [
     title: "Built to Scale",
     description: "Start simple. Grow your search strategy as your business grows.",
     logos: [
-      { name: "Google Analytics", src: "https://cdn.simpleicons.org/googleanalytics" },
-      { name: "Google Ads", src: "https://cdn.simpleicons.org/googleads" },
-      { name: "Google Search Console", src: "https://cdn.simpleicons.org/googlesearchconsole" },
+      { name: "Google Analytics", src: "https://www.google.com/s2/favicons?domain=analytics.google.com&sz=128" },
+      { name: "Google Ads", src: "https://www.google.com/s2/favicons?domain=ads.google.com&sz=128" },
+      { name: "Google Search Console", src: "https://www.google.com/s2/favicons?domain=search.google.com&sz=128" },
     ],
     tone: "from-orange-400 to-amber-500",
     accent: "text-orange-600",
@@ -107,10 +107,7 @@ const StatsBar = () => (
                     alt={logo.name}
                     loading="lazy"
                     referrerPolicy="no-referrer"
-                    onError={(event) => {
-                      event.currentTarget.style.display = "none";
-                    }}
-                    className="h-7 w-7 object-contain"
+                                    className="h-7 w-7 object-contain"
                   />
                 </div>
               ))}
