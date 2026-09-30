@@ -10,6 +10,7 @@ const features = [
       { name: "Google Search", src: "https://cdn.simpleicons.org/googlesearchconsole" },
       { name: "Google Ads", src: "https://cdn.simpleicons.org/googleads" },
     ],
+    href: "https://www.google.com/",
     tone: "from-cyan-400 to-blue-500",
     accent: "text-blue-600",
     bg: "bg-blue-50",
@@ -23,6 +24,7 @@ const features = [
       { name: "Google Analytics", src: "https://cdn.simpleicons.org/googleanalytics" },
       { name: "Google Ads", src: "https://cdn.simpleicons.org/googleads" },
     ],
+    href: "https://www.semrush.com/",
     tone: "from-blue-400 to-purple-500",
     accent: "text-purple-600",
     bg: "bg-purple-50",
@@ -36,6 +38,7 @@ const features = [
       { name: "Semrush", src: "https://cdn.simpleicons.org/semrush" },
       { name: "Google Analytics", src: "https://cdn.simpleicons.org/googleanalytics" },
     ],
+    href: "https://search.google.com/search-console/",
     tone: "from-emerald-400 to-cyan-500",
     accent: "text-emerald-600",
     bg: "bg-emerald-50",
@@ -49,6 +52,7 @@ const features = [
       { name: "Google Ads", src: "https://cdn.simpleicons.org/googleads" },
       { name: "Google Search Console", src: "https://cdn.simpleicons.org/googlesearchconsole" },
     ],
+    href: "https://analytics.google.com/",
     tone: "from-orange-400 to-amber-500",
     accent: "text-orange-600",
     bg: "bg-orange-50",
@@ -56,7 +60,7 @@ const features = [
 ];
 
 const StatsBar = () => (
-  <section className="relative overflow-hidden py-20">
+  <section className="relative overflow-hidden py-20 [perspective:1400px]">
     <div className="pointer-events-none absolute inset-0">
       <div className="absolute left-1/2 top-0 h-[360px] w-[760px] -translate-x-1/2 rounded-full bg-blue-500/10 blur-[120px]" />
       <div className="absolute -left-32 bottom-0 h-64 w-64 rounded-full bg-cyan-400/10 blur-3xl" />
@@ -78,24 +82,31 @@ const StatsBar = () => (
       </div>
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
-        {features.map(({ label, title, description, logos, tone, accent, bg }) => (
-          <article
+        {features.map(({ label, title, description, logos, href, tone, accent, bg }) => (
+          <a
             key={title}
-            className="group relative min-h-[330px] overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/80 p-6 shadow-[0_14px_45px_rgba(15,23,42,0.06)] backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_22px_60px_rgba(15,23,42,0.12)]"
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Open ${title}`}
+            className="group relative block min-h-[330px] overflow-hidden rounded-[28px] border border-white/70 bg-white/80 p-6 shadow-[0_18px_50px_rgba(15,23,42,0.10),inset_0_1px_0_rgba(255,255,255,0.9)] backdrop-blur-xl transition-all duration-500 hover:-translate-y-3 hover:[transform:rotateX(2deg)_rotateY(-2deg)] hover:shadow-[0_30px_80px_rgba(15,23,42,0.18)] active:translate-y-0"
           >
-            <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${tone}`} />
-            <div className={`absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br ${tone} opacity-10 blur-3xl transition-opacity duration-500 group-hover:opacity-25`} />
+            <div className={`absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r ${tone}`} />
+            <div className={`absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br ${tone} opacity-10 blur-3xl transition-opacity duration-500 group-hover:opacity-30`} />
+            <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-white/90" />
 
             <div className="relative flex items-center justify-between">
-              <span className={`rounded-full ${bg} px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] ${accent}`}>{label}</span>
-              <div className={`flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white/80 ${accent} transition-transform duration-300 group-hover:rotate-45`}>
-                <ArrowUpRight size={17} />
+              <span className={`rounded-full ${bg} px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.16em] ${accent}`}>
+                {label}
+              </span>
+              <div className={`flex h-10 w-10 items-center justify-center rounded-full border border-white bg-white/90 ${accent} shadow-[0_6px_16px_rgba(15,23,42,0.10)] transition-all duration-300 group-hover:rotate-45 group-hover:scale-110`}>
+                <ArrowUpRight size={18} />
               </div>
             </div>
 
             <div className="relative mt-7 flex h-14 items-center gap-3">
               {logos.map((logo) => (
-                <div key={logo.name} title={logo.name} className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-md">
+                <div key={logo.name} title={logo.name} className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white bg-white shadow-[0_8px_18px_rgba(15,23,42,0.10)] transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_12px_24px_rgba(15,23,42,0.14)]">
                   <img
                     src={logo.src}
                     alt={logo.name}
@@ -116,10 +127,11 @@ const StatsBar = () => (
               <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
             </div>
 
-            <div className={`absolute bottom-6 left-6 text-sm font-bold ${accent}`}>
-              Explore capability <span className="ml-1 inline-block transition-transform group-hover:translate-x-1">→</span>
+            <div className={`absolute bottom-6 left-6 right-6 flex items-center justify-between text-sm font-bold ${accent}`}>
+              <span>Explore capability</span>
+              <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
             </div>
-          </article>
+          </a>
         ))}
       </div>
     </div>
