@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 import { ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -52,17 +51,6 @@ const ServiceDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>{service.metaTitle}</title>
-        <meta name="description" content={service.metaDescription} />
-        <link rel="canonical" href={`/services/${service.slug}`} />
-        <meta property="og:title" content={service.metaTitle} />
-        <meta property="og:description" content={service.metaDescription} />
-        <meta property="og:type" content="website" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <script type="application/ld+json">{JSON.stringify(serviceSchema)}</script>
-        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
-      </Helmet>
 
       <Navbar />
 
