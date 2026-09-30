@@ -38,7 +38,7 @@ const ServicesPreview = () => (
             <div className="relative overflow-hidden rounded-[2rem] border border-border/70 bg-card shadow-xl transition-all duration-500 group-hover:border-primary/30 group-hover:shadow-2xl">
               <div className="relative aspect-[16/10] overflow-hidden bg-muted/30 p-3">
                 <div className="h-full w-full overflow-hidden rounded-[1.35rem] border border-white/50 bg-background shadow-lg transition-transform duration-500 group-hover:[transform:rotateY(-3deg)_rotateX(2deg)_scale(1.03)]">
-                  <img src={project.image} alt={project.title} width="900" height="560" loading="lazy" className="h-full w-full object-cover" />
+                  <img src={project.image} alt={project.title} width="900" height="560" loading="lazy" className="h-full w-full object-contain object-center bg-white p-2" />
                 </div>
                 <span className="absolute left-6 top-6 rounded-full border border-white/70 bg-white/80 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary backdrop-blur">{project.type}</span>
                 <span className="absolute right-6 top-6 flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/80 text-primary shadow-lg backdrop-blur transition-transform group-hover:rotate-12 group-hover:scale-110"><ArrowUpRight className="h-5 w-5" /></span>
