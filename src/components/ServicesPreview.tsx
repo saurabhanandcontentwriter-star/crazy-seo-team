@@ -31,7 +31,7 @@ const ServicesPreview = () => (
         className="text-center mb-14"
       >
         <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-700">
-          <Sparkles size={11} /> What we do
+          <Sparkles size={11} /> Discovery, engineered
         </span>
         <h2 className="mt-4 text-3xl md:text-5xl font-bold tracking-tight text-slate-900">
           Services built for{" "}
@@ -40,7 +40,7 @@ const ServicesPreview = () => (
           </span>
         </h2>
         <p className="mt-4 text-slate-600 max-w-2xl mx-auto">
-          From technical SEO to AI agents — one team covering visibility, content, ads and software.
+          SEO, AI, content and technology working together to make brands discoverable everywhere people search.
         </p>
       </motion.div>
 
