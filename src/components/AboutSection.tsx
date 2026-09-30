@@ -151,26 +151,42 @@ const AboutSection = () => {
         </div>
       </section>
 
-      <section className="py-24 bg-muted/30">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center mb-14"><p className="text-sm font-bold uppercase tracking-[0.16em] text-primary mb-3">Our Work</p><h2 className="text-3xl md:text-5xl font-black mb-4">Built to Turn Search Into Growth</h2><p className="text-muted-foreground max-w-2xl mx-auto leading-7">From technical SEO foundations to AI-search visibility, content and automation — every capability is designed around measurable business outcomes.</p></div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <section className="py-24 bg-muted/30 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+          <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-accent/10 blur-3xl" />
+        </div>
+        <div className="relative container mx-auto px-4 max-w-6xl">
+          <div className="text-center mb-16">
+            <p className="text-sm font-bold uppercase tracking-[0.16em] text-primary mb-3">The Visibility Lab</p>
+            <h2 className="text-3xl md:text-5xl font-black mb-4">What We Look At Before We Build</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto leading-7">Great growth starts with the signals most teams overlook. We connect the pieces before choosing the tactics.</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
-              { title: "Search Visibility", tag: "SEO", image: "/images/capability-seo.svg", desc: "Build stronger organic visibility with technical, semantic and on-page SEO.", points: ["Technical SEO foundations", "Semantic optimization", "Search intent mapping", "Visibility measurement"] },
-              { title: "AI Search Ready", tag: "AI SEARCH", image: "/images/capability-ai.svg", desc: "Prepare your brand for AI-powered discovery, answers and conversational search.", points: ["GEO and AEO", "AI-search optimization", "LLM-friendly structure", "Citation readiness"] },
-              { title: "Content Engine", tag: "CONTENT", image: "/images/capability-content.svg", desc: "Turn strategy into useful content that supports discovery, trust and conversion.", points: ["Content strategy", "SEO briefs and articles", "Landing pages", "Thought leadership"] },
-              { title: "Performance Growth", tag: "GROWTH", image: "/images/capability-ads.svg", desc: "Connect paid acquisition and organic growth with clear performance measurement.", points: ["Google Ads", "Campaign optimization", "Conversion tracking", "Performance reporting"] },
-              { title: "Automation & AI", tag: "AUTOMATION", image: "/images/capability-automation.svg", desc: "Reduce repetitive work with AI agents, workflows and intelligent integrations.", points: ["AI agents", "Workflow automation", "API integrations", "Operational systems"] },
-              { title: "Custom AI Software", tag: "SOFTWARE", image: "/images/capability-software.svg", desc: "Build AI-powered products and internal systems around the way your business actually works.", points: ["AI SaaS products", "Dashboards and CRMs", "Custom applications", "Business workflows"] },
-            ].map(({ title, tag, image, desc, points }) => <div key={title} className="group relative overflow-hidden rounded-3xl border border-border/70 bg-card p-7 shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
-              <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-primary/10 blur-2xl transition-all duration-500 group-hover:bg-primary/20" />
-              <div className="relative flex items-start justify-between mb-6">
-                <span className="flex h-16 w-16 items-center justify-center rounded-2xl border border-border/70 bg-background p-2 shadow-sm"><img src={image} alt="" width="52" height="52" className="h-12 w-12 object-contain" /></span>
-                <span className="rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">{tag}</span>
+              { n: "01", title: "Search Signals", text: "Queries, intent, SERPs and emerging search behavior reveal what people are actually looking for.", icon: Search },
+              { n: "02", title: "Entity Signals", text: "We map the facts, relationships and context that help search systems understand a brand.", icon: Layers3 },
+              { n: "03", title: "Content Signals", text: "We identify missing topics, weak pages and opportunities to make useful information easier to discover.", icon: PenTool },
+              { n: "04", title: "Trust Signals", text: "Authority, consistency, evidence and brand presence shape whether users and search systems trust the information.", icon: Globe2 },
+              { n: "05", title: "Conversion Signals", text: "Traffic only matters when the experience helps visitors take the next meaningful business action.", icon: Target },
+              { n: "06", title: "Automation Signals", text: "Where repetitive work exists, we look for workflows, agents and systems that can make the operation smarter.", icon: Workflow },
+            ].map(({ n, title, text, icon: Icon }) => (
+              <div key={n} className="group relative rounded-3xl border border-border/70 bg-card/80 p-7 shadow-sm transition-all duration-500 hover:-translate-y-2 hover:border-primary/30 hover:shadow-2xl">
+                <div className="flex items-start justify-between mb-7">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <span className="text-4xl font-black tracking-tight text-muted-foreground/20">{n}</span>
+                </div>
+                <h3 className="text-xl font-bold mb-3">{title}</h3>
+                <p className="text-sm text-muted-foreground leading-7">{text}</p>
+                <div className="mt-6 h-1 w-10 rounded-full bg-primary/30 transition-all duration-500 group-hover:w-20 group-hover:bg-primary" />
               </div>
-              <h3 className="text-xl font-bold mb-3">{title}</h3><p className="text-sm text-muted-foreground leading-7 mb-5">{desc}</p>
-              <div className="grid grid-cols-2 gap-2">{points.map((point) => <span key={point} className="rounded-xl bg-muted/50 px-3 py-2 text-xs font-medium text-muted-foreground">{point}</span>)}</div>
-            </div>)}
+            ))}
+          </div>
+          <div className="mt-10 rounded-3xl border border-primary/15 bg-primary/5 px-6 py-5 text-center">
+            <p className="text-sm md:text-base font-semibold">Signal → Insight → Action → Improvement</p>
+            <p className="text-xs text-muted-foreground mt-1">A continuous loop instead of a one-time marketing campaign.</p>
           </div>
         </div>
       </section>
