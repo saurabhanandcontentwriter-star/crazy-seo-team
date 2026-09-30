@@ -6,9 +6,9 @@ const features = [
     title: "Google + AI",
     description: "Get discovered across traditional and AI-powered search.",
     logos: [
-      { name: "Google", src: "https://cdn.simpleicons.org/google" },
-      { name: "OpenAI", src: "https://cdn.simpleicons.org/openai" },
-      { name: "Google Gemini", src: "https://cdn.simpleicons.org/googlegemini" },
+      { name: "Google Search Console", src: "https://cdn.simpleicons.org/googlesearchconsole" },
+      { name: "Google Analytics", src: "https://cdn.simpleicons.org/googleanalytics" },
+      { name: "Google Ads", src: "https://cdn.simpleicons.org/googleads" },
     ],
     tone: "from-cyan-400 to-blue-500",
     accent: "text-blue-600",
@@ -19,9 +19,9 @@ const features = [
     title: "AI-Powered",
     description: "Turn complex SEO data into clear, actionable insights.",
     logos: [
-      { name: "Ahrefs", src: "https://cdn.simpleicons.org/ahrefs" },
-      { name: "Semrush", src: "https://cdn.simpleicons.org/semrush" },
+      { name: "SEMrush", src: "https://cdn.simpleicons.org/semrush" },
       { name: "Google Analytics", src: "https://cdn.simpleicons.org/googleanalytics" },
+      { name: "Google Ads", src: "https://cdn.simpleicons.org/googleads" },
     ],
     tone: "from-blue-400 to-purple-500",
     accent: "text-purple-600",
@@ -32,9 +32,9 @@ const features = [
     title: "Search Intelligence",
     description: "Understand how your brand appears across modern search.",
     logos: [
-      { name: "Google Search", src: "https://cdn.simpleicons.org/google" },
-      { name: "OpenAI", src: "https://cdn.simpleicons.org/openai" },
-      { name: "Google Gemini", src: "https://cdn.simpleicons.org/googlegemini" },
+      { name: "Google Search Console", src: "https://cdn.simpleicons.org/googlesearchconsole" },
+      { name: "SEMrush", src: "https://cdn.simpleicons.org/semrush" },
+      { name: "Google Analytics", src: "https://cdn.simpleicons.org/googleanalytics" },
     ],
     tone: "from-emerald-400 to-cyan-500",
     accent: "text-emerald-600",
@@ -106,6 +106,10 @@ const StatsBar = () => (
                     src={logo.src}
                     alt={logo.name}
                     loading="lazy"
+                    referrerPolicy="no-referrer"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
                     className="h-7 w-7 object-contain"
                   />
                 </div>
