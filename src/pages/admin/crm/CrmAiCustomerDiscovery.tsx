@@ -112,16 +112,14 @@ export default function CrmAiCustomerDiscovery() {
         </GlassCard>
 
         <div className="space-y-5">
+          <GlassCard className="overflow-hidden">
+            <div className="flex items-center justify-between gap-3 p-4 border-b"><div><p className="font-black">World market map</p><p className="text-xs text-muted-foreground">Global market view for Customer Discovery.</p></div><Globe2 size={20} className="text-primary"/></div>
+            <iframe title="World market map" src="https://www.openstreetmap.org/export/embed.html?bbox=-180%2C-60%2C180%2C85&layer=mapnik" className="w-full h-[360px] border-0" loading="eager" />
+          </GlassCard>
           {!result ? (
-            <div className="space-y-5">
-              <GlassCard className="p-8 min-h-[300px] flex items-center justify-center text-center">
-                <div className="max-w-md"><Globe2 size={42} className="mx-auto text-primary/50"/><h2 className="mt-4 text-xl font-black">Your customer map will appear here</h2><p className="mt-2 text-sm text-muted-foreground">Enter the customer details and generate a practical discovery report. Results are saved inside the admin CRM only.</p></div>
-              </GlassCard>
-              <GlassCard className="overflow-hidden">
-                <div className="flex items-center justify-between gap-3 p-4 border-b"><div><p className="font-black">World market map</p><p className="text-xs text-muted-foreground">Explore the global market view; the map updates when a location is supplied.</p></div><Globe2 size={20} className="text-primary"/></div>
-                <iframe title="World market map" src="https://www.openstreetmap.org/export/embed.html?bbox=-180%2C-60%2C180%2C85&layer=mapnik" className="w-full h-[360px] border-0" loading="lazy" />
-              </GlassCard>
-            </div>
+            <GlassCard className="p-8 min-h-[300px] flex items-center justify-center text-center">
+              <div className="max-w-md"><Globe2 size={42} className="mx-auto text-primary/50"/><h2 className="mt-4 text-xl font-black">Your customer map will appear here</h2><p className="mt-2 text-sm text-muted-foreground">Enter the customer details and generate a practical discovery report. Results are saved inside the admin CRM only.</p></div>
+            </GlassCard>
           ) : (
             <>
               <GlassCard className="overflow-hidden">
