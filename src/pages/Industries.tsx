@@ -83,7 +83,7 @@ const Industries = () => (
             {industries.map((industry) => (
               <article key={industry.slug} className="group overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-2xl">
                 <div className="relative overflow-hidden bg-muted/30">
-                  <img src={industry.img} alt={`${industry.label} digital growth strategy`} width="800" height="420" loading="lazy" className="h-52 w-full object-cover transition duration-500 group-hover:scale-[1.04]" />
+                  <img src={industry.img} alt={`${industry.label} digital growth strategy`} width="800" height="420" loading="lazy" className="h-52 w-full object-cover transition duration-500 group-hover:scale-[1.04]" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = "/images/industry-fallback.svg"; }} />
                   <div className="absolute inset-x-4 bottom-4 flex items-center justify-between">
                     <span className="rounded-full border border-white/20 bg-black/45 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.16em] text-white backdrop-blur">Industry SEO</span>
                   </div>
