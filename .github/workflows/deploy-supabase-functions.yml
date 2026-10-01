@@ -30,7 +30,7 @@ jobs:
           fi
 
       - name: Deploy CRM Ideas function
-        run: supabase functions deploy crm-ideas-users --project-ref pbkyoszlgyhpygofemij
+        run: supabase functions deploy crm-ideas-users --use-api --project-ref pbkyoszlgyhpygofemij
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
@@ -40,6 +40,6 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
 
       - name: Deploy AI Customer Discovery function
-        run: supabase functions deploy ai-customer-discovery --project-ref pbkyoszlgyhpygofemij
+        run: supabase functions deploy ai-customer-discovery --use-api --project-ref pbkyoszlgyhpygofemij
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
