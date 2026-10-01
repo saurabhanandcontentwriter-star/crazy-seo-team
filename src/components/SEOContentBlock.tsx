@@ -2,28 +2,28 @@ import React from "react";
 
 const copy: Record<string, {title:string; intro:string; points:string[]}> = {
   about: {
-    title: "AI SEO, GEO and AEO expertise for modern search",
-    intro: "Crazy SEO Team focuses on the way people discover businesses across Google and AI-powered search experiences. Our approach combines technical SEO, helpful content, entity understanding, structured data, internal linking and measurement so important pages can be discovered, understood and connected to the right search intent.",
+    title: "How we approach SEO and AI search",
+    intro: "Search has become more varied, but the fundamentals still matter: a site needs to be crawlable, useful, easy to understand and connected to a clear business goal. We combine technical work, content, internal linking, structured data and measurement rather than chasing a single SEO trick.",
     points: [
-      "Technical SEO: crawlability, indexation, metadata, canonical URLs, structured data, internal links, redirects and performance signals.",
-      "AI search optimization: clear entities, concise answers, topical depth, trustworthy sources and content structures that are easier for answer engines and language models to interpret.",
-      "Content strategy: search-intent mapping, topic clusters, FAQs, comparison content, service pages and editorial updates designed around real user questions.",
-      "Measurement: organic traffic, conversions, page performance, keyword visibility and AI-search visibility should be reviewed together instead of relying on a single ranking metric."
+      "Technical SEO: crawlability, indexation, metadata, canonical URLs, structured data, internal links, redirects and performance.",
+      "AI-search optimization: clear information, useful answers, strong topical coverage and trustworthy sources that make a site easier for modern search systems to interpret.",
+      "Content strategy: search-intent mapping, useful service pages, topic clusters, FAQs and editorial updates based on what people actually need to know.",
+      "Measurement: traffic, conversions, page performance and search visibility are reviewed together so decisions are based on business outcomes, not one ranking number."
     ]
   },
   services: {
-    title: "SEO and AI search services built around measurable visibility",
-    intro: "Modern SEO is no longer limited to adding keywords to a page. A strong service strategy connects technical health, content quality, authority, user experience and machine-readable information. Crazy SEO Team provides a combined framework for businesses that want their services, products and expertise to be understood across traditional search and AI-assisted discovery.",
+    title: "SEO and AI-search work built around real business needs",
+    intro: "Good SEO is more than adding keywords. It connects technical health, useful content, site structure, authority, user experience and measurement. Our work is designed around the pages that matter to a business and the people trying to find them.",
     points: [
-      "AI SEO and semantic SEO improve topical coverage, entity relationships and content structure.",
+      "AI-search and semantic work improve topical coverage, relationships between important concepts and content structure.",
       "Technical SEO addresses crawlability, indexation, canonicalization, site architecture, structured data and Core Web Vitals.",
-      "GEO and AEO focus on answer-oriented content, question coverage and information that can be clearly retrieved by AI search systems.",
-      "Content and digital marketing support can connect service pages, blogs, case studies and conversion paths into one coherent topical architecture."
+      "GEO and AEO focus on clear answers, useful question coverage and information that can be understood in answer-focused search experiences.",
+      "Content and digital marketing support can connect service pages, articles, case studies and conversion paths into a clearer site journey."
     ]
   },
   "seo-tools": {
-    title: "Practical SEO tools for technical and content optimization",
-    intro: "The Crazy SEO Team toolkit brings common SEO workflows into one place so teams can inspect pages, improve metadata, generate structured data and review search-focused signals before publishing. The goal is not to replace specialist analysis, but to make repeatable checks faster and easier for marketers, developers and content teams.",
+    title: "Practical SEO tools for repeatable checks",
+    intro: "Our tools help marketers and developers handle repeatable checks faster. They are meant to support human review, not replace technical judgment or real performance data.",
     points: [
       "Audit important on-page and technical signals before a page is published.",
       "Generate title, description, canonical, Open Graph and Twitter metadata from a consistent template.",
@@ -32,8 +32,8 @@ const copy: Record<string, {title:string; intro:string; points:string[]}> = {
     ]
   },
   "ai-tools": {
-    title: "AI tools for content, SEO workflows and search visibility",
-    intro: "AI can accelerate SEO work when it is used with clear inputs, human review and reliable source material. Crazy SEO Team's AI toolkit is designed around practical workflows such as article planning, content optimization, semantic analysis, metadata generation and AI-search visibility. The emphasis is on useful output that can be reviewed and improved before publication.",
+    title: "AI tools that support real SEO work",
+    intro: "AI is useful when it speeds up research and drafting without replacing editorial judgment. Our tools support practical workflows such as outlining, content review, metadata, semantic analysis and AI-search visibility checks.",
     points: [
       "Use AI-assisted workflows to build article outlines, FAQs, metadata and content briefs around a defined search intent.",
       "Combine AI generation with entity, topic and internal-link planning so content supports a wider site architecture.",
@@ -42,8 +42,8 @@ const copy: Record<string, {title:string; intro:string; points:string[]}> = {
     ]
   },
   results: {
-    title: "SEO results should connect visibility with business outcomes",
-    intro: "SEO performance is more useful when rankings are connected to traffic quality, conversions and the pages that actually support a business. Crazy SEO Team presents results through a broader visibility lens that can include organic discovery, technical improvements, content growth and AI-search presence. Historical performance should always be interpreted in the context of the period, market and pages measured.",
+    title: "SEO reporting should explain what changed",
+    intro: "A useful SEO report should answer three questions: what changed, why it changed and what we should do next. We look at search visibility alongside traffic, conversions, technical improvements and the pages that support the business.",
     points: [
       "Track organic clicks, impressions, conversions and important landing pages in Search Console and analytics.",
       "Separate technical improvements from content and authority work so teams can understand what changed and why.",
@@ -52,8 +52,8 @@ const copy: Record<string, {title:string; intro:string; points:string[]}> = {
     ]
   },
   news: {
-    title: "SEO and AI news with practical context",
-    intro: "Search and AI platforms change quickly, so the Crazy SEO Team news section focuses on developments that can affect marketers, developers and website owners. News reporting should distinguish confirmed announcements from commentary, and readers should check the original source when a platform change could affect an important production website.",
+    title: "SEO and AI news with context",
+    intro: "Search and AI platforms change quickly. This section is intended to explain developments in plain language and separate confirmed announcements from commentary. For important production changes, always check the original source and your own site data.",
     points: [
       "Google Search and AI-search changes can affect how pages are discovered, displayed and measured.",
       "AI product announcements can change content, automation and workflow capabilities.",

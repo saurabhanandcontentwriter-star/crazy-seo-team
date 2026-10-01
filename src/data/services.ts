@@ -32,8 +32,8 @@ const make = (
   features: string[],
   deliverables: string[] = ["Strategy & audit", "Implementation", "Monthly reporting", "Dedicated specialist"],
   faqs: { q: string; a: string }[] = [
-    { q: `How long until I see results from ${title}?`, a: "Most clients see measurable progress within 60–90 days, with compounding growth from month 4 onwards." },
-    { q: `Do you guarantee results?`, a: "No ethical agency guarantees rankings or revenue, but we guarantee transparent reporting and measurable, accountable execution." },
+    { q: `What does ${title} include?`, a: `We start by reviewing your current site, goals and search landscape, then focus the work on the issues and opportunities that matter most for your business.` },
+    { q: "How do you report progress?", a: "You get clear reporting on the work completed, what changed, what we learned and what we recommend next. We do not promise a fixed ranking or traffic number." },
   ],
 ): ServiceDef => ({
   slug,
@@ -44,8 +44,8 @@ const make = (
   features,
   deliverables,
   faqs,
-  metaTitle: `${title} — Crazy SEO Team | AI-Powered ${category}`,
-  metaDescription: `${tagline} Enterprise-grade ${title.toLowerCase()} by Crazy SEO Team — built for Google and AI search 2026.`,
+  metaTitle: `${title} | Crazy SEO Team`,
+  metaDescription: `${tagline} Practical ${title.toLowerCase()} support from Crazy SEO Team, tailored to your site, audience and goals.`,
 });
 
 export const services: ServiceDef[] = [
