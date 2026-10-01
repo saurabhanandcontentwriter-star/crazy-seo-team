@@ -12,8 +12,7 @@ const LaunchCelebration = () => {
   const confetti = useMemo(() => Array.from({ length: 42 }, (_, i) => i), []);
 
   useEffect(() => {
-    const seen = sessionStorage.getItem("cst-launch-screen-seen");
-    if (seen) { setVisible(false); return; }
+    sessionStorage.removeItem("cst-launch-screen-seen");
 
     const audio = new Audio(MUSIC_URL);
     audio.loop = true;
