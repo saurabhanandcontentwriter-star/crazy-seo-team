@@ -139,7 +139,15 @@ const Index = () => {
                 <div className="mt-7 flex flex-wrap gap-3">{["Customer Personas","Search Intent","Keyword Opportunities","Growth Channels"].map((item) => <span key={item} className="rounded-full border border-primary/15 bg-white px-4 py-2 text-sm font-semibold text-foreground shadow-sm">{item}</span>)}</div>
                 <a href="/contact" className="mt-8 inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:opacity-95">Find My Customers <span className="ml-2">→</span></a>
               </div>
-              <div className="rounded-3xl border border-slate-200/80 bg-white p-2 md:p-3 shadow-2xl shadow-blue-500/10"><img src="/images/find-your-customers-ai.svg" alt="AI customer discovery dashboard showing Google search intent, customer personas, keywords and growth opportunities" className="w-full h-auto rounded-2xl" loading="lazy" /></div>
+              <div className="find-customer-visual relative overflow-visible rounded-3xl border border-slate-200/80 bg-white p-2 md:p-3 shadow-2xl shadow-blue-500/10">
+                <div className="find-customer-visual-inner">
+                  <img src="/images/find-your-customers-ai.svg" alt="AI customer discovery dashboard showing Google search intent, customer personas, keywords and growth opportunities" className="w-full h-auto rounded-2xl" loading="lazy" />
+                </div>
+                <span className="find-customer-float find-customer-float-1">AI Search Intent</span>
+                <span className="find-customer-float find-customer-float-2">High Intent</span>
+                <span className="find-customer-float find-customer-float-3">Customer Signals</span>
+                <span className="find-customer-float find-customer-float-4">Growth Opportunities</span>
+              </div>
             </div>
           </div>
         </section>
