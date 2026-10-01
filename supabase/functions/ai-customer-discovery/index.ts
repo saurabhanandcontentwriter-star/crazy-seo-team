@@ -1,14 +1,10 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Content-Type": "application/json",
-};
+const headers = { ...corsHeaders, "Content-Type": "application/json" };
 
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: cors });
+const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers });
 
 const SYSTEM = `You are the AI Customer Discovery engine for Crazy SEO Team.
 Turn a website, offer, target market, location and business goal into a practical customer map.
@@ -33,7 +29,7 @@ function extractJson(text: string) {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
     const auth = req.headers.get("Authorization") ?? "";
     if (!auth.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
@@ -69,7 +65,7 @@ Deno.serve(async (req) => {
 
     try {
       const key = Deno.env.get("LOVABLE_API_KEY");
-      if (!key) throw new Error("AI is not configured");
+      if (!key) return json({ error: "AI is not configured. Add LOVABLE_API_KEY to Supabase Edge Function secrets." }, 500);
       const prompt = `Website: ${website}
 Offer / products / services: ${offer}
 Target market: ${targetMarket}
@@ -83,9 +79,10 @@ Goal: ${goal || "Generate qualified demand"}`;
           model: "google/gemini-2.5-flash",
           messages: [{ role: "system", content: SYSTEM }, { role: "user", content: prompt }],
           temperature: 0.3,
+          response_format: { type: "json_object" },
         }),
       });
-      if (!resp.ok) throw new Error(resp.status === 429 ? "AI rate limit — try again shortly." : "AI gateway error");
+      if (!resp.ok) { const detail = await resp.text(); if (resp.status === 429) return json({ error: "AI rate limit — try again shortly." }, 429); if (resp.status === 402) return json({ error: "AI credits exhausted." }, 402); throw new Error(`AI gateway error (${resp.status}): ${detail.slice(0, 300)}`); }
       const data = await resp.json();
       const result = extractJson(String(data?.choices?.[0]?.message?.content ?? ""));
       const { error: saveError } = await admin.from("ai_customer_discovery_runs").insert({
