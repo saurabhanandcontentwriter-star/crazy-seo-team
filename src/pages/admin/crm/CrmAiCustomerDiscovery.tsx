@@ -102,6 +102,9 @@ export default function CrmAiCustomerDiscovery() {
       return;
     }
     setLoading(true);
+    const localOutcome = buildFallbackDiscovery(form);
+    setResult(localOutcome);
+
     try {
       const { data, error } = await supabase.functions.invoke("ai-customer-discovery", {
         body: {
@@ -112,20 +115,19 @@ export default function CrmAiCustomerDiscovery() {
           goal: form.goal.trim(),
         },
       });
+
       if (error || data?.error || !data?.result) {
-        const fallback = buildFallbackDiscovery(form);
-        setResult(fallback);
-        toast({ title: "Customer map generated", description: "AI service is temporarily unavailable, so a strategy outcome was generated from your inputs. Your free AI credit was not counted." });
+        toast({ title: "Customer map generated", description: "Your discovery outcome is ready. The AI service was unavailable, so the local strategy engine was used and no AI credit was counted." });
         return;
       }
+
       setResult(data.result as Discovery);
       setUsed(Number(data.used ?? used + 1));
       await load();
       toast({ title: "Customer map generated", description: Math.max(0, 3 - Number(data.used ?? used + 1)) + " free run(s) remaining." });
-    } catch (e: any) {
-      const fallback = buildFallbackDiscovery(form);
-      setResult(fallback);
-      toast({ title: "Customer map generated", description: "The AI service could not be reached, so the discovery outcome was generated locally from your inputs. No AI credit was counted." });
+    } catch {
+      toast({ title: "Customer map generated", description: "Your discovery outcome is ready. The AI service could not be reached, so the local strategy engine was used and no AI credit was counted." });
+    }
     } finally {
       setLoading(false);
     }
