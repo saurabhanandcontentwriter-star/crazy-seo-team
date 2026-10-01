@@ -127,7 +127,6 @@ export default function CrmAiCustomerDiscovery() {
       toast({ title: "Customer map generated", description: Math.max(0, 3 - Number(data.used ?? used + 1)) + " free run(s) remaining." });
     } catch {
       toast({ title: "Customer map generated", description: "Your discovery outcome is ready. The AI service could not be reached, so the local strategy engine was used and no AI credit was counted." });
-    }
     } finally {
       setLoading(false);
     }
