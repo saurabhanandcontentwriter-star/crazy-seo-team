@@ -101,14 +101,15 @@ export default function SEOHead() {
   const isAnvyaPost = !!anvyaSlug;
   const isIdeas = basePath === "/anvya" || basePath === "/anvya/explore";
   const isPostAd = basePath === "/post-ad";
-  const isPrivateOrUtility = location.pathname.startsWith("/admin") || location.pathname.startsWith("/crm") || ["/anvya/login", "/anvya/settings", "/anvya/analytics", "/anvya/notifications", "/anvya/saved"].includes(basePath);
+  const isPrivateOrUtility = location.pathname.startsWith("/admin") || location.pathname.startsWith("/crm") || ["/anvya/login", "/anvya/settings", "/anvya/analytics", "/anvya/notifications", "/anvya/saved", "/classified-dashboard", "/classified-profile", "/post-ad"].includes(basePath);
   const meta = service
     ? { title: service.metaTitle, description: service.metaDescription, keywords: [service.title, service.category, "SEO", "AI search", "GEO", "AEO", "LLM optimization"].join(", ") }
     : industry
       ? industry
       : pageMeta[basePath] ?? { title: `${BRAND} | AI SEO, GEO, AEO & Digital Growth`, description: "Crazy SEO Team helps businesses improve SEO, AI search visibility, content performance and digital growth.", keywords: CORE_TOPICS };
   const canonical = `${SITE}${location.pathname === "/" ? "/" : location.pathname.replace(/\/$/, "")}`;
-  const faqs = faqSets[basePath] ?? [];
+  const faqs = service?.faqs ?? faqSets[basePath] ?? [];
+  const faqSchema = faqs.length && !isPrivateOrUtility ? { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faqs.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } })) } : null;
   const breadcrumbs = location.pathname.split("/").filter(Boolean).map((part, index, arr) => ({ name: part.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()), item: `${SITE}/${arr.slice(0, index + 1).join("/")}` }));
 
   useEffect(() => {
@@ -155,7 +156,7 @@ export default function SEOHead() {
     ...(listing.seller_name ? { seller: { "@type": "Person", name: listing.seller_name } } : {}), ...(listing.business_name ? { brand: { "@type": "Brand", name: listing.business_name } } : {}),
     ...(listing.city || listing.state ? { areaServed: { "@type": "Place", name: [listing.city, listing.state].filter(Boolean).join(", ") } } : {}),
   } : null, [listing]);
-  const serviceSchema = service ? { "@context": "https://schema.org", "@type": "Service", "@id": `${canonical}#service`, name: service.title, description: service.description, serviceType: service.category, provider: { "@id": `${SITE}/#organization` }, areaServed: { "@type": "Place", name: "Worldwide" }, url: canonical } : null;
+  const serviceSchema = service ? { "@context": "https://schema.org", "@type": "Service", "@id": `${canonical}#service`, name: service.title, description: service.description, serviceType: service.category, provider: { "@id": `${SITE}/#organization` }, areaServed: { "@type": "Place", name: "Worldwide" }, url: canonical, mainEntityOfPage: { "@id": `${canonical}#webpage` }, audience: { "@type": "Audience", audienceType: "Businesses and organizations seeking search and digital growth" } } : null;
   const industrySchema = industry && industrySlug ? { "@context": "https://schema.org", "@type": "WebPage", "@id": `${canonical}#industry`, name: industry.title, description: industry.description, url: canonical, about: { "@type": "Thing", name: industrySlug.replace(/-/g, " ") }, isPartOf: { "@id": `${SITE}/#website` } } : null;
   const breadcrumbSchema = breadcrumbs.length ? { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: SITE }, ...breadcrumbs.map((b, i) => ({ "@type": "ListItem", position: i + 2, name: b.name, item: b.item }))] } : null;
 
@@ -176,6 +177,8 @@ export default function SEOHead() {
     <meta name="geo.region" content="IN" />
     <meta name="theme-color" content="#ffffff" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="generator" content="Crazy SEO Team" />
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hrefLang="en-IN" href={canonical} />
     <link rel="alternate" hrefLang="x-default" href={canonical} />
@@ -202,5 +205,6 @@ export default function SEOHead() {
     {serviceSchema && <script type="application/ld+json">{JSON.stringify(serviceSchema)}</script>}
     {industrySchema && <script type="application/ld+json">{JSON.stringify(industrySchema)}</script>}
     {breadcrumbSchema && <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>}
+    {faqSchema && <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>}
   </Helmet>;
 }
