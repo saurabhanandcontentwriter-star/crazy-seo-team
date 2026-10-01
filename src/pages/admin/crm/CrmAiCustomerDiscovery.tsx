@@ -113,11 +113,21 @@ export default function CrmAiCustomerDiscovery() {
 
         <div className="space-y-5">
           {!result ? (
-            <GlassCard className="p-8 min-h-[520px] flex items-center justify-center text-center">
-              <div className="max-w-md"><Globe2 size={42} className="mx-auto text-primary/50"/><h2 className="mt-4 text-xl font-black">Your customer map will appear here</h2><p className="mt-2 text-sm text-muted-foreground">Enter the customer details and generate a practical discovery report. Results are saved inside the admin CRM only.</p></div>
-            </GlassCard>
+            <div className="space-y-5">
+              <GlassCard className="p-8 min-h-[300px] flex items-center justify-center text-center">
+                <div className="max-w-md"><Globe2 size={42} className="mx-auto text-primary/50"/><h2 className="mt-4 text-xl font-black">Your customer map will appear here</h2><p className="mt-2 text-sm text-muted-foreground">Enter the customer details and generate a practical discovery report. Results are saved inside the admin CRM only.</p></div>
+              </GlassCard>
+              <GlassCard className="overflow-hidden">
+                <div className="flex items-center justify-between gap-3 p-4 border-b"><div><p className="font-black">World market map</p><p className="text-xs text-muted-foreground">Explore the global market view; the map updates when a location is supplied.</p></div><Globe2 size={20} className="text-primary"/></div>
+                <iframe title="World market map" src="https://www.openstreetmap.org/export/embed.html?bbox=-180%2C-60%2C180%2C85&layer=mapnik" className="w-full h-[360px] border-0" loading="lazy" />
+              </GlassCard>
+            </div>
           ) : (
             <>
+              <GlassCard className="overflow-hidden">
+                <div className="flex items-center justify-between gap-3 p-4 border-b"><div><p className="font-black">World market map</p><p className="text-xs text-muted-foreground">Global context for the generated customer discovery.</p></div><Globe2 size={20} className="text-primary"/></div>
+                <iframe title="World market map" src="https://www.openstreetmap.org/export/embed.html?bbox=-180%2C-60%2C180%2C85&layer=mapnik" className="w-full h-[360px] border-0" loading="lazy" />
+              </GlassCard>
               <GlassCard className="p-5">
                 <div className="flex items-center gap-2"><Users2 size={18} className="text-primary"/><h2 className="font-black">Customer Personas</h2></div>
                 <div className="mt-4 grid gap-3 md:grid-cols-3">{result.personas?.map((p,i)=><div key={i} className="rounded-2xl border border-border p-4"><p className="font-black">{p.name}</p><p className="mt-2 text-sm text-muted-foreground">{p.description}</p><p className="mt-3 text-xs font-bold">Pain points</p><ul className="mt-1 list-disc pl-4 text-xs text-muted-foreground">{(p.pain_points||[]).slice(0,4).map((x,j)=><li key={j}>{x}</li>)}</ul></div>)}</div>
