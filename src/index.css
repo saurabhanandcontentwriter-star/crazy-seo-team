@@ -451,3 +451,34 @@
 @media (prefers-reduced-motion: reduce) {
   .particle, .animate-mesh, .animate-pulse, .animate-float, .animate-marquee { animation: none !important; }
 }
+
+
+/* Floating AI SEO hero visual */
+.hero-ai-visual {
+  position: relative;
+  perspective: 1200px;
+}
+.hero-ai-visual-float {
+  animation: hero-ai-float 6s ease-in-out infinite;
+  transform-origin: 50% 55%;
+  will-change: transform;
+  filter: drop-shadow(0 24px 35px rgba(59, 130, 246, 0.18));
+}
+.hero-ai-visual-float img {
+  display: block;
+  width: 100%;
+  border-radius: 1.5rem;
+}
+@keyframes hero-ai-float {
+  0%, 100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateZ(0deg); }
+  25% { transform: translate3d(0, -8px, 0) rotateX(0.7deg) rotateZ(-0.35deg); }
+  50% { transform: translate3d(0, -13px, 0) rotateX(-0.4deg) rotateZ(0.35deg); }
+  75% { transform: translate3d(0, -7px, 0) rotateX(0.5deg) rotateZ(-0.2deg); }
+}
+@media (max-width: 639px) {
+  .hero-ai-visual { margin-top: 1.5rem; }
+  .hero-ai-visual-float img { border-radius: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-ai-visual-float { animation: none; }
+}
