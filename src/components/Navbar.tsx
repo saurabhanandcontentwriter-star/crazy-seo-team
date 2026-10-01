@@ -78,9 +78,9 @@ const Navbar = () => {
                   <button type="button" aria-haspopup="menu" aria-expanded={servicesOpen} onClick={() => { setServicesOpen((value) => !value); setToolsOpen(false); setIndustriesOpen(false); }} className={`cst-nav-link inline-flex items-center gap-1 rounded-full px-3 py-2 text-[13px] font-semibold transition-all ${servicesActive ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:bg-white/80 hover:text-slate-900"}`}>
                     Services <ChevronDown size={13} className={`transition-transform ${servicesOpen ? "rotate-180" : ""}`} />
                   </button>
-                  {servicesOpen && <div className="absolute left-1/2 top-full w-[760px] max-w-[calc(100vw-2rem)] -translate-x-1/2 pt-2"><div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl">
+                  {servicesOpen && <div className="fixed left-1/2 top-[68px] z-[60] w-[760px] max-w-[calc(100vw-2rem)] -translate-x-1/2 pt-2"><div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl">
                     <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-3"><div><p className="text-sm font-black text-slate-900">Complete Services Hub</p><p className="text-[11px] text-slate-400">Explore specialized services and dedicated detail pages</p></div><Link to="/services" onClick={() => setServicesOpen(false)} className="rounded-lg bg-slate-900 px-3 py-2 text-[11px] font-bold text-white">View All Services</Link></div>
-                    <div className="grid max-h-[70vh] grid-cols-3 gap-3 overflow-y-auto">
+                    <div className="grid max-h-[calc(100vh-150px)] grid-cols-3 gap-3 overflow-y-auto">
                       {serviceGroups.map(({ category, items }) => <div key={category} className="rounded-xl bg-slate-50 p-2.5"><Link to="/services" onClick={() => setServicesOpen(false)} className="mb-1 block px-2 text-[11px] font-black uppercase tracking-wide text-primary">{category}</Link>{items.map((service) => <Link key={service.slug} to={`/services/${service.slug}`} onClick={() => setServicesOpen(false)} className="block rounded-lg px-2 py-1.5 text-xs font-medium text-slate-600 hover:bg-white hover:text-slate-950">{service.title}</Link>)}</div>)}
                     </div>
                   </div></div>}
