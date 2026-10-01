@@ -20,6 +20,57 @@ type Run = { id: string; website: string; target_market: string; created_at: str
 
 const initial = { website: "", offer: "", targetMarket: "", location: "", goal: "" };
 
+function buildFallbackDiscovery(input: typeof initial): Discovery {
+  const offer = input.offer.trim() || "products and services";
+  const market = input.targetMarket.trim() || "potential customers";
+  const location = input.location.trim() || "the target market";
+  const goal = input.goal.trim() || "qualified leads and demand";
+  const clean = (value: string) => value.replace(/^https?:\/\//i, "").replace(/\/$/, "");
+  const site = clean(input.website.trim()) || "the website";
+  const phrases = [
+    offer + " for " + market,
+    "best " + offer + " in " + location,
+    offer + " near me",
+    market + " " + offer,
+    offer + " services " + location,
+    offer + " company " + location,
+    offer + " pricing",
+    offer + " agency",
+    offer + " solutions",
+    offer + " for startups",
+  ];
+  return {
+    personas: [
+      { name: market + " Decision Maker", description: "People responsible for choosing " + offer + " for their organisation.", pain_points: ["Finding a trustworthy " + offer + " provider", "Comparing options quickly", "Proving business value"], buying_triggers: ["Clear ROI", "Relevant case studies", "Fast response"] },
+      { name: "Research-First Buyer", description: "Prospects researching " + offer + " before contacting a provider in " + location + ".", pain_points: ["Too many similar options", "Unclear pricing or scope", "Low confidence in vendors"], buying_triggers: ["Useful guides", "Transparent packages", "Reviews and proof"] },
+      { name: "Growth-Focused Prospect", description: "Customers looking for " + offer + " to support the goal of " + goal + ".", pain_points: ["Limited time or internal resources", "Need measurable outcomes", "Unclear next steps"], buying_triggers: ["Actionable strategy", "Simple onboarding", "Measurable milestones"] },
+    ],
+    search_intent: [
+      { intent: "Problem discovery", example_queries: ["how to improve " + offer, offer + " problems", "need " + offer], why_it_matters: "Captures prospects before they choose a provider." },
+      { intent: "Commercial research", example_queries: ["best " + offer, offer + " companies", offer + " providers"], why_it_matters: "Reaches people actively comparing solutions." },
+      { intent: "Local intent", example_queries: [offer + " in " + location, offer + " near me", offer + " " + location], why_it_matters: "Targets location-specific demand when geography influences purchase." },
+      { intent: "Transactional", example_queries: ["hire " + offer, "buy " + offer, offer + " pricing"], why_it_matters: "Targets users closer to conversion." },
+      { intent: "Trust and proof", example_queries: [offer + " reviews", offer + " case studies", offer + " results"], why_it_matters: "Addresses objections before the sales conversation." },
+    ],
+    keywords: phrases.map((keyword, i) => ({ keyword, intent: i < 3 ? "Commercial" : i < 6 ? "Local / Commercial" : "Transactional / Research", priority: i < 5 ? "High" : i < 8 ? "Medium" : "Low" })),
+    channels: [
+      { channel: "Google Search / SEO", reason: "Capture existing demand around " + offer + ".", content_angle: "Service pages, comparison pages and high-intent landing pages." },
+      { channel: "LinkedIn", reason: "Reach decision makers interested in " + offer + ".", content_angle: "Proof-led posts, insights and case-study content." },
+      { channel: "Short-form video", reason: "Explain the problem and demonstrate the solution quickly.", content_angle: "Before/after, FAQs and practical tips." },
+      { channel: "Email / CRM", reason: "Nurture prospects who are not ready to buy immediately.", content_angle: "Educational sequences, proof and clear CTAs." },
+      { channel: "Retargeting", reason: "Bring back visitors who researched but did not convert.", content_angle: "Objection handling, testimonials and offer reminders." },
+    ],
+    growth_opportunities: [
+      { opportunity: "Build intent-led landing pages", action: "Create dedicated pages around the highest-value " + offer + " searches.", expected_signal: "More qualified organic visits and enquiries." },
+      { opportunity: "Strengthen conversion proof", action: "Add case studies, outcomes, testimonials and clear trust signals.", expected_signal: "Higher lead-to-contact rate." },
+      { opportunity: "Create a comparison content cluster", action: "Publish pages answering which " + offer + " option fits different customer situations.", expected_signal: "More commercial-intent traffic." },
+      { opportunity: "Add lead capture by intent", action: "Use tailored CTAs and forms for research, commercial and transactional visitors.", expected_signal: "Better lead quality and conversion rate." },
+      { opportunity: "Retarget engaged visitors", action: "Create audiences from high-intent pages and serve proof-led follow-up campaigns.", expected_signal: "More returning visitors and assisted conversions." },
+    ],
+    summary: "For " + site + ", the clearest opportunity is to align " + offer + " messaging with the needs of " + market + " in " + location + ". Build intent-led pages, support them with proof and nurture visitors toward " + goal + ". This strategic baseline is generated from the supplied inputs; validate demand with Search Console, keyword tools and CRM conversion data.",
+  };
+}
+
 export default function CrmAiCustomerDiscovery() {
   const [form, setForm] = useState(initial);
   const [result, setResult] = useState<Discovery | null>(null);
@@ -61,12 +112,16 @@ export default function CrmAiCustomerDiscovery() {
           goal: form.goal.trim(),
         },
       });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      if (error || data?.error || !data?.result) {
+        const fallback = buildFallbackDiscovery(form);
+        setResult(fallback);
+        toast({ title: "Customer map generated", description: "AI service is temporarily unavailable, so a strategy outcome was generated from your inputs. Your free AI credit was not counted." });
+        return;
+      }
       setResult(data.result as Discovery);
       setUsed(Number(data.used ?? used + 1));
       await load();
-      toast({ title: "Customer map generated", description: `${Math.max(0, 3 - Number(data.used ?? used + 1))} free run(s) remaining.` });
+      toast({ title: "Customer map generated", description: Math.max(0, 3 - Number(data.used ?? used + 1)) + " free run(s) remaining." });
     } catch (e: any) {
       toast({ title: "Discovery failed", description: e.message ?? "Could not generate the customer map.", variant: "destructive" });
     } finally {
