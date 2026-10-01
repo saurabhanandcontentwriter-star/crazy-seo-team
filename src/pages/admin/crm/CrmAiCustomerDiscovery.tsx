@@ -104,7 +104,8 @@ export default function CrmAiCustomerDiscovery() {
   const [result, setResult] = useState<Discovery | null>(null);
   const [used, setUsed] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [history, setHistory] = useState<Run[]>([]);\n  const mapConfig = getMapConfig(form.location);
+  const [history, setHistory] = useState<Run[]>([]);
+  const mapConfig = getMapConfig(form.location);
 
   const load = async () => {
     const { data: user } = await supabase.auth.getUser();
