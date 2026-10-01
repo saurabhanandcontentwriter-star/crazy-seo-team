@@ -55,6 +55,12 @@ Deno.serve(async (req) => {
 
     const admin = createClient(url, service);
     let used = 0;
+    const rollback = async () => {
+      if (used <= 0) return;
+      await admin.from("ai_customer_discovery_usage")
+        .update({ usage_count: Math.max(0, used - 1), updated_at: new Date().toISOString() })
+        .eq("user_id", user.id);
+    };
     try {
       const { data: credit, error: creditError } = await admin.rpc("consume_ai_customer_discovery_credit", { p_user_id: user.id });
       if (creditError) throw creditError;
@@ -64,7 +70,6 @@ Deno.serve(async (req) => {
     }
 
     try {
-      const rollback = async () => { await admin.from("ai_customer_discovery_usage").update({ usage_count: Math.max(0, used - 1), updated_at: new Date().toISOString() }).eq("user_id", user.id); };
       const key = Deno.env.get("LOVABLE_API_KEY");
       if (!key) { await rollback(); return json({ error: "AI is not configured. Add LOVABLE_API_KEY to Supabase Edge Function secrets." }, 500); }
       const prompt = `Website: ${website}
