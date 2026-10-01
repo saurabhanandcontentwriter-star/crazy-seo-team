@@ -123,7 +123,9 @@ export default function CrmAiCustomerDiscovery() {
       await load();
       toast({ title: "Customer map generated", description: Math.max(0, 3 - Number(data.used ?? used + 1)) + " free run(s) remaining." });
     } catch (e: any) {
-      toast({ title: "Discovery failed", description: e.message ?? "Could not generate the customer map.", variant: "destructive" });
+      const fallback = buildFallbackDiscovery(form);
+      setResult(fallback);
+      toast({ title: "Customer map generated", description: "The AI service could not be reached, so the discovery outcome was generated locally from your inputs. No AI credit was counted." });
     } finally {
       setLoading(false);
     }
