@@ -20,6 +20,34 @@ type Run = { id: string; website: string; target_market: string; created_at: str
 
 const initial = { website: "", offer: "", targetMarket: "", location: "", goal: "" };
 
+function getMapConfig(location: string) {
+  const value = location.trim().toLowerCase();
+  const isDelhiNcr = /delhi|ncr|gurugram|gurgaon|noida|greater noida|ghaziabad|faridabad|sonipat|meerut|rohtak|rewari|palwal|jhajjar|baghpat|hapur|bulandshahr|alwar|bhiwadi/.test(value);
+  const isIndia = /india|bharat/.test(value);
+
+  if (isDelhiNcr) {
+    return {
+      label: "Delhi NCR market map",
+      title: "Delhi NCR market map",
+      src: "https://www.openstreetmap.org/export/embed.html?bbox=76.4%2C27.7%2C78.0%2C29.6&layer=mapnik",
+    };
+  }
+
+  if (isIndia) {
+    return {
+      label: "India market map",
+      title: "India market map",
+      src: "https://www.openstreetmap.org/export/embed.html?bbox=68%2C6%2C98%2C36&layer=mapnik",
+    };
+  }
+
+  return {
+    label: "World market map",
+    title: "World market map",
+    src: "https://www.openstreetmap.org/export/embed.html?bbox=-180%2C-60%2C180%2C85&layer=mapnik",
+  };
+}
+
 function buildFallbackDiscovery(input: typeof initial): Discovery {
   const offer = input.offer.trim() || "products and services";
   const market = input.targetMarket.trim() || "potential customers";
@@ -76,7 +104,7 @@ export default function CrmAiCustomerDiscovery() {
   const [result, setResult] = useState<Discovery | null>(null);
   const [used, setUsed] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [history, setHistory] = useState<Run[]>([]);
+  const [history, setHistory] = useState<Run[]>([]);\n  const mapConfig = getMapConfig(form.location);
 
   const load = async () => {
     const { data: user } = await supabase.auth.getUser();
