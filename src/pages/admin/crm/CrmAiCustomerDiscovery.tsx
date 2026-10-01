@@ -22,10 +22,8 @@ const initial = { website: "", offer: "", targetMarket: "", location: "", goal: 
 
 function getMapConfig(location: string) {
   const value = location.trim().toLowerCase();
-  const isDelhiNcr = /delhi|ncr|gurugram|gurgaon|noida|greater noida|ghaziabad|faridabad|sonipat|meerut|rohtak|rewari|palwal|jhajjar|baghpat|hapur|bulandshahr|alwar|bhiwadi/.test(value);
-  const isIndia = /india|bharat/.test(value);
 
-  if (isDelhiNcr) {
+  if (/delhi|ncr|gurugram|gurgaon|noida|greater noida|ghaziabad|faridabad|sonipat|meerut|rohtak|rewari|palwal|jhajjar|baghpat|hapur|bulandshahr|alwar|bhiwadi/.test(value)) {
     return {
       label: "Delhi NCR market map",
       title: "Delhi NCR market map",
@@ -33,7 +31,7 @@ function getMapConfig(location: string) {
     };
   }
 
-  if (isIndia) {
+  if (/india|bharat/.test(value)) {
     return {
       label: "India market map",
       title: "India market map",
@@ -126,14 +124,15 @@ export default function CrmAiCustomerDiscovery() {
       toast({ title: "Complete the required fields", description: "Website, offer and target market are required.", variant: "destructive" });
       return;
     }
+
     if (used >= 3) {
       toast({ title: "Three free runs used", description: "Your admin account has used all three Customer Discovery runs.", variant: "destructive" });
       return;
     }
+
     const localOutcome = buildFallbackDiscovery(form);
     setResult(localOutcome);
     setLoading(false);
-    toast({ title: "Customer map generated", description: "Your discovery report is ready." });
 
     void supabase.functions.invoke("ai-customer-discovery", {
       body: {
@@ -149,7 +148,7 @@ export default function CrmAiCustomerDiscovery() {
       setUsed(Number(data.used ?? used + 1));
       await load();
     }).catch(() => {
-      // The local discovery result remains visible if the optional AI enhancement is unavailable.
+      // Keep the local result visible when the optional Edge Function is unavailable.
     });
   };
 
