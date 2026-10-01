@@ -3,7 +3,6 @@ import { useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import IndustriesSection from "@/components/IndustriesSection";
 
 const StatsBar = lazy(() => import("@/components/StatsBar"));
 const ToolsMarquee = lazy(() => import("@/components/ToolsMarquee"));
@@ -100,9 +99,6 @@ const Index = () => {
             </div>
           </div>
         </section>
-
-        {/* 04 — Who we serve */}
-        <IndustriesSection />
 
         {/* 05 — SEO, AEO, GEO and AI visibility system */}
         <section id="search-growth-system" className="relative overflow-hidden py-24 px-4">
