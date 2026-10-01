@@ -5,19 +5,6 @@ import ContactFormDialog from "@/components/ContactFormDialog";
 
 const HeroSection = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [seo, setSeo] = useState(87);
-  const [ai, setAi] = useState(92);
-  const [llm, setLlm] = useState(89);
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setSeo((v) => Math.max(85, Math.min(99, v + (Math.random() > 0.5 ? 1 : -1))));
-      setAi((v) => Math.max(85, Math.min(99, v + (Math.random() > 0.5 ? 1 : -1))));
-      setLlm((v) => Math.max(85, Math.min(99, v + (Math.random() > 0.5 ? 1 : -1))));
-    }, 1800);
-    return () => clearInterval(t);
-  }, []);
-
   const particles = useMemo(() => Array.from({ length: 22 }).map((_, i) => ({
     left: `${Math.random() * 100}%`,
     top: `${55 + Math.random() * 45}%`,
@@ -60,12 +47,12 @@ const HeroSection = () => {
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <Sparkles size={12} className="text-blue-600" />
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
-                  Next-Gen AI SEO Platform · 2026
+                  SEO, AI Search & Digital Growth
                 </span>
               </div>
 
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.02] tracking-tight text-slate-900">
-                The AI SEO Platform for{" "}
+                Practical SEO and AI-search growth for{" "}
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600">
                   Google, ChatGPT,
                 </span>{" "}
@@ -75,8 +62,8 @@ const HeroSection = () => {
               </h1>
 
               <p className="mt-6 text-lg text-slate-600 max-w-xl leading-relaxed">
-                Rank higher across Google and every AI search engine with an all-in-one platform for
-                <strong className="text-slate-900"> AI SEO, GEO, AEO & LLM Optimization</strong> — built for the 2026 search stack.
+                Improve how your business is found, understood and trusted online with a practical mix of
+                <strong className="text-slate-900"> technical SEO, useful content, AI-search optimization and automation</strong>.
               </p>
 
               <div className="flex flex-wrap gap-4 mt-8">
@@ -134,20 +121,18 @@ const HeroSection = () => {
 
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { label: "SEO Score", value: seo, icon: TrendingUp, tone: "from-cyan-500 to-blue-600" },
-                    { label: "AI Visibility", value: ai, icon: Zap, tone: "from-purple-500 to-fuchsia-600" },
-                    { label: "LLM Score", value: llm, icon: ShieldCheck, tone: "from-blue-500 to-purple-600" },
+                    { label: "Technical SEO", value: "Audit", icon: TrendingUp, tone: "from-cyan-500 to-blue-600" },
+                    { label: "AI Visibility", value: "Improve", icon: Zap, tone: "from-purple-500 to-fuchsia-600" },
+                    { label: "Content", value: "Useful", icon: ShieldCheck, tone: "from-blue-500 to-purple-600" },
                   ].map((m) => (
                     <div key={m.label} className="rounded-2xl bg-white/70 border border-slate-200/70 p-3 backdrop-blur">
                       <div className="flex items-center justify-between mb-2">
                         <m.icon size={14} className="text-blue-600" />
                         <span className="text-[9px] font-bold text-emerald-600">EXC</span>
                       </div>
-                      <p className={`text-2xl font-black bg-clip-text text-transparent bg-gradient-to-br ${m.tone}`}>{m.value}</p>
+                      <p className={`text-xl font-black bg-clip-text text-transparent bg-gradient-to-br ${m.tone}`}>{m.value}</p>
                       <p className="text-[10px] text-slate-500 mt-0.5">{m.label}</p>
-                      <div className="mt-2 h-1 rounded-full bg-slate-200 overflow-hidden">
-                        <div className={`h-full bg-gradient-to-r ${m.tone} transition-all duration-700`} style={{ width: `${m.value}%` }} />
-                      </div>
+                      
                     </div>
                   ))}
                 </div>
@@ -156,7 +141,7 @@ const HeroSection = () => {
                 <div className="mt-4 rounded-2xl bg-white/70 border border-slate-200/70 p-4 backdrop-blur">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-xs text-slate-700 font-semibold flex items-center gap-1.5"><Activity size={12} className="text-blue-600" /> Traffic Overview</p>
-                    <p className="text-[10px] font-bold text-emerald-600">+23.4% ↑</p>
+                    <p className="text-[10px] font-bold text-emerald-600">Measured in context</p>
                   </div>
                   <svg viewBox="0 0 300 80" className="w-full h-20">
                     <defs>
@@ -165,8 +150,8 @@ const HeroSection = () => {
                         <stop offset="100%" stopColor="hsl(262 83% 60%)" stopOpacity="0" />
                       </linearGradient>
                     </defs>
-                    <path d="M0,60 C40,40 60,55 90,35 C120,20 150,45 180,30 C210,18 240,32 300,10 L300,80 L0,80 Z" fill="url(#hero-grad)" />
-                    <path d="M0,60 C40,40 60,55 90,35 C120,20 150,45 180,30 C210,18 240,32 300,10" fill="none" stroke="hsl(226 83% 55%)" strokeWidth="2" />
+                    <path d="M0,60 C40,48 70,56 100,42 C130,30 160,48 190,34 C220,26 255,38 300,22 L300,80 L0,80 Z" fill="url(#hero-grad)" />
+                    <path d="M0,60 C40,48 70,56 100,42 C130,30 160,48 190,34 C220,26 255,38 300,22" fill="none" stroke="hsl(226 83% 55%)" strokeWidth="2" />
                   </svg>
                 </div>
 
