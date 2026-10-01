@@ -130,35 +130,27 @@ export default function CrmAiCustomerDiscovery() {
       toast({ title: "Three free runs used", description: "Your admin account has used all three Customer Discovery runs.", variant: "destructive" });
       return;
     }
-    setLoading(true);
     const localOutcome = buildFallbackDiscovery(form);
     setResult(localOutcome);
+    setLoading(false);
+    toast({ title: "Customer map generated", description: "Your discovery report is ready." });
 
-    try {
-      const { data, error } = await supabase.functions.invoke("ai-customer-discovery", {
-        body: {
-          website: form.website.trim(),
-          offer: form.offer.trim(),
-          target_market: form.targetMarket.trim(),
-          location: form.location.trim(),
-          goal: form.goal.trim(),
-        },
-      });
-
-      if (error || data?.error || !data?.result) {
-        toast({ title: "Customer map generated", description: "Your discovery outcome is ready. The AI service was unavailable, so the local strategy engine was used and no AI credit was counted." });
-        return;
-      }
-
+    void supabase.functions.invoke("ai-customer-discovery", {
+      body: {
+        website: form.website.trim(),
+        offer: form.offer.trim(),
+        target_market: form.targetMarket.trim(),
+        location: form.location.trim(),
+        goal: form.goal.trim(),
+      },
+    }).then(async ({ data, error }) => {
+      if (error || data?.error || !data?.result) return;
       setResult(data.result as Discovery);
       setUsed(Number(data.used ?? used + 1));
       await load();
-      toast({ title: "Customer map generated", description: Math.max(0, 3 - Number(data.used ?? used + 1)) + " free run(s) remaining." });
-    } catch {
-      toast({ title: "Customer map generated", description: "Your discovery outcome is ready. The AI service could not be reached, so the local strategy engine was used and no AI credit was counted." });
-    } finally {
-      setLoading(false);
-    }
+    }).catch(() => {
+      // The local discovery result remains visible if the optional AI enhancement is unavailable.
+    });
   };
 
   const openRun = (run: Run) => {
@@ -200,8 +192,8 @@ export default function CrmAiCustomerDiscovery() {
 
         <div className="space-y-5">
           <GlassCard className="overflow-hidden">
-            <div className="flex items-center justify-between gap-3 p-4 border-b"><div><p className="font-black">World market map</p><p className="text-xs text-muted-foreground">Global market view for Customer Discovery.</p></div><Globe2 size={20} className="text-primary"/></div>
-            <iframe title="World market map" src="https://www.openstreetmap.org/export/embed.html?bbox=-180%2C-60%2C180%2C85&layer=mapnik" className="w-full h-[360px] border-0" loading="eager" />
+            <div className="flex items-center justify-between gap-3 p-4 border-b"><div><p className="font-black">{mapConfig.label}</p><p className="text-xs text-muted-foreground">Map automatically focuses on the entered location.</p></div><Globe2 size={20} className="text-primary"/></div>
+            <iframe title={mapConfig.title} src={mapConfig.src} className="w-full h-[360px] border-0" loading="eager" />
           </GlassCard>
           {!result ? (
             <GlassCard className="p-8 min-h-[300px] flex items-center justify-center text-center">
@@ -210,7 +202,7 @@ export default function CrmAiCustomerDiscovery() {
           ) : (
             <>
               <GlassCard className="overflow-hidden">
-                <div className="flex items-center justify-between gap-3 p-4 border-b"><div><p className="font-black">World market map</p><p className="text-xs text-muted-foreground">Global context for the generated customer discovery.</p></div><Globe2 size={20} className="text-primary"/></div>
+                <div className="flex items-center justify-between gap-3 p-4 border-b"><div><p className="font-black">{mapConfig.label}</p><p className="text-xs text-muted-foreground">Map automatically focuses on the entered location.</p></div><Globe2 size={20} className="text-primary"/></div>
                 <iframe title="World market map" src="https://www.openstreetmap.org/export/embed.html?bbox=-180%2C-60%2C180%2C85&layer=mapnik" className="w-full h-[360px] border-0" loading="lazy" />
               </GlassCard>
               <GlassCard className="p-5">
