@@ -76,7 +76,11 @@ const BlogPost = () => {
     setMeta('meta[property="og:url"]', "property", "og:url", url);
     setMeta('meta[property="og:type"]', "property", "og:type", "article");
     setMeta('meta[name="twitter:card"]', "name", "twitter:card", "summary_large_image");
+    setMeta('meta[name="twitter:title"]', "name", "twitter:title", post.title);
+    setMeta('meta[name="twitter:description"]', "name", "twitter:description", desc);
     setMeta('link[rel="canonical"]', "rel", "canonical", url);
+    if (post.published_at || post.date) setMeta('meta[property="article:published_time"]', "property", "article:published_time", post.published_at || post.date);
+    if (post.updated_at || post.modified_at) setMeta('meta[property="article:modified_time"]', "property", "article:modified_time", post.updated_at || post.modified_at);
 
     let ld = document.getElementById("blog-jsonld") as HTMLScriptElement | null;
     if (!ld) {
@@ -94,7 +98,10 @@ const BlogPost = () => {
       author: { "@type": "Person", name: post.author, jobTitle: post.role || post.author_role },
       publisher: { "@type": "Organization", name: "Crazy SEO Team" },
       datePublished: post.published_at || post.date,
-      mainEntityOfPage: url,
+      dateModified: post.updated_at || post.modified_at || post.published_at || post.date,
+      articleSection: post.category || post.subject || "SEO & AI Search",
+      inLanguage: "en-IN",
+      mainEntityOfPage: { "@type": "WebPage", "@id": url },
     });
   }, [post]);
 
