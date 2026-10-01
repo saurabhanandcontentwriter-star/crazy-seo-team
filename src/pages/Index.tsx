@@ -136,7 +136,6 @@ const Index = () => {
               </div>
               <div className="find-customer-visual min-w-0 overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-2 md:p-3 shadow-2xl shadow-blue-500/10">
                 <img src="/images/find-your-customers-ai.svg" alt="AI customer discovery dashboard showing Google search intent, customer personas, keywords and growth opportunities" className="block w-full h-auto rounded-2xl object-contain" loading="lazy" />
-                </picture>
               </div>
             </div>
           </div>
