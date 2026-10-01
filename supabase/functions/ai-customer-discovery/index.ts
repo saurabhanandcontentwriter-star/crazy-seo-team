@@ -1,7 +1,10 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
-
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
 const headers = { ...corsHeaders, "Content-Type": "application/json" };
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers });
@@ -35,14 +38,14 @@ Deno.serve(async (req) => {
     if (!auth.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
 
     const url = Deno.env.get("SUPABASE_URL")!;
-    const anon = Deno.env.get("SUPABASE_ANON_KEY")!;
     const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const userClient = createClient(url, anon, { global: { headers: { Authorization: auth } } });
-    const { data: userData } = await userClient.auth.getUser();
+    const userClient = createClient(url, service);
+    const { data: userData } = await userClient.auth.getUser(auth.replace(/^Bearer\s+/i, ""));
     const user = userData.user;
     if (!user) return json({ error: "Unauthorized" }, 401);
 
-    const { data: isAdmin } = await userClient.rpc("has_role", { _user_id: user.id, _role: "admin" });
+    const { data: isAdmin, error: roleError } = await userClient.rpc("has_role", { _user_id: user.id, _role: "admin" });
+    if (roleError) return json({ error: "Could not verify admin access." }, 500);
     if (!isAdmin) return json({ error: "Admin access required" }, 403);
 
     const body = await req.json().catch(() => ({}));
