@@ -75,7 +75,7 @@ const IndustryDetail = () => {
           </div>
 
           <div className="overflow-hidden rounded-[2rem] border border-border bg-card p-3 shadow-2xl">
-            <img src={industry.img} alt={`${industry.label} digital marketing`} width="800" height="420" className="w-full rounded-[1.5rem] object-cover" />
+            <img src={industry.img} alt={`${industry.label} digital marketing`} width="800" height="420" className="w-full rounded-[1.5rem] object-cover" onError={(event) => { event.currentTarget.onerror = null; event.currentTarget.src = "/images/industry-fallback.svg"; }} />
           </div>
         </div>
       </div>
