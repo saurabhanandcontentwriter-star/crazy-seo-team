@@ -22,8 +22,13 @@ const initial = { website: "", offer: "", targetMarket: "", location: "", goal: 
 
 function getMapConfig(location: string) {
   const value = location.trim().toLowerCase();
+  const delhiNcrTerms = [
+    "delhi", "ncr", "gurugram", "gurgaon", "noida", "greater noida",
+    "ghaziabad", "faridabad", "sonipat", "meerut", "rohtak", "rewari",
+    "palwal", "jhajjar", "baghpat", "hapur", "bulandshahr", "alwar", "bhiwadi",
+  ];
 
-  if (/delhi|ncr|gurugram|gurgaon|noida|greater noida|ghaziabad|faridabad|sonipat|meerut|rohtak|rewari|palwal|jhajjar|baghpat|hapur|bulandshahr|alwar|bhiwadi/.test(value)) {
+  if (delhiNcrTerms.some(term => value.includes(term))) {
     return {
       label: "Delhi NCR market map",
       title: "Delhi NCR market map",
@@ -31,7 +36,7 @@ function getMapConfig(location: string) {
     };
   }
 
-  if (/india|bharat/.test(value)) {
+  if (value.includes("india") || value.includes("bharat")) {
     return {
       label: "India market map",
       title: "India market map",
@@ -200,10 +205,6 @@ export default function CrmAiCustomerDiscovery() {
             </GlassCard>
           ) : (
             <>
-              <GlassCard className="overflow-hidden">
-                <div className="flex items-center justify-between gap-3 p-4 border-b"><div><p className="font-black">{mapConfig.label}</p><p className="text-xs text-muted-foreground">Map automatically focuses on the entered location.</p></div><Globe2 size={20} className="text-primary"/></div>
-                <iframe title="World market map" src="https://www.openstreetmap.org/export/embed.html?bbox=-180%2C-60%2C180%2C85&layer=mapnik" className="w-full h-[360px] border-0" loading="lazy" />
-              </GlassCard>
               <GlassCard className="p-5">
                 <div className="flex items-center gap-2"><Users2 size={18} className="text-primary"/><h2 className="font-black">Customer Personas</h2></div>
                 <div className="mt-4 grid gap-3 md:grid-cols-3">{result.personas?.map((p,i)=><div key={i} className="rounded-2xl border border-border p-4"><p className="font-black">{p.name}</p><p className="mt-2 text-sm text-muted-foreground">{p.description}</p><p className="mt-3 text-xs font-bold">Pain points</p><ul className="mt-1 list-disc pl-4 text-xs text-muted-foreground">{(p.pain_points||[]).slice(0,4).map((x,j)=><li key={j}>{x}</li>)}</ul></div>)}</div>
