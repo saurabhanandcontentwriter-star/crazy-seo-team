@@ -7,7 +7,6 @@ import IndustriesSection from "@/components/IndustriesSection";
 
 const StatsBar = lazy(() => import("@/components/StatsBar"));
 const ToolsMarquee = lazy(() => import("@/components/ToolsMarquee"));
-const ServicesSection = lazy(() => import("@/components/ServicesSection"));
 const ServicesPreview = lazy(() => import("@/components/ServicesPreview"));
 const WhyChooseUs = lazy(() => import("@/components/WhyChooseUs"));
 const AdvertisingCarousel = lazy(() => import("@/components/AdvertisingCarousel"));
@@ -78,8 +77,6 @@ const Index = () => {
         <ToolsMarquee />
 
         {/* 02 — What we do */}
-        <ServicesSection />
-
         {/* 03 — How we work */}
         <section id="process" className="py-24 px-4 bg-secondary/20">
           <div className="container mx-auto max-w-7xl">
