@@ -71,12 +71,9 @@ const Index = () => {
       <HeroSection />
 
       <Suspense fallback={<div className="min-h-[35vh] bg-white" />}>
-        {/* 01 — Trust and platform ecosystem */}
         <StatsBar />
         <ToolsMarquee />
 
-        {/* 02 — What we do */}
-        {/* 03 — How we work */}
         <section id="process" className="py-24 px-4 bg-secondary/20">
           <div className="container mx-auto max-w-7xl">
             <div className="mx-auto max-w-3xl text-center mb-14">
@@ -100,7 +97,6 @@ const Index = () => {
           </div>
         </section>
 
-        {/* 05 — SEO, AEO, GEO and AI visibility system */}
         <section id="search-growth-system" className="relative overflow-hidden py-24 px-4">
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute left-1/4 top-0 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
@@ -128,7 +124,6 @@ const Index = () => {
           </div>
         </section>
 
-        {/* 06 — AI customer discovery */}
         <section id="find-your-customers" className="relative overflow-hidden py-20 px-4 bg-slate-50/70">
           <div className="container mx-auto max-w-7xl">
             <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-10 items-center">
@@ -140,48 +135,35 @@ const Index = () => {
                 <a href="/contact" className="mt-8 inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 px-6 py-3.5 font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:opacity-95">Find My Customers <span className="ml-2">→</span></a>
               </div>
               <div className="find-customer-visual rounded-3xl border border-slate-200/80 bg-white p-2 md:p-3 shadow-2xl shadow-blue-500/10">
-                <img src="/images/find-your-customers-ai.svg" alt="AI customer discovery dashboard showing Google search intent, customer personas, keywords and growth opportunities" className="w-full h-auto rounded-2xl" loading="lazy" />
+                <picture>
+                  <source src="/images/find-your-customers-ai.png" type="image/png" />
+                  <img src="/images/find-your-customers-ai.svg" alt="AI customer discovery dashboard showing Google search intent, customer personas, keywords and growth opportunities" className="block w-full h-auto rounded-2xl object-contain" loading="lazy" />
+                </picture>
               </div>
             </div>
           </div>
         </section>
 
-        {/* 07 — Paid growth and campaign capability */}
         <AdvertisingCarousel />
-
-        {/* 07 — Workbench / active projects */}
         <ServicesPreview />
-
-        {/* 08 — About and operating principles */}
         <AboutSection />
         <WhyChooseUs />
-
-        {/* 09 — Evidence and learning */}
         <BlogSection />
 
-        {/* 10 — Community */}
         <section id="community" className="py-20 px-4">
           <div className="container mx-auto max-w-5xl">
             <div className="rounded-3xl border border-primary/15 bg-gradient-to-br from-violet-500/10 via-blue-500/10 to-cyan-500/10 p-8 md:p-12 text-center">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">ANVYA Community</p>
               <h2 className="mt-3 text-3xl md:text-4xl font-black text-foreground">Ideas, discussions and practical growth knowledge.</h2>
-              <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-                Explore the ANVYA community and connect with the wider digital, SEO and technology ecosystem.
-              </p>
-              <a href="/anvya/communities" className="mt-7 inline-flex rounded-xl gradient-bg px-6 py-3 font-semibold text-primary-foreground transition-opacity hover:opacity-90">
-                Join the Community
-              </a>
+              <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">Explore the ANVYA community and connect with the wider digital, SEO and technology ecosystem.</p>
+              <a href="/anvya/communities" className="mt-7 inline-flex rounded-xl gradient-bg px-6 py-3 font-semibold text-primary-foreground transition-opacity hover:opacity-90">Join the Community</a>
             </div>
           </div>
         </section>
 
-        {/* 11 — Common questions */}
         <FAQSection />
-
-        {/* 12 — Final conversion and contact */}
         <CTASection />
         <ContactSection />
-
         <Footer />
         <CookieConsent />
       </Suspense>
