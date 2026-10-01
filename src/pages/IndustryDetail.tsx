@@ -2,26 +2,29 @@ import { Link, useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowLeft, ArrowUpRight, CheckCircle2 } from "lucide-react";
-import healthcare from "@/assets/industries-healthcare.svg";
-import realestate from "@/assets/industries-realestate.svg";
-import ecommerce from "@/assets/industries-ecommerce.svg";
-import saas from "@/assets/industries-saas.svg";
-import education from "@/assets/industries-education.svg";
-import finance from "@/assets/industries-finance.svg";
-import legal from "@/assets/industries-legal.svg";
-import travel from "@/assets/industries-travel.svg";
-import local from "@/assets/industries-local.svg";
+
+const industryImages = {
+  "ecommerce": "https://images.unsplash.com/photo-1782405183431-893f08e24b1a?auto=format&fit=crop&w=1200&q=85",
+  "education": "https://images.unsplash.com/photo-1778489769184-45868633c527?auto=format&fit=crop&w=1200&q=85",
+  "healthcare": "https://images.unsplash.com/photo-1758205307916-4d302e3819f6?auto=format&fit=crop&w=1200&q=85",
+  "realestate": "https://images.unsplash.com/photo-1769591364803-60457b0ac84c?auto=format&fit=crop&w=1200&q=85",
+  "saas": "https://images.unsplash.com/photo-1633119747461-79f45df1913c?auto=format&fit=crop&w=1200&q=85",
+  "finance": "https://images.unsplash.com/photo-1591696205602-2f950c417cb9?auto=format&fit=crop&w=1200&q=85",
+  "travel": "https://images.unsplash.com/photo-1440190243641-996d004b8c66?auto=format&fit=crop&w=1200&q=85",
+  "legal": "https://unsplash.com/photos/DZpc4UY8ZtY/download?force=true",
+  "local": "https://images.unsplash.com/photo-1777879760931-3a21a9bf42d6?auto=format&fit=crop&w=1200&q=85"
+};
 
 const industries = [
-  { slug: "e-commerce", label: "E-Commerce", img: ecommerce, text: "Drive more sales with SEO, content and performance marketing.", services: ["Product SEO", "Shopping Ads", "Conversion Optimization"] },
-  { slug: "education", label: "Education", img: education, text: "Increase admissions and build a stronger digital presence.", services: ["Education SEO", "Admissions Growth", "Content Strategy"] },
-  { slug: "healthcare", label: "Healthcare", img: healthcare, text: "Reach more patients with trusted digital growth strategies.", services: ["Medical SEO", "Local Visibility", "Patient Growth"] },
-  { slug: "real-estate", label: "Real Estate", img: realestate, text: "Generate quality leads and showcase properties effectively.", services: ["Property SEO", "Local SEO", "Lead Generation"] },
-  { slug: "saas-tech", label: "SaaS & Tech", img: saas, text: "Scale your product with SEO, content and B2B growth.", services: ["B2B SEO", "Programmatic SEO", "Demand Generation"] },
-  { slug: "finance-fintech", label: "Finance & Fintech", img: finance, text: "Build trust and acquire high-value customers digitally.", services: ["Fintech SEO", "Content Authority", "Lead Generation"] },
-  { slug: "travel-hospitality", label: "Travel & Hospitality", img: travel, text: "Attract travelers and increase bookings with targeted strategies.", services: ["Travel SEO", "Local Visibility", "Booking Growth"] },
-  { slug: "legal", label: "Legal", img: legal, text: "Build authority and generate qualified enquiries consistently.", services: ["Law SEO", "Local Search", "Lead Generation"] },
-  { slug: "local-businesses", label: "Local Businesses", img: local, text: "Dominate local search and attract nearby customers.", services: ["Maps SEO", "Local SEO", "Local Leads"] },
+  { slug: "e-commerce", label: "E-Commerce", img: industryImages.ecommerce, text: "Drive more sales with SEO, content and performance marketing.", services: ["Product SEO", "Shopping Ads", "Conversion Optimization"] },
+  { slug: "education", label: "Education", img: industryImages.education, text: "Increase admissions and build a stronger digital presence.", services: ["Education SEO", "Admissions Growth", "Content Strategy"] },
+  { slug: "healthcare", label: "Healthcare", img: industryImages.healthcare, text: "Reach more patients with trusted digital growth strategies.", services: ["Medical SEO", "Local Visibility", "Patient Growth"] },
+  { slug: "real-estate", label: "Real Estate", img: industryImages.realestate, text: "Generate quality leads and showcase properties effectively.", services: ["Property SEO", "Local SEO", "Lead Generation"] },
+  { slug: "saas-tech", label: "SaaS & Tech", img: industryImages.saas, text: "Scale your product with SEO, content and B2B growth.", services: ["B2B SEO", "Programmatic SEO", "Demand Generation"] },
+  { slug: "finance-fintech", label: "Finance & Fintech", img: industryImages.finance, text: "Build trust and acquire high-value customers digitally.", services: ["Fintech SEO", "Content Authority", "Lead Generation"] },
+  { slug: "travel-hospitality", label: "Travel & Hospitality", img: industryImages.travel, text: "Attract travelers and increase bookings with targeted strategies.", services: ["Travel SEO", "Local Visibility", "Booking Growth"] },
+  { slug: "legal", label: "Legal", img: industryImages.legal, text: "Build authority and generate qualified enquiries consistently.", services: ["Law SEO", "Local Search", "Lead Generation"] },
+  { slug: "local-businesses", label: "Local Businesses", img: industryImages.local, text: "Dominate local search and attract nearby customers.", services: ["Maps SEO", "Local SEO", "Local Leads"] },
 ];
 
 const IndustryDetail = () => {
