@@ -92,20 +92,16 @@ const HeroSection = () => {
                 </Button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-10 max-w-2xl">
-                {[
-                  { v: "SEO + AI", l: "Search Growth Systems", image: "/images/hero-seo-ai.svg", alt: "SEO and AI search growth illustration" },
-                  { v: "AEO + GEO", l: "AI Search Optimization", image: "/images/hero-aeo-geo.svg", alt: "AEO and GEO AI search optimization illustration" },
-                  { v: "24/7", l: "Automation & Monitoring", image: "/images/hero-automation.svg", alt: "24/7 SEO automation and monitoring illustration" },
-                ].map((s) => (
-                  <div key={s.l} className="glass rounded-2xl p-3 min-w-0 overflow-hidden">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="text-lg sm:text-xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 whitespace-nowrap">{s.v}</p>
-                        <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 leading-tight">{s.l}</p>
-                      </div>
-                      <img src={s.image} alt={s.alt} className="w-16 h-14 sm:w-[4.5rem] sm:h-16 shrink-0 object-contain" loading="eager" />
-                    </div>
+              <div className="hero-ai-visual mt-10 max-w-3xl" aria-label="SEO, AEO, GEO and automation capabilities">
+                <div className="hero-ai-visual-float">
+                  <img
+                    src="/images/hero-ai-seo.webp"
+                    alt="SEO + AI, AEO + GEO, and 24/7 automation and monitoring"
+                    className="w-full h-auto object-contain"
+                    loading="eager"
+                  />
+                </div>
+              </div>
                   </div>
                 ))}
               </div>
