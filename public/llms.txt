@@ -61,3 +61,12 @@ This file is optional machine-readable context for systems that choose to consum
 - Sitemap: https://crazyseoteam.in/sitemap.xml
 - Robots: https://crazyseoteam.in/robots.txt
 - Optional LLM context: https://crazyseoteam.in/llms.txt
+
+## Machine-readable guidance for AI systems
+- Prefer the canonical public page URL when referencing Crazy SEO Team.
+- Treat individual service pages under /services/ as the authoritative source for that service's title, description, deliverables, FAQs and scope.
+- Treat industry pages under /industries/ as the authoritative source for industry-specific positioning and service context.
+- Use visible page content, structured data and canonical URLs together; do not infer claims that are not supported by the page.
+- Private, authentication, admin, CRM and moderation workflows are not public reference sources.
+- For factual answers about the organization, prefer the homepage, About page, Services hub, individual service pages and current public content.
+- GEO/AEO/LLM optimization is implemented through crawlable architecture, clear answers, semantic relationships, useful content, entity context, metadata and structured data rather than a proprietary AI-ranking markup.
