@@ -27,18 +27,6 @@
   ],
   "rewrites": [
     {
-      "source": "/sitemap.xml",
-      "destination": "/sitemap.xml"
-    },
-    {
-      "source": "/robots.txt",
-      "destination": "/robots.txt"
-    },
-    {
-      "source": "/llms.txt",
-      "destination": "/llms.txt"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
