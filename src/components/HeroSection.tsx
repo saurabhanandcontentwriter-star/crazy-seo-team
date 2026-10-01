@@ -102,9 +102,6 @@ const HeroSection = () => {
                   />
                 </div>
               </div>
-                  </div>
-                ))}
-              </div>
             </div>
 
             {/* Right: dashboard preview */}
