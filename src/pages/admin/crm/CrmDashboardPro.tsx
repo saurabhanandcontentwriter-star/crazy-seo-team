@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Activity, ArrowRight, BadgeCheck, BellRing, Bot, CalendarClock, CheckCircle2, Download, Flame, IndianRupee, Mail, RefreshCw, Search, Target, Trophy, UserPlus, Users, XCircle } from "lucide-react";
+import { Activity, ArrowRight, BadgeCheck, BellRing, Bot, CalendarClock, CheckCircle2, Download, Flame, IndianRupee, Mail, RefreshCw, Search, Target, Trophy, UserPlus, Users, XCircle, BrainCircuit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -50,11 +50,12 @@ export default function CrmDashboardPro() {
   };
 
   if(loading)return <CrmSkeleton/>;
-  if(!leads.length)return <div className="space-y-5"><CrmAttendancePanel/><CrmLeaveCalendar/><CrmHolidayCalendar/><GlassCard><EmptyState icon={Users} title="No leads yet" hint="Website forms, chatbot and SEO tools can feed leads into this CRM." action={<Link to="/admin/crm/leads"><Button className="rounded-2xl">Create your first lead</Button></Link>}/></GlassCard></div>;
+  if(!leads.length)return <div className="space-y-5"><CrmAttendancePanel/><CrmLeaveCalendar/><CrmHolidayCalendar/><GlassCard><div className="flex flex-col gap-4"><EmptyState icon={Users} title="No leads yet" hint="Website forms, chatbot and SEO tools can feed leads into this CRM." action={<Link to="/admin/crm/leads"><Button className="rounded-2xl">Create your first lead</Button></Link>}/><div className="rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 via-violet-500/10 to-cyan-500/10 p-5"><div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"><div><div className="flex items-center gap-2"><BrainCircuit size={20} className="text-primary"/><span className="text-xs font-bold uppercase tracking-wider text-primary">AI Customer Discovery</span></div><h2 className="text-xl font-black mt-1">Find your customers with AI</h2><p className="text-sm text-muted-foreground mt-1">Admin-only customer personas, search intent, keywords, channels and growth opportunities.</p></div><Button asChild className="rounded-2xl"><Link to="/admin/crm/customer-discovery">Open Customer Discovery <ArrowRight size={15} className="ml-2"/></Link></Button></div></div></GlassCard></div>;
   return <div className="space-y-5">
     <CrmAttendancePanel />
     <CrmLeaveCalendar />
     <CrmHrPanel />
+    <div className="rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 via-violet-500/10 to-cyan-500/10 p-5 shadow-sm"><div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"><div><div className="flex items-center gap-2"><BrainCircuit size={20} className="text-primary"/><span className="text-xs font-bold uppercase tracking-wider text-primary">Admin AI Tool</span></div><h2 className="text-xl font-black mt-1">AI Customer Discovery</h2><p className="text-sm text-muted-foreground mt-1">Generate customer personas, search intent, keyword ideas, channels and growth opportunities.</p></div><Button asChild className="rounded-2xl"><Link to="/admin/crm/customer-discovery">Open Customer Discovery <ArrowRight size={15} className="ml-2"/></Link></Button></div></div>
     <AlertDialog open={!!confirmLead} onOpenChange={(open)=>{ if(!open&&!actionBusy){setConfirmLead(null);setConfirmAction(null);} }}>
       <AlertDialogContent>
         <AlertDialogHeader><AlertDialogTitle>{confirmAction === "accept" ? "Accept this lead?" : "Reject this lead?"}</AlertDialogTitle><AlertDialogDescription>{confirmLead ? `${confirmLead.full_name} (${confirmLead.email}) will be moved to ${confirmAction === "accept" ? "Qualified" : "Lost"}. After confirmation, a pre-filled client confirmation email will open.` : ""}</AlertDialogDescription></AlertDialogHeader>
