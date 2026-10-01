@@ -5,11 +5,11 @@
  <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#1677ff"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
  <filter id="shadow"><feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#172554" flood-opacity=".14"/></filter>
 </defs><style>
-.dashboard-word{animation:dashboardWord 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center;}
+.dashboard-word{animation:dashboardWord 3.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center;will-change:transform,opacity;}
 .dashboard-word:nth-of-type(2n){animation-delay:-1s}.dashboard-word:nth-of-type(3n){animation-delay:-2s}.dashboard-word:nth-of-type(4n){animation-delay:-3s}
-@keyframes dashboardWord{0%,100%{opacity:.72;transform:translateY(2px)}45%,65%{opacity:1;transform:translateY(0)}}
-.dashboard-metric{animation:dashboardMetric 3.2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
-@keyframes dashboardMetric{0%,100%{opacity:.82}50%{opacity:1;transform:scale(1.025)}}
+@keyframes dashboardWord{0%,100%{opacity:.55;transform:translateY(4px)}35%,65%{opacity:1;transform:translateY(0)}85%{opacity:.78;transform:translateY(-1px)}}
+.dashboard-metric{animation:dashboardMetric 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center;will-change:transform,opacity}
+@keyframes dashboardMetric{0%,100%{opacity:.7;transform:scale(1)}45%,60%{opacity:1;transform:scale(1.04)}}
 </style>
 <rect width="1600" height="900" rx="36" fill="url(#bg)"/>
 <circle cx="1450" cy="90" r="220" fill="#7c3aed" opacity=".08"/><circle cx="120" cy="820" r="260" fill="#06b6d4" opacity=".08"/>
