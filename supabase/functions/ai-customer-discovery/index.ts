@@ -64,8 +64,9 @@ Deno.serve(async (req) => {
     }
 
     try {
+      const rollback = async () => { await admin.from("ai_customer_discovery_usage").update({ usage_count: Math.max(0, used - 1), updated_at: new Date().toISOString() }).eq("user_id", user.id); };
       const key = Deno.env.get("LOVABLE_API_KEY");
-      if (!key) return json({ error: "AI is not configured. Add LOVABLE_API_KEY to Supabase Edge Function secrets." }, 500);
+      if (!key) { await rollback(); return json({ error: "AI is not configured. Add LOVABLE_API_KEY to Supabase Edge Function secrets." }, 500); }
       const prompt = `Website: ${website}
 Offer / products / services: ${offer}
 Target market: ${targetMarket}
@@ -82,7 +83,7 @@ Goal: ${goal || "Generate qualified demand"}`;
           response_format: { type: "json_object" },
         }),
       });
-      if (!resp.ok) { const detail = await resp.text(); if (resp.status === 429) return json({ error: "AI rate limit — try again shortly." }, 429); if (resp.status === 402) return json({ error: "AI credits exhausted." }, 402); throw new Error(`AI gateway error (${resp.status}): ${detail.slice(0, 300)}`); }
+      if (!resp.ok) { const detail = await resp.text(); if (resp.status === 429) { await rollback(); return json({ error: "AI rate limit — try again shortly." }, 429); } if (resp.status === 402) { await rollback(); return json({ error: "AI credits exhausted." }, 402); } throw new Error(`AI gateway error (${resp.status}): ${detail.slice(0, 300)}`); }
       const data = await resp.json();
       const result = extractJson(String(data?.choices?.[0]?.message?.content ?? ""));
       const { error: saveError } = await admin.from("ai_customer_discovery_runs").insert({
@@ -92,9 +93,7 @@ Goal: ${goal || "Generate qualified demand"}`;
 
       return json({ ok: true, used, remaining: Math.max(0, 3 - used), result });
     } catch (e) {
-      await admin.from("ai_customer_discovery_usage").update({
-        usage_count: Math.max(0, used - 1), updated_at: new Date().toISOString()
-      }).eq("user_id", user.id);
+      await rollback();
       return json({ error: e instanceof Error ? e.message : "Could not generate customer discovery." }, 500);
     }
   } catch (e) {
