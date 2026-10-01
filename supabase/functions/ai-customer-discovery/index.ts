@@ -23,6 +23,55 @@ Return ONLY valid JSON with this exact shape:
 }
 Create 3 concise personas, 5 intent groups, 10 keyword ideas, 5 channels and 5 growth opportunities.`;
 
+function fallbackDiscovery(input: { website: string; offer: string; targetMarket: string; location: string; goal: string }) {
+  const offer = input.offer || "products and services";
+  const market = input.targetMarket || "potential customers";
+  const location = input.location || "the target market";
+  const goal = input.goal || "qualified leads";
+  const keywords = [
+    offer + " for " + market,
+    "best " + offer + " in " + location,
+    offer + " near me",
+    market + " " + offer,
+    offer + " services " + location,
+    offer + " pricing",
+    offer + " company",
+    "hire " + offer,
+    offer + " reviews",
+    offer + " solutions",
+  ];
+  return {
+    personas: [
+      { name: market + " Decision Maker", description: "Decision makers evaluating " + offer + ".", pain_points: ["Finding a trustworthy provider", "Comparing options", "Proving value"], buying_triggers: ["Clear ROI", "Case studies", "Fast response"] },
+      { name: "Research-First Buyer", description: "Prospects researching " + offer + " before contacting a provider.", pain_points: ["Too many options", "Unclear pricing", "Low trust"], buying_triggers: ["Useful guides", "Transparent packages", "Reviews"] },
+      { name: "Growth-Focused Prospect", description: "Customers seeking " + offer + " to achieve " + goal + ".", pain_points: ["Limited resources", "Need measurable outcomes", "Unclear next steps"], buying_triggers: ["Actionable strategy", "Simple onboarding", "Milestones"] },
+    ],
+    search_intent: [
+      { intent: "Problem discovery", example_queries: ["how to improve " + offer, "need " + offer, offer + " problems"], why_it_matters: "Captures prospects before provider selection." },
+      { intent: "Commercial research", example_queries: ["best " + offer, offer + " companies", offer + " providers"], why_it_matters: "Reaches prospects comparing solutions." },
+      { intent: "Local intent", example_queries: [offer + " in " + location, offer + " near me", offer + " " + location], why_it_matters: "Captures location-specific demand." },
+      { intent: "Transactional", example_queries: ["hire " + offer, offer + " pricing, buy " + offer], why_it_matters: "Targets users closer to conversion." },
+      { intent: "Trust and proof", example_queries: [offer + " reviews", offer + " case studies", offer + " results"], why_it_matters: "Addresses objections before contact." },
+    ],
+    keywords: keywords.map((keyword, i) => ({ keyword, intent: i < 4 ? "Commercial" : i < 7 ? "Local / Commercial" : "Transactional", priority: i < 5 ? "High" : i < 8 ? "Medium" : "Low" })),
+    channels: [
+      { channel: "Google Search / SEO", reason: "Capture existing demand around " + offer + ".", content_angle: "High-intent service and comparison pages." },
+      { channel: "LinkedIn", reason: "Reach decision makers in " + market + ".", content_angle: "Proof-led posts and case studies." },
+      { channel: "Short-form video", reason: "Explain the problem and solution quickly.", content_angle: "FAQs, demos and practical tips." },
+      { channel: "Email / CRM", reason: "Nurture prospects who are not ready yet.", content_angle: "Education, proof and clear CTAs." },
+      { channel: "Retargeting", reason: "Re-engage high-intent visitors.", content_angle: "Objection handling and testimonials." },
+    ],
+    growth_opportunities: [
+      { opportunity: "Build intent-led landing pages", action: "Create dedicated pages around the highest-value searches.", expected_signal: "More qualified visits and enquiries." },
+      { opportunity: "Strengthen conversion proof", action: "Add case studies, outcomes and trust signals.", expected_signal: "Higher lead conversion." },
+      { opportunity: "Create a comparison content cluster", action: "Answer which solution fits different customer situations.", expected_signal: "More commercial-intent traffic." },
+      { opportunity: "Add intent-based lead capture", action: "Tailor CTAs for research, commercial and transactional visitors.", expected_signal: "Better lead quality." },
+      { opportunity: "Retarget engaged visitors", action: "Use proof-led follow-up for high-intent audiences.", expected_signal: "More returning visitors and assisted conversions." },
+    ],
+    summary: "For " + input.website + ", align " + offer + " messaging with " + market + " in " + location + ". Prioritise intent-led pages, proof and lead nurturing toward " + goal + ". Validate the baseline with Search Console, keyword research and CRM conversion data.",
+  };
+}
+
 function extractJson(text: string) {
   const cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
   const start = cleaned.indexOf("{");
@@ -74,7 +123,14 @@ Deno.serve(async (req) => {
 
     try {
       const key = Deno.env.get("LOVABLE_API_KEY");
-      if (!key) { await rollback(); return json({ error: "AI is not configured. Add LOVABLE_API_KEY to Supabase Edge Function secrets." }, 500); }
+      if (!key) {
+        const result = fallbackDiscovery({ website, offer, targetMarket, location, goal });
+        const { error: saveError } = await admin.from("ai_customer_discovery_runs").insert({
+          user_id: user.id, website, offer, target_market: targetMarket, location: location || null, goal: goal || null, result,
+        });
+        if (saveError) throw saveError;
+        return json({ ok: true, used, remaining: Math.max(0, 3 - used), fallback: true, result });
+      }
       const prompt = `Website: ${website}
 Offer / products / services: ${offer}
 Target market: ${targetMarket}
