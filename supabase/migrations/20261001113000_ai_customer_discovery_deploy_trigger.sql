@@ -1,0 +1,1 @@
+-- Deployment trigger: re-run the Supabase Edge Function CI after credentials were added.
