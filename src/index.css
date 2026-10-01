@@ -484,16 +484,3 @@
 }
 
 
-/* AI Customer Discovery — 3D dashboard motion */
-.find-customer-visual { perspective: 1400px; }
-.find-customer-visual-inner { transform-style: preserve-3d; animation: customer-dashboard-float 6s ease-in-out infinite; will-change: transform; }
-.find-customer-visual-inner img { display:block; transform-origin:center; }
-.find-customer-float { position:absolute; z-index:3; pointer-events:none; border:1px solid rgba(59,130,246,.18); background:rgba(255,255,255,.88); backdrop-filter:blur(12px); border-radius:999px; padding:.5rem .8rem; font-size:.72rem; font-weight:800; letter-spacing:.01em; color:#1e293b; box-shadow:0 14px 30px rgba(37,99,235,.14); animation: customer-word-float 4.8s ease-in-out infinite; }
-.find-customer-float-1 { top:6%; left:-3%; animation-delay:-.4s; }
-.find-customer-float-2 { top:34%; right:-3%; animation-delay:-1.3s; }
-.find-customer-float-3 { bottom:17%; left:-2%; animation-delay:-2.2s; }
-.find-customer-float-4 { bottom:5%; right:3%; animation-delay:-3.1s; }
-@keyframes customer-dashboard-float { 0%,100% { transform:translate3d(0,0,0) rotateX(0deg) rotateY(0deg) scale(1); } 25% { transform:translate3d(0,-7px,0) rotateX(1.2deg) rotateY(-1.2deg) scale(1.002); } 50% { transform:translate3d(0,-13px,0) rotateX(-.8deg) rotateY(1deg) scale(1.004); } 75% { transform:translate3d(0,-6px,0) rotateX(.7deg) rotateY(-.7deg) scale(1.002); } }
-@keyframes customer-word-float { 0%,100% { transform:translate3d(0,0,0) rotate(-1deg); } 50% { transform:translate3d(0,-10px,0) rotate(1deg); } }
-@media (max-width: 767px) { .find-customer-float { font-size:.62rem; padding:.38rem .58rem; } .find-customer-float-1 { left:2%; top:2%; } .find-customer-float-2 { right:2%; top:29%; } .find-customer-float-3 { left:2%; bottom:12%; } .find-customer-float-4 { right:2%; bottom:2%; } }
-@media (prefers-reduced-motion: reduce) { .find-customer-visual-inner, .find-customer-float { animation:none; } }
