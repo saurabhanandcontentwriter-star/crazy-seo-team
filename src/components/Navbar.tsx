@@ -27,7 +27,6 @@ const Navbar = () => {
   const [menu, setMenu] = useState<"product" | "solutions" | "resources" | "industries" | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [quoteDay, setQuoteDay] = useState(() => new Date().toDateString());
-  const [crmLoggedIn, setCrmLoggedIn] = useState(false);
 
   const dailyQuotes = [
     "Small steps every day create big results.",
@@ -47,19 +46,6 @@ const Navbar = () => {
     return () => window.clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    let mounted = true;
-    supabase.auth.getSession().then(({ data }) => {
-      if (mounted) setCrmLoggedIn(!!data.session?.user);
-    });
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted) setCrmLoggedIn(!!session?.user);
-    });
-    return () => {
-      mounted = false;
-      listener.subscription.unsubscribe();
-    };
-  }, []);
 
   const dayNumber = Math.floor(new Date(quoteDay).getTime() / 86400000);
   const dailyQuote = dailyQuotes[((dayNumber % dailyQuotes.length) + dailyQuotes.length) % dailyQuotes.length];
@@ -322,7 +308,7 @@ const Navbar = () => {
                 Talk to us
               </Button>
               <Button onClick={openPublicCrm} className="group rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-4 text-white shadow-sm">
-                {crmLoggedIn ? "Open Public CRM" : "Gmail Login"} <ArrowUpRight size={15} />
+                Gmail Login <ArrowUpRight size={15} />
               </Button>
             </div>
 
@@ -396,9 +382,10 @@ const Navbar = () => {
                 <Link to="/anvya" onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                   <span className="inline-flex items-center gap-2"><Lightbulb size={16} />ANVYA</span>
                 </Link>
-                <div className="mt-2 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
-                  <Button variant="outline" onClick={openPublicCrm} className="rounded-xl">Gmail Login</Button>
-                  <Button onClick={openPublicCrm} className="rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white">{crmLoggedIn ? "Open Public CRM" : "Gmail Login"}</Button>
+                <div className="mt-2 border-t border-slate-100 pt-3">
+                  <Button onClick={openPublicCrm} className="w-full rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white">
+                    Gmail Login
+                  </Button>
                 </div>
               </div>
             </div>
