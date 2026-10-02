@@ -131,44 +131,39 @@ const Index = () => {
         <BlogSection />
 
         <section id="community" className="py-20 px-4">
-          <div className="container mx-auto max-w-6xl">
-            <div className="overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-br from-violet-500/10 via-blue-500/10 to-cyan-500/10 shadow-xl">
-              <div className="grid items-stretch lg:grid-cols-[1.05fr_.95fr]">
-                <div className="p-8 md:p-12 lg:p-14">
-                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">ANVYA Community</p>
-                  <h2 className="mt-3 text-3xl md:text-5xl font-black tracking-tight text-foreground">Where Ideas Meet Opportunity.</h2>
-                  <p className="mt-5 max-w-2xl text-muted-foreground leading-7">Join a growing community of creators, SEO professionals, marketers, developers, and technology enthusiasts. Share your ideas, start meaningful discussions, exchange practical knowledge, and discover new opportunities across the digital ecosystem.</p>
-                  <div className="mt-7 flex flex-wrap gap-3">
-                    <a href="/anvya/communities" className="inline-flex rounded-xl gradient-bg px-6 py-3 font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:opacity-90">Join ANVYA →</a>
-                    <a href="/anvya" className="inline-flex rounded-xl border border-primary/30 bg-background/70 px-6 py-3 font-semibold text-foreground transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-background">Share Your Idea →</a>
+          <div className="container mx-auto max-w-7xl">
+            <div className="overflow-hidden rounded-[32px] border border-blue-100 bg-white shadow-[0_24px_80px_rgba(37,99,235,.12)]">
+              <div className="grid lg:grid-cols-[1fr_1.05fr]">
+                <div className="relative z-10 p-7 md:p-10 lg:p-14">
+                  <div className="inline-flex items-center gap-2 text-sm font-bold text-blue-700">
+                    <span className="grid size-8 place-items-center rounded-full bg-blue-50">👥</span>
+                    ANVYA Community
                   </div>
-                  <p className="mt-5 text-sm font-medium text-muted-foreground">Learn together. Build together. Grow together.</p>
+                  <h2 className="mt-7 text-5xl font-black leading-[.98] tracking-tight text-slate-950 md:text-6xl">ANVYA<br/><span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">Community</span></h2>
+                  <p className="mt-5 text-2xl font-extrabold leading-tight text-slate-900">Where Ideas Meet Opportunity.</p>
+                  <div className="mt-3 h-1 w-28 rounded-full bg-blue-600" />
+                  <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 md:text-lg">Join a growing community of creators, SEO professionals, marketers, developers, and technology enthusiasts. Share your ideas, start meaningful discussions, exchange practical knowledge, and discover new opportunities across the digital ecosystem.</p>
+                  <div className="mt-8 flex flex-wrap gap-3">
+                    <a href="/anvya/communities" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 px-7 py-3.5 font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5 hover:shadow-xl">👥 Join ANVYA <span className="text-xl">→</span></a>
+                    <a href="/anvya" className="inline-flex items-center gap-2 rounded-full border-2 border-blue-500 bg-white px-7 py-3.5 font-bold text-slate-900 transition-all hover:-translate-y-0.5 hover:bg-blue-50">💡 Share Your Idea <span className="text-xl text-blue-600">→</span></a>
+                  </div>
                   <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    {[
-                      ["💬","Discussions"],
-                      ["💡","Ideas"],
-                      ["🤝","Networking"],
-                      ["🚀","Growth"],
-                    ].map(([icon,label]) => (
-                      <div key={label} className="rounded-2xl border border-primary/10 bg-background/60 p-3 text-center backdrop-blur">
+                    {[["💬","Discussions","Ask, share, learn"],["💡","Ideas","Turn ideas into action"],["📊","Growth","Learn from experts"],["🤝","Networking","Connect & collaborate"]].map(([icon,label,sub])=>(
+                      <div key={label} className="rounded-2xl border border-slate-100 bg-white/90 p-3 shadow-sm">
                         <div className="text-xl">{icon}</div>
-                        <div className="mt-1 text-xs font-bold text-foreground">{label}</div>
+                        <div className="mt-1 text-sm font-bold text-slate-900">{label}</div>
+                        <div className="mt-0.5 text-[11px] text-slate-500">{sub}</div>
                       </div>
                     ))}
                   </div>
                 </div>
-                <div className="relative min-h-[360px] overflow-hidden lg:min-h-full">
-                  <img
-                    src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1400&q=85"
-                    alt="Digital professionals collaborating and sharing ideas in a community workspace"
-                    className="absolute inset-0 h-full w-full object-cover"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-950/10 to-transparent" />
-                  <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-white/20 bg-white/15 p-4 text-white shadow-xl backdrop-blur-md">
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/80">Community in action</p>
-                    <p className="mt-1 text-lg font-black">Share ideas. Connect. Build what’s next.</p>
-                  </div>
+                <div className="relative min-h-[420px] overflow-hidden lg:min-h-full">
+                  <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1600&q=90" alt="Digital professionals collaborating and sharing ideas in a community workspace" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent lg:bg-gradient-to-l lg:from-slate-950/15 lg:via-transparent lg:to-white/10" />
+                  <div className="absolute left-6 top-7 rounded-2xl border border-white/50 bg-white/90 px-4 py-3 shadow-xl backdrop-blur-md"><span className="font-bold text-slate-900">💡 Share Ideas</span></div>
+                  <div className="absolute right-6 top-24 rounded-2xl border border-white/50 bg-white/90 px-4 py-3 shadow-xl backdrop-blur-md"><span className="font-bold text-slate-900">💬 Ask Questions</span></div>
+                  <div className="absolute left-8 bottom-24 rounded-2xl border border-white/50 bg-white/90 px-4 py-3 shadow-xl backdrop-blur-md"><span className="font-bold text-slate-900">📈 Learn Together</span></div>
+                  <div className="absolute right-7 bottom-8 rounded-2xl border border-white/50 bg-white/90 px-4 py-3 shadow-xl backdrop-blur-md"><span className="font-bold text-slate-900">🤝 Grow Together</span></div>
                 </div>
               </div>
             </div>
