@@ -131,16 +131,46 @@ const Index = () => {
         <BlogSection />
 
         <section id="community" className="py-20 px-4">
-          <div className="container mx-auto max-w-5xl">
-            <div className="rounded-3xl border border-primary/15 bg-gradient-to-br from-violet-500/10 via-blue-500/10 to-cyan-500/10 p-8 md:p-12 text-center">
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">ANVYA Community</p>
-              <h2 className="mt-3 text-3xl md:text-4xl font-black text-foreground">Where Ideas Meet Opportunity.</h2>
-              <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">Join a growing community of creators, SEO professionals, marketers, developers, and technology enthusiasts. Share your ideas, start meaningful discussions, exchange practical knowledge, and discover new opportunities across the digital ecosystem.</p>
-              <div className="mt-7 flex flex-wrap justify-center gap-3">
-                <a href="/anvya/communities" className="inline-flex rounded-xl gradient-bg px-6 py-3 font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:opacity-90">Join ANVYA →</a>
-                <a href="/anvya" className="inline-flex rounded-xl border border-primary/30 bg-background/70 px-6 py-3 font-semibold text-foreground transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-background">Share Your Idea →</a>
+          <div className="container mx-auto max-w-6xl">
+            <div className="overflow-hidden rounded-3xl border border-primary/15 bg-gradient-to-br from-violet-500/10 via-blue-500/10 to-cyan-500/10 shadow-xl">
+              <div className="grid items-stretch lg:grid-cols-[1.05fr_.95fr]">
+                <div className="p-8 md:p-12 lg:p-14">
+                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">ANVYA Community</p>
+                  <h2 className="mt-3 text-3xl md:text-5xl font-black tracking-tight text-foreground">Where Ideas Meet Opportunity.</h2>
+                  <p className="mt-5 max-w-2xl text-muted-foreground leading-7">Join a growing community of creators, SEO professionals, marketers, developers, and technology enthusiasts. Share your ideas, start meaningful discussions, exchange practical knowledge, and discover new opportunities across the digital ecosystem.</p>
+                  <div className="mt-7 flex flex-wrap gap-3">
+                    <a href="/anvya/communities" className="inline-flex rounded-xl gradient-bg px-6 py-3 font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:opacity-90">Join ANVYA →</a>
+                    <a href="/anvya" className="inline-flex rounded-xl border border-primary/30 bg-background/70 px-6 py-3 font-semibold text-foreground transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-background">Share Your Idea →</a>
+                  </div>
+                  <p className="mt-5 text-sm font-medium text-muted-foreground">Learn together. Build together. Grow together.</p>
+                  <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {[
+                      ["💬","Discussions"],
+                      ["💡","Ideas"],
+                      ["🤝","Networking"],
+                      ["🚀","Growth"],
+                    ].map(([icon,label]) => (
+                      <div key={label} className="rounded-2xl border border-primary/10 bg-background/60 p-3 text-center backdrop-blur">
+                        <div className="text-xl">{icon}</div>
+                        <div className="mt-1 text-xs font-bold text-foreground">{label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="relative min-h-[360px] overflow-hidden lg:min-h-full">
+                  <img
+                    src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1400&q=85"
+                    alt="Digital professionals collaborating and sharing ideas in a community workspace"
+                    className="absolute inset-0 h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-950/10 to-transparent" />
+                  <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-white/20 bg-white/15 p-4 text-white shadow-xl backdrop-blur-md">
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/80">Community in action</p>
+                    <p className="mt-1 text-lg font-black">Share ideas. Connect. Build what’s next.</p>
+                  </div>
+                </div>
               </div>
-              <p className="mt-5 text-sm font-medium text-muted-foreground">Learn together. Build together. Grow together.</p>
             </div>
           </div>
         </section>
