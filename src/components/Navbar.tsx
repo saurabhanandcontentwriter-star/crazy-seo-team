@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import logo from "@/assets/logo.jpeg";
 import { servicesByCategory, categoryOrder } from "@/data/services";
+import { BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const Navbar = () => {
