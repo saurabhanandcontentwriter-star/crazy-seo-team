@@ -87,16 +87,21 @@ const Navbar = () => {
       window.location.href = "/crm";
       return;
     }
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/crm`,
-        queryParams: { prompt: "select_account" },
-      },
-    });
-    if (error) {
+    try {
+      const productionOrigin = "https://www.crazyseoteam.in";
+      const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      const redirectTo = `${isLocal ? window.location.origin : productionOrigin}/crm`;
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo,
+          queryParams: { prompt: "select_account" },
+        },
+      });
+      if (error) throw error;
+      if (data?.url) window.location.assign(data.url);
+    } catch (error) {
       console.error("Google CRM login failed:", error);
-      setDialogOpen(true);
     }
   };
 
