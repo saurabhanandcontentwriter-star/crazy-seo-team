@@ -65,7 +65,7 @@ export default function PublicCrm(){
       const {data:oauth,error}=await supabase.auth.signInWithOAuth({
         provider:"google",
         options:{
-          redirectTo:"https://www.crazyseoteam.in/crm",
+          redirectTo:window.location.origin+"/crm",
           queryParams:{prompt:"select_account"}
         }
       });
@@ -107,7 +107,7 @@ export default function PublicCrm(){
     try{
       const productionOrigin="https://www.crazyseoteam.in";
       const isLocal=window.location.hostname==="localhost"||window.location.hostname==="127.0.0.1";
-      const redirectTo=(isLocal?window.location.origin:productionOrigin)+"/crm";
+      const redirectTo=window.location.origin+"/crm";
       const {data,error}=await supabase.auth.signInWithOAuth({
         provider:"google",
         options:{redirectTo,queryParams:{prompt:"select_account"}}
