@@ -156,10 +156,11 @@ export default function PublicCrm(){
       <Helmet><title>Sign in to Customer Discovery CRM | Crazy SEO Team</title></Helmet>
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-xl">
         <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-blue-600 to-violet-600 text-2xl font-black text-white">C</div>
-        <p className="mt-5 text-xs font-black uppercase tracking-[.16em] text-blue-600">Crazy SEO Team CRM</p>
-        <h1 className="mt-2 text-3xl font-black">Sign in to continue</h1>
-        <p className="mt-3 text-sm leading-6 text-slate-500">Use your Google account to open Customer Discovery. Your CRM ID is created automatically after login.</p>
-        <Button onClick={loginWithGoogle} className="mt-6 h-12 w-full rounded-xl bg-gradient-to-r from-blue-600 to-violet-600"><LogIn size={17}/> Continue with Google</Button>
+        <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.16em] text-blue-700"><Sparkles size={12}/> Crazy SEO Team</div>
+        <h1 className="mt-5 text-3xl font-black tracking-tight md:text-4xl">Welcome back 👋</h1>
+        <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-slate-500">Sign in with Google to continue to your Customer Discovery workspace.</p>
+        <Button onClick={loginWithGoogle} className="mt-7 h-12 w-full rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 shadow-lg shadow-blue-500/20"><LogIn size={17}/> Continue with Google</Button>
+        <p className="mt-4 text-[11px] font-medium text-slate-400">Secure Google sign-in • Your workspace is created automatically</p>
         <Link to="/" className="mt-4 inline-block text-xs font-semibold text-slate-400 hover:text-slate-700">Back to Crazy SEO Team</Link>
       </div>
     </div>;
