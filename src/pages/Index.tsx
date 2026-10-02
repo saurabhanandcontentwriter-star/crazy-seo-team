@@ -134,9 +134,13 @@ const Index = () => {
           <div className="container mx-auto max-w-5xl">
             <div className="rounded-3xl border border-primary/15 bg-gradient-to-br from-violet-500/10 via-blue-500/10 to-cyan-500/10 p-8 md:p-12 text-center">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">ANVYA Community</p>
-              <h2 className="mt-3 text-3xl md:text-4xl font-black text-foreground">Ideas, discussions and practical growth knowledge.</h2>
-              <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">Explore the ANVYA community and connect with the wider digital, SEO and technology ecosystem.</p>
-              <a href="/anvya/communities" className="mt-7 inline-flex rounded-xl gradient-bg px-6 py-3 font-semibold text-primary-foreground transition-opacity hover:opacity-90">Join the Community</a>
+              <h2 className="mt-3 text-3xl md:text-4xl font-black text-foreground">Where Ideas Meet Opportunity.</h2>
+              <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">Join a growing community of creators, SEO professionals, marketers, developers, and technology enthusiasts. Share your ideas, start meaningful discussions, exchange practical knowledge, and discover new opportunities across the digital ecosystem.</p>
+              <div className="mt-7 flex flex-wrap justify-center gap-3">
+                <a href="/anvya/communities" className="inline-flex rounded-xl gradient-bg px-6 py-3 font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 hover:opacity-90">Join ANVYA →</a>
+                <a href="/anvya" className="inline-flex rounded-xl border border-primary/30 bg-background/70 px-6 py-3 font-semibold text-foreground transition-all hover:-translate-y-0.5 hover:border-primary hover:bg-background">Share Your Idea →</a>
+              </div>
+              <p className="mt-5 text-sm font-medium text-muted-foreground">Learn together. Build together. Grow together.</p>
             </div>
           </div>
         </section>
