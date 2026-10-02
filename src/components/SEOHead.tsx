@@ -68,6 +68,15 @@ const faqSets: Record<string, Array<{ q: string; a: string }>> = {
     { q: "What is the Crazy SEO Team blog about?", a: "The blog covers practical SEO, AI SEO, GEO, AEO, LLM optimization, content strategy and digital marketing topics." },
     { q: "Are the articles SEO focused?", a: "Yes. Articles are structured to be useful to readers while covering search intent, semantic topics and modern SEO practices." },
   ],
+  "/anvya": [
+    { q: "What is ANVYA?", a: "ANVYA is a community platform for sharing ideas, asking questions, publishing blogs, joining discussions and discovering people around AI, SEO, technology, travel, science, business and other topics." },
+    { q: "What can I do on ANVYA?", a: "You can publish ideas and blogs, ask questions, join public discussions, explore community content, discover profiles and participate in topic-based conversations." },
+    { q: "Can I ask questions on ANVYA?", a: "Yes. ANVYA supports public Q&A so members can ask questions, share knowledge and take part in discussions." },
+    { q: "Can I publish a blog or idea on ANVYA?", a: "Yes. Members can publish ideas and blog-style posts and share useful knowledge with the wider community." },
+    { q: "Which topics are covered on ANVYA?", a: "ANVYA supports discussions across AI, SEO, technology, travel, science, economics, business and other community interests." },
+    { q: "Is ANVYA useful for networking and collaboration?", a: "Yes. Public profiles, discussions and community content can help people discover relevant interests and connect around shared topics." },
+    { q: "How does ANVYA help with knowledge sharing?", a: "ANVYA brings ideas, questions, blogs and discussions into one place so people can learn from community contributions and exchange practical knowledge." },
+  ],
 };
 const industryMeta: Record<string, { title: string; description: string; keywords: string }> = {
   "e-commerce": { title: "E-Commerce SEO & Digital Growth | Crazy SEO Team", description: "E-Commerce SEO, product optimization, shopping visibility and conversion-focused digital growth strategies from Crazy SEO Team.", keywords: "ecommerce SEO, e-commerce SEO, product SEO, shopping SEO, ecommerce marketing" },
