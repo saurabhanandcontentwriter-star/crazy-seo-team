@@ -59,10 +59,12 @@ export default function PublicCrm(){
       const params=new URLSearchParams(window.location.search);
       const code=params.get("code");
       const authError=params.get("auth_error");
+
       if(authError){
         toast({title:"Google login failed",description:authError,variant:"destructive"});
         window.history.replaceState({}, "", "/crm");
       }
+
       if(code){
         const {error}=await supabase.auth.exchangeCodeForSession(code);
         window.history.replaceState({}, "", "/crm");
@@ -70,49 +72,32 @@ export default function PublicCrm(){
           toast({title:"Google login failed",description:error.message,variant:"destructive"});
         }
       }
-      const {data}=await supabase.auth.getSession();
-      if(!active) return;
-      if(data.session?.user){
-        const {data:row}=await (supabase as any).rpc("ensure_public_crm_account");
-        if(row) setAccount(row as Account);
-      }
-      setAuthReady(true);
-    };
-    void boot();
-    const {data:listener}=supabase.auth.onAuthStateChange((event,session)=>{
-      if(event==="SIGNED_IN" && session?.user){
-        setTimeout(async()=>{
-          const {data:row}=await (supabase as any).rpc("ensure_public_crm_account");
-          if(row) setAccount(row as Account);
-          setShowGate(false);
-        },0);
-      }
-    });
-    return()=>{active=false;listener.subscription.unsubscribe()};
-  },[]);
 
-  useEffect(()=>{
-    let active=true;
-    const boot=async()=>{
       const {data}=await supabase.auth.getSession();
       if(!active) return;
       if(data.session?.user){
         const {data:row}=await (supabase as any).rpc("ensure_public_crm_account");
-        if(row) setAccount(row as Account);
+        if(active && row) setAccount(row as Account);
       }
-      setAuthReady(true);
+      if(active) setAuthReady(true);
     };
+
     void boot();
+
     const {data:listener}=supabase.auth.onAuthStateChange((event,session)=>{
       if(event==="SIGNED_IN" && session?.user){
         setTimeout(async()=>{
           const {data:row}=await (supabase as any).rpc("ensure_public_crm_account");
-          if(row) setAccount(row as Account);
-          setShowGate(false);
+          if(active && row) setAccount(row as Account);
+          if(active) setShowGate(false);
         },0);
       }
     });
-    return()=>{active=false;listener.subscription.unsubscribe()};
+
+    return()=>{
+      active=false;
+      listener.subscription.unsubscribe();
+    };
   },[]);
 
   const loginWithGoogle=async()=>{
