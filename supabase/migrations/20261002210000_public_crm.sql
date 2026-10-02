@@ -85,3 +85,52 @@ end;
 $$;
 
 grant execute on function public.ensure_public_crm_account() to authenticated;
+
+
+create or replace function public.consume_public_crm_visitor_credit(p_visitor_id text)
+returns integer
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare next_count integer;
+begin
+  if p_visitor_id is null or char_length(trim(p_visitor_id)) < 8 then
+    raise exception 'Invalid visitor id';
+  end if;
+  insert into public.public_crm_visitors(visitor_id, usage_count, last_used_at)
+  values (p_visitor_id, 1, now())
+  on conflict (visitor_id) do update
+    set usage_count = public.public_crm_visitors.usage_count + 1,
+        last_used_at = now()
+    where public.public_crm_visitors.usage_count < 2
+  returning usage_count into next_count;
+  if next_count is null then
+    raise exception 'Two free Customer Discovery uses have already been used';
+  end if;
+  return next_count;
+end;
+$$;
+
+create or replace function public.increment_public_crm_discovery(p_user_id uuid)
+returns integer
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare next_count integer;
+begin
+  if auth.uid() is null or auth.uid() <> p_user_id then
+    raise exception 'Authentication required';
+  end if;
+  update public.public_crm_accounts
+  set discovery_count = discovery_count + 1, updated_at = now()
+  where user_id = p_user_id
+  returning discovery_count into next_count;
+  if next_count is null then raise exception 'CRM account not found'; end if;
+  return next_count;
+end;
+$$;
+
+grant execute on function public.consume_public_crm_visitor_credit(text) to anon, authenticated;
+grant execute on function public.increment_public_crm_discovery(uuid) to authenticated;
