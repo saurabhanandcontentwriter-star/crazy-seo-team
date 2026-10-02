@@ -158,7 +158,7 @@ const Index = () => {
                   </div>
                 </div>
                 <div className="relative min-h-[420px] overflow-hidden lg:min-h-full">
-                  <img src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1600&q=90" alt="Digital professionals collaborating and sharing ideas in a community workspace" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+                  <img src="/images/anvya-community.jpg" alt="Digital professionals collaborating and sharing ideas in a community workspace" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
                   <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent lg:bg-gradient-to-l lg:from-slate-950/15 lg:via-transparent lg:to-white/10" />
                   <div className="absolute left-6 top-7 rounded-2xl border border-white/50 bg-white/90 px-4 py-3 shadow-xl backdrop-blur-md"><span className="font-bold text-slate-900">💡 Share Ideas</span></div>
                   <div className="absolute right-6 top-24 rounded-2xl border border-white/50 bg-white/90 px-4 py-3 shadow-xl backdrop-blur-md"><span className="font-bold text-slate-900">💬 Ask Questions</span></div>
