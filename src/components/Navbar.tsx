@@ -273,6 +273,13 @@ const Navbar = () => {
               </div>
 
               <Link
+                to="/crm"
+                onClick={closeMenus}
+                className={`cst-nav-link rounded-full px-3.5 py-2 text-[13px] font-semibold transition-all ${isActive("/crm") ? "bg-slate-100 text-slate-950" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"}`}
+              >
+                <span className="inline-flex items-center gap-1.5"><BarChart3 size={14} />Public CRM</span>
+              </Link>
+              <Link
                 to="/anvya"
                 onClick={closeMenus}
                 className={`cst-nav-link rounded-full px-3.5 py-2 text-[13px] font-semibold transition-all ${isActive("/anvya") ? "bg-slate-100 text-slate-950" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"}`}
