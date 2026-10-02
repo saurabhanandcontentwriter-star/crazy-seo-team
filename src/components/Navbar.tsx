@@ -80,29 +80,11 @@ const Navbar = () => {
     setDialogOpen(true);
   };
 
-  const openPublicCrm = async () => {
+  const openPublicCrm = () => {
     closeMenus();
-    const { data } = await supabase.auth.getSession();
-    if (data.session?.user) {
-      window.location.href = "/crm";
-      return;
-    }
-    try {
-      const productionOrigin = "https://www.crazyseoteam.in";
-      const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-      const redirectTo = `${isLocal ? window.location.origin : productionOrigin}/crm`;
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo,
-          queryParams: { prompt: "select_account" },
-        },
-      });
-      if (error) throw error;
-      if (data?.url) window.location.assign(data.url);
-    } catch (error) {
-      console.error("Google CRM login failed:", error);
-    }
+    // Always enter the Public CRM route first. The CRM page then starts
+    // Google OAuth, which makes the mobile and desktop CTA reliable.
+    window.location.assign("/crm?login=google");
   };
 
   return (
@@ -309,9 +291,6 @@ const Navbar = () => {
             </div>
 
             <div id="tour-cta" className="hidden items-center gap-2 md:flex">
-              <Button variant="ghost" onClick={openPublicCrm} className="rounded-xl px-3 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900">
-                Talk to us
-              </Button>
               <Button onClick={openPublicCrm} className="group rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-4 text-white shadow-sm">
                 Gmail Login <ArrowUpRight size={15} />
               </Button>
