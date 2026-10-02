@@ -48,6 +48,7 @@ export default function PublicCrm(){
   const [loading,setLoading]=useState(false);
   const [showGate,setShowGate]=useState(false);
   const [history,setHistory]=useState<Discovery[]>([]);
+  const [authReady,setAuthReady]=useState(false);
 
   const remaining=Math.max(0,2-visitorUsed);
   const isLoggedIn=!!account;
@@ -61,8 +62,7 @@ export default function PublicCrm(){
         const {data:row}=await (supabase as any).rpc("ensure_public_crm_account");
         if(row) setAccount(row as Account);
       }
-      const stored=Number(localStorage.getItem("cst_public_crm_used")||"0");
-      setVisitorUsed(Math.min(2,stored));
+      setAuthReady(true);
     };
     void boot();
     const {data:listener}=supabase.auth.onAuthStateChange((event,session)=>{
@@ -91,7 +91,7 @@ export default function PublicCrm(){
       toast({title:"Complete the required fields",description:"Website, offer and target market are required.",variant:"destructive"});
       return;
     }
-    if(!isLoggedIn && visitorUsed>=2){ setShowGate(true); return; }
+    if(!isLoggedIn){ setShowGate(true); return; }
     setLoading(true);
     const visitorId=getVisitorId();
     const {data,error}=await supabase.functions.invoke("ai-customer-discovery",{
@@ -105,27 +105,38 @@ export default function PublicCrm(){
     }
     setResult(data.result as Discovery);
     setHistory(h=>[data.result as Discovery,...h].slice(0,5));
-    if(!isLoggedIn){
-      const next=Math.min(2,Number(data.used||visitorUsed+1));
-      setVisitorUsed(next);
-      localStorage.setItem("cst_public_crm_used",String(next));
-      if(next>=2) toast({title:"2 free discoveries used",description:"Sign in with Google to create your CRM account and continue."});
-    }else{
-      setAccount(a=>a?({...a,discovery_count:a.discovery_count+1}):a);
-    }
+    setAccount(a=>a?({...a,discovery_count:a.discovery_count+1}):a);
   };
 
   const mapText=form.location.trim()||"Global market";
   const stats=useMemo(()=>[
-    [String(visitorUsed),"/ 2","Free discoveries used"],
-    [account?.public_id||"Guest","",account?"Your CRM ID":"Public access"],
-    [account?.discovery_count??visitorUsed,"","Discoveries completed"],
+    [account?.public_id||"—","", "Your CRM ID"],
+    [account?.discovery_count??0,"","Discoveries completed"],
+    [account?.plan||"Free","", "CRM plan"],
   ],[visitorUsed,account]);
+
+  if (!authReady) {
+    return <div className="grid min-h-screen place-items-center bg-slate-50"><div className="text-center"><div className="mx-auto size-10 animate-spin rounded-full border-4 border-slate-200 border-t-blue-600"/><p className="mt-4 text-sm font-semibold text-slate-500">Opening CRM...</p></div></div>;
+  }
+
+  if (!account) {
+    return <div className="grid min-h-screen place-items-center bg-slate-50 px-4">
+      <Helmet><title>Sign in to Customer Discovery CRM | Crazy SEO Team</title></Helmet>
+      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-xl">
+        <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-blue-600 to-violet-600 text-2xl font-black text-white">C</div>
+        <p className="mt-5 text-xs font-black uppercase tracking-[.16em] text-blue-600">Crazy SEO Team CRM</p>
+        <h1 className="mt-2 text-3xl font-black">Sign in to continue</h1>
+        <p className="mt-3 text-sm leading-6 text-slate-500">Use your Google account to open Customer Discovery. Your CRM ID is created automatically after login.</p>
+        <Button onClick={loginWithGoogle} className="mt-6 h-12 w-full rounded-xl bg-gradient-to-r from-blue-600 to-violet-600"><LogIn size={17}/> Continue with Google</Button>
+        <Link to="/" className="mt-4 inline-block text-xs font-semibold text-slate-400 hover:text-slate-700">Back to Crazy SEO Team</Link>
+      </div>
+    </div>;
+  }
 
   return <div className="min-h-screen bg-slate-50 text-slate-900">
     <Helmet>
-      <title>Public CRM & Customer Discovery | Crazy SEO Team</title>
-      <meta name="description" content="Discover customers with AI, explore Crazy SEO Team products and create your CRM account with Google after two free Customer Discovery uses."/>
+      <title>Customer Discovery CRM | Crazy SEO Team</title>
+      <meta name="description" content="Customer Discovery CRM by Crazy SEO Team. Sign in securely with Google to discover customers, save research and use the CRM workspace."/>
       <link rel="canonical" href="https://crazyseoteam.in/crm"/>
     </Helmet>
 
@@ -151,10 +162,10 @@ export default function PublicCrm(){
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-black uppercase tracking-[.12em] text-blue-700"><BrainCircuit size={14}/> AI Customer Discovery</div>
               <h1 className="mt-5 max-w-3xl text-5xl font-black tracking-tight md:text-7xl">Find your customers.<br/><span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">Build your CRM.</span></h1>
-              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600 md:text-lg">Use Customer Discovery twice for free. Then sign in with Google to automatically create your Crazy SEO Team CRM identity and continue from one dashboard.</p>
+              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600 md:text-lg">Sign in securely with Google to open your Crazy SEO Team CRM. Your CRM identity is created automatically and Customer Discovery is ready from one dashboard.</p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <a href="#discovery" className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 px-6 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-500/20">Try Customer Discovery <ArrowRight size={16}/></a>
-                {!account&&<Button onClick={loginWithGoogle} variant="outline" className="rounded-xl px-6 py-3.5">Continue with Google</Button>}
+                {!account&&<Button onClick={loginWithGoogle} variant="outline" className="rounded-xl px-6 py-3.5"><LogIn size={16}/> Continue with Google</Button>}
               </div>
               <div className="mt-8 grid max-w-2xl gap-3 sm:grid-cols-3">
                 {stats.map(([a,b,c])=><div key={c} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"><div className="text-xl font-black">{a}<span className="text-sm text-slate-400">{b}</span></div><div className="mt-1 text-[11px] font-semibold text-slate-500">{c}</div></div>)}
@@ -162,15 +173,15 @@ export default function PublicCrm(){
             </div>
             <div id="discovery" className="rounded-[28px] border border-slate-200 bg-white p-4 shadow-[0_30px_90px_rgba(37,99,235,.12)]">
               <div className="rounded-2xl bg-slate-950 p-5 text-white">
-                <div className="flex items-center justify-between"><div><p className="text-xs font-black uppercase tracking-[.16em] text-blue-300">Customer Discovery</p><h2 className="mt-1 text-2xl font-black">Build a customer map</h2></div><div className="rounded-xl bg-white/10 px-3 py-2 text-center"><div className="text-lg font-black">{isLoggedIn?"Account":remaining}</div><div className="text-[9px] uppercase tracking-widest text-white/60">{isLoggedIn?"access":"free left"}</div></div></div>
+                <div className="flex items-center justify-between"><div><p className="text-xs font-black uppercase tracking-[.16em] text-blue-300">Customer Discovery</p><h2 className="mt-1 text-2xl font-black">Build a customer map</h2></div><div className="rounded-xl bg-white/10 px-3 py-2 text-center"><div className="text-lg font-black">{isLoggedIn?"CRM":"Login"}</div><div className="text-[9px] uppercase tracking-widest text-white/60">{isLoggedIn?"active":"required"}</div></div></div>
                 <div className="mt-5 space-y-3">
                   <Input value={form.website} onChange={e=>setForm({...form,website:e.target.value})} placeholder="Website URL" className="h-11 border-white/10 bg-white/10 text-white placeholder:text-white/40"/>
                   <Textarea value={form.offer} onChange={e=>setForm({...form,offer:e.target.value})} placeholder="What do you sell? (SEO, SaaS, agency, product...)" className="min-h-20 border-white/10 bg-white/10 text-white placeholder:text-white/40"/>
                   <Textarea value={form.targetMarket} onChange={e=>setForm({...form,targetMarket:e.target.value})} placeholder="Who are your target customers?" className="min-h-16 border-white/10 bg-white/10 text-white placeholder:text-white/40"/>
                   <div className="grid gap-3 sm:grid-cols-2"><Input value={form.location} onChange={e=>setForm({...form,location:e.target.value})} placeholder="Location (optional)" className="border-white/10 bg-white/10 text-white placeholder:text-white/40"/><Input value={form.goal} onChange={e=>setForm({...form,goal:e.target.value})} placeholder="Growth goal (optional)" className="border-white/10 bg-white/10 text-white placeholder:text-white/40"/></div>
-                  <Button onClick={generate} disabled={loading||(!isLoggedIn&&remaining<=0)} className="h-11 w-full rounded-xl bg-white text-slate-950 hover:bg-blue-50">{loading?"Generating customer map...":!isLoggedIn&&remaining<=0?"Sign in to continue":"Generate Customer Map"}</Button>
+                  <Button onClick={generate} disabled={loading||!isLoggedIn} className="h-11 w-full rounded-xl bg-white text-slate-950 hover:bg-blue-50">{loading?"Generating customer map...":!isLoggedIn?"Sign in with Google to continue":"Generate Customer Map"}</Button>
                 </div>
-                <div className="mt-4 flex items-center gap-2 text-[11px] text-white/60"><LockKeyhole size={13}/> No signup required for the first 2 discoveries.</div>
+                <div className="mt-4 flex items-center gap-2 text-[11px] text-white/60"><LockKeyhole size={13}/> Google sign-in is required. Your CRM account is created automatically.</div>
               </div>
             </div>
           </div>
