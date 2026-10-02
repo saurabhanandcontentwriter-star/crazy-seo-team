@@ -78,12 +78,23 @@ export default function PublicCrm(){
   },[]);
 
   const loginWithGoogle=async()=>{
-    const redirectTo=window.location.origin+"/crm";
-    const {error}=await supabase.auth.signInWithOAuth({
-      provider:"google",
-      options:{redirectTo,queryParams:{prompt:"select_account"}}
-    });
-    if(error) toast({title:"Google login failed",description:error.message,variant:"destructive"});
+    try{
+      const productionOrigin="https://www.crazyseoteam.in";
+      const isLocal=window.location.hostname==="localhost"||window.location.hostname==="127.0.0.1";
+      const redirectTo=(isLocal?window.location.origin:productionOrigin)+"/crm";
+      const {data,error}=await supabase.auth.signInWithOAuth({
+        provider:"google",
+        options:{redirectTo,queryParams:{prompt:"select_account"}}
+      });
+      if(error) throw error;
+      if(data?.url) window.location.assign(data.url);
+    }catch(error){
+      toast({
+        title:"Google login failed",
+        description:error instanceof Error?error.message:"Please try again.",
+        variant:"destructive"
+      });
+    }
   };
 
   const generate=async()=>{
