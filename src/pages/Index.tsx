@@ -158,7 +158,7 @@ const Index = () => {
                   </div>
                 </div>
                 <div className="relative min-h-[420px] overflow-hidden lg:min-h-full">
-                  <img src="/images/anvya-community-exact.svg" alt="ANVYA community members collaborating together in an office workspace" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+                  <img src="/images/anvya-community-exact.svg" alt="ANVYA community members collaborating together in an office workspace" className="absolute inset-y-0 right-0 h-full w-[190%] max-w-none object-cover object-right" loading="lazy" />
                 </div>
               </div>
             </div>
