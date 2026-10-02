@@ -55,30 +55,28 @@ export default function PublicCrm(){
 
   useEffect(()=>{
     let active=true;
-    const boot=async()=>{
-      const params=new URLSearchParams(window.location.search);
-      const code=params.get("code");
-      const authError=params.get("auth_error");
+    const syncAccount=async(sessionUser?: {id:string}|null)=>{
+      const user=sessionUser ?? (await supabase.auth.getSession()).data.session?.user;
+      if(!user) return false;
+      const {data:row,error}=await (supabase as any).rpc("ensure_public_crm_account");
+      if(!active) return true;
+      if(error){
+        toast({title:"CRM account setup failed",description:error.message,variant:"destructive"});
+        return true;
+      }
+      if(row) setAccount(row as Account);
+      return true;
+    };
 
+    const boot=async()=>{
+      const authError=new URLSearchParams(window.location.search).get("auth_error");
       if(authError){
         toast({title:"Google login failed",description:authError,variant:"destructive"});
         window.history.replaceState({}, "", "/crm");
       }
-
-      if(code){
-        const {error}=await supabase.auth.exchangeCodeForSession(code);
-        window.history.replaceState({}, "", "/crm");
-        if(error){
-          toast({title:"Google login failed",description:error.message,variant:"destructive"});
-        }
-      }
-
       const {data}=await supabase.auth.getSession();
       if(!active) return;
-      if(data.session?.user){
-        const {data:row}=await (supabase as any).rpc("ensure_public_crm_account");
-        if(active && row) setAccount(row as Account);
-      }
+      if(data.session?.user) await syncAccount(data.session.user);
       if(active) setAuthReady(true);
     };
 
@@ -86,12 +84,11 @@ export default function PublicCrm(){
 
     const {data:listener}=supabase.auth.onAuthStateChange((event,session)=>{
       if(event==="SIGNED_IN" && session?.user){
-        setTimeout(async()=>{
-          const {data:row}=await (supabase as any).rpc("ensure_public_crm_account");
-          if(active && row) setAccount(row as Account);
+        void syncAccount(session.user).then(()=>{
           if(active) setShowGate(false);
-        },0);
+        });
       }
+      if(event==="SIGNED_OUT" && active) setAccount(null);
     });
 
     return()=>{
