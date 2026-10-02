@@ -8,6 +8,8 @@ const HeroSection = () => {
   const [seo, setSeo] = useState(87);
   const [ai, setAi] = useState(92);
   const [llm, setLlm] = useState(89);
+  const [activeSearch, setActiveSearch] = useState(0);
+  const searchPlatforms = ["Google", "ChatGPT", "Gemini", "AI Search"];
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -15,6 +17,13 @@ const HeroSection = () => {
       setAi((v) => Math.max(85, Math.min(99, v + (Math.random() > 0.5 ? 1 : -1))));
       setLlm((v) => Math.max(85, Math.min(99, v + (Math.random() > 0.5 ? 1 : -1))));
     }, 1800);
+    return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setActiveSearch((v) => (v + 1) % searchPlatforms.length);
+    }, 1900);
     return () => clearInterval(t);
   }, []);
   const particles = useMemo(() => Array.from({ length: 22 }).map((_, i) => ({
@@ -63,13 +72,20 @@ const HeroSection = () => {
                 </span>
               </div>
 
+              <style>{`
+                @keyframes heroSearchSlide {
+                  0% { opacity: 0; transform: translateY(14px); }
+                  100% { opacity: 1; transform: translateY(0); }
+                }
+              `}</style>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.02] tracking-tight text-slate-900">
                 The AI SEO Platform for{" "}
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600">
-                  Google, ChatGPT,
-                </span>{" "}
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-500 via-purple-600 to-blue-600">
-                  Gemini & AI Search
+                <span
+                  key={activeSearch}
+                  className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600"
+                  style={{ animation: "heroSearchSlide 550ms cubic-bezier(.22,1,.36,1)" }}
+                >
+                  {searchPlatforms[activeSearch]}
                 </span>
               </h1>
 
