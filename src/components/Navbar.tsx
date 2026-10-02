@@ -118,6 +118,13 @@ const Navbar = () => {
               id="tour-nav"
               className="hidden min-w-0 flex-1 items-center justify-center gap-1 px-4 md:flex"
             >
+              <Link
+                to="/"
+                onClick={closeMenus}
+                className={`cst-nav-link rounded-full px-3.5 py-2 text-[13px] font-semibold transition-all ${location.pathname === "/" ? "bg-slate-100 text-slate-950" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"}`}
+              >
+                Home
+              </Link>
               <div className="relative">
                 <button
                   type="button"
