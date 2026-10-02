@@ -83,79 +83,143 @@ function extractJson(text: string) {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
-    const auth = req.headers.get("Authorization") ?? "";
-    if (!auth.startsWith("Bearer ")) return json({ error: "Unauthorized" }, 401);
-
-    const url = Deno.env.get("SUPABASE_URL")!;
-    const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const userClient = createClient(url, service);
-    const { data: userData } = await userClient.auth.getUser(auth.replace(/^Bearer\s+/i, ""));
-    const user = userData.user;
-    if (!user) return json({ error: "Unauthorized" }, 401);
-
-    const { data: isAdmin, error: roleError } = await userClient.rpc("has_role", { _user_id: user.id, _role: "admin" });
-    if (roleError) return json({ error: "Could not verify admin access." }, 500);
-    if (!isAdmin) return json({ error: "Admin access required" }, 403);
-
     const body = await req.json().catch(() => ({}));
     const website = String(body.website ?? "").trim().slice(0, 500);
     const offer = String(body.offer ?? "").trim().slice(0, 1000);
     const targetMarket = String(body.target_market ?? "").trim().slice(0, 500);
     const location = String(body.location ?? "").trim().slice(0, 300);
     const goal = String(body.goal ?? "").trim().slice(0, 500);
-    if (!website || !offer || !targetMarket) return json({ error: "Website, offer and target market are required." }, 400);
+    const visitorId = String(body.visitor_id ?? "").trim().slice(0, 120);
 
-    const admin = createClient(url, service);
-    let used = 0;
-    const rollback = async () => {
-      if (used <= 0) return;
-      await admin.from("ai_customer_discovery_usage")
-        .update({ usage_count: Math.max(0, used - 1), updated_at: new Date().toISOString() })
-        .eq("user_id", user.id);
-    };
-    try {
-      const { data: credit, error: creditError } = await admin.rpc("consume_ai_customer_discovery_credit", { p_user_id: user.id });
-      if (creditError) throw creditError;
-      used = Number(credit);
-    } catch (e) {
-      return json({ error: e instanceof Error ? e.message : "No free runs remaining." }, 429);
+    if (!website || !offer || !targetMarket) {
+      return json({ error: "Website, offer and target market are required." }, 400);
     }
+
+    const url = Deno.env.get("SUPABASE_URL")!;
+    const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const admin = createClient(url, service);
+
+    const auth = req.headers.get("Authorization") ?? "";
+    let user: { id: string; email?: string } | null = null;
+    if (auth.startsWith("Bearer ")) {
+      const { data } = await admin.auth.getUser(auth.replace(/^Bearer\s+/i, ""));
+      if (data.user) user = { id: data.user.id, email: data.user.email };
+    }
+
+    const isAdmin = user
+      ? Boolean((await admin.rpc("has_role", { _user_id: user.id, _role: "admin" })).data)
+      : false;
+
+    let used = 0;
+    let remaining = 0;
+    let mode: "public" | "account" | "admin" = "public";
+
+    if (isAdmin && user) {
+      mode = "admin";
+      const { data: credit, error: creditError } = await admin.rpc("consume_ai_customer_discovery_credit", { p_user_id: user.id });
+      if (creditError) return json({ error: creditError.message }, 429);
+      used = Number(credit);
+      remaining = Math.max(0, 3 - used);
+    } else if (user) {
+      mode = "account";
+      const { data: account, error: accountError } = await admin
+        .from("public_crm_accounts")
+        .select("user_id,plan,discovery_count")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (accountError || !account) return json({ error: "CRM account not found. Please sign in again." }, 401);
+      used = Number(account.discovery_count ?? 0);
+      remaining = -1;
+    } else {
+      if (!visitorId) return json({ error: "Visitor session missing. Refresh the page and try again." }, 400);
+      try {
+        used = Number((await admin.rpc("consume_public_crm_visitor_credit", { p_visitor_id: visitorId })).data);
+      } catch (e) {
+        return json({
+          error: "Two free Customer Discovery uses have already been used.",
+          code: "FREE_LIMIT_REACHED",
+          upgrade_required: true
+        }, 429);
+      }
+      remaining = Math.max(0, 2 - used);
+    }
+
+    const rollback = async () => {
+      if (mode === "admin" && user && used > 0) {
+        await admin.from("ai_customer_discovery_usage")
+          .update({ usage_count: Math.max(0, used - 1), updated_at: new Date().toISOString() })
+          .eq("user_id", user.id);
+      }
+    };
 
     try {
       const key = Deno.env.get("LOVABLE_API_KEY");
+      const input = { website, offer, targetMarket, location, goal };
+      let result;
+
       if (!key) {
-        const result = fallbackDiscovery({ website, offer, targetMarket, location, goal });
-        const { error: saveError } = await admin.from("ai_customer_discovery_runs").insert({
-          user_id: user.id, website, offer, target_market: targetMarket, location: location || null, goal: goal || null, result,
-        });
-        if (saveError) throw saveError;
-        return json({ ok: true, used, remaining: Math.max(0, 3 - used), fallback: true, result });
-      }
-      const prompt = `Website: ${website}
+        result = fallbackDiscovery(input);
+      } else {
+        const prompt = `Website: ${website}
 Offer / products / services: ${offer}
 Target market: ${targetMarket}
 Location: ${location || "Not specified"}
 Goal: ${goal || "Generate qualified demand"}`;
 
-      const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: [{ role: "system", content: SYSTEM }, { role: "user", content: prompt }],
-          temperature: 0.3,
-          response_format: { type: "json_object" },
-        }),
-      });
-      if (!resp.ok) { const detail = await resp.text(); if (resp.status === 429) { await rollback(); return json({ error: "AI rate limit — try again shortly." }, 429); } if (resp.status === 402) { await rollback(); return json({ error: "AI credits exhausted." }, 402); } throw new Error(`AI gateway error (${resp.status}): ${detail.slice(0, 300)}`); }
-      const data = await resp.json();
-      const result = extractJson(String(data?.choices?.[0]?.message?.content ?? ""));
-      const { error: saveError } = await admin.from("ai_customer_discovery_runs").insert({
-        user_id: user.id, website, offer, target_market: targetMarket, location: location || null, goal: goal || null, result,
+        const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [{ role: "system", content: SYSTEM }, { role: "user", content: prompt }],
+            temperature: 0.3,
+            response_format: { type: "json_object" },
+          }),
+        });
+        if (!resp.ok) {
+          const detail = await resp.text();
+          if (resp.status === 429) { await rollback(); return json({ error: "AI rate limit — try again shortly." }, 429); }
+          if (resp.status === 402) { await rollback(); return json({ error: "AI credits exhausted." }, 402); }
+          throw new Error(`AI gateway error (${resp.status}): ${detail.slice(0, 300)}`);
+        }
+        const data = await resp.json();
+        result = extractJson(String(data?.choices?.[0]?.message?.content ?? ""));
+      }
+
+      const { error: saveError } = await admin.from("public_crm_discovery_runs").insert({
+        visitor_id: visitorId || null,
+        user_id: user?.id || null,
+        website,
+        offer,
+        target_market: targetMarket,
+        location: location || null,
+        goal: goal || null,
+        result
       });
       if (saveError) throw saveError;
 
-      return json({ ok: true, used, remaining: Math.max(0, 3 - used), result });
+      if (mode === "account" && user) {
+        const { data: next, error: countError } = await admin.rpc("increment_public_crm_discovery", { p_user_id: user.id });
+        if (countError) throw countError;
+        used = Number(next);
+      }
+
+      if (mode === "admin") {
+        // Preserve the existing admin CRM history as well.
+        await admin.from("ai_customer_discovery_runs").insert({
+          user_id: user!.id, website, offer, target_market: targetMarket,
+          location: location || null, goal: goal || null, result
+        });
+      }
+
+      return json({
+        ok: true,
+        result,
+        used,
+        remaining,
+        account_required: mode === "public" && remaining === 0,
+        mode
+      });
     } catch (e) {
       await rollback();
       return json({ error: e instanceof Error ? e.message : "Could not generate customer discovery." }, 500);
