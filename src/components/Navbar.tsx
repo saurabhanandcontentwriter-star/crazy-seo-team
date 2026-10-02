@@ -357,6 +357,7 @@ const Navbar = () => {
                     )}
                   </div>
                 ))}
+                <Link to="/crm" onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"><span className="inline-flex items-center gap-2"><BarChart3 size={16}/>Public CRM</span></Link>
                 <Link to="/anvya" onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                   <span className="inline-flex items-center gap-2"><Lightbulb size={16} />ANVYA</span>
                 </Link>
