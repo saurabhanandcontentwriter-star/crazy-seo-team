@@ -85,7 +85,7 @@ const Navbar = () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin + "/crm",
+        redirectTo: "https://www.crazyseoteam.in/crm",
         queryParams: { prompt: "select_account" },
       },
     });
