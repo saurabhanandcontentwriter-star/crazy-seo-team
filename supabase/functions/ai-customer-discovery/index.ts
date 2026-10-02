@@ -122,12 +122,26 @@ Deno.serve(async (req) => {
       remaining = Math.max(0, 3 - used);
     } else if (user) {
       mode = "account";
-      const { data: account, error: accountError } = await admin
+      let { data: account, error: accountError } = await admin
         .from("public_crm_accounts")
         .select("user_id,plan,discovery_count")
         .eq("user_id", user.id)
         .maybeSingle();
-      if (accountError || !account) return json({ error: "CRM account not found. Please sign in again." }, 401);
+      if (accountError) return json({ error: accountError.message }, 500);
+      if (!account) {
+        const authUser = await admin.auth.admin.getUserById(user.id);
+        const u = authUser.data.user;
+        const { data: created, error: createError } = await admin.from("public_crm_accounts").insert({
+          user_id:user.id,
+          public_id:"CST-"+crypto.randomUUID().replaceAll("-","").slice(0,10).toUpperCase(),
+          name:u?.user_metadata?.full_name||u?.user_metadata?.name||u?.email?.split("@")[0]||"Crazy SEO Team Member",
+          email:u?.email||user.email||"",
+          avatar_url:u?.user_metadata?.avatar_url||null,
+          plan:"free",discovery_count:0
+        }).select("user_id,plan,discovery_count").single();
+        if (createError) return json({ error: createError.message }, 500);
+        account=created;
+      }
       used = Number(account.discovery_count ?? 0);
       remaining = -1;
     } else {
