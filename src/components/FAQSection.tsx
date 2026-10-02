@@ -12,6 +12,7 @@ const categories = [
   { label: "Web Development", value: "web" },
   { label: "AI Development", value: "ai" },
   { label: "Cold Calling", value: "cold" },
+  { label: "Anvya", value: "anvya" },
 ];
 
 const faqs: Record<string, { q: string; a: string }[]> = {
@@ -42,6 +43,14 @@ const faqs: Record<string, { q: string; a: string }[]> = {
     { q: "Can AI agents handle objections?", a: "Yes, modern AI voice agents detect tone, handle common objections, adapt their pitch based on responses, and escalate complex scenarios to human agents when needed." },
     { q: "Is AI cold calling legal?", a: "Yes, when done properly. We ensure compliance with TCPA, GDPR, and local telemarketing regulations. All calls include proper disclosures and opt-out mechanisms." },
     { q: "Can I customize the AI agent's script?", a: "Absolutely. We train AI agents on your specific industry terminology, value propositions, and ideal customer profiles to ensure authentic, brand-aligned conversations." },
+  ],
+  anvya: [
+    { q: "What is ANVYA?", a: "ANVYA is a community platform for sharing ideas, asking questions, publishing blogs, joining discussions and discovering people around AI, SEO, technology, travel, science, business and other topics." },
+    { q: "What can I do on ANVYA?", a: "You can publish ideas and blogs, ask questions, join public discussions, explore community content, discover profiles and participate in topic-based conversations." },
+    { q: "Can I ask questions on ANVYA?", a: "Yes. ANVYA supports public Q&A so members can ask questions, share knowledge and take part in discussions." },
+    { q: "Can I publish a blog or idea on ANVYA?", a: "Yes. Members can publish ideas and blog-style posts and share useful knowledge with the wider community." },
+    { q: "Which topics are covered on ANVYA?", a: "ANVYA supports discussions across AI, SEO, technology, travel, science, economics, business and other community interests." },
+    { q: "Is ANVYA useful for networking and collaboration?", a: "Yes. Public profiles, discussions and community content can help people discover relevant interests and connect around shared topics." },
   ],
 };
 
