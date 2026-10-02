@@ -55,46 +55,32 @@ export default function PublicCrm(){
 
   useEffect(()=>{
     let active=true;
-    const syncAccount=async(sessionUser?: {id:string}|null)=>{
-      const user=sessionUser ?? (await supabase.auth.getSession()).data.session?.user;
-      if(!user) return false;
-      const {data:row,error}=await (supabase as any).rpc("ensure_public_crm_account");
-      if(!active) return true;
-      if(error){
-        toast({title:"CRM account setup failed",description:error.message,variant:"destructive"});
-        return true;
-      }
-      if(row) setAccount(row as Account);
-      return true;
-    };
-
-    const boot=async()=>{
-      const authError=new URLSearchParams(window.location.search).get("auth_error");
-      if(authError){
-        toast({title:"Google login failed",description:authError,variant:"destructive"});
-        window.history.replaceState({}, "", "/crm");
-      }
+    const syncAccount=async()=>{
       const {data}=await supabase.auth.getSession();
+      const user=data.session?.user;
+      if(!user) return;
+      const {data:row}=await supabase.from("public_crm_accounts").select("public_id,name,email,avatar_url,plan,discovery_count").eq("user_id",user.id).maybeSingle();
       if(!active) return;
-      if(data.session?.user) await syncAccount(data.session.user);
+      setAccount((row as Account)||{
+        public_id:"CST-"+user.id.slice(0,10).toUpperCase(),
+        name:user.user_metadata?.full_name||user.user_metadata?.name||user.email?.split("@")[0]||"Crazy SEO Team Member",
+        email:user.email||"",
+        avatar_url:user.user_metadata?.avatar_url||null,
+        plan:"free",discovery_count:0
+      });
+    };
+    const bootAuth=async()=>{
+      const authError=new URLSearchParams(window.location.search).get("auth_error");
+      if(authError){toast({title:"Google login failed",description:authError,variant:"destructive"});window.history.replaceState({}, "", "/crm");}
+      await syncAccount();
       if(active) setAuthReady(true);
     };
-
-    void boot();
-
+    void bootAuth();
     const {data:listener}=supabase.auth.onAuthStateChange((event,session)=>{
-      if(event==="SIGNED_IN" && session?.user){
-        void syncAccount(session.user).then(()=>{
-          if(active) setShowGate(false);
-        });
-      }
-      if(event==="SIGNED_OUT" && active) setAccount(null);
+      if(event==="SIGNED_IN"&&session?.user) void syncAccount().then(()=>{if(active)setShowGate(false);});
+      if(event==="SIGNED_OUT"&&active)setAccount(null);
     });
-
-    return()=>{
-      active=false;
-      listener.subscription.unsubscribe();
-    };
+    return()=>{active=false;listener.subscription.unsubscribe();};
   },[]);
 
   const loginWithGoogle=async()=>{
