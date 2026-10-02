@@ -80,11 +80,20 @@ const Navbar = () => {
     setDialogOpen(true);
   };
 
-  const openPublicCrm = () => {
+  const openPublicCrm = async () => {
     closeMenus();
-    // Always enter the Public CRM route first. The CRM page then starts
-    // Google OAuth, which makes the mobile and desktop CTA reliable.
-    window.location.assign("/crm?login=google");
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin + "/crm",
+        queryParams: { prompt: "select_account" },
+      },
+    });
+    if (error) {
+      window.location.assign("/crm?auth_error=" + encodeURIComponent(error.message));
+      return;
+    }
+    if (data?.url) window.location.assign(data.url);
   };
 
   return (
