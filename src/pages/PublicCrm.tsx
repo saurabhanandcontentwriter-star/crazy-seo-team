@@ -54,6 +54,32 @@ export default function PublicCrm(){
   const isLoggedIn=!!account;
 
   useEffect(()=>{
+    const shouldLogin=new URLSearchParams(window.location.search).get("login")==="google";
+    if(!shouldLogin) return;
+    const run=async()=>{
+      const {data}=await supabase.auth.getSession();
+      if(data.session?.user){
+        window.history.replaceState({}, "", "/crm");
+        return;
+      }
+      const {data:oauth,error}=await supabase.auth.signInWithOAuth({
+        provider:"google",
+        options:{
+          redirectTo:"https://www.crazyseoteam.in/crm",
+          queryParams:{prompt:"select_account"}
+        }
+      });
+      if(error){
+        toast({title:"Google login failed",description:error.message,variant:"destructive"});
+        window.history.replaceState({}, "", "/crm");
+      }else if(oauth?.url){
+        window.location.assign(oauth.url);
+      }
+    };
+    void run();
+  },[]);
+
+  useEffect(()=>{
     let active=true;
     const boot=async()=>{
       const {data}=await supabase.auth.getSession();
