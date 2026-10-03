@@ -17,191 +17,87 @@ const HeroSection = () => {
       setAi((v) => Math.max(85, Math.min(99, v + (Math.random() > 0.5 ? 1 : -1))));
       setLlm((v) => Math.max(85, Math.min(99, v + (Math.random() > 0.5 ? 1 : -1))));
     }, 1800);
-    return () => clearInterval(t);
-  }, []);
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setActiveSearch((v) => (v + 1) % searchPlatforms.length);
-    }, 1900);
-    return () => clearInterval(t);
-  }, []);
-  const particles = useMemo(() => Array.from({ length: 22 }).map((_, i) => ({
-    left: `${Math.random() * 100}%`,
-    top: `${55 + Math.random() * 45}%`,
-    dur: `${9 + Math.random() * 10}s`,
-    delay: `${Math.random() * 6}s`,
-    px: `${(Math.random() - 0.5) * 80}px`,
-    py: `${-100 - Math.random() * 200}px`,
-    key: i,
-  })), []);
-
-  return (
+    return (
     <>
-      <section className="relative pt-32 pb-24 overflow-hidden mesh-bg animate-mesh">
-        {/* Grid overlay */}
-        <div className="absolute inset-0 opacity-[0.35] pointer-events-none" style={{
-          backgroundImage: "linear-gradient(hsl(226 60% 70% / 0.18) 1px, transparent 1px), linear-gradient(90deg, hsl(226 60% 70% / 0.18) 1px, transparent 1px)",
-          backgroundSize: "56px 56px",
-          maskImage: "radial-gradient(ellipse at center, black 40%, transparent 75%)",
-        }} />
-        {/* Ambient blobs */}
-        <div className="absolute -top-32 -left-32 w-[520px] h-[520px] rounded-full bg-blue-400/30 blur-[120px] animate-pulse" />
-        <div className="absolute -bottom-32 -right-32 w-[520px] h-[520px] rounded-full bg-purple-400/30 blur-[120px] animate-pulse" style={{ animationDelay: "1s" }} />
-        <div className="absolute top-1/3 right-1/4 w-[320px] h-[320px] rounded-full bg-cyan-300/25 blur-[100px]" />
-
-        {/* Floating particles */}
-        {particles.map((p) => (
-          <span key={p.key} className="particle" style={{
-            left: p.left, top: p.top,
-            animationDuration: p.dur, animationDelay: p.delay,
-            // @ts-expect-error css var
-            "--px": p.px, "--py": p.py,
-          }} />
-        ))}
-
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-14 items-center">
-            {/* Left: copy */}
-            <div className="cst-hero-enter">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs font-semibold text-slate-700 mb-6">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <Sparkles size={12} className="text-blue-600" />
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
-                  Next-Gen AI SEO Platform · 2026
-                </span>
-              </div>
-
-              <style>{`
-                @keyframes heroSearchSlide {
-                  0% { opacity: 0; transform: translateY(14px); }
-                  100% { opacity: 1; transform: translateY(0); }
-                }
-              `}</style>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.02] tracking-tight text-slate-900">
-                The AI SEO Platform for{" "}
-                <span
-                  key={activeSearch}
-                  className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600"
-                  style={{ animation: "heroSearchSlide 550ms cubic-bezier(.22,1,.36,1)" }}
-                >
-                  {searchPlatforms[activeSearch]}
-                </span>
-              </h1>
-
-              <p className="mt-6 text-lg text-slate-600 max-w-xl leading-relaxed">
-                Rank higher across Google and every AI search engine with an all-in-one platform for
-                <strong className="text-slate-900"> AI SEO, GEO, AEO & LLM Optimization</strong> — built for the 2026 search stack.
-              </p>
-
-              <div className="flex flex-wrap gap-4 mt-8">
-                <Button size="lg" onClick={() => setDialogOpen(true)}
-                  className="relative group bg-gradient-to-r from-blue-600 to-purple-600 text-white text-base px-8 py-6 rounded-2xl hover:opacity-95 transition-transform hover:scale-[1.02] shadow-[0_10px_40px_-10px_hsl(230_90%_60%/0.7)]">
-                  <span className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-400/50 to-purple-500/50 blur-xl opacity-0 group-hover:opacity-100 transition" />
-                  <span className="relative flex items-center gap-2">Start Free Audit <ArrowRight size={18} /></span>
-                </Button>
-                <Button size="lg" variant="outline"
-                  onClick={() => document.getElementById("services")?.scrollIntoView({ behavior: "smooth" })}
-                  className="glass text-slate-900 border-slate-200 hover:bg-white text-base px-8 py-6 rounded-2xl gap-2">
-                  <Play size={16} className="text-blue-600" /> Try AI Writer
-                </Button>
-              </div>
-
-              <div className="hero-ai-visual mt-10 max-w-3xl" aria-label="SEO, AEO, GEO and automation capabilities">
-                <div className="hero-ai-visual-float">
-                  <img
-                    src="/images/hero-ai-seo.webp"
-                    alt="SEO + AI, AEO + GEO, and 24/7 automation and monitoring"
-                    className="w-full h-auto object-contain"
-                    loading="eager"
-                  />
+      <section className="relative min-h-[calc(100vh-72px)] overflow-hidden bg-slate-950">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(37,99,235,.32),transparent_35%),radial-gradient(circle_at_75%_0%,rgba(124,58,237,.38),transparent_34%),radial-gradient(circle_at_50%_100%,rgba(37,99,235,.2),transparent_40%)]" />
+        <div className="relative z-10 grid min-h-[calc(100vh-72px)] lg:grid-cols-2">
+          <div className="relative flex flex-col justify-center overflow-hidden px-7 py-12 text-white sm:px-10 lg:px-12 xl:px-16">
+            <div className="absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-violet-600/35 blur-3xl" />
+            <div className="relative z-10">
+              <div className="mb-8 flex items-center gap-3">
+                <img src="/images/logo.png" alt="Crazy SEO Team" className="size-14 rounded-2xl bg-white object-contain p-1 shadow-lg" />
+                <div>
+                  <p className="text-2xl font-black tracking-tight">Crazy <span className="text-blue-400">SEO</span> Team</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[.16em] text-white/60">AI SEO | Digital Marketing | Development</p>
                 </div>
+              </div>
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.16em] text-blue-300">
+                <Sparkles size={13} /> Your growth partner
+              </div>
+              <h1 className="max-w-2xl text-5xl font-black leading-[.98] tracking-[-.045em] md:text-6xl xl:text-7xl">
+                Turn <span className="text-blue-300">Search</span><br />Visibility Into<br />
+                <span className="bg-gradient-to-r from-blue-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">Growth.</span>
+              </h1>
+              <div className="mt-5 h-1 w-28 rounded-full bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-400" />
+              <p className="mt-5 max-w-xl text-base leading-7 text-slate-300 sm:text-lg">
+                Build visibility. Earn trust. Grow consistently with AI SEO, GEO, AEO and LLM optimization.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button size="lg" onClick={() => setDialogOpen(true)} className="rounded-full bg-gradient-to-r from-blue-500 to-violet-600 px-7 py-6 font-bold text-white shadow-[0_15px_35px_rgba(79,70,229,.3)] hover:-translate-y-1">
+                  Start Free Audit <ArrowRight size={18} />
+                </Button>
+                <Button size="lg" variant="outline" onClick={() => document.getElementById("services")?.scrollIntoView({ behavior: "smooth" })} className="rounded-full border-white/15 bg-white/5 px-7 py-6 text-white hover:bg-white/10">
+                  <Play size={16} /> Try AI Writer
+                </Button>
+              </div>
+              <div className="mt-9 grid grid-cols-2 gap-2 xl:grid-cols-4">
+                {[["▥","SEO","Higher Rankings"],["●","Digital Marketing","More Customers"],["</>","Development","Build & Scale"],["✦","AI Solutions","Automate Growth"]].map(([icon,title,desc])=>(
+                  <div key={title} className="rounded-2xl border border-white/10 bg-white/[.06] p-3.5 backdrop-blur-md">
+                    <div className="mb-2 grid size-8 place-items-center rounded-xl bg-gradient-to-br from-blue-500/30 to-violet-500/30 text-sm font-black text-violet-200">{icon}</div>
+                    <p className="text-xs font-black">{title}</p><p className="mt-1 text-[9px] text-slate-400">{desc}</p>
+                  </div>
+                ))}
               </div>
             </div>
+          </div>
 
-            {/* Right: dashboard preview */}
-            <div className="relative cst-hero-enter cst-hero-enter-delay">
-              {/* Soft 3D floating blobs */}
-              <div className="pointer-events-none absolute -inset-10 -z-10">
-                <div className="absolute -left-12 top-10 h-40 w-40 rounded-[42%_58%_63%_37%/42%_34%_66%_58%] bg-blue-200/30 shadow-[inset_18px_14px_35px_rgba(255,255,255,.9),inset_-18px_-20px_35px_rgba(37,99,235,.10),0_30px_70px_rgba(15,23,42,.07)] blur-[1px] animate-float" />
-                <div className="absolute -right-8 bottom-8 h-28 w-28 rounded-[58%_42%_37%_63%/52%_61%_39%_48%] bg-indigo-200/25 shadow-[inset_14px_12px_28px_rgba(255,255,255,.9),inset_-16px_-18px_30px_rgba(79,70,229,.10),0_25px_60px_rgba(15,23,42,.06)] blur-[1px] animate-float" style={{animationDelay:"-2s"}} />
+          <div className="relative flex items-center overflow-hidden bg-white px-7 py-12 sm:px-10 lg:px-12 xl:px-16">
+            <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-violet-200/50 blur-3xl" />
+            <div className="relative mx-auto w-full max-w-xl">
+              <div className="mb-10 flex items-center justify-center lg:justify-start">
+                <div className="flex items-center gap-3">
+                  <img src="/images/logo.png" alt="Crazy SEO Team" className="size-12 rounded-xl object-contain shadow-sm ring-1 ring-slate-200" />
+                  <div><p className="text-xl font-black text-slate-950">Crazy <span className="text-blue-600">SEO</span> Team</p><p className="text-[9px] font-bold uppercase tracking-[.16em] text-slate-400">AI Search Growth</p></div>
+                </div>
+              </div>
+              <div className="text-center lg:text-left">
+                <p className="text-xs font-black uppercase tracking-[.18em] text-blue-600">AI SEO Platform · 2026</p>
+                <h2 className="mt-3 text-4xl font-black tracking-[-.035em] text-slate-950 sm:text-5xl">
+                  Search is evolving.<br /><span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">Your growth system should too.</span>
+                </h2>
+                <p className="mt-5 text-base leading-7 text-slate-500">Track SEO, AI visibility and LLM performance across the modern search stack.</p>
               </div>
 
-              <div className="relative glass rounded-3xl p-5 md:p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                      <Bot size={16} className="text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">AI SEO Dashboard</p>
-                      <p className="text-[10px] text-emerald-600 flex items-center gap-1 font-medium">
-                        <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" /> Live
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-red-400" />
-                    <span className="w-2 h-2 rounded-full bg-amber-400" />
-                    <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  </div>
+              <div className="mt-9 rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_25px_65px_rgba(15,23,42,.12)]">
+                <div className="mb-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3"><div className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 text-white shadow-lg"><Bot size={18}/></div><div><p className="text-sm font-black text-slate-900">AI SEO Dashboard</p><p className="text-[10px] font-bold text-emerald-600">● Live monitoring</p></div></div>
+                  <div className="flex gap-1.5"><span className="size-2 rounded-full bg-red-400"/><span className="size-2 rounded-full bg-amber-400"/><span className="size-2 rounded-full bg-emerald-400"/></div>
                 </div>
-
                 <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { label: "SEO Score", value: seo, icon: TrendingUp, tone: "from-cyan-500 to-blue-600" },
-                    { label: "AI Visibility", value: ai, icon: Zap, tone: "from-purple-500 to-fuchsia-600" },
-                    { label: "LLM Score", value: llm, icon: ShieldCheck, tone: "from-blue-500 to-purple-600" },
-                  ].map((m) => (
-                    <div key={m.label} className="rounded-2xl bg-white/70 border border-slate-200/70 p-3 backdrop-blur">
-                      <div className="flex items-center justify-between mb-2">
-                        <m.icon size={14} className="text-blue-600" />
-                        <span className="text-[9px] font-bold text-emerald-600">EXC</span>
-                      </div>
-                      <p className={`text-2xl font-black bg-clip-text text-transparent bg-gradient-to-br ${m.tone}`}>{m.value}</p>
-                      <p className="text-[10px] text-slate-500 mt-0.5">{m.label}</p>
-                      <div className="mt-2 h-1 rounded-full bg-slate-200 overflow-hidden">
-                        <div className={`h-full bg-gradient-to-r ${m.tone} transition-all duration-700`} style={{ width: `${m.value}%` }} />
-                      </div>
-                    </div>
+                  {[["SEO Score",seo,"from-cyan-500 to-blue-600"],["AI Visibility",ai,"from-purple-500 to-fuchsia-600"],["LLM Score",llm,"from-blue-500 to-purple-600"]].map(([label,value,tone])=>(
+                    <div key={label as string} className="rounded-2xl border border-slate-100 bg-slate-50 p-3"><p className="text-2xl font-black text-slate-900">{value}</p><p className="mt-1 text-[10px] text-slate-500">{label as string}</p><div className="mt-2 h-1 rounded-full bg-slate-200"><div className={`h-full rounded-full bg-gradient-to-r ${tone}`} style={{width:`${value}%`}} /></div></div>
                   ))}
                 </div>
-
-                {/* Chart */}
-                <div className="mt-4 rounded-2xl bg-white/70 border border-slate-200/70 p-4 backdrop-blur">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs text-slate-700 font-semibold flex items-center gap-1.5"><Activity size={12} className="text-blue-600" /> Traffic Overview</p>
-                    <p className="text-[10px] font-bold text-emerald-600">+23.4% ↑</p>
-                  </div>
-                  <svg viewBox="0 0 300 80" className="w-full h-20">
-                    <defs>
-                      <linearGradient id="hero-grad" x1="0" x2="0" y1="0" y2="1">
-                        <stop offset="0%" stopColor="hsl(226 83% 55%)" stopOpacity="0.5" />
-                        <stop offset="100%" stopColor="hsl(262 83% 60%)" stopOpacity="0" />
-                      </linearGradient>
-                    </defs>
-                    <path d="M0,60 C40,40 60,55 90,35 C120,20 150,45 180,30 C210,18 240,32 300,10 L300,80 L0,80 Z" fill="url(#hero-grad)" />
-                    <path d="M0,60 C40,48 70,56 100,42 C130,30 160,48 190,34 C220,26 255,38 300,22" fill="none" stroke="hsl(226 83% 55%)" strokeWidth="2" />
-                  </svg>
+                <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                  <div className="flex items-center justify-between"><p className="text-xs font-bold text-slate-700"><Activity size={12} className="mr-1 inline text-blue-600"/> Traffic Overview</p><p className="text-[10px] font-bold text-emerald-600">+23.4% ↑</p></div>
+                  <div className="mt-3 flex h-20 items-end gap-2">{[35,48,42,64,57,78,92,86,100].map((h,i)=><div key={i} className="flex-1 rounded-t-md bg-gradient-to-t from-blue-600 to-violet-400" style={{height:h+"%"}}/>)}</div>
                 </div>
-
-                <div className="mt-4 flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-200/60 p-3">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center shrink-0 shadow-md shadow-blue-500/30">
-                    <Sparkles size={14} className="text-white" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold text-slate-900">AI recommends 3 fixes</p>
-                    <p className="text-[10px] text-slate-500 truncate">Fix Core Web Vitals · Add FAQ schema · Refresh meta titles</p>
-                  </div>
-                </div>
+                <div className="mt-4 flex items-center gap-3 rounded-2xl bg-gradient-to-r from-blue-50 to-violet-50 p-3"><div className="grid size-9 place-items-center rounded-xl bg-white text-violet-600 shadow-sm"><Sparkles size={16}/></div><div><p className="text-xs font-black text-slate-900">AI recommends 3 fixes</p><p className="text-[10px] text-slate-500">Core Web Vitals · FAQ schema · Meta titles</p></div></div>
               </div>
 
-              {/* Floating pills */}
-              <div className="absolute -top-4 -right-2 glass rounded-full px-3 py-1.5 text-[11px] text-slate-900 font-semibold flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> ChatGPT Ranking
-              </div>
-              <div className="absolute -bottom-4 -left-2 glass rounded-full px-3 py-1.5 text-[11px] text-slate-900 font-semibold flex items-center gap-1.5">
-                <Bot size={12} className="text-blue-600" /> Gemini · Claude · Perplexity
+              <div className="mt-5 flex flex-wrap justify-center gap-3 text-xs font-bold text-slate-500 lg:justify-start">
+                {searchPlatforms.slice(0,5).map((name,i)=><span key={name} className="rounded-full border border-slate-200 bg-white px-3 py-1.5 shadow-sm">{name}</span>)}
               </div>
             </div>
           </div>
