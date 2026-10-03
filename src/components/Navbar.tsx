@@ -305,14 +305,14 @@ const Navbar = () => {
               <Button
                 onClick={openPublicCrm}
                 aria-label="Continue with Google"
-                className="group relative h-11 overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 px-4 text-white shadow-[0_7px_0_0_rgba(49,46,129,0.45),0_12px_24px_rgba(79,70,229,0.28)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_9px_0_0_rgba(49,46,129,0.45),0_18px_32px_rgba(79,70,229,0.38)] active:translate-y-[3px] active:shadow-[0_3px_0_0_rgba(49,46,129,0.45),0_7px_14px_rgba(79,70,229,0.24)]"
+                className="group relative h-10 overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 px-4 text-white shadow-[0_7px_0_0_rgba(49,46,129,0.45),0_12px_24px_rgba(79,70,229,0.28)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_9px_0_0_rgba(49,46,129,0.45),0_18px_32px_rgba(79,70,229,0.38)] active:translate-y-[3px] active:shadow-[0_3px_0_0_rgba(49,46,129,0.45),0_7px_14px_rgba(79,70,229,0.24)]"
               >
                 <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                <span className="relative inline-flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-white shadow-[0_3px_7px_rgba(15,23,42,0.28)] transition-transform duration-200 group-hover:scale-110 group-hover:rotate-1">
-                    <img src={GOOGLE_LOGO_URL} alt="" aria-hidden="true" className="h-4 w-4" />
+                <span className="relative inline-flex items-center gap-1.5">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-white shadow-[0_2px_5px_rgba(15,23,42,0.22)] transition-transform duration-200 group-hover:scale-105">
+                    <img src={GOOGLE_LOGO_URL} alt="" aria-hidden="true" className="h-3.5 w-3.5" />
                   </span>
-                  <span className="font-bold tracking-[-0.01em]">Continue with Google</span>
+                  <span className="font-bold text-[12px] tracking-[-0.01em]">Get Started with Google</span>
                   <ArrowUpRight size={15} className="transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                 </span>
               </Button>
@@ -401,14 +401,14 @@ const Navbar = () => {
                   <Button
                     onClick={openPublicCrm}
                     aria-label="Continue with Google"
-                    className="group relative h-12 w-full overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 text-white shadow-[0_6px_0_0_rgba(49,46,129,0.42),0_12px_24px_rgba(79,70,229,0.24)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(49,46,129,0.42),0_16px_28px_rgba(79,70,229,0.34)] active:translate-y-[2px] active:shadow-[0_3px_0_0_rgba(49,46,129,0.42),0_7px_14px_rgba(79,70,229,0.2)]"
+                    className="group relative h-11 w-full overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 text-white shadow-[0_6px_0_0_rgba(49,46,129,0.42),0_12px_24px_rgba(79,70,229,0.24)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_0_0_rgba(49,46,129,0.42),0_16px_28px_rgba(79,70,229,0.34)] active:translate-y-[2px] active:shadow-[0_3px_0_0_rgba(49,46,129,0.42),0_7px_14px_rgba(79,70,229,0.2)]"
                   >
                     <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-                    <span className="relative inline-flex items-center justify-center gap-2">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white shadow-[0_3px_7px_rgba(15,23,42,0.28)]">
-                        <img src={GOOGLE_LOGO_URL} alt="" aria-hidden="true" className="h-4 w-4" />
+                    <span className="relative inline-flex items-center justify-center gap-1.5">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white shadow-[0_2px_5px_rgba(15,23,42,0.22)]">
+                        <img src={GOOGLE_LOGO_URL} alt="" aria-hidden="true" className="h-3.5 w-3.5" />
                       </span>
-                      <span className="font-bold">Continue with Google</span>
+                      <span className="font-bold text-[13px]">Get Started with Google</span>
                     </span>
                   </Button>
                 </div>
