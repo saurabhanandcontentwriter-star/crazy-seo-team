@@ -88,7 +88,7 @@ export default function PublicCrm(){
 
   const loginWithGoogle=async()=>{
     try{
-      const redirectTo=window.location.origin+"/crm";
+      const redirectTo="https://www.crazyseoteam.in/crm";
       const {data,error}=await supabase.auth.signInWithOAuth({
         provider:"google",
         options:{redirectTo,queryParams:{prompt:"select_account"}}
