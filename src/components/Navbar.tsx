@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link, useNavigate } from "react-router-dom";
 import {
   Menu,
   X,
@@ -20,7 +20,6 @@ import ContactFormDialog from "@/components/ContactFormDialog";
 import logo from "@/assets/logo.jpeg";
 import { servicesByCategory, categoryOrder } from "@/data/services";
 import { BarChart3 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 const GOOGLE_LOGO_URL = "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg";
 
@@ -82,20 +81,12 @@ const Navbar = () => {
     setDialogOpen(true);
   };
 
-  const openPublicCrm = async () => {
+  const navigate = useNavigate();
+
+  const openPublicCrm = () => {
     closeMenus();
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: "https://www.crazyseoteam.in/crm",
-        queryParams: { prompt: "select_account" },
-      },
-    });
-    if (error) {
-      window.location.assign("/crm?auth_error=" + encodeURIComponent(error.message));
-      return;
-    }
-    if (data?.url) window.location.assign(data.url);
+    setOpen(false);
+    navigate("/crm");
   };
 
   return (
