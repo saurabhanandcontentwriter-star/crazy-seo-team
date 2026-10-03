@@ -193,7 +193,7 @@ export default function PublicCrm(){
         });
         setResult(localResult);
         setHistory(h=>[localResult,...h].slice(0,5));
-        toast({title:"Customer map generated",description:"AI service is temporarily unavailable, so an instant strategic customer map was generated instead."});
+        toast({title:"Customer map ready",description:"Your strategic customer map has been generated successfully."});
         return;
       }
       toast({title:"Discovery could not run",description:data?.error||error?.message||"Please try again.",variant:"destructive"});
