@@ -227,9 +227,25 @@ export default function PublicCrm(){
       </section>}
 
       <section className="bg-slate-950 px-4 py-16 text-white">
-        <div className="mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[1fr_auto]">
-          <div><p className="text-xs font-black uppercase tracking-[.16em] text-blue-300">After 2 free uses</p><h2 className="mt-2 text-3xl font-black">Create your CRM identity in one click.</h2><p className="mt-3 max-w-2xl text-sm leading-7 text-white/60">Sign in with Google. Your name, email, profile image and a unique Crazy SEO Team CRM ID are created automatically.</p></div>
-          <Button onClick={loginWithGoogle} className="rounded-xl bg-white px-6 text-slate-950 hover:bg-blue-50"><LogIn size={16}/> Continue with Google</Button>
+        <div className="mx-auto max-w-7xl">
+          {account ? (
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[.16em] text-emerald-300">Google account connected</p>
+                <h2 className="mt-2 text-3xl font-black">Your CRM is ready to use.</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-white/60">You’re signed in as {account.email}. Your CRM ID, discovery history and workspace are linked to this Google account.</p>
+              </div>
+              <div className="shrink-0 rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Signed in</p>
+                <p className="mt-1 font-bold text-emerald-300">✓ Google verified</p>
+              </div>
+            </div>
+          ) : (
+            <div className="grid items-center gap-8 lg:grid-cols-[1fr_auto]">
+              <div><p className="text-xs font-black uppercase tracking-[.16em] text-blue-300">After 2 free uses</p><h2 className="mt-2 text-3xl font-black">Create your CRM identity in one click.</h2><p className="mt-3 max-w-2xl text-sm leading-7 text-white/60">Sign in with Google. Your name, email, profile image and a unique Crazy SEO Team CRM ID are created automatically.</p></div>
+              <Button onClick={loginWithGoogle} className="rounded-xl bg-white px-6 text-slate-950 hover:bg-blue-50"><LogIn size={16}/> Continue with Google</Button>
+            </div>
+          )}
         </div>
       </section>
 
