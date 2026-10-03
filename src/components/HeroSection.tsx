@@ -17,7 +17,10 @@ const HeroSection = () => {
       setAi((v) => Math.max(85, Math.min(99, v + (Math.random() > 0.5 ? 1 : -1))));
       setLlm((v) => Math.max(85, Math.min(99, v + (Math.random() > 0.5 ? 1 : -1))));
     }, 1800);
-    return (
+    return () => clearInterval(t);
+  }, []);
+
+  return (
     <>
       <section className="relative min-h-[calc(100vh-72px)] overflow-hidden bg-slate-950">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(37,99,235,.32),transparent_35%),radial-gradient(circle_at_75%_0%,rgba(124,58,237,.38),transparent_34%),radial-gradient(circle_at_50%_100%,rgba(37,99,235,.2),transparent_40%)]" />
