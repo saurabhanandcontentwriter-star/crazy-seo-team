@@ -200,9 +200,11 @@ export default function PublicCrm(){
       toast({title:"Discovery could not run",description:data?.error||error?.message||"Please try again.",variant:"destructive"});
       return;
     }
-    setResult(data.result as Discovery);
-    setHistory(h=>[data.result as Discovery,...h].slice(0,5));
+    const generated=data.result as Discovery;
+    setResult(generated);
+    setHistory(h=>[generated,...h].slice(0,5));
     setAccount(a=>a?({...a,discovery_count:a.discovery_count+1}):a);
+    requestAnimationFrame(()=>document.getElementById("customer-map-result")?.scrollIntoView({behavior:"smooth",block:"start"}));
   };
 
   const mapText=form.location.trim()||"Global market";
@@ -440,6 +442,22 @@ export default function PublicCrm(){
                   <Button onClick={generate} disabled={loading||!isLoggedIn} className="h-11 w-full rounded-xl bg-white text-slate-950 hover:bg-blue-50">{loading?"Generating customer map...":!isLoggedIn?"Sign in with Google to continue":"Generate Customer Map"}</Button>
                 </div>
                 <div className="mt-4 flex items-center gap-2 text-[11px] text-white/60"><LockKeyhole size={13}/> Google sign-in is required. Your CRM account is created automatically.</div>
+                {result&&<div className="mt-5 rounded-2xl border border-blue-400/20 bg-white/[.07] p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div><p className="text-[10px] font-black uppercase tracking-[.16em] text-blue-300">Customer Map</p><h3 className="mt-1 text-lg font-black text-white">Map generated successfully</h3></div>
+                    <CheckCircle2 size={22} className="shrink-0 text-emerald-400"/>
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-white/65">{result.summary}</p>
+                  <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                    {result.personas?.slice(0,3).map((p,i)=><div key={i} className="rounded-xl border border-white/10 bg-white/5 p-3">
+                      <p className="text-xs font-black text-white">{p.name}</p>
+                      <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-white/55">{p.description}</p>
+                    </div>)}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {result.keywords?.slice(0,6).map((k,i)=><span key={i} className="rounded-full bg-blue-400/10 px-2 py-1 text-[9px] font-semibold text-blue-200">{k.keyword}</span>)}
+                  </div>
+                </div>}
               </div>
             </div>
           </div>
