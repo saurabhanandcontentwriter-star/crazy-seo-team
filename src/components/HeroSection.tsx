@@ -1,14 +1,14 @@
-import { useState, useEffect, useMemo } from "react";
-import { ArrowRight, Sparkles, Play, TrendingUp, Bot, Zap, ShieldCheck, Activity } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowRight, Sparkles, Play, Bot, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ContactFormDialog from "@/components/ContactFormDialog";
+import logo from "@/assets/logo.jpeg";
 
 const HeroSection = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [seo, setSeo] = useState(87);
   const [ai, setAi] = useState(92);
   const [llm, setLlm] = useState(89);
-  const [activeSearch, setActiveSearch] = useState(0);
   const searchPlatforms = ["Google", "Bing", "ChatGPT", "Gemini", "Perplexity AI", "AI Tools", "AI Search"];
 
   useEffect(() => {
@@ -29,7 +29,7 @@ const HeroSection = () => {
             <div className="absolute -bottom-28 -left-20 h-72 w-72 rounded-full bg-violet-600/35 blur-3xl" />
             <div className="relative z-10">
               <div className="mb-8 flex items-center gap-3">
-                <img src="/images/logo.png" alt="Crazy SEO Team" className="size-14 rounded-2xl bg-white object-contain p-1 shadow-lg" />
+                <img src={logo} alt="Crazy SEO Team" className="size-14 rounded-2xl bg-white object-contain p-1 shadow-lg" />
                 <div>
                   <p className="text-2xl font-black tracking-tight">Crazy <span className="text-blue-400">SEO</span> Team</p>
                   <p className="text-[10px] font-bold uppercase tracking-[.16em] text-white/60">AI SEO | Digital Marketing | Development</p>
