@@ -22,6 +22,8 @@ import { servicesByCategory, categoryOrder } from "@/data/services";
 import { BarChart3 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+const GOOGLE_LOGO_URL = "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg";
+
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState<"product" | "solutions" | "resources" | "industries" | null>(null);
@@ -300,8 +302,13 @@ const Navbar = () => {
             </div>
 
             <div id="tour-cta" className="hidden items-center gap-2 md:flex">
-              <Button onClick={openPublicCrm} className="group rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-4 text-white shadow-sm">
-                Gmail Login <ArrowUpRight size={15} />
+              <Button
+                onClick={openPublicCrm}
+                aria-label="Continue with Google"
+                className="group rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-4 text-white shadow-sm"
+              >
+                <img src={GOOGLE_LOGO_URL} alt="" aria-hidden="true" className="h-4 w-4 rounded-sm bg-white p-[1px]" />
+                Continue with Google <ArrowUpRight size={15} />
               </Button>
             </div>
 
@@ -376,8 +383,13 @@ const Navbar = () => {
                   <span className="inline-flex items-center gap-2"><Lightbulb size={16} />ANVYA</span>
                 </Link>
                 <div className="mt-2 border-t border-slate-100 pt-3">
-                  <Button onClick={openPublicCrm} className="w-full rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white">
-                    Gmail Login
+                  <Button
+                    onClick={openPublicCrm}
+                    aria-label="Continue with Google"
+                    className="w-full rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white"
+                  >
+                    <img src={GOOGLE_LOGO_URL} alt="" aria-hidden="true" className="h-4 w-4 rounded-sm bg-white p-[1px]" />
+                    Continue with Google
                   </Button>
                 </div>
               </div>
