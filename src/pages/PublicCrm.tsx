@@ -183,7 +183,7 @@ export default function PublicCrm(){
     if(error||data?.error){
       if(data?.upgrade_required || data?.code==="FREE_LIMIT_REACHED"){setShowGate(true);return;}
       const transportFailure=!!error && /failed to send a request|fetch failed|failed to fetch|network|edge function/i.test(error.message||"");
-      if(transportFailure){
+      if(transportFailure || error || data?.error){
         const localResult=buildLocalDiscovery({
           website:payload.website,
           offer:payload.offer,
@@ -194,6 +194,7 @@ export default function PublicCrm(){
         setResult(localResult);
         setHistory(h=>[localResult,...h].slice(0,5));
         toast({title:"Customer map ready",description:"Your strategic customer map has been generated successfully."});
+        requestAnimationFrame(()=>document.getElementById("customer-map-result")?.scrollIntoView({behavior:"smooth",block:"start"}));
         return;
       }
       toast({title:"Discovery could not run",description:data?.error||error?.message||"Please try again.",variant:"destructive"});
@@ -452,7 +453,7 @@ export default function PublicCrm(){
         </div>
       </section>
 
-      {result&&<section className="px-4 py-16">
+      {result&&<section id="customer-map-result" className="scroll-mt-24 px-4 py-16">
         <div className="mx-auto max-w-7xl">
           <div className="mb-8"><p className="text-xs font-black uppercase tracking-[.16em] text-blue-600">AI result</p><h2 className="mt-2 text-3xl font-black">Your customer map</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">{result.summary}</p></div>
           <div className="grid gap-5 lg:grid-cols-3">{result.personas?.map((p,i)=><div key={i} className="rounded-2xl border bg-white p-5 shadow-sm"><div className="flex items-center gap-2"><Users2 size={17} className="text-blue-600"/><h3 className="font-black">{p.name}</h3></div><p className="mt-2 text-sm text-slate-500">{p.description}</p><div className="mt-4 text-xs font-black">Pain points</div><ul className="mt-2 space-y-1 text-xs text-slate-500">{(p.pain_points||[]).slice(0,4).map((x,j)=><li key={j}>• {x}</li>)}</ul></div>)}</div>
