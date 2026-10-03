@@ -294,6 +294,15 @@ const Navbar = () => {
 
             <div id="tour-cta" className="hidden items-center gap-2 md:flex">
               <Button
+                onClick={openContact}
+                className="h-11 rounded-xl border border-slate-200 bg-white px-4 text-slate-900 shadow-sm transition-all hover:-translate-y-0.5 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+              >
+                <span className="inline-flex items-center gap-2 font-bold">
+                  Talk to Expert
+                  <ArrowUpRight size={15} />
+                </span>
+              </Button>
+              <Button
                 onClick={openPublicCrm}
                 aria-label="Continue with Google"
                 className="group relative h-11 overflow-hidden rounded-xl border border-white/20 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 px-4 text-white shadow-[0_7px_0_0_rgba(49,46,129,0.45),0_12px_24px_rgba(79,70,229,0.28)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_9px_0_0_rgba(49,46,129,0.45),0_18px_32px_rgba(79,70,229,0.38)] active:translate-y-[3px] active:shadow-[0_3px_0_0_rgba(49,46,129,0.45),0_7px_14px_rgba(79,70,229,0.24)]"
@@ -379,7 +388,16 @@ const Navbar = () => {
                 <Link to="/anvya" onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
                   <span className="inline-flex items-center gap-2"><Lightbulb size={16} />ANVYA</span>
                 </Link>
-                <div className="mt-2 border-t border-slate-100 pt-3">
+                <div className="mt-2 border-t border-slate-100 pt-3 grid gap-2">
+                  <Button
+                    onClick={openContact}
+                    className="h-12 w-full rounded-xl border border-slate-200 bg-white text-slate-900 shadow-sm hover:bg-blue-50 hover:text-blue-700"
+                  >
+                    <span className="inline-flex items-center justify-center gap-2 font-bold">
+                      Talk to Expert
+                      <ArrowUpRight size={16} />
+                    </span>
+                  </Button>
                   <Button
                     onClick={openPublicCrm}
                     aria-label="Continue with Google"
