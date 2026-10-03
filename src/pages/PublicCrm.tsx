@@ -73,8 +73,12 @@ export default function PublicCrm(){
       });
     };
     const bootAuth=async()=>{
-      const authError=new URLSearchParams(window.location.search).get("auth_error");
-      if(authError){toast({title:"Google login failed",description:authError,variant:"destructive"});window.history.replaceState({}, "", "/crm");}
+      const params=new URLSearchParams(window.location.search);
+      const authError=params.get("auth_error")||params.get("error_description")||params.get("error");
+      if(authError){
+        toast({title:"Google login failed",description:authError.replace(/\+/g," "),variant:"destructive"});
+        window.history.replaceState({}, "", "/crm");
+      }
       await syncAccount();
       if(active) setAuthReady(true);
     };
@@ -88,7 +92,7 @@ export default function PublicCrm(){
 
   const loginWithGoogle=async()=>{
     try{
-      const redirectTo="https://www.crazyseoteam.in/crm";
+      const redirectTo=`${window.location.origin}/crm`;
       const {data,error}=await supabase.auth.signInWithOAuth({
         provider:"google",
         options:{redirectTo,queryParams:{prompt:"select_account"}}
