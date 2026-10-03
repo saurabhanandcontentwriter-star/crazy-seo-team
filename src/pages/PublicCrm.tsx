@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import {
   ArrowRight, Bot, BrainCircuit, CheckCircle2, ChevronRight, Clock3, Globe2,
-  History, LockKeyhole, LogIn, Search, Sparkles, Target, TrendingUp, Users2
+  History, LockKeyhole, LogIn, LogOut, Search, Sparkles, Target, TrendingUp, Users2, UserCircle2, Crown
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -49,6 +49,8 @@ export default function PublicCrm(){
   const [showGate,setShowGate]=useState(false);
   const [history,setHistory]=useState<Discovery[]>([]);
   const [authReady,setAuthReady]=useState(false);
+  const [showProfile,setShowProfile]=useState(false);
+  const [showActivity,setShowActivity]=useState(false);
 
   const remaining=Math.max(0,2-visitorUsed);
   const isLoggedIn=!!account;
@@ -99,6 +101,18 @@ export default function PublicCrm(){
         variant:"destructive"
       });
     }
+  };
+
+  const logout=async()=>{
+    const {error}=await supabase.auth.signOut();
+    if(error){toast({title:"Logout failed",description:error.message,variant:"destructive"});return;}
+    setAccount(null);setResult(null);setHistory([]);setShowProfile(false);
+    toast({title:"Logged out",description:"Your Google session has been signed out."});
+  };
+
+  const openUpgrade=()=>{
+    setShowProfile(false);
+    window.location.assign("/services");
   };
 
   const generate=async()=>{
@@ -164,7 +178,25 @@ export default function PublicCrm(){
         </Link>
         <div className="flex items-center gap-2">
           <Link to="/" className="hidden text-sm font-semibold text-slate-500 hover:text-slate-900 sm:block">Back to website</Link>
-          {account ? <div className="flex items-center gap-2 rounded-full border bg-white px-2 py-1.5"><img src={account.avatar_url||""} className="size-7 rounded-full bg-slate-100 object-cover" alt="" onError={e=>{(e.currentTarget as HTMLImageElement).style.display="none"}}/><span className="hidden max-w-[130px] truncate text-xs font-bold sm:block">{account.name}</span></div> : <Button onClick={loginWithGoogle} variant="outline" className="rounded-xl gap-2"><LogIn size={15}/> Google Login</Button>}
+          {account ? <div className="relative">
+            <button onClick={()=>setShowProfile(v=>!v)} className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1.5 shadow-sm hover:border-blue-200">
+              {account.avatar_url ? <img src={account.avatar_url} className="size-8 rounded-full object-cover" alt="" /> : <UserCircle2 className="size-8 text-slate-400"/>}
+              <span className="hidden max-w-[130px] truncate text-xs font-bold sm:block">{account.name}</span>
+              <ChevronRight className={`size-4 rotate-90 transition ${showProfile?"text-blue-600":"text-slate-400"}`}/>
+            </button>
+            {showProfile&&<div className="absolute right-0 top-12 z-50 w-72 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
+              <div className="rounded-xl bg-slate-50 p-3">
+                <div className="flex items-center gap-3">
+                  {account.avatar_url ? <img src={account.avatar_url} className="size-11 rounded-full object-cover" alt="" /> : <UserCircle2 className="size-11 text-slate-400"/>}
+                  <div className="min-w-0"><p className="truncate text-sm font-black">{account.name}</p><p className="truncate text-xs text-slate-500">{account.email}</p></div>
+                </div>
+                <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-slate-400">{account.public_id} • {account.plan}</p>
+              </div>
+              <button onClick={()=>{setShowActivity(true);setShowProfile(false)}} className="mt-2 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-slate-50"><History size={17} className="text-blue-600"/> Activity</button>
+              <button onClick={openUpgrade} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold hover:bg-blue-50"><Crown size={17} className="text-violet-600"/> Upgrade plan <ArrowRight size={14} className="ml-auto"/></button>
+              <button onClick={logout} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold text-red-600 hover:bg-red-50"><LogOut size={17}/> Log out</button>
+            </div>}
+          </div> : <Button onClick={loginWithGoogle} variant="outline" className="rounded-xl gap-2"><LogIn size={15}/> Google Login</Button>}
         </div>
       </div>
     </header>
@@ -257,6 +289,16 @@ export default function PublicCrm(){
       </section>
     </main>
 
+    {showActivity&&<div className="fixed inset-0 z-[110] grid place-items-center bg-slate-950/50 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
+        <div className="flex items-center justify-between"><div><p className="text-xs font-black uppercase tracking-widest text-blue-600">Account activity</p><h2 className="mt-1 text-2xl font-black">Recent activity</h2></div><button onClick={()=>setShowActivity(false)} className="rounded-full px-3 py-1 text-xl text-slate-400 hover:bg-slate-100">×</button></div>
+        <div className="mt-5 space-y-3">
+          <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-4"><CheckCircle2 className="text-emerald-600"/><div><p className="text-sm font-bold">Google account connected</p><p className="text-xs text-slate-500">CRM workspace is linked to your account.</p></div></div>
+          {history.length ? history.map((item,i)=><div key={i} className="flex items-center gap-3 rounded-2xl border p-4"><Clock3 className="text-blue-600"/><div><p className="text-sm font-bold">Customer Discovery completed</p><p className="text-xs text-slate-500">{item.summary?.slice(0,120)||"Customer map generated"}{item.summary?.length>120?"…":""}</p></div></div>) : <div className="rounded-2xl border border-dashed p-5 text-center text-sm text-slate-500">No discovery activity yet.</div>}
+        </div>
+        <button onClick={()=>setShowActivity(false)} className="mt-5 w-full rounded-xl bg-slate-950 py-3 text-sm font-bold text-white">Close</button>
+      </div>
+    </div>}
     {showGate&&<div className="fixed inset-0 z-[100] grid place-items-center bg-slate-950/60 p-4 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl">
         <div className="mx-auto grid size-14 place-items-center rounded-2xl bg-blue-50 text-blue-600"><LockKeyhole size={25}/></div>
