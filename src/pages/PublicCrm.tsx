@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import logo from "@/assets/logo.jpeg";
 
 type Discovery = {
   personas: { name:string; description:string; pain_points:string[]; buying_triggers:string[] }[];
@@ -149,16 +150,143 @@ export default function PublicCrm(){
   }
 
   if (!account) {
-    return <div className="grid min-h-screen place-items-center bg-slate-50 px-4">
-      <Helmet><title>Sign in to Customer Discovery CRM | Crazy SEO Team</title></Helmet>
-      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-xl">
-        <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-blue-600 to-violet-600 text-2xl font-black text-white">C</div>
-        <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.16em] text-blue-700"><Sparkles size={12}/> Crazy SEO Team</div>
-        <h1 className="mt-5 text-3xl font-black tracking-tight md:text-4xl">Welcome back 👋</h1>
-        <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-slate-500">Sign in with Google to continue to your Customer Discovery workspace.</p>
-        <Button onClick={loginWithGoogle} className="mt-7 h-12 w-full rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 shadow-lg shadow-blue-500/20"><span className="grid size-6 place-items-center rounded-full bg-white"><svg viewBox="0 0 24 24" className="size-4" aria-hidden="true"><path fill="#4285F4" d="M21.35 12.27c0-.72-.06-1.42-.18-2.09H12v3.95h5.22a4.47 4.47 0 0 1-1.94 2.93v2.44h3.14c1.84-1.69 2.93-4.18 2.93-7.23Z"/><path fill="#34A853" d="M12 21.5c2.63 0 4.84-.87 6.45-2.36l-3.14-2.44c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.71-5.46-4.01H3.3v2.52A9.74 9.74 0 0 0 12 21.5Z"/><path fill="#FBBC05" d="M6.54 13.61A5.86 5.86 0 0 1 6.23 12c0-.56.1-1.1.31-1.61V7.87H3.3A9.5 9.5 0 0 0 2.25 12c0 1.53.37 2.98 1.05 4.13l3.24-2.52Z"/><path fill="#EA4335" d="M12 6.38c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.83 3.48 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.7 5.37l3.24 2.52c.77-2.3 2.92-4.01 5.46-4.01Z"/></svg></span> Continue with Google</Button>
-        <p className="mt-4 text-[11px] font-medium text-slate-400">Secure Google sign-in • Your workspace is created automatically</p>
-        <Link to="/" className="mt-4 inline-block text-xs font-semibold text-slate-400 hover:text-slate-700">Back to Crazy SEO Team</Link>
+    return <div className="min-h-screen bg-slate-100 px-3 py-4 sm:px-6 md:py-8">
+      <Helmet>
+        <title>Sign in | Crazy SEO Team Public CRM</title>
+        <meta name="description" content="Securely sign in with Google to access the Crazy SEO Team Customer Discovery CRM." />
+      </Helmet>
+
+      <div className="relative mx-auto flex min-h-[calc(100vh-2rem)] max-w-7xl overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_30px_80px_rgba(15,23,42,0.16)] md:min-h-[calc(100vh-4rem)]">
+        <section className="relative hidden w-1/2 overflow-hidden bg-[#070b1d] p-8 text-white lg:flex lg:flex-col xl:p-12">
+          <div className="pointer-events-none absolute -left-20 top-0 size-72 rounded-full bg-blue-600/30 blur-3xl" />
+          <div className="pointer-events-none absolute right-[-90px] top-[-80px] size-80 rounded-full bg-violet-600/35 blur-3xl" />
+          <div className="pointer-events-none absolute bottom-[-120px] left-1/3 size-96 rounded-full bg-indigo-600/30 blur-3xl" />
+
+          <div className="relative z-10 flex items-center gap-3">
+            <img src={logo} alt="Crazy SEO Team" className="size-11 rounded-xl bg-white object-contain p-1 shadow-lg shadow-blue-900/30" />
+            <div>
+              <p className="text-lg font-black tracking-tight">Crazy <span className="text-blue-400">SEO</span> Team</p>
+              <p className="text-[9px] font-bold uppercase tracking-[.18em] text-slate-400">AI SEO • Digital Marketing • Development</p>
+            </div>
+          </div>
+
+          <div className="relative z-10 mt-12 max-w-xl">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.16em] text-blue-300">
+              <Sparkles size={13} /> Your growth partner
+            </div>
+            <h1 className="text-4xl font-black leading-[1.02] tracking-[-.04em] xl:text-6xl">
+              Turn Search
+              <br />Visibility Into
+              <br /><span className="bg-gradient-to-r from-blue-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">Growth.</span>
+            </h1>
+            <p className="mt-5 max-w-md text-base leading-7 text-slate-300">
+              Build visibility, understand your customers and turn search intent into measurable growth.
+            </p>
+          </div>
+
+          <div className="relative z-10 mt-9 grid grid-cols-3 gap-3">
+            {[
+              ["SEO", "Higher visibility"],
+              ["AI", "Smarter workflows"],
+              ["CRM", "Customer discovery"],
+            ].map(([title, desc], index) => (
+              <div key={title} className="rounded-2xl border border-white/10 bg-white/[.06] p-4 backdrop-blur-md shadow-[0_12px_30px_rgba(0,0,0,0.2)]">
+                <div className="mb-3 grid size-9 place-items-center rounded-xl bg-gradient-to-br from-blue-500/30 to-violet-500/30 text-xs font-black text-blue-200 ring-1 ring-white/10">
+                  {index === 0 ? "↗" : index === 1 ? "✦" : "◎"}
+                </div>
+                <p className="text-sm font-black">{title}</p>
+                <p className="mt-1 text-[10px] leading-4 text-slate-400">{desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="relative z-10 mt-auto pt-8">
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[.10] to-white/[.03] p-5 shadow-[0_20px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+              <div className="absolute -right-12 -top-12 size-32 rounded-full bg-violet-500/20 blur-2xl" />
+              <p className="relative text-3xl font-black text-blue-300">“</p>
+              <p className="relative mt-1 text-lg font-bold leading-7 text-white">
+                Build visibility. Earn trust. Grow consistently.
+              </p>
+              <p className="mt-2 text-[10px] font-bold uppercase tracking-[.16em] text-slate-500">Crazy SEO Team</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="relative flex w-full flex-col justify-center bg-white px-6 py-10 sm:px-10 lg:w-1/2 lg:px-12 xl:px-20">
+          <div className="mx-auto w-full max-w-md">
+            <div className="mb-8 flex justify-center lg:hidden">
+              <div className="flex items-center gap-3">
+                <img src={logo} alt="Crazy SEO Team" className="size-11 rounded-xl bg-white object-contain p-1 shadow-md ring-1 ring-slate-200" />
+                <div>
+                  <p className="text-lg font-black text-slate-950">Crazy <span className="text-blue-600">SEO</span> Team</p>
+                  <p className="text-[9px] font-bold uppercase tracking-[.16em] text-slate-400">AI Search Growth</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center">
+              <div className="mx-auto mb-6 grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-blue-600 to-violet-600 text-white shadow-[0_12px_30px_rgba(79,70,229,.28)]">
+                <LockKeyhole size={27} />
+              </div>
+              <p className="text-xs font-black uppercase tracking-[.18em] text-blue-600">Secure CRM Access</p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
+                Welcome to <span className="bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">Crazy SEO Team</span>
+              </h2>
+              <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-slate-500">
+                Sign in to access your CRM, manage customer discovery and explore your growth workspace.
+              </p>
+            </div>
+
+            <Button
+              onClick={loginWithGoogle}
+              aria-label="Continue with Google"
+              className="group relative mt-8 h-14 w-full overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-base font-bold text-white shadow-[0_7px_0_rgba(49,46,129,.35),0_18px_35px_rgba(79,70,229,.24)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_9px_0_rgba(49,46,129,.35),0_24px_45px_rgba(79,70,229,.32)] active:translate-y-[3px] active:shadow-[0_3px_0_rgba(49,46,129,.35),0_10px_18px_rgba(79,70,229,.2)]"
+            >
+              <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+              <span className="relative inline-flex items-center justify-center gap-3">
+                <span className="grid size-8 place-items-center rounded-xl bg-white shadow-[0_4px_10px_rgba(15,23,42,.24)] transition-transform duration-200 group-hover:scale-110">
+                  <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
+                    <path fill="#4285F4" d="M21.35 12.27c0-.72-.06-1.42-.18-2.09H12v3.95h5.22a4.47 4.47 0 0 1-1.94 2.93v2.44h3.14c1.84-1.69 2.93-4.18 2.93-7.23Z"/>
+                    <path fill="#34A853" d="M12 21.5c2.63 0 4.84-.87 6.45-2.36l-3.14-2.44c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.71-5.46-4.01H3.3v2.52A9.74 9.74 0 0 0 12 21.5Z"/>
+                    <path fill="#FBBC05" d="M6.54 13.61A5.86 5.86 0 0 1 6.23 12c0-.56.1-1.1.31-1.61V7.87H3.3A9.5 9.5 0 0 0 2.25 12c0 1.53.37 2.98 1.05 4.13l3.24-2.52Z"/>
+                    <path fill="#EA4335" d="M12 6.38c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.83 3.48 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.7 5.37l3.24 2.52c.77-2.3 2.92-4.01 5.46-4.01Z"/>
+                  </svg>
+                </span>
+                Continue with Google
+                <ArrowRight size={18} className="transition-transform duration-200 group-hover:translate-x-1" />
+              </span>
+            </Button>
+
+            <div className="my-7 flex items-center gap-3 text-[10px] font-black uppercase tracking-[.18em] text-slate-300">
+              <span className="h-px flex-1 bg-slate-200" /> Secure access <span className="h-px flex-1 bg-slate-200" />
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                [CheckCircle2, "Quick access", "One click"],
+                [LockKeyhole, "Secure", "Google OAuth"],
+                [Users2, "Your workspace", "Private CRM"],
+              ].map(([Icon, title, desc]) => {
+                const I = Icon as typeof CheckCircle2;
+                return <div key={title as string} className="rounded-2xl border border-slate-100 bg-slate-50/80 p-3 text-center">
+                  <div className="mx-auto grid size-8 place-items-center rounded-xl bg-white text-blue-600 shadow-sm ring-1 ring-slate-100"><I size={15}/></div>
+                  <p className="mt-2 text-[10px] font-black text-slate-700">{title as string}</p>
+                  <p className="mt-0.5 text-[9px] text-slate-400">{desc as string}</p>
+                </div>;
+              })}
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-center">
+              <p className="text-[11px] font-semibold text-slate-500">
+                We never ask for your Google password. Authentication is handled securely by Google.
+              </p>
+            </div>
+
+            <Link to="/" className="mt-6 block text-center text-xs font-semibold text-slate-400 transition hover:text-slate-700">
+              ← Back to Crazy SEO Team
+            </Link>
+          </div>
+        </section>
       </div>
     </div>;
   }
