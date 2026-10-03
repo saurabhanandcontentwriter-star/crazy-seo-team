@@ -112,7 +112,7 @@ export default function PublicCrm(){
 
   const openUpgrade=()=>{
     setShowProfile(false);
-    window.location.assign("/services");
+    window.location.assign("/crm/upgrade");
   };
 
   const generate=async()=>{
