@@ -25,6 +25,55 @@ type Account = { public_id:string; name:string; email:string; avatar_url?:string
 
 const initial={website:"",offer:"",targetMarket:"",location:"",goal:""};
 
+const buildLocalDiscovery=(input:{website:string;offer:string;targetMarket:string;location:string;goal:string}):Discovery=>{
+  const {website,offer,targetMarket,location,goal}=input;
+  const market=targetMarket||"potential customers";
+  const place=location||"your target market";
+  const objective=goal||"qualified leads";
+  const keywords=[
+    offer+" for "+market,
+    "best "+offer+" in "+place,
+    offer+" near me",
+    market+" "+offer,
+    offer+" services "+place,
+    offer+" pricing",
+    offer+" company",
+    "hire "+offer,
+    offer+" reviews",
+    offer+" solutions",
+  ];
+  return {
+    personas:[
+      {name:market+" Decision Maker",description:"Decision makers evaluating "+offer+".",pain_points:["Finding a trusted provider","Comparing options","Proving value"],buying_triggers:["Clear ROI","Case studies","Fast response"]},
+      {name:"Research-First Buyer",description:"Prospects researching "+offer+" before contacting a provider.",pain_points:["Too many options","Unclear pricing","Low trust"],buying_triggers:["Useful guides","Transparent packages","Reviews"]},
+      {name:"Growth-Focused Prospect",description:"Customers seeking "+offer+" to achieve "+objective+".",pain_points:["Limited resources","Need measurable outcomes","Unclear next steps"],buying_triggers:["Actionable strategy","Simple onboarding","Milestones"]}
+    ],
+    search_intent:[
+      {intent:"Problem discovery",example_queries:["how to improve "+offer,"need "+offer,offer+" problems"],why_it_matters:"Captures prospects before provider selection."},
+      {intent:"Commercial research",example_queries:["best "+offer,offer+" companies",offer+" providers"],why_it_matters:"Reaches prospects comparing solutions."},
+      {intent:"Local intent",example_queries:[offer+" in "+place,offer+" near me",offer+" "+place],why_it_matters:"Captures location-specific demand."},
+      {intent:"Transactional",example_queries:["hire "+offer,offer+" pricing","buy "+offer],why_it_matters:"Targets users closer to conversion."},
+      {intent:"Trust and proof",example_queries:[offer+" reviews",offer+" case studies",offer+" results"],why_it_matters:"Addresses objections before contact."}
+    ],
+    keywords:keywords.map((keyword,i)=>({keyword,intent:i<4?"Commercial":i<7?"Local / Commercial":"Transactional",priority:(i<5?"High":i<8?"Medium":"Low") as "High"|"Medium"|"Low"})),
+    channels:[
+      {channel:"Google Search / SEO",reason:"Capture existing demand around "+offer+".",content_angle:"High-intent service and comparison pages."},
+      {channel:"LinkedIn",reason:"Reach decision makers in "+market+".",content_angle:"Proof-led posts and case studies."},
+      {channel:"Short-form video",reason:"Explain the problem and solution quickly.",content_angle:"FAQs, demos and practical tips."},
+      {channel:"Email / CRM",reason:"Nurture prospects who are not ready yet.",content_angle:"Education, proof and clear CTAs."},
+      {channel:"Retargeting",reason:"Re-engage high-intent visitors.",content_angle:"Objection handling and testimonials."}
+    ],
+    growth_opportunities:[
+      {opportunity:"Build intent-led landing pages",action:"Create dedicated pages around the highest-value searches.",expected_signal:"More qualified visits and enquiries."},
+      {opportunity:"Strengthen conversion proof",action:"Add case studies, outcomes and trust signals.",expected_signal:"Higher lead conversion."},
+      {opportunity:"Create a comparison content cluster",action:"Answer which solution fits different customer situations.",expected_signal:"More commercial-intent traffic."},
+      {opportunity:"Add intent-based lead capture",action:"Tailor CTAs for research, commercial and transactional visitors.",expected_signal:"Better lead quality."},
+      {opportunity:"Retarget engaged visitors",action:"Use proof-led follow-up for high-intent audiences.",expected_signal:"More returning visitors and assisted conversions."}
+    ],
+    summary:"For "+website+", align "+offer+" messaging with "+market+" in "+place+". Prioritise intent-led pages, proof and lead nurturing toward "+objective+". This instant customer map is a strategic baseline; validate it with Search Console, keyword research and CRM conversion data."
+  };
+};
+
 const products=[
   {title:"SEO Platform",desc:"Technical SEO, AEO, GEO, keyword and visibility workflows.",href:"/seo-tools",icon:Search},
   {title:"AI Search Tools",desc:"AI-powered content, optimization and modern search workflows.",href:"/ai-tools",icon:Bot},
@@ -128,12 +177,25 @@ export default function PublicCrm(){
     if(!isLoggedIn){ setShowGate(true); return; }
     setLoading(true);
     const visitorId=getVisitorId();
-    const {data,error}=await supabase.functions.invoke("ai-customer-discovery",{
-      body:{visitor_id:visitorId,website:form.website.trim(),offer:form.offer.trim(),target_market:form.targetMarket.trim(),location:form.location.trim(),goal:form.goal.trim()}
-    });
+    const payload={visitor_id:visitorId,website:form.website.trim(),offer:form.offer.trim(),target_market:form.targetMarket.trim(),location:form.location.trim(),goal:form.goal.trim()};
+    const {data,error}=await supabase.functions.invoke("ai-customer-discovery",{body:payload});
     setLoading(false);
     if(error||data?.error){
       if(data?.upgrade_required || data?.code==="FREE_LIMIT_REACHED"){setShowGate(true);return;}
+      const transportFailure=!!error && /failed to send a request|fetch failed|failed to fetch|network|edge function/i.test(error.message||"");
+      if(transportFailure){
+        const localResult=buildLocalDiscovery({
+          website:payload.website,
+          offer:payload.offer,
+          targetMarket:payload.target_market,
+          location:payload.location,
+          goal:payload.goal
+        });
+        setResult(localResult);
+        setHistory(h=>[localResult,...h].slice(0,5));
+        toast({title:"Customer map generated",description:"AI service is temporarily unavailable, so an instant strategic customer map was generated instead."});
+        return;
+      }
       toast({title:"Discovery could not run",description:data?.error||error?.message||"Please try again.",variant:"destructive"});
       return;
     }
