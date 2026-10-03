@@ -170,38 +170,56 @@ export default function PublicCrm(){
             </div>
           </div>
 
-          <div className="relative z-10 mt-12 max-w-xl">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.16em] text-blue-300">
-              <Sparkles size={13} /> Your growth partner
+          <div className="relative z-10 mt-10 grid items-center gap-5 xl:grid-cols-[.9fr_1.1fr]">
+            <div className="min-w-0">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-blue-400/20 bg-blue-400/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[.16em] text-blue-300">
+                <Sparkles size={13} /> Your growth partner
+              </div>
+              <h1 className="text-4xl font-black leading-[1.02] tracking-[-.045em] xl:text-[58px]">
+                Turn <span className="text-blue-300">Search</span>
+                <br />Visibility Into
+                <br /><span className="bg-gradient-to-r from-blue-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">Growth.</span>
+              </h1>
+              <div className="mt-5 h-1 w-28 rounded-full bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-400" />
+              <p className="mt-5 max-w-md text-base leading-7 text-slate-300">Build visibility. Earn trust. Grow consistently.</p>
             </div>
-            <h1 className="text-4xl font-black leading-[1.02] tracking-[-.04em] xl:text-6xl">
-              Turn Search
-              <br />Visibility Into
-              <br /><span className="bg-gradient-to-r from-blue-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent">Growth.</span>
-            </h1>
-            <p className="mt-5 max-w-md text-base leading-7 text-slate-300">
-              Build visibility, understand your customers and turn search intent into measurable growth.
-            </p>
+
+            <div className="relative mx-auto h-[245px] w-full max-w-[390px]">
+              <div className="absolute left-1/2 top-1/2 h-44 w-64 -translate-x-1/2 -translate-y-1/2 rotate-[-7deg] rounded-[24px] border border-blue-300/30 bg-gradient-to-br from-slate-700 via-slate-900 to-indigo-950 shadow-[0_30px_55px_rgba(0,0,0,.55)]">
+                <div className="absolute inset-3 rounded-[17px] border border-white/10 bg-slate-950/80 p-4">
+                  <div className="flex items-center gap-2"><span className="size-2 rounded-full bg-blue-400"/><span className="size-2 rounded-full bg-violet-400"/><span className="ml-auto text-[8px] font-bold text-white/30">SEO ANALYTICS</span></div>
+                  <div className="mt-6 flex h-24 items-end gap-2">
+                    {[30,48,38,65,55,82,96].map((h,i)=><div key={i} className="flex-1 rounded-t-md bg-gradient-to-t from-blue-700 via-indigo-500 to-violet-300" style={{height:h+"%"}}/>)}
+                  </div>
+                </div>
+              </div>
+              <div className="absolute left-0 top-5 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 shadow-xl backdrop-blur-xl">
+                <p className="text-2xl font-black text-blue-200">+320%</p><p className="text-[9px] font-bold uppercase tracking-widest text-white/55">Organic traffic</p>
+              </div>
+              <div className="absolute bottom-8 left-8 rounded-xl border border-white/10 bg-gradient-to-r from-violet-500/90 to-blue-500/90 px-3 py-2 text-sm font-black shadow-lg">SEO ↗</div>
+              <div className="absolute bottom-2 right-1 rounded-xl border border-blue-300/20 bg-white px-3 py-2 text-xs font-black text-slate-900 shadow-xl">✦ AI Growth</div>
+              <div className="absolute right-2 top-1 size-16 rounded-full bg-violet-500/25 blur-xl"/>
+              <div className="absolute right-7 top-0 text-6xl font-black text-blue-300 drop-shadow-[0_8px_18px_rgba(59,130,246,.5)]">↗</div>
+            </div>
           </div>
 
-          <div className="relative z-10 mt-9 grid grid-cols-3 gap-3">
+          <div className="relative z-10 mt-8 grid grid-cols-2 gap-2 xl:grid-cols-4">
             {[
-              ["SEO", "Higher visibility"],
-              ["AI", "Smarter workflows"],
-              ["CRM", "Customer discovery"],
-            ].map(([title, desc], index) => (
-              <div key={title} className="rounded-2xl border border-white/10 bg-white/[.06] p-4 backdrop-blur-md shadow-[0_12px_30px_rgba(0,0,0,0.2)]">
-                <div className="mb-3 grid size-9 place-items-center rounded-xl bg-gradient-to-br from-blue-500/30 to-violet-500/30 text-xs font-black text-blue-200 ring-1 ring-white/10">
-                  {index === 0 ? "↗" : index === 1 ? "✦" : "◎"}
-                </div>
-                <p className="text-sm font-black">{title}</p>
-                <p className="mt-1 text-[10px] leading-4 text-slate-400">{desc}</p>
+              ["▥", "SEO", "Higher Rankings"],
+              ["●", "Digital Marketing", "More Customers"],
+              ["</>", "Development", "Build & Scale"],
+              ["✦", "AI Solutions", "Automate Growth"],
+            ].map(([icon,title,desc]) => (
+              <div key={title} className="rounded-2xl border border-white/10 bg-slate-950/45 p-3.5 backdrop-blur-md shadow-[0_12px_30px_rgba(0,0,0,.22)]">
+                <div className="mb-2 grid size-8 place-items-center rounded-xl bg-gradient-to-br from-blue-500/25 to-violet-500/25 text-sm font-black text-violet-200 ring-1 ring-white/10">{icon}</div>
+                <p className="text-xs font-black leading-4">{title}</p>
+                <p className="mt-1 text-[9px] leading-4 text-slate-400">{desc}</p>
               </div>
             ))}
           </div>
 
-          <div className="relative z-10 mt-auto pt-8">
-            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[.10] to-white/[.03] p-5 shadow-[0_20px_50px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+          <div className="relative z-10 mt-auto pt-6">
+            <div className="relative overflow-hidden rounded-3xl border border-blue-400/15 bg-gradient-to-br from-white/[.10] to-white/[.025] p-5 shadow-[0_20px_50px_rgba(0,0,0,0.32)] backdrop-blur-xl">
               <div className="absolute -right-12 -top-12 size-32 rounded-full bg-violet-500/20 blur-2xl" />
               <p className="relative text-3xl font-black text-blue-300">“</p>
               <p className="relative mt-1 text-lg font-bold leading-7 text-white">
