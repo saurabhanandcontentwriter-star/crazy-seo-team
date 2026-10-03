@@ -9,7 +9,7 @@ const HeroSection = () => {
   const [ai, setAi] = useState(92);
   const [llm, setLlm] = useState(89);
   const [activeSearch, setActiveSearch] = useState(0);
-  const searchPlatforms = ["Google", "ChatGPT", "Gemini", "AI Search"];
+  const searchPlatforms = ["Google", "ChatGPT", "Bing", "Bing Copilot", "Perplexity AI", "Claude", "AI Search", "Gemini"];
 
   useEffect(() => {
     const t = setInterval(() => {
