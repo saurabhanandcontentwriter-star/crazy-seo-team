@@ -147,7 +147,7 @@ const Index = () => {
             <div className="group overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-[0_30px_100px_rgba(37,99,235,.14)]">
               <div className="relative overflow-hidden bg-slate-100">
                 <img
-                  src="/images/anvya-community.webp"
+                  src="/images/workbench-anvya.svg"
                   alt="ANVYA Community — Where Ideas Meet Opportunity"
                   className="block aspect-[16/9] w-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.01]"
                   loading="lazy"
@@ -155,7 +155,7 @@ const Index = () => {
                     const img = e.currentTarget;
                     if (!img.dataset.fallback) {
                       img.dataset.fallback = "1";
-                      img.src = "https://raw.githubusercontent.com/saurabhanandcontentwriter-star/crazy-seo-team/main/public/images/anvya-community.webp";
+                      img.src = "/images/anvya-community.webp";
                     }
                   }}
                 />
