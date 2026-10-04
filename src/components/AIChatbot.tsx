@@ -14,7 +14,17 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
 const TTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tts`;
 const STT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-stt`;
 const AUTH = `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`;
-const STORAGE_KEY = "cst-chat-history-v1";
+const STORAGE_KEY = "cst-chat-history-v1";\n\nconst RESPONSE_TIMEOUT_MS = 15000;
+
+const fetchWithTimeout = async (input: RequestInfo | URL, init: RequestInit = {}) => {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), RESPONSE_TIMEOUT_MS);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    window.clearTimeout(timer);
+  }
+};
 
 const QUICK_ACTIONS = [
   { icon: ShieldCheck, label: "Run Website Audit", prompt: "Give me a step-by-step SEO audit checklist I can run on my website today." },
@@ -137,7 +147,7 @@ const AIChatbot = () => {
     setBusy(true);
 
     try {
-      const resp = await fetch(CHAT_URL, {
+      const resp = await fetchWithTimeout(CHAT_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: AUTH },
         body: JSON.stringify({ messages: [{ role: "system", content: AGENT_CONTEXT }, ...next.slice(-10).map(({ role, content }) => ({ role, content }))] }),
@@ -185,7 +195,7 @@ const AIChatbot = () => {
     try {
       setTtsBusy(idx);
       audioElRef.current?.pause();
-      const resp = await fetch(TTS_URL, {
+      const resp = await fetchWithTimeout(TTS_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: AUTH },
         body: JSON.stringify({ text: text.replace(/[*_#`>[\]()]/g, "").replace(/\s+/g, " ").trim().slice(0, 1400), voice: "shimmer", speed: 1.08 }),
@@ -280,7 +290,7 @@ const AIChatbot = () => {
         fd.append("file", blob, "voice.webm");
         setBusy(true);
         try {
-          const resp = await fetch(STT_URL, { method: "POST", headers: { Authorization: AUTH }, body: fd });
+          const resp = await fetchWithTimeout(STT_URL, { method: "POST", headers: { Authorization: AUTH }, body: fd });
           const data = await resp.json();
           setBusy(false);
           if (!resp.ok) throw new Error(data.error || "STT failed");
