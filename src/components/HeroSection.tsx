@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { ArrowRight, Sparkles, Play, TrendingUp, Bot, Zap, ShieldCheck, Activity } from "lucide-react";
+import { ArrowRight, Sparkles, Play, TrendingUp, Bot, Zap, ShieldCheck, Activity, Search, Database, Code2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ContactFormDialog from "@/components/ContactFormDialog";
 
@@ -107,14 +107,39 @@ const HeroSection = () => {
                 </Button>
               </div>
 
-              <div className="hero-ai-visual mt-10 max-w-3xl" aria-label="SEO, AEO, GEO and automation capabilities">
-                <div className="hero-ai-visual-float">
-                  <img
-                    src="/images/hero-ai-seo.webp"
-                    alt="SEO + AI, AEO + GEO, and 24/7 automation and monitoring"
-                    className="w-full h-auto object-contain"
-                    loading="eager"
-                  />
+              <div className="hero-ai-visual mt-10 max-w-3xl" aria-label="SEO, AI, data and development growth loop">
+                <div className="cst-growth-loop" role="img" aria-label="Growth loop connecting Search, AI, Data and Build">
+                  <div className="cst-growth-loop-orbit cst-growth-loop-orbit-1" />
+                  <div className="cst-growth-loop-orbit cst-growth-loop-orbit-2" />
+
+                  <div className="cst-growth-loop-center">
+                    <span className="cst-growth-loop-kicker">DIGITAL</span>
+                    <strong>GROWTH<br />LOOP</strong>
+                    <span className="cst-growth-loop-arrow">SEARCH → DATA<br />AI → BUILD → MEASURE</span>
+                  </div>
+
+                  <div className="cst-growth-loop-card cst-growth-loop-card-search">
+                    <span className="cst-growth-loop-icon"><Search size={20} /></span>
+                    <span><b>Search</b><small>SEO · Content · GSC</small></span>
+                  </div>
+
+                  <div className="cst-growth-loop-card cst-growth-loop-card-ai">
+                    <span className="cst-growth-loop-icon"><Bot size={20} /></span>
+                    <span><b>AI</b><small>Automation · LLMs · Agents</small></span>
+                  </div>
+
+                  <div className="cst-growth-loop-card cst-growth-loop-card-data">
+                    <span className="cst-growth-loop-icon"><Database size={20} /></span>
+                    <span><b>Data</b><small>SQL · Power BI · Analytics</small></span>
+                  </div>
+
+                  <div className="cst-growth-loop-card cst-growth-loop-card-build">
+                    <span className="cst-growth-loop-icon"><Code2 size={20} /></span>
+                    <span><b>Build</b><small>Web · Apps · Solutions</small></span>
+                  </div>
+
+                  <div className="cst-growth-loop-tagline">Build for people first, then make it easy for search engines to understand.</div>
+                  <div className="cst-growth-loop-process">Search → Analyze → Build → Grow</div>
                 </div>
               </div>
             </div>
