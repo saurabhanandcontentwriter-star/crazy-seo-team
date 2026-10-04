@@ -147,17 +147,10 @@ const Index = () => {
             <div className="group overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-[0_30px_100px_rgba(37,99,235,.14)]">
               <div className="relative overflow-hidden bg-slate-100">
                 <img
-                  src="/images/workbench-anvya.svg"
+                  src="/images/anvya-community.webp"
                   alt="ANVYA Community — Where Ideas Meet Opportunity"
-                  className="block aspect-[16/9] w-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.01]"
+                  className="block h-auto w-full object-contain object-center"
                   loading="lazy"
-                  onError={(e) => {
-                    const img = e.currentTarget;
-                    if (!img.dataset.fallback) {
-                      img.dataset.fallback = "1";
-                      img.src = "/images/anvya-community.webp";
-                    }
-                  }}
                 />
               </div>
 
