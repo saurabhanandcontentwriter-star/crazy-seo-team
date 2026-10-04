@@ -158,7 +158,14 @@ const Index = () => {
                   </div>
                 </div>
                 <div className="relative min-h-[360px] overflow-hidden bg-slate-100 sm:min-h-[420px] lg:min-h-full">
-                  <img src="/images/anvya-community.webp" alt="ANVYA Community — Where Ideas Meet Opportunity" className="block h-full min-h-[360px] w-full object-cover object-center sm:min-h-[420px] lg:min-h-full" loading="lazy" />
+                  <img src="/images/anvya-community.webp" alt="ANVYA Community — Where Ideas Meet Opportunity"
+            onError={(e) => {
+              const img = e.currentTarget;
+              if (!img.dataset.fallback) {
+                img.dataset.fallback = "1";
+                img.src = "https://raw.githubusercontent.com/saurabhanandcontentwriter-star/crazy-seo-team/main/public/images/anvya-community.webp";
+              }
+            }} className="block h-full min-h-[360px] w-full object-cover object-center sm:min-h-[420px] lg:min-h-full" loading="lazy" />
                 </div>
               </div>
             </div>
