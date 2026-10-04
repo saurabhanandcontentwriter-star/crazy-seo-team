@@ -77,6 +77,10 @@ const ServiceDetail = () => {
                   {service.title}
                 </h1>
 
+                <p className="mt-4 text-sm font-semibold text-muted-foreground">
+                  Primary focus: <strong className="font-black text-primary">{service.seo.primaryKeyword}</strong>
+                </p>
+
                 <p className="mt-5 max-w-3xl text-xl font-semibold leading-8 text-foreground/80 md:text-2xl">
                   {service.tagline}
                 </p>
