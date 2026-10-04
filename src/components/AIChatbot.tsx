@@ -16,7 +16,7 @@ const STT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-stt`;
 const AUTH = `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`;
 const STORAGE_KEY = "cst-chat-history-v1";
 
-const RESPONSE_TIMEOUT_MS = 20000;
+const RESPONSE_TIMEOUT_MS = 15000;
 
 const fetchWithTimeout = async (input: RequestInfo | URL, init: RequestInit = {}) => {
   const controller = new AbortController();
@@ -298,7 +298,7 @@ const AIChatbot = () => {
       if (voiceModeRef.current) {
         maxTimer = window.setTimeout(() => {
           if (voiceModeRef.current && mediaRef.current === mr && mr.state === "recording") finishRecording();
-        }, 5000);
+        }, 15000);
       }
     } catch {
       toast.error("Microphone access denied");
