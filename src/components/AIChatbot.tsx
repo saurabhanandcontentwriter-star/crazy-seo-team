@@ -46,7 +46,7 @@ ANVYA is a modern ideas, discovery and community knowledge platform where people
 Crazy SEO Team works across SEO, technical SEO, on-page/off-page SEO, keyword research, content optimization, SEO audits, Core Web Vitals, schema, indexation, AI SEO, GEO, AEO, LLM optimization, digital marketing, Google Ads, AI solutions, automation, website/web-app development and voice AI assistants.
 Keep ANVYA and Crazy SEO Team clearly distinguished: ANVYA is the platform; Crazy SEO Team is the digital growth, technology and SEO team.
 If the user asks about ANVYA, explain ANVYA first. If they ask about Crazy SEO Team, explain its relevant services first.
-Use very short spoken responses in voice mode: usually 1–2 short sentences and under 35 words, with simple punctuation and no long lists. Respond immediately and do not add unnecessary preambles. Ask one relevant follow-up question when useful.
+Use engaging, natural spoken responses in voice mode: usually 1–3 short sentences and under 45 words. Sound warm, confident and human, not robotic. Respond immediately, acknowledge what the customer said, add one useful detail when appropriate, and ask one relevant follow-up question to keep the customer engaged. Never pressure the customer.
 If speech is unclear, politely ask the user to repeat. Do not interrupt the user.
 Continue the conversation until the user says goodbye, asks to end the call, or otherwise clearly indicates they are finished.
 Never invent pricing, guarantees, features, results, or policies. If something is not confirmed, say so and offer to collect the requirement.
@@ -62,20 +62,6 @@ const AIChatbot = () => {
   const [open, setOpen] = useState(false);
   const [voiceMode, setVoiceMode] = useState(false);
   const voiceModeRef = useRef(false);
-  const voiceInactivityTimerRef = useRef<number | null>(null);
-  const clearVoiceInactivityTimer = () => {
-    if (voiceInactivityTimerRef.current !== null) {
-      window.clearTimeout(voiceInactivityTimerRef.current);
-      voiceInactivityTimerRef.current = null;
-    }
-  };
-  const armVoiceInactivityTimer = () => {
-    clearVoiceInactivityTimer();
-    if (!voiceModeRef.current) return;
-    voiceInactivityTimerRef.current = window.setTimeout(() => {
-      if (voiceModeRef.current) endVoiceCall();
-    }, 15000);
-  };
   const recordingRef = useRef(false);
   const [callSeconds, setCallSeconds] = useState(0);
   const [input, setInput] = useState("");
@@ -268,7 +254,6 @@ const AIChatbot = () => {
             sum += normalized * normalized;
           }
           const rms = Math.sqrt(sum / data.length);
-          if (rms > 0.035 && voiceModeRef.current) armVoiceInactivityTimer();
           const now = performance.now();
 
           setVoiceLevel(Math.min(1, rms * 18));
@@ -300,11 +285,8 @@ const AIChatbot = () => {
           setBusy(false);
           if (!resp.ok) throw new Error(data.error || "STT failed");
           if (data.text?.trim()) {
-            armVoiceInactivityTimer();
             send(data.text.trim());
-          } else if (voiceModeRef.current) {
-            armVoiceInactivityTimer();
-          }
+
         } catch (err) {
           setBusy(false);
           toast.error("Voice input failed", { description: err instanceof Error ? err.message : "" });
@@ -328,12 +310,10 @@ const AIChatbot = () => {
     voiceModeRef.current = true;
     setVoiceMode(true);
     setAudioOn(true);
-    armVoiceInactivityTimer();
     await startRecording();
   };
 
   const endVoiceCall = () => {
-    clearVoiceInactivityTimer();
     voiceModeRef.current = false;
     setVoiceMode(false);
     setAudioOn(false);
