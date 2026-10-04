@@ -14,7 +14,9 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
 const TTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-tts`;
 const STT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-stt`;
 const AUTH = `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`;
-const STORAGE_KEY = "cst-chat-history-v1";\n\nconst RESPONSE_TIMEOUT_MS = 15000;
+const STORAGE_KEY = "cst-chat-history-v1";
+
+const RESPONSE_TIMEOUT_MS = 15000;
 
 const fetchWithTimeout = async (input: RequestInfo | URL, init: RequestInit = {}) => {
   const controller = new AbortController();
@@ -226,13 +228,10 @@ const AIChatbot = () => {
       mediaRef.current = mr;
       chunksRef.current = [];
       mr.ondataavailable = (e) => e.data.size > 0 && chunksRef.current.push(e.data);
-      let silenceTimer: number | undefined;
       let maxTimer: number | undefined;
       let analyser: AnalyserNode | null = null;
       let audioContext: AudioContext | null = null;
       let monitorFrame = 0;
-      let speechDetected = false;
-      let lastSpeechAt = performance.now();
 
       const finishRecording = () => {
         if (mr.state === "recording") mr.stop();
@@ -258,25 +257,16 @@ const AIChatbot = () => {
           const now = performance.now();
 
           setVoiceLevel(Math.min(1, rms * 18));
-          if (rms > 0.018) {
-            speechDetected = true;
-            lastSpeechAt = now;
-            if (silenceTimer) window.clearTimeout(silenceTimer);
-          } else if (speechDetected && now - lastSpeechAt > 650) {
-            finishRecording();
-            return;
-          }
 
           monitorFrame = requestAnimationFrame(monitor);
         };
 
         monitorFrame = requestAnimationFrame(monitor);
       } catch {
-        // If audio analysis is unavailable, the 5-second safety timer still ends the turn.
+        // If audio analysis is unavailable, the 15-second maximum timer still ends the turn.
       }
 
       mr.onstop = async () => {
-        if (silenceTimer) window.clearTimeout(silenceTimer);
         if (maxTimer) window.clearTimeout(maxTimer);
         if (monitorFrame) cancelAnimationFrame(monitorFrame);
         try { await audioContext?.close(); } catch { /* noop */ }
