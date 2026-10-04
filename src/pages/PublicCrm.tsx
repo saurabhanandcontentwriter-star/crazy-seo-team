@@ -225,7 +225,7 @@ export default function PublicCrm(){
         <meta name="description" content="Securely sign in with Google to access the Crazy SEO Team Customer Discovery CRM." />
       </Helmet>
 
-      <div className="relative mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1600px] overflow-hidden rounded-none border-0 bg-white shadow-none md:min-h-screen">
+      <div className="relative mx-auto flex min-h-[calc(100vh-2rem)] max-w-[1600px] overflow-hidden rounded-none border-0 bg-white pb-24 shadow-none md:min-h-screen md:pb-0">
         <section className="relative hidden w-1/2 overflow-hidden bg-[#070b1d] p-8 text-white lg:flex lg:flex-col xl:p-10 2xl:p-14">
           <div className="pointer-events-none absolute -left-20 top-0 size-72 rounded-full bg-blue-600/30 blur-3xl" />
           <div className="pointer-events-none absolute right-[-90px] top-[-80px] size-80 rounded-full bg-violet-600/35 blur-3xl" />
