@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 1024" role="img" aria-labelledby="title desc">
+<title id="title">ANVYA Community — Where Ideas Meet Opportunity</title>
+<desc id="desc">A bright modern community banner showing five young people collaborating, idea and opportunity cards, and AI, SEO, Technology, Travel, Science, Economics and Business categories.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef7ff"/><stop offset=".5" stop-color="#ffffff"/><stop offset="1" stop-color="#f6efff"/></linearGradient>
+  <linearGradient id="brand" x1="0" x2="1"><stop stop-color="#1677ff"/><stop offset=".55" stop-color="#4f46e5"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+  <linearGradient id="table" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#dbeafe"/></linearGradient>
+  <filter id="shadow"><feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#3157a5" flood-opacity=".18"/></filter>
+  <filter id="soft"><feGaussianBlur stdDeviation="32"/></filter>
+</defs>
+<rect width="1536" height="1024" fill="url(#bg)"/>
+<circle cx="130" cy="130" r="170" fill="#60a5fa" opacity=".18" filter="url(#soft)"/>
+<circle cx="1400" cy="160" r="190" fill="#c084fc" opacity=".16" filter="url(#soft)"/>
+<rect x="44" y="44" width="1448" height="936" rx="42" fill="#fff" opacity=".55" stroke="#dbeafe" stroke-width="3"/>
+<text x="768" y="138" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="76" font-weight="900" fill="url(#brand)">ANVYA</text>
+<text x="768" y="215" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="70" font-weight="900" fill="#111827">Community</text>
+<text x="768" y="268" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="32" font-weight="700" fill="#2563eb">Where Ideas Meet <tspan fill="#9333ea">Opportunity.</tspan></text>
+<path d="M635 291 Q768 320 901 291" fill="none" stroke="#6366f1" stroke-width="8" stroke-linecap="round"/>
+
+<!-- side idea cards -->
+<g filter="url(#shadow)">
+<rect x="92" y="300" width="250" height="92" rx="25" fill="#fff" stroke="#bfdbfe" stroke-width="3"/>
+<circle cx="135" cy="346" r="26" fill="#fef3c7"/><text x="135" y="355" text-anchor="middle" font-size="30">💡</text>
+<text x="175" y="340" font-family="Arial" font-size="24" font-weight="800" fill="#172554">Share Ideas</text>
+<text x="175" y="368" font-family="Arial" font-size="17" fill="#64748b">Turn thoughts into action</text>
+<rect x="1194" y="300" width="250" height="92" rx="25" fill="#fff" stroke="#bbf7d0" stroke-width="3"/>
+<circle cx="1238" cy="346" r="26" fill="#dcfce7"/><text x="1238" y="355" text-anchor="middle" font-size="28">↗</text>
+<text x="1277" y="340" font-family="Arial" font-size="24" font-weight="800" fill="#14532d">Find Opportunities</text>
+<text x="1277" y="368" font-family="Arial" font-size="17" fill="#64748b">Discover your next move</text>
+<rect x="84" y="430" width="250" height="92" rx="25" fill="#fff" stroke="#ddd6fe" stroke-width="3"/>
+<circle cx="128" cy="476" r="26" fill="#ede9fe"/><text x="128" y="486" text-anchor="middle" font-family="Arial" font-size="30" font-weight="900" fill="#7c3aed">?</text>
+<text x="169" y="470" font-family="Arial" font-size="24" font-weight="800" fill="#312e81">Ask Questions</text>
+<text x="169" y="498" font-family="Arial" font-size="17" fill="#64748b">Learn from the community</text>
+<rect x="1202" y="430" width="250" height="92" rx="25" fill="#fff" stroke="#fecdd3" stroke-width="3"/>
+<circle cx="1246" cy="476" r="26" fill="#ffe4e6"/><text x="1246" y="486" text-anchor="middle" font-size="28">♥</text>
+<text x="1287" y="470" font-family="Arial" font-size="24" font-weight="800" fill="#9f1239">Grow Together</text>
+<text x="1287" y="498" font-family="Arial" font-size="17" fill="#64748b">People, ideas and progress</text>
+</g>
+
+<!-- people scene -->
+<ellipse cx="768" cy="790" rx="575" ry="125" fill="#c7d2fe" opacity=".28"/>
+<rect x="300" y="720" width="936" height="185" rx="32" fill="url(#table)" stroke="#cbd5e1" stroke-width="3" filter="url(#shadow)"/>
+
+<!-- person 1 -->
+<g>
+<circle cx="420" cy="570" r="72" fill="#f3c5a8"/><path d="M348 565 Q355 470 438 490 Q480 520 480 590 L450 548 Q405 575 348 565" fill="#1e293b"/>
+<path d="M355 635 Q420 590 486 640 L510 720 L330 720Z" fill="#2563eb"/>
+<path d="M392 575 L420 590" stroke="#0f172a" stroke-width="6" stroke-linecap="round"/><path d="M400 612 Q425 625 447 608" fill="none" stroke="#7c2d12" stroke-width="5"/>
+</g>
+<!-- person 2 -->
+<g>
+<circle cx="610" cy="555" r="68" fill="#d99b73"/><path d="M545 555 Q560 470 650 495 Q690 520 680 585 L650 535 Q600 575 545 555" fill="#3f2d20"/>
+<path d="M545 635 Q610 590 675 640 L710 720 L510 720Z" fill="#f59e0b"/>
+</g>
+<!-- person 3 -->
+<g>
+<circle cx="790" cy="540" r="74" fill="#f0b58d"/><path d="M716 540 Q730 445 825 472 Q872 500 850 570 L820 515 Q770 552 716 540" fill="#111827"/>
+<path d="M715 630 Q790 585 865 630 L900 720 L680 720Z" fill="#0f172a"/>
+</g>
+<!-- person 4 -->
+<g>
+<circle cx="985" cy="555" r="68" fill="#e8ad86"/><path d="M920 550 Q930 470 1025 488 Q1060 515 1050 575 L1020 530 Q970 565 920 550" fill="#3b241b"/>
+<path d="M920 635 Q985 590 1050 635 L1090 720 L880 720Z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="3"/>
+</g>
+<!-- person 5 -->
+<g>
+<circle cx="1145" cy="570" r="70" fill="#b97855"/><path d="M1075 565 Q1085 475 1170 488 Q1215 510 1210 590 L1175 530 Q1125 565 1075 565" fill="#172554"/>
+<path d="M1080 635 Q1145 590 1210 640 L1240 720 L1040 720Z" fill="#166534"/>
+</g>
+
+<!-- laptop -->
+<rect x="665" y="690" width="210" height="125" rx="12" fill="#e2e8f0" stroke="#94a3b8" stroke-width="5"/>
+<rect x="680" y="704" width="180" height="92" rx="7" fill="#0f172a"/>
+<path d="M640 818 H900 Q920 818 932 838 H608 Q620 818 640 818Z" fill="#94a3b8"/>
+
+<!-- conversation cards -->
+<g filter="url(#shadow)">
+<rect x="470" y="390" width="250" height="82" rx="23" fill="#fff" stroke="#bfdbfe" stroke-width="3"/>
+<text x="595" y="425" text-anchor="middle" font-family="Arial" font-size="22" font-weight="800" fill="#1d4ed8">Join Discussions</text>
+<text x="595" y="451" text-anchor="middle" font-family="Arial" font-size="16" fill="#64748b">Connect with people</text>
+<rect x="815" y="390" width="250" height="82" rx="23" fill="#fff" stroke="#ddd6fe" stroke-width="3"/>
+<text x="940" y="425" text-anchor="middle" font-family="Arial" font-size="22" font-weight="800" fill="#7c3aed">Explore Services</text>
+<text x="940" y="451" text-anchor="middle" font-family="Arial" font-size="16" fill="#64748b">Skills, tools and support</text>
+</g>
+
+<!-- category pills -->
+<g font-family="Arial" font-size="20" font-weight="800">
+<g><rect x="72" y="910" width="165" height="54" rx="27" fill="#fff" stroke="#bfdbfe" stroke-width="2"/><text x="154" y="945" text-anchor="middle" fill="#1d4ed8">AI</text></g>
+<g><rect x="250" y="910" width="165" height="54" rx="27" fill="#fff" stroke="#bfdbfe" stroke-width="2"/><text x="332" y="945" text-anchor="middle" fill="#2563eb">SEO</text></g>
+<g><rect x="428" y="910" width="205" height="54" rx="27" fill="#fff" stroke="#bfdbfe" stroke-width="2"/><text x="530" y="945" text-anchor="middle" fill="#0f172a">Technology</text></g>
+<g><rect x="646" y="910" width="165" height="54" rx="27" fill="#fff" stroke="#bfdbfe" stroke-width="2"/><text x="728" y="945" text-anchor="middle" fill="#2563eb">Travel</text></g>
+<g><rect x="824" y="910" width="165" height="54" rx="27" fill="#fff" stroke="#bfdbfe" stroke-width="2"/><text x="906" y="945" text-anchor="middle" fill="#7c3aed">Science</text></g>
+<g><rect x="1002" y="910" width="205" height="54" rx="27" fill="#fff" stroke="#bbf7d0" stroke-width="2"/><text x="1104" y="945" text-anchor="middle" fill="#15803d">Economics</text></g>
+<g><rect x="1220" y="910" width="230" height="54" rx="27" fill="#fff" stroke="#ddd6fe" stroke-width="2"/><text x="1335" y="945" text-anchor="middle" fill="#7c3aed">Business</text></g>
+</g>
+</svg>
