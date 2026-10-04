@@ -158,7 +158,7 @@ const Index = () => {
                   </div>
                 </div>
                 <div className="relative min-h-[360px] overflow-hidden bg-slate-100 sm:min-h-[420px] lg:min-h-full">
-                  <img src="https://cdn.jsdelivr.net/gh/saurabhanandcontentwriter-star/crazy-seo-team@9ca7dfabb5448369f29582c8bd827eef931d7275/public/images/anvya-community.webp" alt="ANVYA Community — Where Ideas Meet Opportunity" className="block h-full min-h-[360px] w-full object-cover object-center sm:min-h-[420px] lg:min-h-full" loading="lazy" />
+                  <img src="/images/anvya-community.webp" alt="ANVYA Community — Where Ideas Meet Opportunity" className="block h-full min-h-[360px] w-full object-cover object-center sm:min-h-[420px] lg:min-h-full" loading="lazy" />
                 </div>
               </div>
             </div>
