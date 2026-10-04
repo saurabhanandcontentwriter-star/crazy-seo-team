@@ -180,6 +180,11 @@
 .animate-marquee {
   animation: marquee 20s linear infinite;
 }
+@media (max-width: 640px) {
+  .animate-marquee {
+    animation-duration: 28s;
+  }
+}
 
 /* Fade in animation */
 @keyframes fadeInUp {
