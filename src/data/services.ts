@@ -9,6 +9,14 @@ export type ServiceCategory =
   | "Google Ads"
   | "AI Software Development";
 
+export type ServiceSEO = {
+  primaryKeyword: string;
+  secondaryKeywords: string[];
+  searchIntent: "commercial" | "transactional";
+  entities: string[];
+  schemaType: "Service";
+};
+
 export type ServiceDef = {
   slug: string;
   category: ServiceCategory;
@@ -20,8 +28,46 @@ export type ServiceDef = {
   faqs: { q: string; a: string }[];
   metaTitle: string;
   metaDescription: string;
+  seo: ServiceSEO;
 };
 
+const buildServiceSEO = (category: ServiceCategory, title: string, slug: string): ServiceSEO => {
+  const special: Record<string, { primaryKeyword: string; secondaryKeywords: string[]; entities: string[] }> = {
+    "technical-seo": { primaryKeyword: "Technical SEO Services", secondaryKeywords: ["Technical SEO Agency", "Technical SEO Audit", "crawlability", "indexation", "Core Web Vitals", "schema markup"], entities: ["Technical SEO", "Google Search", "Core Web Vitals", "Google Search Console", "Schema.org"] },
+    "on-page-seo": { primaryKeyword: "On-Page SEO Services", secondaryKeywords: ["On-Page SEO Agency", "content optimization", "title tag optimization", "internal linking", "search intent"], entities: ["On-Page SEO", "Search Intent", "Internal Linking", "Content Optimization"] },
+    "off-page-seo": { primaryKeyword: "Off-Page SEO Services", secondaryKeywords: ["Off-Page SEO Agency", "authority building", "digital PR", "brand mentions", "SEO backlinks"], entities: ["Off-Page SEO", "Digital PR", "Backlinks", "Brand Authority"] },
+    "link-building": { primaryKeyword: "Link Building Services", secondaryKeywords: ["SEO Link Building", "quality backlinks", "authority backlinks", "digital PR link building"], entities: ["Link Building", "Backlinks", "Digital PR", "Domain Authority"] },
+    "local-seo": { primaryKeyword: "Local SEO Services", secondaryKeywords: ["Local SEO Agency", "Google Maps SEO", "Google Business Profile Optimization", "local search optimization"], entities: ["Local SEO", "Google Maps", "Google Business Profile", "Local Pack"] },
+    "entity-seo": { primaryKeyword: "Entity SEO Services", secondaryKeywords: ["Entity Optimization", "Knowledge Graph SEO", "Brand Entity SEO", "Entity-Based SEO"], entities: ["Entity SEO", "Google Knowledge Graph", "Wikidata", "Structured Data"] },
+    "semantic-seo": { primaryKeyword: "Semantic SEO Services", secondaryKeywords: ["Semantic Search", "Topical Authority", "Entity SEO", "NLP SEO", "Topic Clusters"], entities: ["Semantic SEO", "Topical Authority", "Natural Language Processing", "Topic Clusters"] },
+    "technical-seo-audits": { primaryKeyword: "Technical SEO Audit Services", secondaryKeywords: ["Website SEO Audit", "crawl audit", "indexation audit", "technical website audit"], entities: ["Technical SEO Audit", "Crawlability", "Indexation", "Core Web Vitals", "Google Search Console"] },
+    "chatgpt-optimization": { primaryKeyword: "ChatGPT SEO", secondaryKeywords: ["ChatGPT Optimization", "ChatGPT Search Optimization", "AI Search Visibility", "ChatGPT citations"], entities: ["ChatGPT", "OpenAI", "AI Search", "Generative AI"] },
+    "gemini-optimization": { primaryKeyword: "Gemini SEO", secondaryKeywords: ["Gemini Optimization", "Google Gemini SEO", "AI Search Optimization", "Google AI Overviews"], entities: ["Google Gemini", "Google AI Overviews", "AI Search", "Google Search"] },
+    "claude-optimization": { primaryKeyword: "Claude Optimization", secondaryKeywords: ["Claude SEO", "AI Visibility", "LLM Optimization", "AI Search Optimization"], entities: ["Claude", "Anthropic", "LLM", "Generative AI"] },
+    "perplexity-optimization": { primaryKeyword: "Perplexity SEO", secondaryKeywords: ["Perplexity Optimization", "AI Citation Optimization", "AI Search Visibility", "LLM SEO"], entities: ["Perplexity", "AI Search", "LLM", "AI Citations"] },
+    "google-ai-overview-optimization": { primaryKeyword: "Google AI Overview Optimization", secondaryKeywords: ["AI Overview SEO", "Google AI Search", "AI Search Optimization", "Generative Search Optimization"], entities: ["Google AI Overviews", "Google Search", "Generative AI", "AI Search"] },
+    "geo-optimization": { primaryKeyword: "Generative Engine Optimization", secondaryKeywords: ["GEO Services", "GEO SEO", "AI Search Optimization", "LLM Visibility"], entities: ["Generative Engine Optimization", "AI Search", "LLMs", "Generative AI"] },
+    "aeo-optimization": { primaryKeyword: "Answer Engine Optimization", secondaryKeywords: ["AEO Services", "Answer Engine SEO", "Featured Snippet Optimization", "Voice Search Optimization"], entities: ["Answer Engine Optimization", "Featured Snippets", "People Also Ask", "Voice Search", "FAQ Schema"] },
+    "llm-seo-optimization": { primaryKeyword: "LLM SEO", secondaryKeywords: ["LLM Optimization", "LLM Search Optimization", "AI SEO", "LLM Visibility"], entities: ["Large Language Models", "LLM SEO", "AI Search", "Semantic Search"] },
+    "ai-visibility-audits": { primaryKeyword: "AI Visibility Audit", secondaryKeywords: ["AI Search Audit", "LLM Visibility Audit", "ChatGPT Visibility Audit", "GEO Audit"], entities: ["AI Visibility", "ChatGPT", "Gemini", "Claude", "Perplexity"] },
+  };
+  if (special[slug]) return { ...special[slug], searchIntent: "commercial", schemaType: "Service" };
+  const primaryByCategory: Record<ServiceCategory, string> = {
+    "SEO Services": `${title} Services`,
+    "AI SEO Services": `${title} Services`,
+    "Content Writing": `${title} Services`,
+    "Article Writing": `${title} Services`,
+    "Blog Writing": `${title} Services`,
+    "Ghostwriting": `${title} Services`,
+    "Copywriting": `${title} Services`,
+    "Google Ads": `${title} Management`,
+    "AI Software Development": `${title} Development`,
+  };
+  const primaryKeyword = primaryByCategory[category];
+  const cleanTitle = title.replace(/\b(Services|Management|Development)\b/gi, "").trim();
+  const secondaryKeywords = [primaryKeyword.replace(/ Services$| Management$| Development$/, ""), `${cleanTitle} Agency`, `${cleanTitle} Strategy`, `${cleanTitle} Optimization`];
+  return { primaryKeyword, secondaryKeywords: [...new Set(secondaryKeywords)].slice(0, 4), searchIntent: /audit|research|tracking|integration/i.test(slug) ? "transactional" : "commercial", entities: [title, category], schemaType: "Service" };
+};
 // Helper to keep entries compact while still SEO-rich
 const make = (
   category: ServiceCategory,
@@ -35,18 +81,12 @@ const make = (
     { q: `What does ${title} include?`, a: `We start by reviewing your current site, goals and search landscape, then focus the work on the issues and opportunities that matter most for your business.` },
     { q: "How do you report progress?", a: "You get clear reporting on the work completed, what changed, what we learned and what we recommend next. We do not promise a fixed ranking or traffic number." },
   ],
-): ServiceDef => ({
-  slug,
-  category,
-  title,
-  tagline,
-  description,
-  features,
-  deliverables,
-  faqs,
-  metaTitle: `${title} | Crazy SEO Team`,
-  metaDescription: `${tagline} Practical ${title.toLowerCase()} support from Crazy SEO Team, tailored to your site, audience and goals.`,
-});
+): ServiceDef => {
+  const seo = buildServiceSEO(category, title, slug);
+  const metaTitle = `${seo.primaryKeyword} | Crazy SEO Team`.slice(0, 60);
+  const metaDescription = `${seo.primaryKeyword} from Crazy SEO Team. ${tagline} ${seo.secondaryKeywords.slice(0, 2).join(", ")}.`.slice(0, 160);
+  return { slug, category, title, tagline, description, features, deliverables, faqs, metaTitle, metaDescription, seo };
+};
 
 export const services: ServiceDef[] = [
   // ---------------- SEO SERVICES ----------------
