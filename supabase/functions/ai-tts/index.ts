@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
         input: text.slice(0, 4000),
         voice,
         speed,
-        instructions: instructions || "Speak ONLY in Hindi or English as Sneha. Never speak Urdu and never use Urdu, Arabic, or Persian pronunciation. Speak as Sneha, a warm Indian female voice assistant. Use a natural Indian English/Hinglish accent, friendly conversational tone, smooth connected speech, natural pauses, and confident human-like delivery. Do not sound robotic, overly slow, or word-by-word.",
+        instructions: instructions || "Speak as Sneha, a youthful Indian woman around 25 years old. Use a warm, friendly, natural and confident young-adult female voice with a conversational Indian accent. Match the user’s supported language automatically, including Hindi, Hinglish, Bhojpuri, Maithili, Bengali, Marathi, Gujarati, Punjabi, Tamil, Telugu, Kannada, Malayalam, Odia, Assamese, Nepali, Sanskrit and English. Never speak Urdu and never use Urdu, Arabic, or Persian pronunciation. Keep the delivery smooth, expressive, natural, and human-like with short pauses; do not sound robotic, overly slow, childish, or word-by-word.",
         response_format: "mp3",
       }),
     });
