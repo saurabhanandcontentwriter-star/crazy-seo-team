@@ -16,7 +16,7 @@ const STT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-stt`;
 const AUTH = `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`;
 const STORAGE_KEY = "cst-chat-history-v1";
 
-const RESPONSE_TIMEOUT_MS = 5000;
+const RESPONSE_TIMEOUT_MS = 20000;
 
 const fetchWithTimeout = async (input: RequestInfo | URL, init: RequestInit = {}) => {
   const controller = new AbortController();
