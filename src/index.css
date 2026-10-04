@@ -775,3 +775,323 @@
     font-size: 1rem;
   }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ANVYA — mobile app-style responsive layout
+   Applies to every /anvya route via body.anvya-light-page.
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  body.anvya-light-page {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden !important;
+    background: #f8fafc;
+  }
+
+  body.anvya-light-page #root,
+  body.anvya-light-page main,
+  body.anvya-light-page section,
+  body.anvya-light-page article,
+  body.anvya-light-page header,
+  body.anvya-light-page footer {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  body.anvya-light-page *,
+  body.anvya-light-page *::before,
+  body.anvya-light-page *::after {
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  body.anvya-light-page img,
+  body.anvya-light-page video,
+  body.anvya-light-page iframe,
+  body.anvya-light-page canvas,
+  body.anvya-light-page svg {
+    max-width: 100%;
+  }
+
+  /* Phone-sized page gutters */
+  body.anvya-light-page .container {
+    width: 100%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  /* Headings and prose never force a horizontal viewport. */
+  body.anvya-light-page h1,
+  body.anvya-light-page h2,
+  body.anvya-light-page h3,
+  body.anvya-light-page h4,
+  body.anvya-light-page p,
+  body.anvya-light-page a,
+  body.anvya-light-page span,
+  body.anvya-light-page label,
+  body.anvya-light-page button,
+  body.anvya-light-page input,
+  body.anvya-light-page textarea,
+  body.anvya-light-page select {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  body.anvya-light-page h1 {
+    font-size: clamp(1.9rem, 9vw, 2.65rem);
+    line-height: 1.08;
+    letter-spacing: -.04em;
+  }
+
+  body.anvya-light-page h2 {
+    font-size: clamp(1.35rem, 6.5vw, 2rem);
+    line-height: 1.15;
+  }
+
+  /* ANVYA home/header */
+  body.anvya-light-page .container > .flex.items-center.justify-between {
+    gap: 10px;
+  }
+
+  body.anvya-light-page .container > .flex.items-center.justify-between a {
+    min-width: 0;
+  }
+
+  body.anvya-light-page .container > .flex.items-center.justify-between a > div:last-child {
+    min-width: 0;
+  }
+
+  /* Hero becomes a clean phone-first stack. */
+  body.anvya-light-page .max-w-6xl {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  body.anvya-light-page .max-w-4xl.text-center {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  body.anvya-light-page .max-w-4xl.text-center h1 {
+    font-size: clamp(2rem, 10vw, 2.65rem);
+    line-height: 1.04;
+    word-break: normal;
+  }
+
+  body.anvya-light-page .max-w-4xl.text-center p {
+    font-size: .95rem;
+    line-height: 1.6;
+  }
+
+  /* CTA cards/buttons: one comfortable row at a time. */
+  body.anvya-light-page a.inline-flex,
+  body.anvya-light-page button {
+    max-width: 100%;
+  }
+
+  body.anvya-light-page .mx-auto.mt-8.flex.flex-col {
+    width: 100%;
+  }
+
+  body.anvya-light-page .mx-auto.mt-8.flex.flex-col > a {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 14px;
+  }
+
+  body.anvya-light-page .mx-auto.mt-8.flex.flex-col > span {
+    align-self: center;
+  }
+
+  /* Search bar: input and button stack, no clipping. */
+  body.anvya-light-page .max-w-3xl.flex.flex-col {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  body.anvya-light-page .max-w-3xl.flex.flex-col > div {
+    min-width: 0;
+  }
+
+  /* Home feature cards: two-column phone grid with safe card widths. */
+  body.anvya-light-page .mt-12.grid.grid-cols-2 {
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  body.anvya-light-page .mt-12.grid.grid-cols-2 > a {
+    width: 100%;
+    padding: 12px;
+    border-radius: 16px;
+    transform: none !important;
+  }
+
+  body.anvya-light-page .mt-12.grid.grid-cols-2 > a > div {
+    gap: 8px;
+  }
+
+  body.anvya-light-page .mt-12.grid.grid-cols-2 > a .size-12 {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+
+  /* Stats stay readable instead of squeezing four columns. */
+  body.anvya-light-page .grid.grid-cols-2.sm\:grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.anvya-light-page .grid.grid-cols-2.sm\:grid-cols-4 > div {
+    min-width: 0;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  /* All data/card grids collapse to one column unless explicitly
+     intended as a compact 2-up phone grid. */
+  body.anvya-light-page .md\:grid-cols-2,
+  body.anvya-light-page .md\:grid-cols-3,
+  body.anvya-light-page .lg\:grid-cols-3,
+  body.anvya-light-page .lg\:grid-cols-4,
+  body.anvya-light-page .xl\:grid-cols-4 {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  /* Search results / people lists: no fixed desktop widths. */
+  body.anvya-light-page .grid.sm\:grid-cols-2 {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  body.anvya-light-page .grid.sm\:grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Cards/panels */
+  body.anvya-light-page [class*="rounded-[30px]"],
+  body.anvya-light-page [class*="rounded-[28px]"],
+  body.anvya-light-page [class*="rounded-3xl"] {
+    max-width: 100%;
+  }
+
+  /* Forms */
+  body.anvya-light-page input,
+  body.anvya-light-page textarea,
+  body.anvya-light-page [role="combobox"] {
+    width: 100%;
+    max-width: 100%;
+    min-height: 46px;
+  }
+
+  body.anvya-light-page textarea {
+    min-height: 120px;
+  }
+
+  /* Rich editor and user-generated content */
+  body.anvya-light-page [contenteditable="true"] {
+    width: 100%;
+    max-width: 100%;
+    min-height: 180px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  body.anvya-light-page [contenteditable="true"] img,
+  body.anvya-light-page article img {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  body.anvya-light-page pre,
+  body.anvya-light-page code {
+    max-width: 100%;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  body.anvya-light-page table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Toolbars wrap rather than becoming a cut-off horizontal strip. */
+  body.anvya-light-page .flex.flex-wrap {
+    max-width: 100%;
+  }
+
+  /* Fixed/absolute dropdowns and menus stay inside the phone. */
+  body.anvya-light-page [role="menu"],
+  body.anvya-light-page [role="listbox"],
+  body.anvya-light-page [data-radix-popper-content-wrapper] {
+    max-width: calc(100vw - 24px) !important;
+  }
+
+  /* Dialogs/sheets */
+  body.anvya-light-page [role="dialog"],
+  body.anvya-light-page [data-radix-dialog-content],
+  body.anvya-light-page [data-radix-sheet-content] {
+    width: calc(100vw - 20px) !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100svh - 20px);
+    margin: 10px auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  /* Bottom actions become full-width app controls. */
+  body.anvya-light-page .border-t.pt-6 .flex.gap-3 {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  body.anvya-light-page .border-t.pt-6 .flex.gap-3 > button,
+  body.anvya-light-page .border-t.pt-6 .flex.gap-3 > a {
+    width: 100%;
+    min-height: 46px;
+    justify-content: center;
+  }
+
+  /* Never let decorative transforms create an invisible horizontal canvas. */
+  body.anvya-light-page [style*="translate"],
+  body.anvya-light-page [class*="rotate-"] {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 390px) {
+  body.anvya-light-page .container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  body.anvya-light-page .mt-12.grid.grid-cols-2 {
+    gap: 6px;
+  }
+
+  body.anvya-light-page .mt-12.grid.grid-cols-2 > a {
+    padding: 10px;
+  }
+
+  body.anvya-light-page .mt-12.grid.grid-cols-2 > a .size-12 {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  body.anvya-light-page .max-w-4xl.text-center h1 {
+    font-size: 1.95rem;
+  }
+}
