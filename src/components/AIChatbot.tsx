@@ -286,7 +286,7 @@ const AIChatbot = () => {
           if (!resp.ok) throw new Error(data.error || "STT failed");
           if (data.text?.trim()) {
             send(data.text.trim());
-
+          }
         } catch (err) {
           setBusy(false);
           toast.error("Voice input failed", { description: err instanceof Error ? err.message : "" });
@@ -298,7 +298,7 @@ const AIChatbot = () => {
       if (voiceModeRef.current) {
         maxTimer = window.setTimeout(() => {
           if (voiceModeRef.current && mediaRef.current === mr && mr.state === "recording") finishRecording();
-        }, 15000);
+        }, 5000);
       }
     } catch {
       toast.error("Microphone access denied");
