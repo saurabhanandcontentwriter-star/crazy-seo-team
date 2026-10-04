@@ -62,6 +62,20 @@ const AIChatbot = () => {
   const [open, setOpen] = useState(false);
   const [voiceMode, setVoiceMode] = useState(false);
   const voiceModeRef = useRef(false);
+  const voiceInactivityTimerRef = useRef<number | null>(null);
+  const clearVoiceInactivityTimer = () => {
+    if (voiceInactivityTimerRef.current !== null) {
+      window.clearTimeout(voiceInactivityTimerRef.current);
+      voiceInactivityTimerRef.current = null;
+    }
+  };
+  const armVoiceInactivityTimer = () => {
+    clearVoiceInactivityTimer();
+    if (!voiceModeRef.current) return;
+    voiceInactivityTimerRef.current = window.setTimeout(() => {
+      if (voiceModeRef.current) endVoiceCall();
+    }, 15000);
+  };
   const recordingRef = useRef(false);
   const [callSeconds, setCallSeconds] = useState(0);
   const [input, setInput] = useState("");
@@ -254,6 +268,7 @@ const AIChatbot = () => {
             sum += normalized * normalized;
           }
           const rms = Math.sqrt(sum / data.length);
+          if (rms > 0.035 && voiceModeRef.current) armVoiceInactivityTimer();
           const now = performance.now();
 
           setVoiceLevel(Math.min(1, rms * 18));
@@ -284,7 +299,12 @@ const AIChatbot = () => {
           const data = await resp.json();
           setBusy(false);
           if (!resp.ok) throw new Error(data.error || "STT failed");
-          if (data.text?.trim()) send(data.text.trim());
+          if (data.text?.trim()) {
+            armVoiceInactivityTimer();
+            send(data.text.trim());
+          } else if (voiceModeRef.current) {
+            armVoiceInactivityTimer();
+          }
         } catch (err) {
           setBusy(false);
           toast.error("Voice input failed", { description: err instanceof Error ? err.message : "" });
@@ -308,10 +328,12 @@ const AIChatbot = () => {
     voiceModeRef.current = true;
     setVoiceMode(true);
     setAudioOn(true);
+    armVoiceInactivityTimer();
     await startRecording();
   };
 
   const endVoiceCall = () => {
+    clearVoiceInactivityTimer();
     voiceModeRef.current = false;
     setVoiceMode(false);
     setAudioOn(false);
