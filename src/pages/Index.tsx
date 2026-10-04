@@ -130,42 +130,45 @@ const Index = () => {
         <WhyChooseUs />
         <BlogSection />
 
-        <section id="community" className="py-20 px-4">
+        <section id="community" className="px-4 py-24 md:py-28">
           <div className="container mx-auto max-w-7xl">
-            <div className="overflow-hidden rounded-[32px] border border-blue-100 bg-white shadow-[0_24px_80px_rgba(37,99,235,.12)]">
-              <div className="grid lg:grid-cols-[1fr_1.05fr]">
-                <div className="relative z-10 p-7 md:p-10 lg:p-14">
-                  <div className="inline-flex items-center gap-2 text-sm font-bold text-blue-700">
-                    <span className="grid size-8 place-items-center rounded-full bg-blue-50">👥</span>
-                    ANVYA Community
-                  </div>
-                  <h2 className="mt-7 text-5xl font-black leading-[.98] tracking-tight text-slate-950 md:text-6xl">ANVYA<br/><span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">Community</span></h2>
-                  <p className="mt-5 text-2xl font-extrabold leading-tight text-slate-900">Where Ideas Meet Opportunity.</p>
-                  <div className="mt-3 h-1 w-28 rounded-full bg-blue-600" />
-                  <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 md:text-lg">Join a growing community of creators, SEO professionals, marketers, developers, and technology enthusiasts. Share your ideas, start meaningful discussions, exchange practical knowledge, and discover new opportunities across the digital ecosystem.</p>
-                  <div className="mt-8 flex flex-wrap gap-3">
-                    <a href="/anvya/communities" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 px-7 py-3.5 font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5 hover:shadow-xl">👥 Join ANVYA <span className="text-xl">→</span></a>
-                    <a href="/anvya" className="inline-flex items-center gap-2 rounded-full border-2 border-blue-500 bg-white px-7 py-3.5 font-bold text-slate-900 transition-all hover:-translate-y-0.5 hover:bg-blue-50">💡 Share Your Idea <span className="text-xl text-blue-600">→</span></a>
-                  </div>
-                  <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    {[["💬","Discussions","Ask, share, learn"],["💡","Ideas","Turn ideas into action"],["📊","Growth","Learn from experts"],["🤝","Networking","Connect & collaborate"]].map(([icon,label,sub])=>(
-                      <div key={label} className="rounded-2xl border border-slate-100 bg-white/90 p-3 shadow-sm">
-                        <div className="text-xl">{icon}</div>
-                        <div className="mt-1 text-sm font-bold text-slate-900">{label}</div>
-                        <div className="mt-0.5 text-[11px] text-slate-500">{sub}</div>
-                      </div>
-                    ))}
-                  </div>
+            <div className="mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="mb-3 text-sm font-black uppercase tracking-[0.2em] text-blue-600">ANVYA Community</p>
+                <h2 className="max-w-3xl text-4xl font-black tracking-tight text-slate-950 md:text-6xl">
+                  Where ideas meet <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">opportunity.</span>
+                </h2>
+              </div>
+              <p className="max-w-xl text-sm leading-6 text-slate-500 md:text-right md:text-base">
+                Connect, collaborate, learn and grow with creators, SEO professionals, marketers, developers and technology enthusiasts.
+              </p>
+            </div>
+
+            <div className="group overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-[0_30px_100px_rgba(37,99,235,.14)]">
+              <div className="relative overflow-hidden bg-slate-100">
+                <img
+                  src="/images/anvya-community.webp"
+                  alt="ANVYA Community — Where Ideas Meet Opportunity"
+                  className="block aspect-[16/9] w-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.01]"
+                  loading="lazy"
+                  onError={(e) => {
+                    const img = e.currentTarget;
+                    if (!img.dataset.fallback) {
+                      img.dataset.fallback = "1";
+                      img.src = "https://raw.githubusercontent.com/saurabhanandcontentwriter-star/crazy-seo-team/main/public/images/anvya-community.webp";
+                    }
+                  }}
+                />
+              </div>
+
+              <div className="flex flex-col gap-5 border-t border-slate-100 bg-white p-5 sm:p-6 md:flex-row md:items-center md:justify-between md:px-8">
+                <div>
+                  <p className="text-lg font-extrabold text-slate-950">Join the ANVYA community.</p>
+                  <p className="mt-1 text-sm text-slate-500">Share ideas, discover opportunities and build meaningful connections.</p>
                 </div>
-                <div className="relative min-h-[360px] overflow-hidden bg-slate-100 sm:min-h-[420px] lg:min-h-full">
-                  <img src="/images/anvya-community.webp" alt="ANVYA Community — Where Ideas Meet Opportunity"
-            onError={(e) => {
-              const img = e.currentTarget;
-              if (!img.dataset.fallback) {
-                img.dataset.fallback = "1";
-                img.src = "https://raw.githubusercontent.com/saurabhanandcontentwriter-star/crazy-seo-team/main/public/images/anvya-community.webp";
-              }
-            }} className="block h-full min-h-[360px] w-full object-cover object-center sm:min-h-[420px] lg:min-h-full" loading="lazy" />
+                <div className="flex flex-wrap gap-3">
+                  <a href="/anvya/communities" className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-violet-600 px-6 py-3 font-bold text-white shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5 hover:shadow-xl">Join ANVYA <span className="ml-2">→</span></a>
+                  <a href="/anvya" className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-6 py-3 font-bold text-slate-900 transition-all hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50">Share Your Idea <span className="ml-2 text-blue-600">→</span></a>
                 </div>
               </div>
             </div>
