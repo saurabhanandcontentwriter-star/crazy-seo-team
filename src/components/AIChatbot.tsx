@@ -341,12 +341,12 @@ const AIChatbot = () => {
         <button
           id="tour-chatbot"
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-40 group"
+          className="fixed bottom-4 right-3 z-40 group sm:bottom-6 sm:right-6"
           aria-label="Open AI assistant"
         >
           <span className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 blur-xl opacity-70 group-hover:opacity-100 animate-pulse" />
-          <span className="relative flex items-center gap-2 pl-2 pr-4 py-2 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-2xl border border-slate-300 backdrop-blur-xl group-hover:scale-105 transition-transform">
-            <AIOrb size={36} />
+          <span className="relative flex items-center gap-2 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 p-1.5 text-white shadow-2xl border border-slate-300 backdrop-blur-xl group-hover:scale-105 transition-transform sm:pl-2 sm:pr-4 sm:py-2">
+            <AIOrb size={32} />
             <span className="text-sm font-semibold hidden sm:inline">Ask Sneha</span>
           </span>
         </button>
