@@ -306,7 +306,7 @@ const AIChatbot = () => {
       if (voiceModeRef.current) {
         maxTimer = window.setTimeout(() => {
           if (voiceModeRef.current && mediaRef.current === mr && mr.state === "recording") finishRecording();
-        }, 8000);
+        }, 15000);
       }
     } catch {
       toast.error("Microphone access denied");
