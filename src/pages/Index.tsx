@@ -147,7 +147,7 @@ const Index = () => {
             <div className="group overflow-hidden rounded-[32px] border border-slate-200 bg-white shadow-[0_30px_100px_rgba(37,99,235,.14)]">
               <div className="relative overflow-hidden bg-slate-100">
                 <img
-                  src="/images/anvya-community-new.svg"
+                  src="/images/anvya-community-v2.svg"
                   alt="ANVYA Community — Where Ideas Meet Opportunity"
                   className="block h-auto w-full object-contain object-center"
                   loading="lazy"
