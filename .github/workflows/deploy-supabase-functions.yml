@@ -1,12 +1,6 @@
 name: Deploy Supabase Edge Functions
 
-# Verify Supabase deployment credentials after token refresh.
-
-# Deployment credential verification updated.
-
-# Deployment trigger after Supabase Actions credentials were configured.
-
-# LinkedIn deployment is intentionally triggered on workflow changes so the current function is always published.
+# Normalize the PAT before every CLI call so pasted whitespace cannot break authentication.
 
 on:
   push:
@@ -41,12 +35,17 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
-          if [ -z "${SUPABASE_ACCESS_TOKEN:-}" ]; then
+          TOKEN="$(printf '%s' "${SUPABASE_ACCESS_TOKEN:-}" | tr -d '\r\n\t ')"
+          if [ -z "${TOKEN:-}" ]; then
             echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::SUPABASE_ACCESS_TOKEN is not configured. Supabase deployment will be skipped."
-          else
-            echo "configured=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::SUPABASE_ACCESS_TOKEN is not configured."
+            exit 0
           fi
+          if ! printf '%s' "$TOKEN" | grep -Eq '^sbp_(oauth_)?[a-f0-9]{40}$'; then
+            echo "::error::SUPABASE_ACCESS_TOKEN is not a valid Supabase PAT format. Generate a Personal Access Token from Supabase Account > Access Tokens. Do not use sb_publishable_ or sb_secret_ keys."
+            exit 1
+          fi
+          echo "configured=true" >> "$GITHUB_OUTPUT"
 
       - name: Deploy LinkedIn Automation function
         if: steps.credentials.outputs.configured == 'true'
@@ -54,6 +53,7 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
+          export SUPABASE_ACCESS_TOKEN="$(printf '%s' "${SUPABASE_ACCESS_TOKEN}" | tr -d '\r\n\t ')"
           supabase functions deploy linkedin-automation \
             --project-ref "${SUPABASE_PROJECT_REF}" \
             --no-verify-jwt
@@ -64,6 +64,7 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
+          export SUPABASE_ACCESS_TOKEN="$(printf '%s' "${SUPABASE_ACCESS_TOKEN}" | tr -d '\r\n\t ')"
           supabase functions deploy crm-ideas-users \
             --project-ref "${SUPABASE_PROJECT_REF}" \
             --no-verify-jwt
@@ -87,6 +88,7 @@ jobs:
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: |
           set -euo pipefail
+          export SUPABASE_ACCESS_TOKEN="$(printf '%s' "${SUPABASE_ACCESS_TOKEN}" | tr -d '\r\n\t ')"
           supabase db push \
             --project-ref "${SUPABASE_PROJECT_REF}" \
             --include-all
@@ -97,6 +99,7 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
+          export SUPABASE_ACCESS_TOKEN="$(printf '%s' "${SUPABASE_ACCESS_TOKEN}" | tr -d '\r\n\t ')"
           supabase functions deploy ai-customer-discovery \
             --project-ref "${SUPABASE_PROJECT_REF}" \
             --no-verify-jwt
@@ -105,4 +108,3 @@ jobs:
         if: steps.credentials.outputs.configured != 'true'
         run: |
           echo "Supabase deployment skipped because SUPABASE_ACCESS_TOKEN is not configured."
-          echo "Add SUPABASE_ACCESS_TOKEN in Settings > Secrets and variables > Actions to enable deployment."
