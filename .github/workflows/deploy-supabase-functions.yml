@@ -1,5 +1,7 @@
 name: Deploy Supabase Edge Functions
 
+# Deployment trigger after Supabase Actions credentials were configured.
+
 # LinkedIn deployment is intentionally triggered on workflow changes so the current function is always published.
 
 on:
