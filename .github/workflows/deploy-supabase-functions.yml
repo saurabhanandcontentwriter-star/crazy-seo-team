@@ -40,6 +40,16 @@ jobs:
             echo "configured=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Deploy LinkedIn Automation function
+        if: steps.credentials.outputs.configured == 'true'
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          supabase functions deploy linkedin-automation \
+            --project-ref "${SUPABASE_PROJECT_REF}" \
+            --no-verify-jwt
+
       - name: Deploy CRM Ideas function
         if: steps.credentials.outputs.configured == 'true'
         env:
