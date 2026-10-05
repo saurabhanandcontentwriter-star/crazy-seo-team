@@ -1,6 +1,6 @@
 name: Deploy Supabase Edge Functions
 
-# LinkedIn deployment is intentionally triggered on workflow changes so the current function is always published.
+# LinkedIn deployment is intentionally triggered on workflow changes so the current function is always published. Token format is validated by the Supabase CLI.
 
 on:
   push:
