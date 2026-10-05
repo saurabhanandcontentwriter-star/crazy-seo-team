@@ -1,6 +1,7 @@
 name: Deploy Supabase Edge Functions
 
-# Normalize the PAT before every CLI call so pasted whitespace cannot break authentication.
+# Use the Supabase Management API for Edge Function deployment.
+# This avoids the CLI's legacy PAT-format validation and accepts current scoped sbp_ tokens.
 
 on:
   push:
@@ -25,11 +26,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Supabase CLI
-        uses: supabase/setup-cli@v1
-        with:
-          version: latest
-
       - name: Check Supabase deploy credentials
         id: credentials
         env:
@@ -41,8 +37,8 @@ jobs:
             echo "::warning::SUPABASE_ACCESS_TOKEN is not configured."
             exit 0
           fi
-          if ! printf '%s' "$TOKEN" | grep -Eq '^sbp_(oauth_)?[a-f0-9]{40}$'; then
-            echo "::error::SUPABASE_ACCESS_TOKEN is not a valid Supabase PAT format. Generate a Personal Access Token from Supabase Account > Access Tokens. Do not use sb_publishable_ or sb_secret_ keys."
+          if ! printf '%s' "$TOKEN" | grep -Eq '^sbp_[A-Za-z0-9_-]+$'; then
+            echo "::error::SUPABASE_ACCESS_TOKEN is not a valid Supabase PAT. Use a Personal Access Token from Supabase Account > Access Tokens."
             exit 1
           fi
           echo "configured=true" >> "$GITHUB_OUTPUT"
@@ -53,10 +49,23 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
-          export SUPABASE_ACCESS_TOKEN="$(printf '%s' "${SUPABASE_ACCESS_TOKEN}" | tr -d '\r\n\t ')"
-          supabase functions deploy linkedin-automation \
-            --project-ref "${SUPABASE_PROJECT_REF}" \
-            --no-verify-jwt
+          TOKEN="$(printf '%s' "$SUPABASE_ACCESS_TOKEN" | tr -d '\r\n\t ')"
+          RESPONSE_FILE="$(mktemp)"
+          HTTP_CODE="$(
+            curl --silent --show-error --location \
+              --output "$RESPONSE_FILE" --write-out '%{http_code}' \
+              --request POST \
+              --url "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_REF}/functions/deploy?slug=linkedin-automation" \
+              --header "Authorization: Bearer $TOKEN" \
+              --form 'metadata={"entrypoint_path":"index.ts","name":"linkedin-automation","verify_jwt":false};type=application/json' \
+              --form 'file=@supabase/functions/linkedin-automation/index.ts;type=text/plain'
+          )"
+          cat "$RESPONSE_FILE"
+          echo
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "::error::LinkedIn function deployment failed with HTTP $HTTP_CODE."
+            exit 1
+          fi
 
       - name: Deploy CRM Ideas function
         if: steps.credentials.outputs.configured == 'true'
@@ -64,10 +73,23 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
-          export SUPABASE_ACCESS_TOKEN="$(printf '%s' "${SUPABASE_ACCESS_TOKEN}" | tr -d '\r\n\t ')"
-          supabase functions deploy crm-ideas-users \
-            --project-ref "${SUPABASE_PROJECT_REF}" \
-            --no-verify-jwt
+          TOKEN="$(printf '%s' "$SUPABASE_ACCESS_TOKEN" | tr -d '\r\n\t ')"
+          RESPONSE_FILE="$(mktemp)"
+          HTTP_CODE="$(
+            curl --silent --show-error --location \
+              --output "$RESPONSE_FILE" --write-out '%{http_code}' \
+              --request POST \
+              --url "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_REF}/functions/deploy?slug=crm-ideas-users" \
+              --header "Authorization: Bearer $TOKEN" \
+              --form 'metadata={"entrypoint_path":"index.ts","name":"crm-ideas-users","verify_jwt":false};type=application/json' \
+              --form 'file=@supabase/functions/crm-ideas-users/index.ts;type=text/plain'
+          )"
+          cat "$RESPONSE_FILE"
+          echo
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "::error::CRM function deployment failed with HTTP $HTTP_CODE."
+            exit 1
+          fi
 
       - name: Check optional database password
         id: db_password
@@ -79,6 +101,7 @@ jobs:
             echo "configured=true" >> "$GITHUB_OUTPUT"
           else
             echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::SUPABASE_DB_PASSWORD is not configured; database migrations are not applied by this workflow."
           fi
 
       - name: Apply Supabase migrations
@@ -88,8 +111,7 @@ jobs:
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: |
           set -euo pipefail
-          export SUPABASE_ACCESS_TOKEN="$(printf '%s' "${SUPABASE_ACCESS_TOKEN}" | tr -d '\r\n\t ')"
-          supabase db push \
+          npx --yes supabase@latest db push \
             --project-ref "${SUPABASE_PROJECT_REF}" \
             --include-all
 
@@ -99,10 +121,23 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
           set -euo pipefail
-          export SUPABASE_ACCESS_TOKEN="$(printf '%s' "${SUPABASE_ACCESS_TOKEN}" | tr -d '\r\n\t ')"
-          supabase functions deploy ai-customer-discovery \
-            --project-ref "${SUPABASE_PROJECT_REF}" \
-            --no-verify-jwt
+          TOKEN="$(printf '%s' "$SUPABASE_ACCESS_TOKEN" | tr -d '\r\n\t ')"
+          RESPONSE_FILE="$(mktemp)"
+          HTTP_CODE="$(
+            curl --silent --show-error --location \
+              --output "$RESPONSE_FILE" --write-out '%{http_code}' \
+              --request POST \
+              --url "https://api.supabase.com/v1/projects/${SUPABASE_PROJECT_REF}/functions/deploy?slug=ai-customer-discovery" \
+              --header "Authorization: Bearer $TOKEN" \
+              --form 'metadata={"entrypoint_path":"index.ts","name":"ai-customer-discovery","verify_jwt":false};type=application/json' \
+              --form 'file=@supabase/functions/ai-customer-discovery/index.ts;type=text/plain'
+          )"
+          cat "$RESPONSE_FILE"
+          echo
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "::error::AI Customer Discovery deployment failed with HTTP $HTTP_CODE."
+            exit 1
+          fi
 
       - name: Deployment skipped
         if: steps.credentials.outputs.configured != 'true'
