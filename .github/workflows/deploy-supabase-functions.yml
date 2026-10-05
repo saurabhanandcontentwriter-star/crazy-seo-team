@@ -37,10 +37,7 @@ jobs:
             echo "::warning::SUPABASE_ACCESS_TOKEN is not configured."
             exit 0
           fi
-          if ! printf '%s' "$TOKEN" | grep -Eq '^sbp_[A-Za-z0-9_-]+$'; then
-            echo "::error::SUPABASE_ACCESS_TOKEN is not a valid Supabase PAT. Use a Personal Access Token from Supabase Account > Access Tokens."
-            exit 1
-          fi
+          # Let Supabase validate the token itself; current PAT formats can vary.
           echo "configured=true" >> "$GITHUB_OUTPUT"
 
       - name: Deploy LinkedIn Automation function
