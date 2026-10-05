@@ -29,3 +29,6 @@ verify_jwt = false
 # Admin-only function validates the caller and admin role itself.
 [functions.ai-customer-discovery]
 verify_jwt = false
+
+[functions.linkedin-automation]
+verify_jwt = false
