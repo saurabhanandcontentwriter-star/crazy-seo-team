@@ -46,8 +46,14 @@ export default function LinkedInAutomation() {
   useEffect(() => {
     loadStatus();
     const params = new URLSearchParams(window.location.search);
-    if (params.get("connected") === "1") {
+    const result = params.get("linkedin");
+    if (result === "connected") {
       toast.success("LinkedIn connected successfully");
+      window.history.replaceState({}, "", "/admin/linkedin");
+      loadStatus();
+    } else if (result === "error") {
+      const message = params.get("message");
+      toast.error(message ? decodeURIComponent(message) : "LinkedIn connection failed");
       window.history.replaceState({}, "", "/admin/linkedin");
     }
   }, []);
