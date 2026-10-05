@@ -1,9 +1,14 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "https://www.crazyseoteam.in",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+const allowedOrigins = new Set(["https://crazyseoteam.in", "https://www.crazyseoteam.in"]);
+const cors = (req: Request) => {
+  const origin = req.headers.get("Origin") || "";
+  return {
+    "Access-Control-Allow-Origin": allowedOrigins.has(origin) ? origin : "https://crazyseoteam.in",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Vary": "Origin",
+  };
 };
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -11,13 +16,13 @@ const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUP
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const LINKEDIN_CLIENT_ID = Deno.env.get("LINKEDIN_CLIENT_ID");
 const LINKEDIN_CLIENT_SECRET = Deno.env.get("LINKEDIN_CLIENT_SECRET");
-const APP_URL = (Deno.env.get("APP_URL") || "https://www.crazyseoteam.in").replace(/\/$/, "");
-const LINKEDIN_VERSION = Deno.env.get("LINKEDIN_VERSION") || "202610";
+const APP_URL = (Deno.env.get("APP_URL") || "https://crazyseoteam.in").replace(/\/$/, "");
+const LINKEDIN_VERSION = Deno.env.get("LINKEDIN_VERSION") || "202609";
 
 const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
-  status, headers: { ...corsHeaders, "Content-Type": "application/json" },
+  status, headers: { "Content-Type": "application/json" },
 });
 
 async function requireAdmin(req: Request) {
@@ -126,7 +131,7 @@ async function oauthCallback(req: Request) {
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors(req) });
   try {
     if (req.method === "GET") return await oauthCallback(req);
     if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
@@ -209,6 +214,6 @@ Deno.serve(async (req) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : "LinkedIn automation failed";
     const status = message === "Unauthorized" ? 401 : message === "Forbidden" ? 403 : 400;
-    return json({ error: message }, status);
+    return new Response(JSON.stringify({ error: message }), { status, headers: { ...cors(req), "Content-Type": "application/json" } });
   }
 });
