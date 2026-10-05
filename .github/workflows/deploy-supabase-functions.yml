@@ -1,5 +1,7 @@
 name: Deploy Supabase Edge Functions
 
+# Verify Supabase deployment credentials after token refresh.
+
 # Deployment credential verification updated.
 
 # Deployment trigger after Supabase Actions credentials were configured.
