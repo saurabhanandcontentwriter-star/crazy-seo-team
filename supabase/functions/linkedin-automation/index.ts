@@ -21,8 +21,8 @@ const LINKEDIN_VERSION = Deno.env.get("LINKEDIN_VERSION") || "202609";
 
 const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
 
-const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
-  status, headers: { "Content-Type": "application/json" },
+const json = (req: Request, body: unknown, status = 200) => new Response(JSON.stringify(body), {
+  status, headers: { "Content-Type": "application/json", ...cors(req) },
 });
 
 async function requireAdmin(req: Request) {
@@ -134,7 +134,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors(req) });
   try {
     if (req.method === "GET") return await oauthCallback(req);
-    if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+    if (req.method !== "POST") return json(req, { error: "Method not allowed" }, 405);
     if (!LINKEDIN_CLIENT_ID || !LINKEDIN_CLIENT_SECRET) throw new Error("LinkedIn integration is not configured. Add LINKEDIN_CLIENT_ID and LINKEDIN_CLIENT_SECRET in Supabase secrets.");
 
     const user = await requireAdmin(req);
@@ -154,7 +154,7 @@ Deno.serve(async (req) => {
       authUrl.searchParams.set("redirect_uri", callbackUrl());
       authUrl.searchParams.set("state", state);
       authUrl.searchParams.set("scope", "openid profile email w_member_social");
-      return json({ authUrl: authUrl.toString() });
+      return json(req, { authUrl: authUrl.toString() });
     }
 
     const { data: connection } = await admin.from("linkedin_connections")
@@ -162,8 +162,8 @@ Deno.serve(async (req) => {
       .eq("id", "primary").maybeSingle();
 
     if (action === "status") {
-      if (!connection || connection.user_id !== user.id) return json({ connected: false, profile: null });
-      return json({ connected: true, profile: {
+      if (!connection || connection.user_id !== user.id) return json(req, { connected: false, profile: null });
+      return json(req, { connected: true, profile: {
         name: connection.name, email: connection.email, picture: connection.picture,
         memberUrn: connection.member_urn, expiresAt: connection.expires_at,
       }});
@@ -175,7 +175,7 @@ Deno.serve(async (req) => {
     if (action === "disconnect") {
       const { error } = await admin.from("linkedin_connections").delete().eq("id", "primary");
       if (error) throw new Error("Could not disconnect LinkedIn: " + error.message);
-      return json({ ok: true });
+      return json(req, { ok: true });
     }
 
     if (action === "post") {
@@ -192,7 +192,7 @@ Deno.serve(async (req) => {
         }),
       });
       if (!response.ok) throw await liError(response);
-      return json({ ok: true, postUrn: response.headers.get("x-restli-id") });
+      return json(req, { ok: true, postUrn: response.headers.get("x-restli-id") });
     }
 
     if (action === "comment") {
@@ -207,7 +207,7 @@ Deno.serve(async (req) => {
         body: JSON.stringify({ actor: connection.member_urn, object: postUrn, message: { text } }),
       });
       if (!response.ok) throw await liError(response);
-      return json({ ok: true, commentId: response.headers.get("x-restli-id") });
+      return json(req, { ok: true, commentId: response.headers.get("x-restli-id") });
     }
 
     throw new Error("Unsupported LinkedIn action.");
