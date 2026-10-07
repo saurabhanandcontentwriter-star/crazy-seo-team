@@ -412,6 +412,7 @@ const AITools = () => (
     <Helmet>
       <title>AI Tools for SEO & Content | Free AI Tools for SEO, Content & Search Growth | Crazy SEO Team</title>
       <meta name="description" content="Use free AI tools for SEO, content and search growth: AI article generator, SEO audit, meta tags, schema, sitemaps and AI-search workflows from Crazy SEO Team." />
+      <meta name="keywords" content="AI tools, AI SEO tools, SEO tools, AI content tools, AI marketing tools, SEO content generator, AEO, GEO, LLM optimization" />
       <link rel="canonical" href="/ai-tools" />
     </Helmet>
     <Navbar />
@@ -421,6 +422,7 @@ const AITools = () => (
           <Badge className="mb-3 gradient-bg text-primary-foreground"><Sparkles size={12} className="mr-1" /> Free Tools</Badge>
           <h1 className="text-3xl md:text-5xl font-black text-foreground mb-3">AI SEO Toolkit</h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">Free AI tools from Crazy SEO Team for SEO, content optimization and search visibility — including an AI article generator, SEO audit, metadata, structured data, sitemaps and AI-search workflows.</p>
+          <p className="text-sm text-muted-foreground max-w-3xl mx-auto mt-3">Use AI SEO tools to speed up research and production while keeping human review in the loop. Supporting workflows cover AEO, GEO, LLM optimization and semantic content without keyword stuffing.</p>
         </div>
         <Tabs defaultValue="article" className="w-full">
           <TabsList className="grid grid-cols-3 md:grid-cols-5 w-full mb-6">
