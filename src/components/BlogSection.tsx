@@ -28,7 +28,7 @@ const BlogSection = () => {
 
         <Link to={`/blog/${featured.slug}`} className="block rounded-xl overflow-hidden border border-border bg-card mb-8 hover:shadow-lg transition-all group">
           {featured.img && (
-            <img src={featured.img} alt={featured.title} className="w-full h-72 object-cover group-hover:scale-[1.02] transition-transform duration-500" />
+            <img src={featured.img} alt={featured.title} width={1200} height={675} className="block w-full h-72 object-cover group-hover:scale-[1.02] transition-transform duration-500" />
           )}
           <div className="p-8">
             <div className="flex items-center gap-3 mb-3">
@@ -38,7 +38,7 @@ const BlogSection = () => {
             <h3 className="text-2xl font-bold text-foreground mb-2">{featured.title}</h3>
             <p className="text-muted-foreground text-sm leading-relaxed">{featured.desc}</p>
             <div className="flex items-center gap-3 mt-6">
-              <img src={featured.authorImg} alt={featured.author} className="w-10 h-10 rounded-full object-cover" />
+              <img src={featured.authorImg} alt={featured.author} width={40} height={40} className="block w-10 h-10 rounded-full object-cover" />
               <div>
                 <p className="text-sm font-semibold text-foreground">{featured.author}</p>
                 <p className="text-xs text-muted-foreground">{featured.role}</p>
@@ -52,7 +52,7 @@ const BlogSection = () => {
             <Link to={`/blog/${post.slug}`} key={post.slug} className="rounded-xl overflow-hidden border border-border bg-card hover:shadow-lg transition-all group">
               {post.img && (
                 <div className="h-44 overflow-hidden">
-                  <img src={post.img} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={post.img} alt={post.title} width={800} height={450} className="block w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
               )}
               <div className="p-5">
@@ -63,7 +63,7 @@ const BlogSection = () => {
                 <h3 className="text-lg font-bold text-foreground mb-1 line-clamp-2">{post.title}</h3>
                 <p className="text-sm text-muted-foreground line-clamp-2">{post.desc}</p>
                 <div className="flex items-center gap-2 mt-4">
-                  <img src={post.authorImg} alt={post.author} className="w-7 h-7 rounded-full object-cover" />
+                  <img src={post.authorImg} alt={post.author} width={28} height={28} className="block w-7 h-7 rounded-full object-cover" />
                   <span className="text-xs font-medium text-foreground">{post.author}</span>
                 </div>
               </div>
