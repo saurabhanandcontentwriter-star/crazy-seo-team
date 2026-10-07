@@ -32,13 +32,13 @@ const copy: Record<string, {title:string; intro:string; points:string[]}> = {
     ]
   },
   "ai-tools": {
-    title: "AI tools that support real SEO work",
-    intro: "AI is useful when it speeds up research and drafting without replacing editorial judgment. Our tools support practical workflows such as outlining, content review, metadata, semantic analysis and AI-search visibility checks.",
+    title: "AI tools for SEO, content and search growth",
+    intro: "AI tools are most useful when they remove repetitive work while keeping strategy, facts and editorial judgment under human control. Crazy SEO Team's AI SEO tools combine content workflows with technical SEO, semantic optimization and AI-search visibility checks.",
     points: [
-      "Use AI-assisted workflows to build article outlines, FAQs, metadata and content briefs around a defined search intent.",
-      "Combine AI generation with entity, topic and internal-link planning so content supports a wider site architecture.",
-      "Review factual claims, citations, brand information and commercial statements before publishing AI-assisted content.",
-      "Measure the finished page using search performance, engagement, conversions and technical health rather than generation volume alone."
+      "Primary focus: AI tools for practical SEO work, including content planning, article generation, metadata, audits and structured data.",
+      "Supporting workflows: AI SEO tools, SEO tools and AI content tools for search intent, internal linking, FAQs, semantic coverage and content optimization.",
+      "AI-search support: AEO, GEO and LLM optimization workflows help make useful information clearer to answer engines and generative search systems.",
+      "Quality control: review facts, citations, brand claims and commercial statements before publishing; measure outcomes with search performance, engagement and conversions."
     ]
   },
   results: {
