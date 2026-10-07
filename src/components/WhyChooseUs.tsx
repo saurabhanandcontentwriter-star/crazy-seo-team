@@ -45,11 +45,11 @@ const WhyChooseUs = () => (
         </div>
       </div>
 
-      <div className="rounded-2xl overflow-hidden shadow-xl">
+      <div className="rounded-2xl overflow-hidden shadow-xl aspect-[4/3] bg-slate-100">
         <img
           src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
           alt="Team collaborating on marketing strategy"
-          className="w-full h-full object-cover"
+          width={1000} height={750} className="block w-full h-full object-cover"
         />
       </div>
     </div>
