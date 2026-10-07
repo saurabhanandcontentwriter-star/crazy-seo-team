@@ -29,18 +29,7 @@ const Navbar = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [quoteDay, setQuoteDay] = useState(() => new Date().toDateString());
 
-  const dailyQuotes = [
-    "Small steps every day create big results.",
-    "Build with purpose. Improve with consistency.",
-    "Your next breakthrough starts with one focused action.",
-    "Stay curious, keep learning, keep moving forward.",
-    "Progress beats perfection when you keep showing up.",
-    "Think bigger. Start smaller. Execute today.",
-    "Good work compounds when you stay consistent.",
-    "Turn ideas into action, and action into growth.",
-    "Keep learning, keep building, keep becoming better.",
-    "Focus on what you can improve today.",
-  ];
+  const dailyQuotes = ["Next Zen AI"];
 
   useEffect(() => {
     const timer = window.setInterval(() => setQuoteDay(new Date().toDateString()), 60000);
