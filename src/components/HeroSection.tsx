@@ -91,7 +91,7 @@ const HeroSection = () => {
 
               <p className="mt-6 text-lg text-slate-600 max-w-xl leading-relaxed">
                 Rank higher across Google and every AI search engine with an all-in-one platform for
-                <strong className="text-slate-900"> AI SEO, GEO, AEO & LLM Optimization</strong> — built for the 2026 search stack.
+                <strong className="text-slate-900"> AI SEO, GEO, AEO & LLM Optimization</strong> — built for the modern search stack.
               </p>
 
               <div className="flex flex-wrap gap-4 mt-8">
