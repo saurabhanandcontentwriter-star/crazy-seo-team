@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import CrmFlashNotice from "@/pages/admin/crm/CrmFlashNotice";
-import { BarChart3, CalendarDays, KanbanSquare, LayoutDashboard, Users2, UsersRound, BriefcaseBusiness, CheckSquare, Wallet, Cpu, GraduationCap, Lightbulb, Megaphone, FileBarChart, Bell, Bot, Settings, ChevronDown, Building2, BrainCircuit } from "lucide-react";
+import { BarChart3, CalendarDays, KanbanSquare, LayoutDashboard, Users2, UsersRound, BriefcaseBusiness, CheckSquare, Wallet, Cpu, GraduationCap, Lightbulb, Megaphone, FileBarChart, Bell, Bot, Settings, ChevronDown, Building2, BrainCircuit, Linkedin } from "lucide-react";
 
 const TABS = [
   { to: "/admin/crm", label: "Dashboard", icon: LayoutDashboard, end: true },
@@ -20,6 +20,7 @@ const TABS = [
   { to: "/admin/crm/ai-assistant", label: "AI Assistant", icon: Bot },
   { to: "/admin/crm/customer-discovery", label: "Customer Discovery", icon: BrainCircuit },
   { to: "/admin/crm/settings", label: "Settings", icon: Settings },
+  { to: "/admin/crm/linkedin", label: "LinkedIn Automation", icon: Linkedin },
   { to: "/admin/crm/leads", label: "Leads", icon: Users2 },
   { to: "/admin/crm/pipeline", label: "Pipeline", icon: KanbanSquare },
   { to: "/admin/crm/calendar", label: "Follow-ups", icon: CalendarDays },
@@ -40,7 +41,7 @@ export default function CrmShell() {
     { label: "WORKSPACE", items: ["Dashboard","Employees","CRM","Projects","Tasks"] },
     { label: "OPERATIONS", items: ["Finance","Technology","HR","Ideas"] },
     { label: "INSIGHTS", items: ["Reports","Notifications","AI Assistant","Customer Discovery"] },
-    { label: "SYSTEM", items: ["Settings","Leads","Pipeline","Follow-ups","Analytics",...(isAdmin ? ["Team"] : [])] },
+    { label: "SYSTEM", items: ["Settings","LinkedIn Automation","Leads","Pipeline","Follow-ups","Analytics",...(isAdmin ? ["Team"] : [])] },
   ];
   const [collapsed,setCollapsed]=useState<Record<string,boolean>>({});
   return (
