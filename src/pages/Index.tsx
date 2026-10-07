@@ -3,9 +3,8 @@ import { useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-
-const StatsBar = lazy(() => import("@/components/StatsBar"));
-const ToolsMarquee = lazy(() => import("@/components/ToolsMarquee"));
+import StatsBar from "@/components/StatsBar";
+import ToolsMarquee from "@/components/ToolsMarquee";
 const ServicesPreview = lazy(() => import("@/components/ServicesPreview"));
 const WhyChooseUs = lazy(() => import("@/components/WhyChooseUs"));
 const AdvertisingCarousel = lazy(() => import("@/components/AdvertisingCarousel"));
@@ -70,10 +69,10 @@ const Index = () => {
       <Navbar />
       <HeroSection />
 
-      <Suspense fallback={<div className="min-h-[35vh] bg-white" />}>
-        <StatsBar />
-        <ToolsMarquee />
+      <StatsBar />
+      <ToolsMarquee />
 
+      <Suspense fallback={<div className="min-h-[35vh] bg-white" />}>
         <section id="process" className="py-24 px-4 bg-secondary/20">
           <div className="container mx-auto max-w-7xl">
             <div className="mx-auto max-w-3xl text-center mb-14">
