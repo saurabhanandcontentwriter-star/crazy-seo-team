@@ -57,7 +57,7 @@ function readCallbackMessage() {
   if (!result) return null;
 
   const message = params.get("message");
-  window.history.replaceState({}, "", "/admin/linkedin");
+  window.history.replaceState({}, "", "/admin/crm/linkedin");
 
   return {
     result,
