@@ -6,11 +6,23 @@ import { getServiceBySlug } from "@/data/services";
 
 const SITE = "https://crazyseoteam.in";
 const BRAND = "Crazy SEO Team";
-const CORE_TOPICS = "SEO, technical SEO, content strategy, AI search, website optimization, digital marketing";
+const CORE_TOPICS = "SEO, technical SEO, AI search optimization, AEO, GEO, generative engine optimization, LLM optimization, AI SEO, content engineering, semantic SEO, entity SEO, content strategy, marketing automation, AI software, digital marketing";
+const AI_SEARCH_TOPICS = [
+  "AI Search Optimization",
+  "Technical SEO Services",
+  "Generative Engine Optimization (GEO)",
+  "Content Engineering Services",
+  "Marketing Automation & AI Software",
+  "Answer Engine Optimization (AEO)",
+  "LLM Optimization & AI Visibility",
+  "Semantic SEO & Entity Optimization",
+  "AI SEO Content Strategy",
+  "AI Search Content & Citation Readiness",
+];
 const pageMeta: Record<string, { title: string; description: string; keywords: string }> = {
-  "/": { title: "Crazy SEO Team | AI SEO, GEO & Digital Marketing Agency", description: "AI SEO and digital marketing agency helping businesses grow with technical SEO, GEO, AEO, content, automation and AI search optimization.", keywords: "AI SEO agency, SEO agency, technical SEO, GEO, AEO, LLM SEO, AI search optimization, digital marketing, SEO services" },
+  "/": { title: "Crazy SEO Team | AI SEO, GEO & Digital Marketing Agency", description: "AI SEO and digital marketing agency helping businesses grow with technical SEO, GEO, AEO, content, automation and AI search optimization.", keywords: "AI SEO agency, SEO agency, technical SEO services, AI search optimization, generative engine optimization, GEO, answer engine optimization, AEO, LLM optimization, LLM SEO, content engineering, semantic SEO, entity SEO, marketing automation, AI software, digital marketing, SEO services" },
   "/about": { title: "About Crazy SEO Team | AI SEO & Digital Marketing", description: "Learn how Crazy SEO Team approaches SEO, content, AI-search visibility, automation and digital growth.", keywords: "Crazy SEO Team, AI SEO company, SEO experts, LLM optimization, digital marketing" },
-  "/services": { title: "AI SEO & Digital Marketing Services | Crazy SEO Team", description: "Explore SEO, content, technical optimization, AI-search support, automation and digital marketing services.", keywords: "AI SEO services, technical SEO, GEO services, AEO, LLM SEO, content writing, digital marketing" },
+  "/services": { title: "AI SEO & Digital Marketing Services | Crazy SEO Team", description: "Explore SEO, content, technical optimization, AI-search support, automation and digital marketing services.", keywords: "AI SEO services, AI search optimization, technical SEO services, GEO services, generative engine optimization, AEO, answer engine optimization, LLM optimization, content engineering services, semantic SEO, entity SEO, marketing automation, AI software, content writing, digital marketing" },
   "/industries": { title: "Industries We Serve | SEO & AI Search Growth | Crazy SEO Team", description: "Explore industry-specific SEO, AI search, content, local visibility and digital growth strategies for e-commerce, SaaS, healthcare, education, finance and more.", keywords: "industry SEO, ecommerce SEO, SaaS SEO, healthcare SEO, education SEO, fintech SEO, real estate SEO, local SEO" },
   "/seo-tools": { title: "Free SEO Tools, Audit & AEO GEO Checkers | Crazy SEO Team", description: "Use practical tools for SEO audits, keywords, metadata, schema, sitemaps and other website checks.", keywords: "SEO tools, SEO audit, keyword research, NLP analyzer, schema generator, GEO checker, AEO checker, LLM checker" },
   "/ai-tools": { title: "AI SEO Tools & AI Marketing Toolkit | Crazy SEO Team", description: "Explore AI-assisted tools for content, SEO workflows, visibility checks and digital marketing tasks.", keywords: "AI SEO tools, AI marketing tools, content optimization, LLM tools, AI visibility" },
@@ -157,9 +169,9 @@ export default function SEOHead() {
     return () => observer.disconnect();
   }, [location.pathname]);
 
-  const organization = { "@context": "https://schema.org", "@type": "Organization", "@id": `${SITE}/#organization`, name: BRAND, url: SITE, description: "SEO, content, AI-search visibility and digital growth platform.", knowsAbout: CORE_TOPICS.split(", ").map((x) => x.trim()) };
+  const organization = { "@context": "https://schema.org", "@type": "Organization", "@id": `${SITE}/#organization`, name: BRAND, url: SITE, description: "SEO, content, AI-search visibility and digital growth platform.", knowsAbout: [...CORE_TOPICS.split(", ").map((x) => x.trim()), ...AI_SEARCH_TOPICS] };
   const websiteSchema = { "@context": "https://schema.org", "@type": "WebSite", "@id": `${SITE}/#website`, name: BRAND, url: SITE, description: "SEO, content, AI-search visibility and digital marketing platform.", publisher: { "@id": `${SITE}/#organization` }, inLanguage: "en-IN" };
-  const webPageSchema = { "@context": "https://schema.org", "@type": "WebPage", "@id": `${canonical}#webpage`, url: canonical, name: anvyaPost ? `${anvyaPost.title || "ANVYA Post"} | ANVYA | ${BRAND}` : listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title, description: anvyaPost ? String(anvyaPost.content || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) : listing?.description?.slice(0, 160) || meta.description, isPartOf: { "@id": `${SITE}/#website` }, about: { "@id": `${SITE}/#organization` }, inLanguage: "en-IN", keywords: listing ? [listing.category, listing.city, listing.state].filter(Boolean).join(", ") : meta.keywords };
+  const webPageSchema = { "@context": "https://schema.org", "@type": "WebPage", "@id": `${canonical}#webpage`, url: canonical, name: anvyaPost ? `${anvyaPost.title || "ANVYA Post"} | ANVYA | ${BRAND}` : listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title, description: anvyaPost ? String(anvyaPost.content || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) : listing?.description?.slice(0, 160) || meta.description, isPartOf: { "@id": `${SITE}/#website` }, about: { "@id": `${SITE}/#organization` }, inLanguage: "en-IN", keywords: listing ? [listing.category, listing.city, listing.state].filter(Boolean).join(", ") : `${meta.keywords}, ${AI_SEARCH_TOPICS.join(", ")}`, about: AI_SEARCH_TOPICS.map((topic) => ({ "@type": "Thing", name: topic })),
   const collectionSchema = useMemo(() => (basePath === "/classifieds" || basePath === "/industries" || isIdeas) ? { "@context": "https://schema.org", "@type": "CollectionPage", name: meta.title, url: canonical, description: meta.description, isPartOf: { "@type": "WebSite", name: BRAND, url: SITE } } : null, [basePath, canonical, meta.title, meta.description, isIdeas]);
   const ideasSchema = isIdeas ? { "@context": "https://schema.org", "@type": "CollectionPage", "@id": `${SITE}/anvya#collection`, name: meta.title, url: canonical, description: meta.description, about: ["AI", "SEO", "Generative Engine Optimization", "Answer Engine Optimization", "LLM optimization", "Technology", "Digital marketing", "Travel", "Science", "Economics", "Business"], keywords: meta.keywords, audience: { "@type": "Audience", audienceType: "People seeking knowledge, discussions, networking and community collaboration" }, isPartOf: { "@id": `${SITE}/#website` }, publisher: { "@id": `${SITE}/#organization` } } : null;
   const postAdSchema = isPostAd ? { "@context": "https://schema.org", "@type": "WebPage", "@id": `${SITE}/post-ad#webpage`, name: meta.title, url: canonical, description: meta.description, about: { "@type": "Thing", name: "Classified advertising" }, isPartOf: { "@id": `${SITE}/#website` } } : null;
