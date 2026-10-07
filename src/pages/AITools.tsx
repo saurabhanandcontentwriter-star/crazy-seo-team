@@ -410,8 +410,8 @@ const ArticleGenerator = () => {
 const AITools = () => (
   <div className="min-h-screen bg-background">
     <Helmet>
-      <title>Free AI SEO Tools — Article Generator, Meta, Schema, Sitemap & Audit | Crazy SEO Team</title>
-      <meta name="description" content="Free AI-powered SEO tools: AI article generator (SEO/GEO/AEO/LLM), meta tag generator, JSON-LD schema builder, XML sitemap generator, and on-page SEO audit." />
+      <title>AI Tools for SEO & Content | Free AI Tools for SEO, Content & Search Growth | Crazy SEO Team</title>
+      <meta name="description" content="Use free AI tools for SEO, content and search growth: AI article generator, SEO audit, meta tags, schema, sitemaps and AI-search workflows from Crazy SEO Team." />
       <link rel="canonical" href="/ai-tools" />
     </Helmet>
     <Navbar />
@@ -420,7 +420,7 @@ const AITools = () => (
         <div className="text-center mb-8">
           <Badge className="mb-3 gradient-bg text-primary-foreground"><Sparkles size={12} className="mr-1" /> Free Tools</Badge>
           <h1 className="text-3xl md:text-5xl font-black text-foreground mb-3">AI SEO Toolkit</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">Production-ready tools: AI article generator, meta tags, structured data, sitemaps, and instant SEO audits — all free, no signup.</p>
+          <p className="text-muted-foreground max-w-2xl mx-auto">Free AI tools from Crazy SEO Team for SEO, content optimization and search visibility — including an AI article generator, SEO audit, metadata, structured data, sitemaps and AI-search workflows.</p>
         </div>
         <Tabs defaultValue="article" className="w-full">
           <TabsList className="grid grid-cols-3 md:grid-cols-5 w-full mb-6">
