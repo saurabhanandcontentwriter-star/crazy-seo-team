@@ -124,6 +124,41 @@ const Index = () => {
           </div>
         </section>
 
+
+        <section id="ai-search-topics" className="relative py-24 px-4 bg-slate-50/70">
+          <div className="container mx-auto max-w-7xl">
+            <div className="mx-auto max-w-4xl text-center mb-12">
+              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary mb-3">AI Search Topic Coverage</p>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">
+                SEO, AEO, GEO and <span className="gradient-text">LLM-ready content engineering.</span>
+              </h2>
+              <p className="mt-4 text-base md:text-lg leading-8 text-muted-foreground">
+                We build useful, entity-rich and technically accessible content around the topics businesses need to be discoverable in Google Search and modern AI-powered search experiences.
+              </p>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                ["AI Search Optimization", "Improve how important pages, entities, services and expertise are understood across AI-assisted search.", "/ai-tools"],
+                ["Technical SEO Services", "Strengthen crawlability, indexability, performance, internal linking, metadata and structured data.", "/services"],
+                ["Generative Engine Optimization (GEO)", "Build clear topical coverage and entity context for generative search discovery.", "/services"],
+                ["Content Engineering Services", "Combine search intent, semantic coverage, original information and conversion-focused content structure.", "/services"],
+                ["Marketing Automation & AI Software", "Connect SEO and content workflows with automation, AI agents, analytics and software systems.", "/services"],
+                ["Answer Engine Optimization (AEO)", "Structure direct, useful answers and supporting context so answer engines can interpret the page clearly.", "/services"],
+                ["LLM Optimization & AI Visibility", "Make brand, service and expertise information easier for language models to interpret and cite.", "/services"],
+                ["Semantic SEO & Entity Optimization", "Build topic clusters, entity relationships and internal links that reinforce topical relevance.", "/services"],
+                ["AI SEO Content Strategy", "Map questions, entities, intent and content opportunities into a sustainable editorial system.", "/blog"],
+                ["AI Search Content & Citation Readiness", "Create original, trustworthy and well-structured information designed for human readers and AI discovery.", "/services"]
+              ].map(([title, description, href]) => (
+                <a key={title} href={href} className="group rounded-2xl border border-border bg-card p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl">
+                  <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
+                  <span className="mt-4 inline-flex text-sm font-bold text-primary">Explore topic →</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <AdvertisingCarousel />
         <ServicesPreview />
         <AboutSection />
