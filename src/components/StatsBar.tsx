@@ -136,6 +136,8 @@ const StatsBar = () => {
                             loading="lazy"
                             decoding="async"
                             referrerPolicy="no-referrer"
+                            width={28}
+                            height={28}
                             className="h-7 w-7 object-contain"
                             onError={(event) => { event.currentTarget.style.display = "none"; }}
                           />
