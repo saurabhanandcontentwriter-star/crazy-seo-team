@@ -7,7 +7,7 @@ export default function AdminDashboard() {
 
   // 🔒 protect page
   useEffect(() => {
-    if (localStorage.getItem("admin") !== "true") {
+    if (localStorage.getItem("adminLoggedIn") !== "true") {
       navigate("/");
     }
   }, [navigate]);
@@ -21,8 +21,9 @@ export default function AdminDashboard() {
   }, []);
 
   const logout = () => {
-    localStorage.clear();
-    navigate("/");
+    localStorage.removeItem("adminLoggedIn");
+    localStorage.removeItem("adminEmail");
+    navigate("/admin/login");
   };
 
   return (
