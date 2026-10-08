@@ -145,7 +145,7 @@ const Index = () => {
         <WhyChooseUs />
         <BlogSection />
 
-        <section id="community" className="relative overflow-hidden bg-slate-950 px-4 py-24 md:py-28">
+        <section id="community" className="relative overflow-hidden bg-[#05070d] px-4 py-24 md:py-32">
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-blue-600/20 blur-3xl" />
             <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-fuchsia-600/15 blur-3xl" />
@@ -163,21 +163,46 @@ const Index = () => {
               </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <style>{`
+              @keyframes anvyaFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+              @keyframes anvyaGlow { 0%,100% { opacity:.35; transform:scale(1); } 50% { opacity:.7; transform:scale(1.12); } }
+              @keyframes anvyaShimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+              .anvya-card { animation: anvyaFloat 6s ease-in-out infinite; }
+              .anvya-card:nth-child(2) { animation-delay: .8s; }
+              .anvya-card:nth-child(3) { animation-delay: 1.6s; }
+              .anvya-card:nth-child(4) { animation-delay: 2.4s; }
+              .anvya-card:hover { animation-play-state: paused; transform: translateY(-12px) scale(1.025); }
+              .anvya-shimmer { background-size: 200% 200%; animation: anvyaShimmer 5s linear infinite; }
+              .anvya-glow { animation: anvyaGlow 4s ease-in-out infinite; }
+              @media (prefers-reduced-motion: reduce) {
+                .anvya-card, .anvya-shimmer, .anvya-glow { animation: none !important; }
+              }
+            `}</style>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                ["Profiles", "Create a public profile, show your expertise and help relevant people discover you."],
-                ["Posts & Ideas", "Publish useful thoughts, questions, guides and original insights for the community."],
-                ["Communities", "Find topic-based spaces and participate in focused conversations with shared interests."],
-                ["Connections", "Discover people, follow relevant activity and turn useful conversations into collaboration."]
-              ].map(([title, description]) => (
-                <div key={title} className="rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-2xl backdrop-blur transition-transform hover:-translate-y-1">
-                  <h3 className="text-lg font-extrabold text-white">{title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-300">{description}</p>
+                ["01", "Profiles", "Create your identity, showcase expertise and let the right people discover you.", "👤"],
+                ["02", "Posts & Ideas", "Share useful thoughts, questions, guides and original insights with your community.", "✦"],
+                ["03", "Communities", "Explore focused spaces, join meaningful conversations and learn together.", "◉"],
+                ["04", "Connections", "Follow relevant activity and turn great conversations into real opportunities.", "↗"]
+              ].map(([number, title, description, icon]) => (
+                <div key={title} className="anvya-card group relative overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.055] p-6 shadow-[0_20px_70px_rgba(0,0,0,.28)] backdrop-blur-xl transition-all duration-500">
+                  <div className="anvya-glow pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-cyan-400/20 blur-3xl" />
+                  <div className="relative flex items-center justify-between">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-lg text-white shadow-inner">{icon}</div>
+                    <span className="text-[11px] font-black tracking-[0.2em] text-slate-500">{number}</span>
+                  </div>
+                  <h3 className="relative mt-7 text-xl font-black text-white">{title}</h3>
+                  <p className="relative mt-3 text-sm leading-6 text-slate-300">{description}</p>
+                  <div className="relative mt-6 h-px overflow-hidden bg-white/10">
+                    <div className="h-full w-1/2 bg-gradient-to-r from-cyan-400 via-blue-500 to-fuchsia-500 opacity-70 transition-all duration-500 group-hover:w-full" />
+                  </div>
                 </div>
               ))}
             </div>
 
-            <div className="mt-8 overflow-hidden rounded-[32px] border border-white/10 bg-white shadow-2xl">
+            <div className="relative mt-10">
+              <div className="anvya-glow pointer-events-none absolute -inset-6 rounded-[40px] bg-gradient-to-r from-cyan-500/10 via-blue-500/15 to-fuchsia-500/10 blur-3xl" />
+              <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white shadow-[0_30px_100px_rgba(0,0,0,.5)]">
               <div className="relative bg-slate-100">
                 <img
                   src="/images/anvya-community.jpg"
@@ -201,9 +226,10 @@ const Index = () => {
                   <a href="/anvya" className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-6 py-3 font-bold text-slate-900 transition-all hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50">Open ANVYA <span className="ml-2 text-blue-600">→</span></a>
                 </div>
               </div>
+              </div>
             </div>
 
-            <div className="mt-8 rounded-2xl border border-blue-400/20 bg-gradient-to-r from-blue-500/10 via-violet-500/10 to-fuchsia-500/10 p-5 md:p-6">
+            <div className="anvya-shimmer mt-8 rounded-[24px] border border-blue-400/20 bg-[linear-gradient(110deg,rgba(59,130,246,.10),rgba(139,92,246,.16),rgba(217,70,239,.10),rgba(59,130,246,.10))] p-5 md:p-6">
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-300">Community Advertising</p>
