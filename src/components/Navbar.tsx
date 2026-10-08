@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import {
   Menu,
@@ -27,6 +27,35 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState<"product" | "solutions" | "resources" | "industries" | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [navratriDay, setNavratriDay] = useState<{
+    day: number;
+    maa: string;
+    quote: string;
+  } | null>(null);
+
+  useEffect(() => {
+    const campaign = [
+      { day: 1, date: 11, maa: "Maa Shailputri", quote: "Strong foundation, better rankings, bigger growth." },
+      { day: 2, date: 12, maa: "Maa Brahmacharini", quote: "SEO mein shortcut nahi—consistent optimization hi long-term growth banata hai." },
+      { day: 3, date: 13, maa: "Maa Chandraghanta", quote: "Be visible. Be relevant. Be remembered." },
+      { day: 4, date: 14, maa: "Maa Kushmanda", quote: "Good content attracts. Great SEO converts." },
+      { day: 5, date: 15, maa: "Maa Skandamata", quote: "Right keywords + right intent = right audience." },
+      { day: 6, date: 16, maa: "Maa Katyayani", quote: "Fix the crawl. Improve the index. Grow the visibility." },
+      { day: 7, date: 17, maa: "Maa Kalaratri", quote: "Algorithm changes aayein ya competition badhe—SEO strategy rukni nahi chahiye." },
+      { day: 8, date: 18, maa: "Maa Mahagauri", quote: "Clean structure. Clear intent. Better search visibility." },
+      { day: 9, date: 19, maa: "Maa Siddhidatri", quote: "SEO is not just about ranking—it is about the right business outcome." },
+      { day: 10, date: 20, maa: "Maa Durga", quote: "May your business grow, your website rank, and your digital journey shine brighter every day." },
+    ];
+    const today = new Intl.DateTimeFormat("en-IN", {
+      timeZone: "Asia/Kolkata",
+      day: "numeric",
+      month: "numeric",
+    }).formatToParts(new Date());
+    const day = Number(today.find((part) => part.type === "day")?.value);
+    const month = Number(today.find((part) => part.type === "month")?.value);
+    setNavratriDay(month === 10 ? campaign.find((item) => item.date === day) ?? null : null);
+  }, []);
+
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`);
   const productActive = isActive("/seo-tools") || isActive("/ai-tools");
@@ -72,8 +101,10 @@ const Navbar = () => {
         <div className="cst-public-announcement border-b border-slate-200/70 bg-gradient-to-r from-slate-50 via-white to-blue-50 text-slate-800">
           <div className="container mx-auto flex min-h-10 items-center justify-center gap-2 px-3 py-2 text-center">
             <Sparkles aria-hidden="true" className="h-4 w-4 shrink-0 text-blue-600" />
-            <div className="text-sm font-extrabold leading-tight text-slate-950 sm:text-[15px]">
-              Next Zen AI
+            <div className="max-w-[92vw] truncate text-sm font-extrabold leading-tight text-slate-950 sm:text-[15px]">
+              {navratriDay
+                ? `Happy Navratri • Day ${navratriDay.day} • ${navratriDay.maa} — ${navratriDay.quote}`
+                : "Next Zen AI"}
             </div>
           </div>
         </div>
