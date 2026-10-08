@@ -145,11 +145,11 @@ const Index = () => {
         <WhyChooseUs />
         <BlogSection />
 
-        <section id="community" className="relative overflow-hidden bg-[#04060b] px-4 py-24 md:py-32">
+        <section id="community" className="relative overflow-hidden bg-white px-4 py-24 text-slate-900 md:py-32">
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute left-[8%] top-20 h-96 w-96 rounded-full bg-cyan-500/10 blur-[110px]" />
-            <div className="absolute right-[4%] top-1/3 h-[30rem] w-[30rem] rounded-full bg-violet-600/10 blur-[120px]" />
-            <div className="absolute bottom-0 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-blue-600/10 blur-[100px]" />
+            <div className="absolute left-[8%] top-20 h-96 w-96 rounded-full bg-cyan-400/15 blur-[110px]" />
+            <div className="absolute right-[4%] top-1/3 h-[30rem] w-[30rem] rounded-full bg-violet-500/15 blur-[120px]" />
+            <div className="absolute bottom-0 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-blue-500/10 blur-[100px]" />
           </div>
 
           <style>{`
@@ -168,22 +168,22 @@ const Index = () => {
 
           <div className="relative container mx-auto max-w-7xl">
             <div className="mx-auto max-w-5xl text-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-white/[0.045] px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-cyan-200 shadow-[0_0_40px_rgba(34,211,238,.08)] backdrop-blur-xl">
-                <span className="h-1.5 w-1.5 rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(103,232,249,.9)]" />
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-white/[0.045] px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-cyan-700 shadow-[0_0_40px_rgba(34,211,238,.10)] backdrop-blur-xl">
+                <span className="h-1.5 w-1.5 rounded-full bg-cyan-500 shadow-[0_0_12px_rgba(6,182,212,.55)]" />
                 ANVYA Community Platform
               </div>
-              <h2 className="mt-7 text-5xl font-black tracking-[-0.04em] text-white md:text-7xl">
+              <h2 className="mt-7 text-5xl font-black tracking-[-0.04em] text-slate-950 md:text-7xl">
                 Your people.
-                <span className="block bg-gradient-to-r from-cyan-200 via-blue-400 to-fuchsia-400 bg-clip-text text-transparent">Your conversations.</span>
+                <span className="block bg-gradient-to-r from-cyan-500 via-blue-600 to-fuchsia-600 bg-clip-text text-transparent">Your conversations.</span>
               </h2>
-              <p className="mx-auto mt-6 max-w-3xl text-base leading-8 text-slate-400 md:text-lg">
+              <p className="mx-auto mt-6 max-w-3xl text-base leading-8 text-slate-600 md:text-lg">
                 A modern community space to build your profile, share ideas, discover people, join communities and turn meaningful conversations into real connections.
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-3">
-                <a href="/anvya" className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-black text-slate-950 shadow-[0_12px_45px_rgba(255,255,255,.12)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_60px_rgba(255,255,255,.18)]">
+                <a href="/anvya" className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 to-violet-600 px-6 py-3.5 text-sm font-black text-white shadow-[0_12px_45px_rgba(79,70,229,.28)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_60px_rgba(79,70,229,.38)]">
                   Explore ANVYA <span className="transition-transform group-hover:translate-x-1">→</span>
                 </a>
-                <a href="/anvya/communities" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-6 py-3.5 text-sm font-bold text-white backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-cyan-300/30 hover:bg-white/[0.08]">
+                <a href="/anvya/communities" className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-slate-800 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-cyan-300 hover:bg-slate-50">
                   Explore Communities
                 </a>
               </div>
