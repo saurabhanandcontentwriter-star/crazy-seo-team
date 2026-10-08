@@ -195,7 +195,7 @@ const Index = () => {
               <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-white/[0.035] p-2 shadow-[0_40px_120px_rgba(0,0,0,.55)] backdrop-blur-2xl md:p-3">
                 <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-white">
                   <img
-                    src="/images/anvya-community.jpg"
+                    src="/images/anvya-community-v2.svg"
                     alt="ANVYA community platform — profiles, posts, connections and community features"
                     className="block h-auto w-full object-contain"
                     loading="eager"
