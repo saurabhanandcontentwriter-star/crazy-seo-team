@@ -1,66 +1,68 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 900" role="img" aria-labelledby="t d">
-<title id="t">ANVYA Community — Where Ideas Meet Opportunity</title>
-<desc id="d">Modern ANVYA community banner with collaboration, ideas, opportunities and topic categories.</desc>
+<title id="t">ANVYA — Your Community, Your Story</title>
+<desc id="d">Promotional ANVYA community poster showing three young friends, social feed, profiles, posts, likes and comments.</desc>
 <defs>
-  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eaf4ff"/><stop offset=".52" stop-color="#fff"/><stop offset="1" stop-color="#f4edff"/></linearGradient>
-  <linearGradient id="b" x1="0" x2="1"><stop stop-color="#1677ff"/><stop offset=".55" stop-color="#5b3df5"/><stop offset="1" stop-color="#b43cf6"/></linearGradient>
-  <filter id="s"><feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#3157a5" flood-opacity=".16"/></filter>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff7fb"/><stop offset=".5" stop-color="#f8f7ff"/><stop offset="1" stop-color="#eef6ff"/></linearGradient>
+<linearGradient id="brand" x1="0" x2="1"><stop stop-color="#f00074"/><stop offset=".5" stop-color="#7c3aed"/><stop offset="1" stop-color="#2563eb"/></linearGradient>
+<filter id="shadow"><feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#334155" flood-opacity=".18"/></filter>
 </defs>
-<rect width="1536" height="900" fill="url(#g)"/>
-<circle cx="120" cy="130" r="150" fill="#60a5fa" opacity=".16"/><circle cx="1410" cy="120" r="180" fill="#c084fc" opacity=".14"/>
-<rect x="34" y="34" width="1468" height="832" rx="38" fill="#fff" fill-opacity=".62" stroke="#dbeafe" stroke-width="3"/>
-<text x="768" y="108" text-anchor="middle" font-family="Arial,sans-serif" font-size="68" font-weight="900" fill="url(#b)">ANVYA</text>
-<text x="768" y="175" text-anchor="middle" font-family="Arial,sans-serif" font-size="62" font-weight="900" fill="#111827">Community</text>
-<text x="768" y="220" text-anchor="middle" font-family="Arial,sans-serif" font-size="27" font-weight="700" fill="#334155">Where Ideas Meet <tspan fill="#7c3aed">Opportunity</tspan></text>
-<path d="M650 239 Q768 264 886 239" fill="none" stroke="#6366f1" stroke-width="7" stroke-linecap="round"/>
+<rect width="1536" height="900" fill="url(#bg)"/>
+<circle cx="120" cy="120" r="145" fill="#f9a8d4" opacity=".17"/><circle cx="1410" cy="120" r="165" fill="#93c5fd" opacity=".17"/>
+<rect x="28" y="28" width="1480" height="844" rx="42" fill="#fff" stroke="#e5e7eb" stroke-width="3"/>
+<text x="768" y="105" text-anchor="middle" font-family="Arial,sans-serif" font-size="74" font-weight="900" fill="url(#brand)">ANVYA</text>
+<text x="768" y="150" text-anchor="middle" font-family="Arial,sans-serif" font-size="31" font-weight="800" fill="#334155">Your Community, Your Story</text>
+<text x="768" y="188" text-anchor="middle" font-family="Arial,sans-serif" font-size="19" font-weight="600" fill="#64748b">Create profiles • Share posts • Like • Comment • Connect</text>
 
-<g filter="url(#s)" font-family="Arial,sans-serif">
-<rect x="76" y="286" width="270" height="84" rx="24" fill="#fff" stroke="#bfdbfe" stroke-width="3"/>
-<circle cx="116" cy="328" r="22" fill="#dbeafe"/><path d="M106 329h20M116 319v20" stroke="#2563eb" stroke-width="5" stroke-linecap="round"/>
-<text x="153" y="326" font-size="21" font-weight="800" fill="#172554">Share Ideas</text><text x="153" y="351" font-size="15" fill="#64748b">Turn thoughts into action</text>
-<rect x="1190" y="286" width="270" height="84" rx="24" fill="#fff" stroke="#bbf7d0" stroke-width="3"/>
-<circle cx="1230" cy="328" r="22" fill="#dcfce7"/><path d="M1219 338l20-20M1230 318h11v11" fill="none" stroke="#16a34a" stroke-width="5" stroke-linecap="round"/>
-<text x="1267" y="326" font-size="21" font-weight="800" fill="#14532d">Find Opportunities</text><text x="1267" y="351" font-size="15" fill="#64748b">Discover your next move</text>
-<rect x="68" y="392" width="270" height="84" rx="24" fill="#fff" stroke="#ddd6fe" stroke-width="3"/>
-<circle cx="108" cy="434" r="22" fill="#ede9fe"/><text x="108" y="443" text-anchor="middle" font-size="28" font-weight="900" fill="#7c3aed">?</text>
-<text x="145" y="432" font-size="21" font-weight="800" fill="#312e81">Ask Questions</text><text x="145" y="457" font-size="15" fill="#64748b">Learn from the community</text>
-<rect x="1198" y="392" width="270" height="84" rx="24" fill="#fff" stroke="#fecdd3" stroke-width="3"/>
-<circle cx="1238" cy="434" r="22" fill="#ffe4e6"/><circle cx="1238" cy="434" r="9" fill="#e11d48"/>
-<text x="1275" y="432" font-size="21" font-weight="800" fill="#9f1239">Grow Together</text><text x="1275" y="457" font-size="15" fill="#64748b">People, ideas and progress</text>
+<g filter="url(#shadow)" font-family="Arial,sans-serif">
+<rect x="70" y="235" width="255" height="70" rx="22" fill="#fff" stroke="#fbcfe8" stroke-width="3"/>
+<circle cx="105" cy="270" r="20" fill="#ffe4f1"/><circle cx="105" cy="264" r="7" fill="#ec4899"/><path d="M92 286q13-17 26 0" fill="none" stroke="#ec4899" stroke-width="4" stroke-linecap="round"/>
+<text x="140" y="265" font-size="19" font-weight="800" fill="#831843">Create Your Profile</text><text x="140" y="286" font-size="13" fill="#64748b">Build your presence</text>
+<rect x="1210" y="235" width="255" height="70" rx="22" fill="#fff" stroke="#bfdbfe" stroke-width="3"/>
+<circle cx="1245" cy="270" r="20" fill="#dbeafe"/><path d="M1236 270h18M1245 261v18" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
+<text x="1280" y="265" font-size="19" font-weight="800" fill="#1e3a8a">See Community Posts</text><text x="1280" y="286" font-size="13" fill="#64748b">Discover what others share</text>
+<rect x="70" y="322" width="255" height="70" rx="22" fill="#fff" stroke="#ddd6fe" stroke-width="3"/>
+<circle cx="105" cy="357" r="20" fill="#ede9fe"/><text x="105" y="365" text-anchor="middle" font-size="27" font-weight="900" fill="#7c3aed">+</text>
+<text x="140" y="352" font-size="19" font-weight="800" fill="#4c1d95">Post Your Thoughts</text><text x="140" y="373" font-size="13" fill="#64748b">Share ideas &amp; moments</text>
+<rect x="1210" y="322" width="255" height="70" rx="22" fill="#fff" stroke="#fecdd3" stroke-width="3"/>
+<circle cx="1245" cy="357" r="20" fill="#ffe4e6"/><path d="M1245 367s-11-7-11-15a6 6 0 0 1 11-4a6 6 0 0 1 11 4c0 8-11 15-11 15z" fill="#ef4444"/>
+<text x="1280" y="352" font-size="19" font-weight="800" fill="#9f1239">Like &amp; Comment</text><text x="1280" y="373" font-size="13" fill="#64748b">Join the conversation</text>
 </g>
 
-<g filter="url(#s)" font-family="Arial,sans-serif">
-<rect x="500" y="300" width="240" height="70" rx="22" fill="#fff" stroke="#bfdbfe" stroke-width="3"/>
-<text x="620" y="332" text-anchor="middle" font-size="20" font-weight="800" fill="#1d4ed8">Join Discussions</text><text x="620" y="354" text-anchor="middle" font-size="14" fill="#64748b">Connect with people</text>
-<rect x="796" y="300" width="240" height="70" rx="22" fill="#fff" stroke="#ddd6fe" stroke-width="3"/>
-<text x="916" y="332" text-anchor="middle" font-size="20" font-weight="800" fill="#7c3aed">Explore Services</text><text x="916" y="354" text-anchor="middle" font-size="14" fill="#64748b">Skills, tools and support</text>
+<!-- three friends -->
+<g filter="url(#shadow)">
+<circle cx="455" cy="455" r="74" fill="#d89a73"/><path d="M385 457q9-92 85-72q39 11 49 68q-62-16-134 4" fill="#1f2937"/><path d="M372 590q83-77 166 0l31 118H339z" fill="#2563eb"/>
+<circle cx="768" cy="435" r="82" fill="#efb38b"/><path d="M691 439q12-104 97-79q47 13 59 77q-67-18-156 2" fill="#111827"/><path d="M674 582q94-84 187 0l32 126H642z" fill="#ec4899"/>
+<circle cx="1080" cy="455" r="74" fill="#b97b58"/><path d="M1010 457q9-92 85-72q40 11 49 68q-62-16-134 4" fill="#172554"/><path d="M997 590q83-77 166 0l31 118H964z" fill="#1d4ed8"/>
+</g>
+<g font-family="Arial,sans-serif" font-size="18" font-weight="800">
+<rect x="390" y="565" width="130" height="34" rx="17" fill="#fff" opacity=".92"/><text x="455" y="588" text-anchor="middle" fill="#334155">Create</text>
+<rect x="703" y="552" width="130" height="34" rx="17" fill="#fff" opacity=".92"/><text x="768" y="575" text-anchor="middle" fill="#334155">Share</text>
+<rect x="1015" y="565" width="130" height="34" rx="17" fill="#fff" opacity=".92"/><text x="1080" y="588" text-anchor="middle" fill="#334155">Connect</text>
 </g>
 
-<ellipse cx="768" cy="700" rx="500" ry="80" fill="#c7d2fe" opacity=".32"/>
-<rect x="330" y="670" width="876" height="118" rx="30" fill="#fff" stroke="#cbd5e1" stroke-width="3" filter="url(#s)"/>
-
-<!-- five collaborators -->
-<g>
-<circle cx="430" cy="535" r="55" fill="#f1c09d"/><path d="M375 536q8-72 70-58q35 10 42 54q-48-10-112 4" fill="#1e293b"/><path d="M374 612q56-52 112 0l25 58H349z" fill="#2563eb"/>
-<circle cx="610" cy="520" r="53" fill="#d59a73"/><path d="M557 521q7-70 70-55q33 8 39 52q-46-9-109 3" fill="#3f2d20"/><path d="M555 605q55-50 110 0l27 65H530z" fill="#f59e0b"/>
-<circle cx="768" cy="500" r="58" fill="#efb38b"/><path d="M710 505q9-78 76-60q38 10 46 58q-53-11-122 2" fill="#111827"/><path d="M707 596q61-55 122 0l29 74H678z" fill="#111827"/>
-<circle cx="946" cy="520" r="53" fill="#e5aa83"/><path d="M893 521q8-70 70-55q34 9 40 52q-45-9-110 3" fill="#3b241b"/><path d="M891 605q55-50 110 0l27 65H864z" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
-<circle cx="1102" cy="535" r="55" fill="#b97956"/><path d="M1047 536q8-72 70-58q35 10 42 54q-48-10-112 4" fill="#172554"/><path d="M1045 612q56-52 112 0l25 58H1020z" fill="#166534"/>
+<!-- phone social feed -->
+<g transform="translate(1160 415) rotate(7)" filter="url(#shadow)">
+<rect width="265" height="410" rx="32" fill="#0f172a"/><rect x="11" y="11" width="243" height="388" rx="25" fill="#fff"/>
+<text x="30" y="48" font-family="Arial,sans-serif" font-size="25" font-weight="900" fill="#e11d75">ANVYA</text>
+<circle cx="224" cy="39" r="8" fill="#f59e0b"/>
+<rect x="25" y="65" width="215" height="76" rx="16" fill="#f8fafc" stroke="#e5e7eb"/>
+<circle cx="50" cy="92" r="16" fill="#ddd6fe"/><circle cx="50" cy="87" r="6" fill="#7c3aed"/><path d="M41 104q9-13 18 0" fill="none" stroke="#7c3aed" stroke-width="3"/>
+<text x="76" y="94" font-family="Arial,sans-serif" font-size="13" font-weight="800" fill="#334155">Anvya User</text>
+<text x="76" y="114" font-family="Arial,sans-serif" font-size="10" fill="#64748b">Good vibes, better people ❤️</text>
+<rect x="25" y="151" width="215" height="110" rx="14" fill="#fce7f3"/>
+<text x="36" y="174" font-family="Arial,sans-serif" font-size="12" font-weight="800" fill="#9d174d">Shared a moment</text>
+<circle cx="73" cy="214" r="26" fill="#f9a8d4"/><circle cx="132" cy="214" r="26" fill="#c4b5fd"/><circle cx="191" cy="214" r="26" fill="#93c5fd"/>
+<text x="36" y="282" font-family="Arial,sans-serif" font-size="12" font-weight="800" fill="#334155">❤️ 1.2K</text><text x="115" y="282" font-family="Arial,sans-serif" font-size="12" font-weight="800" fill="#334155">💬 320</text>
+<rect x="25" y="294" width="215" height="73" rx="14" fill="#f8fafc" stroke="#e5e7eb"/>
+<text x="36" y="317" font-family="Arial,sans-serif" font-size="11" font-weight="800" fill="#334155">Discover more posts</text>
+<text x="36" y="338" font-family="Arial,sans-serif" font-size="10" fill="#64748b">Ideas • Stories • Communities</text>
+<rect x="82" y="374" width="100" height="5" rx="2.5" fill="#cbd5e1"/>
 </g>
 
-<!-- phones + laptop -->
-<rect x="555" y="614" width="42" height="74" rx="7" fill="#334155"/><rect x="1090" y="618" width="42" height="74" rx="7" fill="#334155"/>
-<rect x="708" y="622" width="120" height="76" rx="9" fill="#e2e8f0" stroke="#94a3b8" stroke-width="4"/><rect x="717" y="631" width="102" height="55" rx="5" fill="#0f172a"/>
-<path d="M680 704h176q18 0 26 16H654q8-16 26-16z" fill="#94a3b8"/>
-
-<!-- topic pills -->
-<g font-family="Arial,sans-serif" font-size="17" font-weight="800">
-<rect x="68" y="810" width="140" height="42" rx="21" fill="#fff" stroke="#bfdbfe" stroke-width="2"/><text x="138" y="837" text-anchor="middle" fill="#1d4ed8">AI</text>
-<rect x="220" y="810" width="140" height="42" rx="21" fill="#fff" stroke="#bfdbfe" stroke-width="2"/><text x="290" y="837" text-anchor="middle" fill="#2563eb">SEO</text>
-<rect x="372" y="810" width="180" height="42" rx="21" fill="#fff" stroke="#bfdbfe" stroke-width="2"/><text x="462" y="837" text-anchor="middle" fill="#0f172a">Technology</text>
-<rect x="564" y="810" width="140" height="42" rx="21" fill="#fff" stroke="#bfdbfe" stroke-width="2"/><text x="634" y="837" text-anchor="middle" fill="#2563eb">Travel</text>
-<rect x="716" y="810" width="150" height="42" rx="21" fill="#fff" stroke="#ddd6fe" stroke-width="2"/><text x="791" y="837" text-anchor="middle" fill="#7c3aed">Science</text>
-<rect x="878" y="810" width="180" height="42" rx="21" fill="#fff" stroke="#bbf7d0" stroke-width="2"/><text x="968" y="837" text-anchor="middle" fill="#15803d">Economics</text>
-<rect x="1070" y="810" width="190" height="42" rx="21" fill="#fff" stroke="#ddd6fe" stroke-width="2"/><text x="1165" y="837" text-anchor="middle" fill="#7c3aed">Business</text>
+<g filter="url(#shadow)" font-family="Arial,sans-serif">
+<rect x="388" y="744" width="760" height="76" rx="30" fill="url(#brand)"/>
+<text x="768" y="778" text-anchor="middle" font-size="27" font-weight="900" fill="#fff">Join the ANVYA Community</text>
+<text x="768" y="804" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">Create • Post • Discover • Like • Comment • Connect</text>
 </g>
+<text x="768" y="856" text-anchor="middle" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="#64748b">ANVYA — Share your story. Discover others. Build connections.</text>
 </svg>
