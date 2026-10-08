@@ -29,8 +29,10 @@ function getNavratriDay() {
   return NAVRATRI.find((item) => item.date === day) ?? null;
 }
 
+type NavratriCampaign = (typeof NAVRATRI)[number];
+
 const WhatsAppButton = () => {
-  const [campaign, setCampaign] = useState(null);
+  const [campaign, setCampaign] = useState<NavratriCampaign | null>(null);
   const [popupOpen, setPopupOpen] = useState(false);
 
   useEffect(() => {
