@@ -51,9 +51,7 @@ const Index = () => {
     reveal.forEach((el) => observer.observe(el));
     const scrollTo = (location.state as any)?.scrollTo;
     if (scrollTo) {
-      setTimeout(() => {
-        document.getElementById(scrollTo)?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
+      setTimeout(() => document.getElementById(scrollTo)?.scrollIntoView({ behavior: "smooth" }), 100);
     }
     return () => observer.disconnect();
   }, [location.state]);
@@ -68,7 +66,6 @@ const Index = () => {
 
       <Navbar />
       <HeroSection />
-
       <StatsBar />
       <ToolsMarquee />
 
@@ -77,12 +74,8 @@ const Index = () => {
           <div className="container mx-auto max-w-7xl">
             <div className="mx-auto max-w-3xl text-center mb-14">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary mb-3">How We Work</p>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">
-                A systematic path from <span className="gradient-text">discovery to growth.</span>
-              </h2>
-              <p className="mt-4 text-muted-foreground text-base md:text-lg">
-                Every engagement follows a clear operating system so strategy, execution and measurement stay connected.
-              </p>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">A systematic path from <span className="gradient-text">discovery to growth.</span></h2>
+              <p className="mt-4 text-muted-foreground text-base md:text-lg">Every engagement follows a clear operating system so strategy, execution and measurement stay connected.</p>
             </div>
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {processSteps.map(([number, title, description]) => (
@@ -97,19 +90,12 @@ const Index = () => {
         </section>
 
         <section id="search-growth-system" className="relative overflow-hidden py-24 px-4">
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute left-1/4 top-0 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" />
-            <div className="absolute right-1/4 bottom-0 h-72 w-72 rounded-full bg-violet-500/10 blur-3xl" />
-          </div>
+          <div className="pointer-events-none absolute inset-0"><div className="absolute left-1/4 top-0 h-72 w-72 rounded-full bg-blue-500/10 blur-3xl" /><div className="absolute right-1/4 bottom-0 h-72 w-72 rounded-full bg-violet-500/10 blur-3xl" /></div>
           <div className="relative container mx-auto max-w-7xl">
             <div className="mx-auto max-w-4xl text-center mb-14">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary mb-3">Search Growth System</p>
-              <h2 className="text-4xl md:text-6xl font-black tracking-tight text-foreground">
-                Search is evolving. <span className="gradient-text">Your growth system should too.</span>
-              </h2>
-              <p className="mt-5 text-base md:text-lg leading-8 text-muted-foreground">
-                Connect traditional SEO with answer engines, generative search, LLM visibility, automation and continuous monitoring.
-              </p>
+              <h2 className="text-4xl md:text-6xl font-black tracking-tight text-foreground">Search is evolving. <span className="gradient-text">Your growth system should too.</span></h2>
+              <p className="mt-5 text-base md:text-lg leading-8 text-muted-foreground">Connect traditional SEO with answer engines, generative search, LLM visibility, automation and continuous monitoring.</p>
             </div>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {searchSystems.map(([label, title, description]) => (
@@ -123,17 +109,12 @@ const Index = () => {
           </div>
         </section>
 
-
         <section id="ai-search-topics" className="relative py-24 px-4 bg-slate-50/70">
           <div className="container mx-auto max-w-7xl">
             <div className="mx-auto max-w-4xl text-center mb-12">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary mb-3">AI Search Topic Coverage</p>
-              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">
-                SEO, AEO, GEO and <span className="gradient-text">LLM-ready content engineering.</span>
-              </h2>
-              <p className="mt-4 text-base md:text-lg leading-8 text-muted-foreground">
-                We build useful, entity-rich and technically accessible content around the topics businesses need to be discoverable in Google Search and modern AI-powered search experiences.
-              </p>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">SEO, AEO, GEO and <span className="gradient-text">LLM-ready content engineering.</span></h2>
+              <p className="mt-4 text-base md:text-lg leading-8 text-muted-foreground">We build useful, entity-rich and technically accessible content around the topics businesses need to be discoverable in Google Search and modern AI-powered search experiences.</p>
             </div>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {[
@@ -173,12 +154,8 @@ const Index = () => {
             <div className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
               <div className="max-w-4xl">
                 <p className="mb-3 text-sm font-black uppercase tracking-[0.2em] text-cyan-300">ANVYA Community Platform</p>
-                <h2 className="text-4xl font-black tracking-tight text-white md:text-6xl">
-                  Connect. Create. <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-fuchsia-400 bg-clip-text text-transparent">Grow together.</span>
-                </h2>
-                <p className="mt-5 max-w-3xl text-base leading-8 text-slate-300 md:text-lg">
-                  ANVYA brings profiles, posts, communities, questions, conversations and professional discovery into one modern community experience.
-                </p>
+                <h2 className="text-4xl font-black tracking-tight text-white md:text-6xl">Connect. Create. <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-fuchsia-400 bg-clip-text text-transparent">Grow together.</span></h2>
+                <p className="mt-5 max-w-3xl text-base leading-8 text-slate-300 md:text-lg">ANVYA brings profiles, posts, communities, questions, conversations and professional discovery into one modern community experience.</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm text-slate-300 backdrop-blur">
                 <p className="font-bold text-white">Built for real community discovery</p>
@@ -203,18 +180,21 @@ const Index = () => {
             <div className="mt-8 overflow-hidden rounded-[32px] border border-white/10 bg-white shadow-2xl">
               <div className="relative bg-slate-100">
                 <img
-                  src="/images/anvya-community-v2.svg"
-                  alt="ANVYA community platform preview showing profiles, posts, connections and community features"
+                  src="/images/anvya-community.jpg"
+                  alt="ANVYA community platform — profiles, posts, connections and community features"
                   className="block h-auto w-full object-contain object-center"
-                  loading="lazy"
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none";
+                  }}
                 />
               </div>
               <div className="grid gap-6 border-t border-slate-100 p-6 md:grid-cols-[1fr_auto] md:items-center md:px-8 md:py-7">
                 <div>
                   <p className="text-xl font-black text-slate-950">Everything your community needs in one place.</p>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-                    Build your presence, publish knowledge, discover communities, meet relevant people and keep conversations moving.
-                  </p>
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Build your presence, publish knowledge, discover communities, meet relevant people and keep conversations moving.</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   <a href="/anvya/communities" className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-violet-600 px-6 py-3 font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl">Explore Communities <span className="ml-2">→</span></a>
