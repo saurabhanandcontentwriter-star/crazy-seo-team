@@ -215,9 +215,10 @@ export default function SEOHead() {
     <meta name="bingbot" content={isPrivateOrUtility ? "noindex, nofollow, noarchive" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
     <meta name="content-language" content="en-IN" />
     <meta name="geo.region" content="IN" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content={isIdeas || isAnvyaPost ? "#05070d" : "#ffffff"} />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="generator" content="Crazy SEO Team" />
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hrefLang="en-IN" href={canonical} />
@@ -228,6 +229,7 @@ export default function SEOHead() {
     <meta property="og:type" content={listing ? "product" : isAnvyaPost ? "article" : "website"} />
     <meta property="og:site_name" content={BRAND} />
     <meta property="og:locale" content="en_IN" />
+    {anvyaPost?.image_url && <meta property="og:image:alt" content={`${anvyaPost.title || "ANVYA community post"} | ANVYA`} />
     {(anvyaPost?.image_url || listing?.image_url) && <meta property="og:image" content={anvyaPost?.image_url || listing?.image_url} />}
     {(anvyaPost?.image_url || listing?.image_url) && <meta name="twitter:image" content={anvyaPost?.image_url || listing?.image_url} />}
     <meta name="twitter:card" content="summary_large_image" />
