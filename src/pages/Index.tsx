@@ -145,98 +145,124 @@ const Index = () => {
         <WhyChooseUs />
         <BlogSection />
 
-        <section id="community" className="relative overflow-hidden bg-[#05070d] px-4 py-24 md:py-32">
+        <section id="community" className="relative overflow-hidden bg-[#04060b] px-4 py-24 md:py-32">
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-blue-600/20 blur-3xl" />
-            <div className="absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-fuchsia-600/15 blur-3xl" />
+            <div className="absolute left-[8%] top-20 h-96 w-96 rounded-full bg-cyan-500/10 blur-[110px]" />
+            <div className="absolute right-[4%] top-1/3 h-[30rem] w-[30rem] rounded-full bg-violet-600/10 blur-[120px]" />
+            <div className="absolute bottom-0 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-blue-600/10 blur-[100px]" />
           </div>
+
+          <style>{`
+            @keyframes anvyaFloat { 0%,100% { transform:translate3d(0,0,0) } 50% { transform:translate3d(0,-9px,0) } }
+            @keyframes anvyaFloat2 { 0%,100% { transform:translate3d(0,0,0) rotate(0deg) } 50% { transform:translate3d(0,10px,0) rotate(1deg) } }
+            @keyframes anvyaPulse { 0%,100% { opacity:.35; transform:scale(.95) } 50% { opacity:.8; transform:scale(1.08) } }
+            @keyframes anvyaShine { from { transform:translateX(-120%) } to { transform:translateX(220%) } }
+            .anvya-float { animation:anvyaFloat 6s ease-in-out infinite }
+            .anvya-float-2 { animation:anvyaFloat2 7s ease-in-out infinite }
+            .anvya-pulse { animation:anvyaPulse 4s ease-in-out infinite }
+            .anvya-card:hover .anvya-shine { animation:anvyaShine 1s ease-out }
+            @media (prefers-reduced-motion:reduce) {
+              .anvya-float,.anvya-float-2,.anvya-pulse { animation:none!important }
+            }
+          `}</style>
+
           <div className="relative container mx-auto max-w-7xl">
-            <div className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-4xl">
-                <p className="mb-3 text-sm font-black uppercase tracking-[0.2em] text-cyan-300">ANVYA Community Platform</p>
-                <h2 className="text-4xl font-black tracking-tight text-white md:text-6xl">Connect. Create. <span className="bg-gradient-to-r from-cyan-300 via-blue-400 to-fuchsia-400 bg-clip-text text-transparent">Grow together.</span></h2>
-                <p className="mt-5 max-w-3xl text-base leading-8 text-slate-300 md:text-lg">ANVYA brings profiles, posts, communities, questions, conversations and professional discovery into one modern community experience.</p>
+            <div className="mx-auto max-w-5xl text-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/15 bg-white/[0.045] px-4 py-2 text-xs font-bold uppercase tracking-[0.2em] text-cyan-200 shadow-[0_0_40px_rgba(34,211,238,.08)] backdrop-blur-xl">
+                <span className="h-1.5 w-1.5 rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(103,232,249,.9)]" />
+                ANVYA Community Platform
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm text-slate-300 backdrop-blur">
-                <p className="font-bold text-white">Built for real community discovery</p>
-                <p className="mt-1">Ideas • Knowledge • People • Opportunities</p>
+              <h2 className="mt-7 text-5xl font-black tracking-[-0.04em] text-white md:text-7xl">
+                Your people.
+                <span className="block bg-gradient-to-r from-cyan-200 via-blue-400 to-fuchsia-400 bg-clip-text text-transparent">Your conversations.</span>
+              </h2>
+              <p className="mx-auto mt-6 max-w-3xl text-base leading-8 text-slate-400 md:text-lg">
+                A modern community space to build your profile, share ideas, discover people, join communities and turn meaningful conversations into real connections.
+              </p>
+              <div className="mt-8 flex flex-wrap justify-center gap-3">
+                <a href="/anvya" className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-black text-slate-950 shadow-[0_12px_45px_rgba(255,255,255,.12)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_60px_rgba(255,255,255,.18)]">
+                  Explore ANVYA <span className="transition-transform group-hover:translate-x-1">→</span>
+                </a>
+                <a href="/anvya/communities" className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-6 py-3.5 text-sm font-bold text-white backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-cyan-300/30 hover:bg-white/[0.08]">
+                  Explore Communities
+                </a>
               </div>
             </div>
 
-            <style>{`
-              @keyframes anvyaFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-              @keyframes anvyaGlow { 0%,100% { opacity:.35; transform:scale(1); } 50% { opacity:.7; transform:scale(1.12); } }
-              @keyframes anvyaShimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
-              .anvya-card { animation: anvyaFloat 6s ease-in-out infinite; }
-              .anvya-card:nth-child(2) { animation-delay: .8s; }
-              .anvya-card:nth-child(3) { animation-delay: 1.6s; }
-              .anvya-card:nth-child(4) { animation-delay: 2.4s; }
-              .anvya-card:hover { animation-play-state: paused; transform: translateY(-12px) scale(1.025); }
-              .anvya-shimmer { background-size: 200% 200%; animation: anvyaShimmer 5s linear infinite; }
-              .anvya-glow { animation: anvyaGlow 4s ease-in-out infinite; }
-              @media (prefers-reduced-motion: reduce) {
-                .anvya-card, .anvya-shimmer, .anvya-glow { animation: none !important; }
-              }
-            `}</style>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="relative mx-auto mt-16 max-w-6xl">
+              <div className="anvya-pulse pointer-events-none absolute -inset-8 rounded-[44px] bg-gradient-to-r from-cyan-500/10 via-blue-500/15 to-fuchsia-500/10 blur-3xl" />
+
+              <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-white/[0.035] p-2 shadow-[0_40px_120px_rgba(0,0,0,.55)] backdrop-blur-2xl md:p-3">
+                <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-white">
+                  <img
+                    src="/images/anvya-community.jpg"
+                    alt="ANVYA community platform — profiles, posts, connections and community features"
+                    className="block h-auto w-full object-contain"
+                    loading="eager"
+                    decoding="async"
+                    fetchPriority="high"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/10 via-transparent to-white/5" />
+                </div>
+
+                <div className="grid gap-3 p-3 md:grid-cols-3">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Discover</p>
+                    <p className="mt-1 text-sm font-bold text-white">Find people & communities</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Create</p>
+                    <p className="mt-1 text-sm font-bold text-white">Share ideas that matter</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Connect</p>
+                    <p className="mt-1 text-sm font-bold text-white">Build useful relationships</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="anvya-float absolute -left-3 top-10 hidden w-48 rounded-2xl border border-white/10 bg-[#0b101b]/90 p-4 shadow-2xl backdrop-blur-2xl lg:block">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-200">✦</div>
+                  <div><p className="text-xs font-bold text-white">New idea</p><p className="text-[11px] text-slate-500">Just shared</p></div>
+                </div>
+              </div>
+              <div className="anvya-float-2 absolute -right-3 bottom-24 hidden w-52 rounded-2xl border border-white/10 bg-[#0b101b]/90 p-4 shadow-2xl backdrop-blur-2xl lg:block">
+                <div className="flex items-center justify-between">
+                  <div><p className="text-[11px] uppercase tracking-wider text-slate-500">Community</p><p className="mt-1 text-sm font-bold text-white">Real connections</p></div>
+                  <span className="rounded-full bg-emerald-400/10 px-2 py-1 text-[10px] font-bold text-emerald-300">Active</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                ["01", "Profiles", "Create your identity, showcase expertise and let the right people discover you.", "👤"],
-                ["02", "Posts & Ideas", "Share useful thoughts, questions, guides and original insights with your community.", "✦"],
-                ["03", "Communities", "Explore focused spaces, join meaningful conversations and learn together.", "◉"],
-                ["04", "Connections", "Follow relevant activity and turn great conversations into real opportunities.", "↗"]
-              ].map(([number, title, description, icon]) => (
-                <div key={title} className="anvya-card group relative overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.055] p-6 shadow-[0_20px_70px_rgba(0,0,0,.28)] backdrop-blur-xl transition-all duration-500">
-                  <div className="anvya-glow pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-cyan-400/20 blur-3xl" />
-                  <div className="relative flex items-center justify-between">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-lg text-white shadow-inner">{icon}</div>
-                    <span className="text-[11px] font-black tracking-[0.2em] text-slate-500">{number}</span>
+                ["01", "Profiles", "Build your identity and let relevant people discover your expertise.", "01"],
+                ["02", "Ideas & Posts", "Publish thoughts, questions, guides and original knowledge.", "02"],
+                ["03", "Communities", "Join focused spaces and participate in conversations you care about.", "03"],
+                ["04", "Connections", "Follow activity and turn valuable conversations into opportunities.", "04"]
+              ].map(([number, title, description]) => (
+                <div key={title} className="anvya-card group relative overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.045] p-6 shadow-[0_24px_70px_rgba(0,0,0,.3)] backdrop-blur-xl transition-all duration-500 hover:-translate-y-3 hover:border-cyan-300/20 hover:bg-white/[0.075] hover:shadow-[0_30px_90px_rgba(0,0,0,.42)]">
+                  <div className="anvya-shine pointer-events-none absolute -left-full top-0 h-full w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black tracking-[0.18em] text-cyan-300/70">{number}</span>
+                    <span className="h-2 w-2 rounded-full bg-cyan-300/70 shadow-[0_0_14px_rgba(103,232,249,.8)]" />
                   </div>
-                  <h3 className="relative mt-7 text-xl font-black text-white">{title}</h3>
-                  <p className="relative mt-3 text-sm leading-6 text-slate-300">{description}</p>
-                  <div className="relative mt-6 h-px overflow-hidden bg-white/10">
-                    <div className="h-full w-1/2 bg-gradient-to-r from-cyan-400 via-blue-500 to-fuchsia-500 opacity-70 transition-all duration-500 group-hover:w-full" />
-                  </div>
+                  <h3 className="mt-8 text-xl font-black text-white">{title}</h3>
+                  <p className="mt-3 text-sm leading-6 text-slate-400">{description}</p>
+                  <div className="mt-7 flex items-center text-xs font-bold text-slate-500 transition-colors group-hover:text-cyan-200">Explore <span className="ml-2 transition-transform group-hover:translate-x-1">→</span></div>
                 </div>
               ))}
             </div>
 
-            <div className="relative mt-10">
-              <div className="anvya-glow pointer-events-none absolute -inset-6 rounded-[40px] bg-gradient-to-r from-cyan-500/10 via-blue-500/15 to-fuchsia-500/10 blur-3xl" />
-              <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white shadow-[0_30px_100px_rgba(0,0,0,.5)]">
-              <div className="relative bg-slate-100">
-                <img
-                  src="/images/anvya-community.jpg"
-                  alt="ANVYA community platform — profiles, posts, connections and community features"
-                  className="block h-auto w-full object-contain object-center"
-                  loading="eager"
-                  decoding="async"
-                  fetchPriority="high"
-                  onError={(event) => {
-                    event.currentTarget.style.display = "none";
-                  }}
-                />
-              </div>
-              <div className="grid gap-6 border-t border-slate-100 p-6 md:grid-cols-[1fr_auto] md:items-center md:px-8 md:py-7">
+            <div className="mt-8 overflow-hidden rounded-[28px] border border-blue-400/15 bg-gradient-to-r from-blue-500/[0.08] via-violet-500/[0.10] to-fuchsia-500/[0.08] p-6 shadow-2xl backdrop-blur-xl md:p-7">
+              <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <p className="text-xl font-black text-slate-950">Everything your community needs in one place.</p>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Build your presence, publish knowledge, discover communities, meet relevant people and keep conversations moving.</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-200">For brands & creators</p>
+                  <h3 className="mt-2 text-2xl font-black text-white">Put your message where conversations happen.</h3>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Promote a useful product, service, event or community through relevant, clearly labelled placements.</p>
                 </div>
-                <div className="flex flex-wrap gap-3">
-                  <a href="/anvya/communities" className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-violet-600 px-6 py-3 font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl">Explore Communities <span className="ml-2">→</span></a>
-                  <a href="/anvya" className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-6 py-3 font-bold text-slate-900 transition-all hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50">Open ANVYA <span className="ml-2 text-blue-600">→</span></a>
-                </div>
-              </div>
-              </div>
-            </div>
-
-            <div className="anvya-shimmer mt-8 rounded-[24px] border border-blue-400/20 bg-[linear-gradient(110deg,rgba(59,130,246,.10),rgba(139,92,246,.16),rgba(217,70,239,.10),rgba(59,130,246,.10))] p-5 md:p-6">
-              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-300">Community Advertising</p>
-                  <h3 className="mt-1 text-xl font-black text-white">Promote a useful product, service, event or community.</h3>
-                  <p className="mt-1 text-sm leading-6 text-slate-300">Relevant sponsored placements can help brands reach an audience while keeping the experience useful and transparent.</p>
-                </div>
-                <a href="/contact" className="inline-flex shrink-0 items-center justify-center rounded-full bg-white px-5 py-3 font-extrabold text-slate-950 transition hover:bg-slate-100">Advertise With Us <span className="ml-2">→</span></a>
+                <a href="/contact" className="inline-flex shrink-0 items-center justify-center rounded-full bg-white px-6 py-3.5 text-sm font-black text-slate-950 transition hover:-translate-y-1 hover:shadow-xl">Advertise With Us <span className="ml-2">→</span></a>
               </div>
             </div>
           </div>
