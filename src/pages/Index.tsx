@@ -145,7 +145,7 @@ const Index = () => {
         <WhyChooseUs />
         <BlogSection />
 
-        <section id="community" className="relative overflow-hidden bg-white px-4 py-24 text-slate-900 md:py-32">
+        <section id="community" className="relative overflow-hidden bg-[#05070d] px-4 py-24 text-slate-100 md:py-32">
           <div className="pointer-events-none absolute inset-0">
             <div className="absolute left-[8%] top-20 h-96 w-96 rounded-full bg-cyan-400/15 blur-[110px]" />
             <div className="absolute right-[4%] top-1/3 h-[30rem] w-[30rem] rounded-full bg-violet-500/15 blur-[120px]" />
@@ -192,8 +192,8 @@ const Index = () => {
             <div className="relative mx-auto mt-16 max-w-6xl">
               <div className="anvya-pulse pointer-events-none absolute -inset-8 rounded-[44px] bg-gradient-to-r from-cyan-500/10 via-blue-500/15 to-fuchsia-500/10 blur-3xl" />
 
-              <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-white/[0.035] p-2 shadow-[0_40px_120px_rgba(0,0,0,.55)] backdrop-blur-2xl md:p-3">
-                <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-white">
+              <div className="relative overflow-hidden rounded-[36px] border border-white/10 bg-[#0b101b]/90 p-2 shadow-[0_40px_120px_rgba(0,0,0,.55)] backdrop-blur-2xl md:p-3">
+                <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#111827]">
                   <img
                     src="/images/anvya-community-v2.svg"
                     alt="ANVYA community platform — profiles, posts, connections and community features"
@@ -202,12 +202,12 @@ const Index = () => {
                     decoding="async"
                     fetchPriority="high"
                   />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/10 via-transparent to-white/5" />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-white/5" />
                 </div>
 
                 <div className="grid gap-3 p-3 md:grid-cols-3">
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Discover</p>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.055] p-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-cyan-300/80">Discover</p>
                     <p className="mt-1 text-sm font-bold text-white">Find people & communities</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
@@ -242,25 +242,25 @@ const Index = () => {
                 ["03", "Communities", "Join focused spaces and participate in conversations you care about.", "03"],
                 ["04", "Connections", "Follow activity and turn valuable conversations into opportunities.", "04"]
               ].map(([number, title, description]) => (
-                <div key={title} className="anvya-card group relative overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.045] p-6 shadow-[0_24px_70px_rgba(0,0,0,.3)] backdrop-blur-xl transition-all duration-500 hover:-translate-y-3 hover:border-cyan-300/20 hover:bg-white/[0.075] hover:shadow-[0_30px_90px_rgba(0,0,0,.42)]">
+                <div key={title} className="anvya-card group relative overflow-hidden rounded-[26px] border border-white/10 bg-[#101725]/95 p-6 shadow-[0_24px_70px_rgba(0,0,0,.3)] backdrop-blur-xl transition-all duration-500 hover:-translate-y-3 hover:border-cyan-300/30 hover:bg-[#162033] hover:shadow-[0_30px_90px_rgba(0,0,0,.42)]">
                   <div className="anvya-shine pointer-events-none absolute -left-full top-0 h-full w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-black tracking-[0.18em] text-cyan-300/70">{number}</span>
                     <span className="h-2 w-2 rounded-full bg-cyan-300/70 shadow-[0_0_14px_rgba(103,232,249,.8)]" />
                   </div>
                   <h3 className="mt-8 text-xl font-black text-white">{title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-slate-400">{description}</p>
-                  <div className="mt-7 flex items-center text-xs font-bold text-slate-500 transition-colors group-hover:text-cyan-200">Explore <span className="ml-2 transition-transform group-hover:translate-x-1">→</span></div>
+                  <p className="mt-3 text-sm leading-6 text-slate-300">{description}</p>
+                  <div className="mt-7 flex items-center text-xs font-bold text-slate-300 transition-colors group-hover:text-cyan-200">Explore <span className="ml-2 transition-transform group-hover:translate-x-1">→</span></div>
                 </div>
               ))}
             </div>
 
-            <div className="mt-8 overflow-hidden rounded-[28px] border border-blue-400/15 bg-gradient-to-r from-blue-500/[0.08] via-violet-500/[0.10] to-fuchsia-500/[0.08] p-6 shadow-2xl backdrop-blur-xl md:p-7">
+            <div className="mt-8 overflow-hidden rounded-[28px] border border-cyan-300/20 bg-gradient-to-r from-cyan-950/80 via-blue-950/70 to-fuchsia-950/70 p-6 shadow-2xl backdrop-blur-xl md:p-7">
               <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-200">For brands & creators</p>
-                  <h3 className="mt-2 text-2xl font-black text-white">Put your message where conversations happen.</h3>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">Promote a useful product, service, event or community through relevant, clearly labelled placements.</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-300">For brands & creators</p>
+                  <h3 className="mt-2 text-2xl font-black text-slate-50">Put your message where conversations happen.</h3>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">Promote a useful product, service, event or community through relevant, clearly labelled placements.</p>
                 </div>
                 <a href="/contact" className="inline-flex shrink-0 items-center justify-center rounded-full bg-white px-6 py-3.5 text-sm font-black text-slate-950 transition hover:-translate-y-1 hover:shadow-xl">Advertise With Us <span className="ml-2">→</span></a>
               </div>
