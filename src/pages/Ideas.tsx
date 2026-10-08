@@ -20,27 +20,31 @@ const filtered=useMemo(()=>{
  const textOf=(i:Idea)=>[i.title,i.content,i.subject,i.post_type].filter(Boolean).join(" ").toLowerCase();
  return ideas.filter(i=>(subject==="All"||i.subject===subject)&&(!q||textOf(i).includes(q.toLowerCase()))).sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime());
 },[ideas,q,subject]);
- return <div className="min-h-screen overflow-x-hidden bg-[#05070d] text-slate-100">
+ return <div className="anvya-page-in min-h-screen overflow-x-hidden bg-[#05070d] text-slate-100">
 <style>{`
-@keyframes anvyaPageFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-@keyframes anvyaPageGlow{0%,100%{opacity:.35;transform:scale(.96)}50%{opacity:.75;transform:scale(1.08)}}
+@keyframes anvyaPageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes anvyaPageFloat{0%,100%{transform:translate3d(0,0,0)}25%{transform:translate3d(0,-6px,0)}50%{transform:translate3d(0,-12px,0)}75%{transform:translate3d(0,-5px,0)}}
+@keyframes anvyaPageGlow{0%,100%{opacity:.3;transform:scale(.94)}50%{opacity:.8;transform:scale(1.1)}}
 @keyframes anvyaPageShine{0%{transform:translateX(-140%)}100%{transform:translateX(220%)}}
-@keyframes anvyaHeroIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
-@keyframes anvyaGlowDrift{0%,100%{transform:translate3d(-2%,0,0) scale(.98);opacity:.45}50%{transform:translate3d(2%,8px,0) scale(1.05);opacity:.8}}
-@keyframes anvyaActivityIn{from{opacity:0;transform:scale(.95) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.anvya-hero-in{animation:anvyaHeroIn .65s cubic-bezier(.22,1,.36,1) both}
+@keyframes anvyaHeroIn{from{opacity:0;transform:translate3d(0,22px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes anvyaGlowDrift{0%{transform:translate3d(-8%,0,0) scale(.92);opacity:.28}35%{transform:translate3d(2%,6px,0) scale(1.03);opacity:.62}70%{transform:translate3d(8%,-4px,0) scale(1.08);opacity:.78}100%{transform:translate3d(-8%,0,0) scale(.92);opacity:.28}}
+@keyframes anvyaActivityIn{0%{opacity:0;transform:translate3d(0,18px,0) scale(.94)}70%{opacity:1;transform:translate3d(0,-2px,0) scale(1.01)}100%{opacity:1;transform:translate3d(0,0,0) scale(1)}}
+@keyframes anvyaStatPop{0%{opacity:.2;transform:translateY(8px) scale(.94)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.anvya-page-in{animation:anvyaPageIn .7s cubic-bezier(.22,1,.36,1) both}
+.anvya-hero-in{animation:anvyaHeroIn .65s cubic-bezier(.22,1,.36,1) both;will-change:opacity,transform}
 .anvya-hero-delay-1{animation-delay:.1s}
 .anvya-hero-delay-2{animation-delay:.2s}
-.anvya-glow-drift{animation:anvyaGlowDrift 8s ease-in-out infinite}
-.anvya-activity{animation:anvyaActivityIn .6s cubic-bezier(.22,1,.36,1) .35s both}
-.anvya-reveal{opacity:0;transform:translateY(25px);transition:opacity .65s ease,transform .65s cubic-bezier(.22,1,.36,1)}
-.anvya-reveal-visible{opacity:1;transform:translateY(0)}
+.anvya-glow-drift{animation:anvyaGlowDrift 8s cubic-bezier(.45,0,.55,1) infinite;will-change:transform,opacity}
+.anvya-activity{animation:anvyaActivityIn .65s cubic-bezier(.22,1,.36,1) .25s both;will-change:opacity,transform}
+.anvya-activity:nth-child(2){animation-delay:.48s}
+.anvya-activity:nth-child(3){animation-delay:.71s}
+.anvya-reveal{opacity:0;transform:translate3d(0,25px,0);transition:opacity .65s ease,transform .65s cubic-bezier(.22,1,.36,1);will-change:opacity,transform}
+.anvya-reveal-visible{opacity:1;transform:translate3d(0,0,0)}
 .anvya-reveal:nth-child(2){transition-delay:.08s}.anvya-reveal:nth-child(3){transition-delay:.16s}.anvya-reveal:nth-child(4){transition-delay:.24s}
-
-.anvya-premium-card{animation:anvyaPageFloat 6s ease-in-out infinite;transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease}.anvya-premium-card:hover{transform:translateY(-5px) scale(1.01);box-shadow:0 22px 55px rgba(34,211,238,.12)}
-.anvya-premium-card:nth-child(2){animation-delay:.7s}.anvya-premium-card:nth-child(3){animation-delay:1.4s}.anvya-premium-card:nth-child(4){animation-delay:2.1s}.anvya-premium-card:nth-child(5){animation-delay:2.8s}
-.anvya-premium-card:hover{animation-play-state:paused}
-@media(prefers-reduced-motion:reduce){.anvya-premium-card,.anvya-hero-in,.anvya-glow-drift,.anvya-activity{animation:none!important}.anvya-reveal{opacity:1!important;transform:none!important;transition:none!important}}
+.anvya-premium-card{animation:anvyaPageFloat 5.5s ease-in-out infinite;transition:transform .3s cubic-bezier(.22,1,.36,1),border-color .3s ease,box-shadow .3s ease;will-change:transform}
+.anvya-premium-card:hover{animation-play-state:paused;transform:translate3d(0,-6px,0) scale(1.01);border-color:rgba(34,211,238,.35);box-shadow:0 24px 65px rgba(34,211,238,.18),0 0 28px rgba(59,130,246,.08)}
+.anvya-premium-card:nth-child(2){animation-delay:.65s}.anvya-premium-card:nth-child(3){animation-delay:1.3s}.anvya-premium-card:nth-child(4){animation-delay:1.95s}.anvya-premium-card:nth-child(5){animation-delay:2.6s}
+@media(prefers-reduced-motion:reduce){.anvya-page-in,.anvya-premium-card,.anvya-hero-in,.anvya-glow-drift,.anvya-activity{animation:none!important}.anvya-reveal{opacity:1!important;transform:none!important;transition:none!important}}
 `}</style>
 <div className="relative overflow-hidden border-b border-white/10 bg-[#05070d]">
 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_8%,rgba(34,211,238,.12),transparent_25%),radial-gradient(circle_at_88%_12%,rgba(139,92,246,.13),transparent_28%),radial-gradient(circle_at_50%_70%,rgba(37,99,235,.10),transparent_35%)]"/>
