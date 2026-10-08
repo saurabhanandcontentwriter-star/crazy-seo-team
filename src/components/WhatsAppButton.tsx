@@ -63,12 +63,7 @@ const WhatsAppButton = () => {
   if (!campaign) return null;
 
   return (
-    <>
-      <div className="fixed left-0 right-0 top-0 z-[9990] border-b border-amber-200/40 bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 px-4 py-2 text-center text-sm font-bold text-white shadow-lg">
-        🙏 Navratri Day {campaign.day} • {campaign.goddess} • <span className="font-black">{campaign.quote}</span>
-      </div>
-
-      {popupOpen && (
+    <>      {popupOpen && (
         <div className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/35 p-4 sm:items-center">
           <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-orange-200 bg-background p-6 shadow-2xl">
             <button
