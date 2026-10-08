@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import {
   Menu,
@@ -27,18 +27,6 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState<"product" | "solutions" | "resources" | "industries" | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [quoteDay, setQuoteDay] = useState(() => new Date().toDateString());
-
-  const dailyQuotes = ["Next Zen AI"];
-
-  useEffect(() => {
-    const timer = window.setInterval(() => setQuoteDay(new Date().toDateString()), 60000);
-    return () => window.clearInterval(timer);
-  }, []);
-
-
-  const dayNumber = Math.floor(new Date(quoteDay).getTime() / 86400000);
-  const dailyQuote = dailyQuotes[((dayNumber % dailyQuotes.length) + dailyQuotes.length) % dailyQuotes.length];
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`);
   const productActive = isActive("/seo-tools") || isActive("/ai-tools");
@@ -85,7 +73,7 @@ const Navbar = () => {
           <div className="container mx-auto flex min-h-10 items-center justify-center gap-2 px-3 py-2 text-center">
             <Sparkles aria-hidden="true" className="h-4 w-4 shrink-0 text-blue-600" />
             <div className="text-sm font-extrabold leading-tight text-slate-950 sm:text-[15px]">
-              “{dailyQuote}”
+              Next Zen AI
             </div>
           </div>
         </div>
