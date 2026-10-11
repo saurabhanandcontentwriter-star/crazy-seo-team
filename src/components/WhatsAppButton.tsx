@@ -41,14 +41,10 @@ const WhatsAppButton = () => {
 
     if (!current) return;
 
-    const key = `cst-navratri-popup-v5-${new Date().getFullYear()}-${current.date}`;
+    const key = `cst-navratri-popup-v6-${new Date().getFullYear()}-${current.date}`;
     
 
-    const timer = window.setTimeout(() => {
-      setPopupOpen(true);
-    }, 1200);
-
-    return () => window.clearTimeout(timer);
+    setPopupOpen(true);
   }, []);
 
   const whatsappUrl = useMemo(() => {
@@ -78,12 +74,12 @@ const WhatsAppButton = () => {
                 <div className="absolute -bottom-12 -right-8 h-32 w-32 rounded-full bg-rose-300/40 blur-xl" />
                 <div className="relative mx-auto w-full max-w-[230px] px-5 pt-6">
                   <img
-                    src="https://commons.wikimedia.org/wiki/Special:FilePath/Maa_durga_image.jpg?width=960"
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Navratri_Maa_durga.jpg/500px-Navratri_Maa_durga.jpg"
                     alt="Maa Durga — Navratri blessings"
                     className="mx-auto h-52 w-full rounded-2xl bg-white/70 object-contain object-center p-2 shadow-[0_12px_30px_rgba(124,45,18,.22)] ring-4 ring-white/80"
                     loading="eager"
                     referrerPolicy="strict-origin-when-cross-origin"
-                    onError={(event) => { event.currentTarget.src = "https://commons.wikimedia.org/wiki/Special:FilePath/Navratri_Maa_durga.jpg?width=960"; }}
+                    onError={(event) => { event.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Navratri_Maa_durga.jpg/500px-Navratri_Maa_durga.jpg"; }}
                   />
                 </div>
                 <div className="relative px-6 pb-6 pt-4">
