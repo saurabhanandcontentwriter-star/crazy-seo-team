@@ -76,15 +76,23 @@ const WhatsAppButton = () => {
             </button>
 
             <div className="text-center">
-              <div className="relative -mx-6 -mt-6 mb-5 overflow-hidden bg-gradient-to-br from-amber-100 via-orange-100 to-rose-100 px-6 py-8 text-center">
-                <div className="absolute -left-10 -top-10 h-28 w-28 rounded-full bg-orange-300/30" />
-                <div className="absolute -bottom-12 -right-8 h-32 w-32 rounded-full bg-rose-300/30" />
-                <div className="relative text-6xl drop-shadow-sm">{campaign.symbol}</div>
-                <p className="relative mt-2 text-xs font-black uppercase tracking-[0.18em] text-orange-700">
-                  Navratri Day {campaign.day}
-                </p>
-                <h2 className="relative mt-2 text-2xl font-black text-orange-950">{campaign.goddess}</h2>
-                <div className="relative mt-3 text-2xl">🪔 ✨ 🪔</div>
+              <div className="relative -mx-6 -mt-6 mb-5 overflow-hidden bg-gradient-to-br from-[#fff5df] via-[#ffe1c5] to-[#ffd9e7] text-center">
+                <div className="absolute -left-10 -top-10 h-28 w-28 rounded-full bg-orange-300/35 blur-xl" />
+                <div className="absolute -bottom-12 -right-8 h-32 w-32 rounded-full bg-rose-300/40 blur-xl" />
+                <div className="relative mx-auto w-full max-w-[230px] px-5 pt-6">
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Navratri_Maa_durga.jpg/500px-Navratri_Maa_durga.jpg"
+                    alt="Maa Durga — Navratri blessings"
+                    className="mx-auto h-44 w-full rounded-2xl object-cover object-center shadow-[0_12px_30px_rgba(124,45,18,.22)] ring-4 ring-white/80"
+                    loading="eager"
+                    onError={(event) => { event.currentTarget.style.display = "none"; }}
+                  />
+                </div>
+                <div className="relative px-6 pb-6 pt-4">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-orange-800">Navratri Day {campaign.day}</p>
+                  <h2 className="mt-2 text-2xl font-black text-orange-950">{campaign.goddess}</h2>
+                  <div className="mt-3 text-2xl">🪔 ✨ 🪔</div>
+                </div>
               </div>
               <p className="mt-3 text-base leading-7 text-muted-foreground">
                 {campaign.quote}
