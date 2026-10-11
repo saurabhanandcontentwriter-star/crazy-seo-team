@@ -41,7 +41,7 @@ const WhatsAppButton = () => {
 
     if (!current) return;
 
-    const key = `cst-navratri-popup-${new Date().getFullYear()}-${current.date}`;
+    const key = `cst-navratri-popup-v2-${new Date().getFullYear()}-${current.date}`;
     const alreadyShown = window.localStorage.getItem(key);
 
     const timer = window.setTimeout(() => {
@@ -81,11 +81,11 @@ const WhatsAppButton = () => {
                 <div className="absolute -bottom-12 -right-8 h-32 w-32 rounded-full bg-rose-300/40 blur-xl" />
                 <div className="relative mx-auto w-full max-w-[230px] px-5 pt-6">
                   <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Navratri_Maa_durga.jpg/500px-Navratri_Maa_durga.jpg"
+                    src="https://commons.wikimedia.org/wiki/Special:FilePath/Navratri_Maa_durga.jpg?width=500"
                     alt="Maa Durga — Navratri blessings"
                     className="mx-auto h-44 w-full rounded-2xl object-cover object-center shadow-[0_12px_30px_rgba(124,45,18,.22)] ring-4 ring-white/80"
                     loading="eager"
-                    onError={(event) => { event.currentTarget.style.display = "none"; }}
+                    referrerPolicy="no-referrer"
                   />
                 </div>
                 <div className="relative px-6 pb-6 pt-4">
