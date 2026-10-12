@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import StatsBar from "@/components/StatsBar";
 import ToolsMarquee from "@/components/ToolsMarquee";
+import WhatsAppButton from "@/components/WhatsAppButton";
 const ServicesPreview = lazy(() => import("@/components/ServicesPreview"));
 const WhyChooseUs = lazy(() => import("@/components/WhyChooseUs"));
 const AdvertisingCarousel = lazy(() => import("@/components/AdvertisingCarousel"));
@@ -273,6 +274,7 @@ const Index = () => {
         <ContactSection />
         <Footer />
         <CookieConsent />
+        <WhatsAppButton />
       </Suspense>
     </div>
   );
