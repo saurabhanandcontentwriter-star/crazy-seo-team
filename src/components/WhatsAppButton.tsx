@@ -3,16 +3,15 @@ import { useEffect, useMemo, useState } from "react";
 const WHATSAPP = "916205153346";
 
 const NAVRATRI = [
-  { day: 1, date: 11, goddess: "Maa Shailputri", quote: "Strong foundation, better rankings, bigger growth.", symbol: "🌺" },
-  { day: 2, date: 12, goddess: "Maa Brahmacharini", quote: "SEO mein shortcut nahi—consistent optimization hi long-term growth banata hai.", symbol: "🪷" },
-  { day: 3, date: 13, goddess: "Maa Chandraghanta", quote: "Be visible. Be relevant. Be remembered.", symbol: "🔔" },
-  { day: 4, date: 14, goddess: "Maa Kushmanda", quote: "Good content attracts. Great SEO converts.", symbol: "🪔" },
-  { day: 5, date: 15, goddess: "Maa Skandamata", quote: "Right keywords + right intent = right audience.", symbol: "🌸" },
-  { day: 6, date: 16, goddess: "Maa Katyayani", quote: "Fix the crawl. Improve the index. Grow the visibility.", symbol: "✨" },
-  { day: 7, date: 17, goddess: "Maa Kalaratri", quote: "Algorithm changes aayein ya competition badhe—SEO strategy rukni nahi chahiye.", symbol: "🔥" },
-  { day: 8, date: 18, goddess: "Maa Mahagauri", quote: "Clean structure. Clear intent. Better search visibility.", symbol: "🤍" },
-  { day: 9, date: 19, goddess: "Maa Siddhidatri", quote: "SEO is not just about ranking—it is about the right business outcome.", symbol: "🌟" },
-  { day: 10, date: 20, goddess: "Maa Durga", quote: "May your business grow, your website rank, and your digital journey shine brighter every day.", symbol: "🙏" },
+  { day: 1, date: 11, goddess: "Maa Shailputri", mantra: "ॐ देवी शैलपुत्र्यै नमः॥", quote: "माँ शैलपुत्री आपके जीवन में शक्ति, साहस और नई शुरुआत का आशीर्वाद दें। नवरात्रि के प्रथम दिन की हार्दिक शुभकामनाएँ।", symbol: "🌺", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Maa_Shailputri.jpg?width=960" },
+  { day: 2, date: 12, goddess: "Maa Brahmacharini", mantra: "ॐ देवी ब्रह्मचारिण्यै नमः॥", quote: "माँ ब्रह्मचारिणी आपके जीवन में धैर्य, संयम और दृढ़ संकल्प भरें। हर कठिनाई में हिम्मत मिले और हर नेक संकल्प पूरा हो। दूसरे नवरात्रि की हार्दिक शुभकामनाएँ।", symbol: "🪷", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Maa_Brahmacharini.jpg?width=960" },
+  { day: 3, date: 13, goddess: "Maa Chandraghanta", mantra: "ॐ देवी चन्द्रघण्टायै नमः॥", quote: "माँ चंद्रघंटा आपके जीवन से भय दूर करें और सुख, शांति व साहस प्रदान करें। जय माता दी! नवरात्रि के तीसरे दिन की शुभकामनाएँ।", symbol: "🔔", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Maa_Chandraghanta.jpg?width=960" },
+  { day: 4, date: 14, goddess: "Maa Kushmanda", mantra: "ॐ देवी कूष्माण्डायै नमः॥", quote: "माँ कूष्मांडा आपके घर में स्वास्थ्य, ऊर्जा, खुशहाली और समृद्धि का प्रकाश भरें। नवरात्रि के चौथे दिन की मंगलकामनाएँ।", symbol: "🪔", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Maa_Kushmanda.jpg?width=960" },
+  { day: 5, date: 15, goddess: "Maa Skandamata", mantra: "ॐ देवी स्कन्दमातायै नमः॥", quote: "माँ स्कंदमाता आपके परिवार को प्रेम, सुख और सुरक्षा का आशीर्वाद दें। आपके जीवन में खुशियाँ बनी रहें। पाँचवें नवरात्रि की शुभकामनाएँ।", symbol: "🌸", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Maa_Skandamata.jpg?width=960" },
+  { day: 6, date: 16, goddess: "Maa Katyayani", mantra: "ॐ देवी कात्यायन्यै नमः॥", quote: "माँ कात्यायनी आपको साहस, आत्मविश्वास और सफलता प्रदान करें। हर अच्छे प्रयास में विजय मिले। छठे नवरात्रि की हार्दिक शुभकामनाएँ।", symbol: "✨", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Maa_Katyayani.jpg?width=960" },
+  { day: 7, date: 17, goddess: "Maa Kalaratri", mantra: "ॐ देवी कालरात्र्यै नमः॥", quote: "माँ कालरात्रि आपके भय और बाधाओं को दूर करें, और आपके जीवन में सुरक्षा व नई आशा लाएँ। सातवें नवरात्रि की शुभकामनाएँ।", symbol: "🔥", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Maa_Kalaratri.jpg?width=960" },
+  { day: 8, date: 18, goddess: "Maa Mahagauri", mantra: "ॐ देवी महागौर्यै नमः॥", quote: "माँ महागौरी आपके मन में शांति, जीवन में पवित्रता और परिवार में सुख-समृद्धि बनाए रखें। आठवें नवरात्रि की शुभकामनाएँ।", symbol: "🤍", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Maa_Mahagauri.jpg?width=960" },
+  { day: 9, date: 19, goddess: "Maa Siddhidatri", mantra: "ॐ देवी सिद्धिदात्र्यै नमः॥", quote: "माँ सिद्धिदात्री आपके सभी शुभ कार्यों को सिद्ध करें और ज्ञान, विवेक व सफलता का आशीर्वाद दें। महानवमी की हार्दिक शुभकामनाएँ।", symbol: "🌟", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Maa_Siddhidatri.jpg?width=960" },
 ];
 
 function getNavratriDay() {
@@ -21,10 +20,8 @@ function getNavratriDay() {
     day: "2-digit",
     month: "2-digit",
   }).formatToParts(new Date());
-
   const day = Number(parts.find((p) => p.type === "day")?.value);
   const month = Number(parts.find((p) => p.type === "month")?.value);
-
   if (month !== 10) return null;
   return NAVRATRI.find((item) => item.date === day) ?? null;
 }
@@ -38,85 +35,46 @@ const WhatsAppButton = () => {
   useEffect(() => {
     const current = getNavratriDay();
     setCampaign(current);
-
     if (!current) return;
-
-    const key = `cst-navratri-popup-v6-${new Date().getFullYear()}-${current.date}`;
-    
-
     setPopupOpen(true);
   }, []);
 
   const whatsappUrl = useMemo(() => {
     if (!campaign) return `https://wa.me/${WHATSAPP}`;
-    const text = `🙏 Happy Navratri from Crazy SEO Team! Day ${campaign.day}: ${campaign.goddess}. ${campaign.quote}`;
+    const text = `🙏 ${campaign.goddess} — ${campaign.mantra} ${campaign.quote} | Crazy SEO Team`;
     return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text)}`;
   }, [campaign]);
 
   if (!campaign) return null;
 
   return (
-    <>      {popupOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/35 p-4 sm:items-center">
-          <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-orange-200 bg-background p-6 shadow-2xl">
-            <button
-              type="button"
-              aria-label="Close Navratri wishes"
-              onClick={() => setPopupOpen(false)}
-              className="absolute right-3 top-3 rounded-full px-3 py-1 text-xl text-muted-foreground hover:bg-muted"
-            >
-              ×
-            </button>
-
+    <>
+      {popupOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/45 p-3 sm:items-center">
+          <div className="relative max-h-[92dvh] w-full max-w-sm overflow-y-auto rounded-3xl border border-orange-200 bg-background p-5 shadow-2xl">
+            <button type="button" aria-label="Close Navratri wishes" onClick={() => setPopupOpen(false)} className="absolute right-3 top-3 z-10 rounded-full bg-white/90 px-3 py-1 text-xl text-gray-800 shadow">×</button>
             <div className="text-center">
-              <div className="relative -mx-6 -mt-6 mb-5 overflow-hidden bg-gradient-to-br from-[#fff5df] via-[#ffe1c5] to-[#ffd9e7] text-center">
-                <div className="absolute -left-10 -top-10 h-28 w-28 rounded-full bg-orange-300/35 blur-xl" />
-                <div className="absolute -bottom-12 -right-8 h-32 w-32 rounded-full bg-rose-300/40 blur-xl" />
-                <div className="relative mx-auto w-full max-w-[230px] px-5 pt-6">
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Navratri_Maa_durga.jpg/500px-Navratri_Maa_durga.jpg"
-                    alt="Maa Durga — Navratri blessings"
-                    className="mx-auto h-52 w-full rounded-2xl bg-white/70 object-contain object-center p-2 shadow-[0_12px_30px_rgba(124,45,18,.22)] ring-4 ring-white/80"
-                    loading="eager"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    onError={(event) => { event.currentTarget.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Navratri_Maa_durga.jpg/500px-Navratri_Maa_durga.jpg"; }}
-                  />
-                </div>
-                <div className="relative px-6 pb-6 pt-4">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-orange-800">Navratri Day {campaign.day}</p>
-                  <h2 className="mt-2 text-2xl font-black text-orange-950">{campaign.goddess}</h2>
-                  <div className="mt-3 text-2xl">🪔 ✨ 🪔</div>
-                </div>
+              <div className="relative -mx-5 -mt-5 mb-4 overflow-hidden bg-gradient-to-br from-[#fff5df] via-[#ffe1c5] to-[#ffd9e7] px-5 pb-4 pt-5">
+                <img
+                  src={campaign.image}
+                  alt={campaign.goddess}
+                  className="mx-auto h-56 w-full max-w-[260px] rounded-2xl bg-white object-contain p-2 shadow-lg ring-4 ring-white"
+                  loading="eager"
+                  referrerPolicy="no-referrer"
+                  onError={(event) => { event.currentTarget.style.display = "none"; }}
+                />
+                <p className="mt-4 text-xs font-black uppercase tracking-[0.18em] text-orange-800">Navratri Day {campaign.day} of 9</p>
+                <h2 className="mt-2 text-2xl font-black text-orange-950">{campaign.goddess}</h2>
+                <p className="mt-3 rounded-xl bg-white/80 px-3 py-2 text-lg font-bold text-orange-950">{campaign.mantra}</p>
               </div>
-              <p className="mt-3 text-base leading-7 text-muted-foreground">
-                {campaign.quote}
-              </p>
-              <p className="mt-3 text-sm font-semibold">
-                ✨ Happy Navratri from Crazy SEO Team ✨
-              </p>
-
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-5 inline-flex w-full items-center justify-center rounded-xl bg-[#25D366] px-5 py-3 font-bold text-white shadow-lg transition hover:scale-[1.01]"
-              >
-                💬 Connect on WhatsApp
-              </a>
+              <p className="text-sm leading-6 text-muted-foreground">{campaign.quote}</p>
+              <p className="mt-3 text-sm font-semibold">🙏 जय माता दी · Happy Navratri from Crazy SEO Team</p>
+              <a href={whatsappUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-[#25D366] px-5 py-3 font-bold text-white shadow-lg">💬 Share wishes on WhatsApp</a>
             </div>
           </div>
         </div>
       )}
-
-      <a
-        href={whatsappUrl}
-        target="_blank"
-        rel="noreferrer"
-        aria-label="Chat on WhatsApp"
-        className="fixed bottom-5 right-5 z-[9980] flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-2xl text-white shadow-2xl transition hover:scale-105"
-      >
-        💬
-      </a>
+      <a href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="Share Navratri wishes on WhatsApp" className="fixed bottom-5 right-5 z-[9980] flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-2xl text-white shadow-2xl">💬</a>
     </>
   );
 };
