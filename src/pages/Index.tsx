@@ -69,6 +69,7 @@ const Index = () => {
       <HeroSection />
       <StatsBar />
       <ToolsMarquee />
+      <WhatsAppButton />
 
       <Suspense fallback={<div className="min-h-[35vh] bg-white" />}>
         <section id="process" className="py-24 px-4 bg-secondary/20">
@@ -274,7 +275,6 @@ const Index = () => {
         <ContactSection />
         <Footer />
         <CookieConsent />
-        <WhatsAppButton />
       </Suspense>
     </div>
   );
