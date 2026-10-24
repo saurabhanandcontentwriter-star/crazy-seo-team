@@ -253,7 +253,7 @@ export default function IdeasInlinePostComposer({
     try {
       const imageUrl = mode === "blog" ? null : (imageFile ? await uploadImage(user.id, imageFile) : null);
       const normalizedTags = tags.map((tag) => tag.trim().replace(/^#/, "")).filter(Boolean).slice(0, 10);
-      const subjectValue = subject.trim() || null;
+      const subjectValue = subject.trim() || "Other";
       const locationValue = location.trim() || null;
       const baseSlug = slugify(mode === "post" ? (plainContent.slice(0, 80).trim() || "anvya-post") : title.trim()) || "anvya-post";
       let postSlug = baseSlug;
