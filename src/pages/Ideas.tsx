@@ -116,6 +116,24 @@ const filtered=useMemo(()=>{
       <h3 className="font-extrabold text-slate-900">Why use ANVYA?</h3>
       <p className="mt-2 text-sm leading-6 text-slate-600">Use ANVYA to discover knowledge, ask focused questions, publish useful insights, build professional connections and join topic-based conversations. Content is organized around real community interests rather than a single subject or format.</p>
     </div>
+    <div className="mt-7 grid gap-4 md:grid-cols-3">
+      <article className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+        <h3 className="font-extrabold text-slate-900">What is GEO (Generative Engine Optimization)?</h3>
+        <p className="mt-2 text-sm leading-6 text-slate-600">GEO is the practice of making useful, accurate content easier for generative AI search experiences to understand and potentially cite. ANVYA gives people a place to discuss GEO, AI search visibility, content structure and trustworthy source building.</p>
+      </article>
+      <article className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+        <h3 className="font-extrabold text-slate-900">What is AEO (Answer Engine Optimization)?</h3>
+        <p className="mt-2 text-sm leading-6 text-slate-600">AEO focuses on clearly answering real questions with concise explanations, helpful headings and reliable context. ANVYA supports question-and-answer discussions where members can exchange practical answers about SEO, AI, technology and digital marketing.</p>
+      </article>
+      <article className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+        <h3 className="font-extrabold text-slate-900">LLM SEO and AI search discussions</h3>
+        <p className="mt-2 text-sm leading-6 text-slate-600">Explore LLM optimization, semantic SEO, technical SEO, keyword research, entity clarity, structured data and content discoverability. ANVYA is a community for sharing ideas and learning—not a promise of rankings or AI citations.</p>
+      </article>
+    </div>
+    <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-5">
+      <h3 className="font-extrabold text-slate-900">Explore ANVYA by topic</h3>
+      <p className="mt-2 text-sm leading-7 text-slate-600">Join conversations about AI SEO, generative engine optimization (GEO), answer engine optimization (AEO), large language models (LLMs), ChatGPT and AI search, Google AI Overviews, semantic SEO, technical SEO, keyword research, content strategy, technology, science, travel, business and economics. Publish useful insights, ask questions, discover professionals and build knowledge through community discussions.</p>
+    </div>
   </div>
 </section><div className="anvya-mobile-fixed-help fixed bottom-5 right-5 z-50"><Link to="/anvya/help"><Button className="rounded-full px-5 shadow-xl"><HelpCircle className="mr-2 size-4"/>Help Centre</Button></Link></div></div>}
 
