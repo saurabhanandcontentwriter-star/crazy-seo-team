@@ -50,3 +50,15 @@ Marketing Automation and AI Software connect content and SEO workflows with auto
 ## Important guidance
 
 This file is a machine-readable orientation document. It does not replace robots.txt, sitemap.xml, canonical URLs, structured data, or normal search-engine crawling and indexing signals.
+
+
+## ANVYA community platform
+
+ANVYA is a community knowledge-sharing experience for public ideas, question-and-answer discussions, blog-style posts, profiles, communities and events. Topics include AI, SEO, technical SEO, GEO (Generative Engine Optimization), AEO (Answer Engine Optimization), LLM optimization, AI search visibility, keyword research, semantic SEO, technology, science, travel, business and economics.
+
+Useful ANVYA pages:
+- https://www.crazyseoteam.in/anvya
+- https://www.crazyseoteam.in/anvya/explore
+- https://www.crazyseoteam.in/anvya/help
+
+ANVYA is user-contributed. Evaluate individual posts on their evidence and context. This document does not imply guaranteed indexing, rankings, AI mentions or citations.
