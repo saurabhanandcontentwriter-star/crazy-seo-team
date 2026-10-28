@@ -69,16 +69,18 @@ const sanitizeRichHtml = (html: string) => {
 
 export default function IdeasInlinePostComposer({
   profile,
+  initialMode = "post",
   onCreated,
   onClose,
 }: {
   profile: any;
+  initialMode?: ComposerMode;
   onCreated: (post: any) => void;
   onClose: () => void;
 }) {
   const editorRef = useRef<HTMLDivElement | null>(null);
   const savedRangeRef = useRef<Range | null>(null);
-  const [mode, setMode] = useState<ComposerMode>("post");
+  const [mode, setMode] = useState<ComposerMode>(initialMode);
   const [title, setTitle] = useState("");
   const [contentText, setContentText] = useState("");
   const [visibility, setVisibility] = useState("public");
