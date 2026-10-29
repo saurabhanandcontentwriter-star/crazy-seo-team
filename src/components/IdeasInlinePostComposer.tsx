@@ -34,7 +34,7 @@ const modes: Array<{
   icon: typeof FileText;
 }> = [
   { value: "post", label: "Create Post", description: "Share an update, idea or image.", icon: FileText },
-  { value: "blog", label: "Write Blog", description: "Publish a richer article with a cover image.", icon: BookOpen },
+  { value: "blog", label: "Write Article", description: "Publish a long-form, SEO-friendly article.", icon: BookOpen },
   { value: "question", label: "Ask Discussion", description: "Ask a question and invite useful answers.", icon: MessageCircle },
   { value: "event", label: "Live Event", description: "Create an event with time, place and details.", icon: CalendarDays },
   { value: "suggestion", label: "Suggestion", description: "Suggest an idea or improvement for the community.", icon: Lightbulb },
@@ -87,6 +87,8 @@ export default function IdeasInlinePostComposer({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [subject, setSubject] = useState("");
+  const [seoTitle, setSeoTitle] = useState("");
+  const [metaDescription, setMetaDescription] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [eventStart, setEventStart] = useState("");
@@ -104,7 +106,7 @@ export default function IdeasInlinePostComposer({
       if (!raw) return;
       const draft = JSON.parse(raw);
       if (draft?.mode !== "blog") return;
-      setMode("blog"); setTitle(draft.title || ""); setSubject(draft.subject || "");
+      setMode("blog"); setTitle(draft.title || ""); setSubject(draft.subject || ""); setSeoTitle(draft.seoTitle || ""); setMetaDescription(draft.metaDescription || "");
       setTags(Array.isArray(draft.tags) ? draft.tags : []); setVisibility(draft.visibility || "public");
       setLocation(draft.location || profile.location || "");
       if (editorRef.current) editorRef.current.innerHTML = draft.content || "";
@@ -118,7 +120,7 @@ export default function IdeasInlinePostComposer({
     if (!title.trim() && !editorRef.current?.innerText?.trim()) {
       toast.error("Add a title or some content before saving the draft."); return;
     }
-    localStorage.setItem(draftKey, JSON.stringify({mode:"blog", title:title.trim(), content:sanitizeRichHtml(content), subject, tags, visibility, location:location.trim(), savedAt:new Date().toISOString()}));
+    localStorage.setItem(draftKey, JSON.stringify({mode:"blog", title:title.trim(), content:sanitizeRichHtml(content), subject, tags, visibility, location:location.trim(), seoTitle, metaDescription, savedAt:new Date().toISOString()}));
     localStorage.setItem("ideas-draft-count", "1");
     window.dispatchEvent(new Event("anvya-draft-changed"));
     toast.success("Blog draft saved on this device.");
@@ -228,8 +230,8 @@ export default function IdeasInlinePostComposer({
         toast.error("Title is limited to 180 characters.");
         return;
       }
-      if (mode === "blog" && countWords(plainContent) > 300) {
-        toast.error("Blog articles are limited to 300 words.");
+      if (mode === "blog" && plainContent.length > 50000) {
+        toast.error("Article content is limited to 50,000 characters.");
         return;
       }
       if (mode !== "blog" && plainContent.length > 10000) {
@@ -570,6 +572,14 @@ export default function IdeasInlinePostComposer({
               </div>
             </div>
           )}
+          {mode === "blog" && <div className="grid gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+            <div className="font-bold text-sm">SEO settings</div>
+            <Input value={seoTitle} onChange={(e) => setSeoTitle(e.target.value.slice(0, 70))} placeholder="SEO title (optional; defaults to article title)" maxLength={70} />
+            <p className="text-right text-xs text-muted-foreground">{seoTitle.length}/70 characters</p>
+            <Textarea value={metaDescription} onChange={(e) => setMetaDescription(e.target.value.slice(0, 160))} placeholder="Meta description (optional; write a clear summary for search results)" maxLength={160} rows={2} />
+            <p className="text-right text-xs text-muted-foreground">{metaDescription.length}/160 characters</p>
+            <p className="text-xs text-muted-foreground">Tip: use the main search phrase naturally in the title and opening paragraph.</p>
+          </div>}
           {mode !== "blog" && <div className="grid min-w-[560px] grid-cols-[1fr_auto] gap-3 overflow-x-auto pb-1">
             <label className="flex min-h-16 cursor-pointer items-center gap-3 rounded-2xl border border-dashed p-3 transition hover:border-primary/50 hover:bg-muted/30">
               <ImagePlus className="size-5 text-primary" />
@@ -619,7 +629,7 @@ export default function IdeasInlinePostComposer({
             {mode === "question"
               ? "Ask a clear question and give enough context for useful community answers."
               : mode === "blog"
-                ? "Use headings, lists and links for a blog-style article."
+                ? "Write a detailed, search-friendly article with clear headings, useful links and original insights."
                 : mode === "post"
                   ? "Share a professional update, caption or image with your network."
                   : mode === "event"
@@ -639,7 +649,7 @@ export default function IdeasInlinePostComposer({
               : mode === "question"
                 ? "Post Question"
                 : mode === "blog"
-                  ? "Publish Blog"
+                  ? "Publish Article"
                   : mode === "event"
                     ? "Create Event"
                     : mode === "suggestion"
