@@ -16,12 +16,12 @@ export default function IdeasNewsletterPage() {
     let alive=true;
     (async()=>{
       setLoading(true);setError("");
-      const {data,error:queryError}=await supabase.from("anvya_newsletters").select("*").eq("slug",slug).maybeSingle();
+      const {data,error:queryError}=await (supabase as any).from("anvya_newsletters").select("*").eq("slug",slug).maybeSingle();
       if(!alive)return;
       if(queryError){setError("Newsletter database is not ready yet. Apply the ANVYA newsletter migration first.");setLoading(false);return;}
       if(!data){setNewsletter(null);setLoading(false);return;}
       setNewsletter(data as Newsletter);
-      const {count}=await supabase.from("anvya_newsletter_subscriptions").select("id",{count:"exact",head:true}).eq("newsletter_id",data.id);
+      const {count}=await (supabase as any).from("anvya_newsletter_subscriptions").select("id",{count:"exact",head:true}).eq("newsletter_id",data.id);
       if(alive)setSubscriberCount(count||0);
       setLoading(false);
     })();
