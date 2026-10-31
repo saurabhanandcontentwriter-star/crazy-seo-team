@@ -1,6 +1,6 @@
--- Enable owners to manage their newsletter and issues.
--- The base migration already creates the public issue-read and issue-write
--- policies, so drop them first to keep this migration safe on fresh projects.
+-- Enable owners to manage their newsletters and issues.
+-- DROP first so this migration is safe on databases where an earlier
+-- partial application already created one or more of these policies.
 drop policy if exists "Owners can create newsletters" on public.anvya_newsletters;
 create policy "Owners can create newsletters"
   on public.anvya_newsletters for insert
@@ -47,5 +47,3 @@ create policy "Newsletter owners can update issues"
     where n.id = newsletter_id and n.owner_user_id = auth.uid()::text))
   with check (exists (select 1 from public.anvya_newsletters n
     where n.id = newsletter_id and n.owner_user_id = auth.uid()::text));
-
-notify pgrst, 'reload schema';
