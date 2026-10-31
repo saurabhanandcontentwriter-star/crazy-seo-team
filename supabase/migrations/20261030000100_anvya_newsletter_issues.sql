@@ -1,8 +1,12 @@
--- Enable authenticated owners to manage their newsletter and its issues.
+-- Enable owners to manage their newsletter and issues.
+-- The base migration already creates the public issue-read and issue-write
+-- policies, so drop them first to keep this migration safe on fresh projects.
+drop policy if exists "Owners can create newsletters" on public.anvya_newsletters;
 create policy "Owners can create newsletters"
   on public.anvya_newsletters for insert
   with check (owner_user_id = auth.uid()::text);
 
+drop policy if exists "Owners can update newsletters" on public.anvya_newsletters;
 create policy "Owners can update newsletters"
   on public.anvya_newsletters for update
   using (owner_user_id = auth.uid()::text)
@@ -24,18 +28,24 @@ create table if not exists public.anvya_newsletter_issues (
 create index if not exists anvya_newsletter_issues_public_idx
   on public.anvya_newsletter_issues(newsletter_id, status, published_at desc);
 alter table public.anvya_newsletter_issues enable row level security;
+
+drop policy if exists "Public can read published newsletter issues" on public.anvya_newsletter_issues;
 create policy "Public can read published newsletter issues"
   on public.anvya_newsletter_issues for select using (status = 'published');
+
+drop policy if exists "Newsletter owners can create issues" on public.anvya_newsletter_issues;
 create policy "Newsletter owners can create issues"
   on public.anvya_newsletter_issues for insert with check (
     exists (select 1 from public.anvya_newsletters n
       where n.id = newsletter_id and n.owner_user_id = auth.uid()::text)
   );
+
+drop policy if exists "Newsletter owners can update issues" on public.anvya_newsletter_issues;
 create policy "Newsletter owners can update issues"
-  on public.anvya_newsletter_issues for update using (
-    exists (select 1 from public.anvya_newsletters n
-      where n.id = newsletter_id and n.owner_user_id = auth.uid()::text)
-  ) with check (
-    exists (select 1 from public.anvya_newsletters n
-      where n.id = newsletter_id and n.owner_user_id = auth.uid()::text)
-  );
+  on public.anvya_newsletter_issues for update
+  using (exists (select 1 from public.anvya_newsletters n
+    where n.id = newsletter_id and n.owner_user_id = auth.uid()::text))
+  with check (exists (select 1 from public.anvya_newsletters n
+    where n.id = newsletter_id and n.owner_user_id = auth.uid()::text));
+
+notify pgrst, 'reload schema';
