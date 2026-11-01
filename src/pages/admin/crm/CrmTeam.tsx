@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Mail, Pencil, Phone, Plus, Trash2, UsersRound, Search, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, UserCheck } from "lucide-react";
+import { Mail, Pencil, Phone, Plus, Trash2, UsersRound, Search, BriefcaseBusiness, CalendarDays, CheckCircle2, Clock3, UserCheck, History, Building2, WalletCards } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { GlassCard, EmptyState, CrmSkeleton } from "@/components/crm/CrmUI";
 import { CrmLead, TeamMember, FollowUp, Activity, WORKING_DAYS, deleteTeamMemberAuth, fetchActivities, fetchFollowUps, fetchLeads, fetchTeam, inr, saveTeamMemberAuth, stageLabel } from "@/lib/crm";
 
-type Draft = Partial<TeamMember> & { password?: string };
+type Draft = Partial<TeamMember> & { password?: string; department?: string; joining_date?: string; birthday?: string; paid_leave_balance?: number; monthly_salary?: number };\ntype EmployeeProfile = { user_id:string; joining_date:string|null; designation:string|null; department:string|null; monthly_salary:number; paid_leave_balance:number; birthday?:string|null };\ntype AttendanceRecord = { id:string; work_date:string; punch_in:string|null; punch_out:string|null; total_seconds:number; status:string; work_mode?:string };
 
 const TEAM_ROLES = ["Founder", "CTO", "Manager", "Vice President", "Accountant", "Sales", "Intern"] as const;
 
@@ -19,7 +19,7 @@ export default function CrmTeam() {
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [leads, setLeads] = useState<CrmLead[]>([]);
   const [followups, setFollowups] = useState<FollowUp[]>([]);
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);\n  const [profiles, setProfiles] = useState<EmployeeProfile[]>([]);\n  const [attendanceHistory, setAttendanceHistory] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [workspaceLoading, setWorkspaceLoading] = useState(false);
   const [selected, setSelected] = useState<TeamMember | null>(null);
@@ -106,7 +106,7 @@ export default function CrmTeam() {
   const wonLeads = assignedLeads.filter(l => l.status === "won");
   const pipelineValue = assignedLeads.reduce((s, l) => s + Number(l.deal_value || 0), 0);
   const pendingFollowups = followups.filter(x => !x.completed);
-  const completedFollowups = followups.filter(x => x.completed);
+  const completedFollowups = followups.filter(x => x.completed);\n  const selectedProfile = selected?.auth_user_id ? profiles.find(x => x.user_id === selected.auth_user_id) : undefined;\n  const saveProfileField = async (field:keyof EmployeeProfile,value:any) => { if(!selected?.auth_user_id) return; const next={...(selectedProfile||{user_id:selected.auth_user_id,monthly_salary:0,paid_leave_balance:12}),[field]:value,updated_at:new Date().toISOString()}; const {data,error}=await (supabase as any).from("crm_employee_profiles").upsert(next,{onConflict:"user_id"}).select("*").single(); if(error){toast.error(error.message);return;} setProfiles(v=>[...v.filter(x=>x.user_id!==selected.auth_user_id),data]); toast.success("Employee profile updated."); };
 
   return (
     <div className="space-y-5">
@@ -206,7 +206,7 @@ export default function CrmTeam() {
             <div><Label>Email *</Label><Input className="mt-1" type="email" value={draft?.email ?? ""} onChange={e => setDraft({ ...draft, email: e.target.value })} /></div>
             <div><Label>Team ID *</Label><Input className="mt-1" value={draft?.login_id ?? ""} onChange={e => setDraft({ ...draft, login_id: e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, "") })} disabled={!!draft?.id} /></div>
             <div><Label>{draft?.id ? "New password (optional)" : "Password *"}</Label><Input className="mt-1" type="password" value={draft?.password ?? ""} onChange={e => setDraft({ ...draft, password: e.target.value })} placeholder="Minimum 8 characters" /></div>
-            <div><Label>Mobile</Label><Input className="mt-1" value={draft?.mobile ?? ""} onChange={e => setDraft({ ...draft, mobile: e.target.value })} /></div>
+            <div><Label>Mobile</Label><Input className="mt-1" value={draft?.mobile ?? ""} onChange={e => setDraft({ ...draft, mobile: e.target.value })} /></div>\n            <div><Label>Department</Label><Input className="mt-1" value={draft?.department ?? "CRM"} onChange={e=>setDraft({...draft,department:e.target.value})}/></div>\n            <div><Label>Joining Date</Label><Input className="mt-1" type="date" value={draft?.joining_date ?? ""} onChange={e=>setDraft({...draft,joining_date:e.target.value})}/></div>\n            <div><Label>Birthday</Label><Input className="mt-1" type="date" value={draft?.birthday ?? ""} onChange={e=>setDraft({...draft,birthday:e.target.value})}/></div>\n            <div><Label>Paid Leave Balance (days)</Label><Input className="mt-1" type="number" min="0" value={String(draft?.paid_leave_balance ?? 12)} onChange={e=>setDraft({...draft,paid_leave_balance:Number(e.target.value)})}/></div>\n            <div><Label>Monthly Salary (₹)</Label><Input className="mt-1" type="number" min="0" value={String(draft?.monthly_salary ?? 0)} onChange={e=>setDraft({...draft,monthly_salary:Number(e.target.value)})}/></div>
             <div><Label>Photo URL</Label><Input className="mt-1" value={draft?.photo_url ?? ""} onChange={e => setDraft({ ...draft, photo_url: e.target.value })} /></div>
             <div><Label>Working days</Label><div className="mt-1 flex flex-wrap gap-1">{WORKING_DAYS.map(d => { const on = (draft?.working_days ?? []).includes(d); return <button key={d} type="button" onClick={() => toggleDay(d)} className={`rounded-lg border px-2 py-1 text-xs font-semibold ${on ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>{d}</button>; })}</div></div>
             <div><Label>Working hours</Label><Input className="mt-1" value={draft?.working_hours ?? ""} onChange={e => setDraft({ ...draft, working_hours: e.target.value })} /></div>
