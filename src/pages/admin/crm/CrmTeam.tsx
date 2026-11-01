@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { GlassCard, EmptyState, CrmSkeleton } from "@/components/crm/CrmUI";
 import { CrmLead, TeamMember, FollowUp, Activity, WORKING_DAYS, deleteTeamMemberAuth, fetchActivities, fetchFollowUps, fetchLeads, fetchTeam, inr, saveTeamMemberAuth, stageLabel } from "@/lib/crm";
+import { formatClock, formatDuration } from "@/lib/attendance";
 
 type Draft = Partial<TeamMember> & { password?: string; department?: string; joining_date?: string; birthday?: string; paid_leave_balance?: number; monthly_salary?: number };
 type EmployeeProfile = { user_id: string; joining_date: string | null; designation: string | null; department: string | null; monthly_salary: number; paid_leave_balance: number; birthday?: string | null };
@@ -53,10 +54,12 @@ export default function CrmTeam() {
     setSelected(member);
     setWorkspaceLoading(true);
     try {
-      const [fu, act] = await Promise.all([fetchFollowUps(), fetchActivities()]);
+      const [fu, act, attendanceResult] = await Promise.all([fetchFollowUps(), fetchActivities(), (supabase as any).from("crm_attendance").select("id,work_date,punch_in,punch_out,total_seconds,status,work_mode").eq(member.auth_user_id ? "user_id" : "email", member.auth_user_id || member.email).order("work_date", { ascending: false }).limit(30)]);
       setFollowups(fu.filter(x => x.team_member_id === member.id));
       const memberLeadIds = new Set(leads.filter(x => x.assigned_to === member.id).map(x => x.id));
       setActivities(act.filter(x => x.team_member_id === member.id || memberLeadIds.has(x.lead_id)));
+      if (attendanceResult.error) throw attendanceResult.error;
+      setAttendanceHistory((attendanceResult.data || []) as AttendanceRecord[]);
     } catch (e: any) {
       toast.error(e.message ?? "Could not load employee workspace");
     } finally {
@@ -193,6 +196,10 @@ export default function CrmTeam() {
                 <div className="grid gap-3 md:grid-cols-2">
                   <div className="rounded-2xl border p-3"><div className="mb-2 flex items-center gap-2"><Clock3 size={15} className="text-primary"/><p className="font-black">Follow-ups</p></div><p className="text-xs text-muted-foreground">{pendingFollowups.length} pending · {completedFollowups.length} completed</p>{pendingFollowups.slice(0,5).map(f=><div key={f.id} className="mt-2 rounded-xl bg-muted/50 p-2"><p className="text-xs font-semibold">{f.title}</p><p className="text-[10px] text-muted-foreground">{new Date(f.due_at).toLocaleString("en-IN")}</p></div>)}</div>
                   <div className="rounded-2xl border p-3"><div className="mb-2 flex items-center gap-2"><CheckCircle2 size={15} className="text-primary"/><p className="font-black">Recent Activity</p></div>{activities.length === 0 ? <p className="text-xs text-muted-foreground">No activity recorded.</p> : activities.slice(0,5).map(a=><div key={a.id} className="mt-2 rounded-xl bg-muted/50 p-2"><p className="text-xs font-semibold">{a.subject || a.type}</p><p className="text-[10px] text-muted-foreground">{new Date(a.created_at).toLocaleString("en-IN")}</p></div>)}</div>
+                </div>
+                <div className="rounded-2xl border">
+                  <div className="flex items-center justify-between border-b p-3"><div className="flex items-center gap-2"><History size={16} className="text-primary" /><p className="font-black">Attendance History</p></div><span className="text-xs text-muted-foreground">Last 30 records</span></div>
+                  <div className="max-h-72 overflow-auto">{attendanceHistory.length === 0 ? <p className="p-4 text-sm text-muted-foreground">No attendance records found for this employee.</p> : <div className="divide-y">{attendanceHistory.map(record => <div key={record.id} className="grid grid-cols-2 gap-2 p-3 text-xs sm:grid-cols-4"><div><p className="text-muted-foreground">Date</p><p className="mt-1 font-semibold">{record.work_date}</p></div><div><p className="text-muted-foreground">Punch In / Out</p><p className="mt-1 font-semibold">{formatClock(record.punch_in)} – {formatClock(record.punch_out)}</p></div><div><p className="text-muted-foreground">Work Hours</p><p className="mt-1 font-semibold">{formatDuration(record.total_seconds || 0)}</p></div><div><p className="text-muted-foreground">Location · Status</p><p className="mt-1 font-semibold">{record.work_mode === "home" ? "Home" : record.work_mode === "remote" ? "Remote" : "Office"} · {record.status === "punched_in" ? "Punched in" : "Completed"}</p></div></div>)}</div>}</div>
                 </div>
                 <div className="grid gap-2 text-xs md:grid-cols-2">
                   <div className="rounded-xl border p-3"><p className="font-bold">Working Days</p><p className="mt-1 text-muted-foreground">{(selected.working_days || []).join(", ") || "—"}</p></div>
