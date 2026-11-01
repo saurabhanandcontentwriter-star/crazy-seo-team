@@ -45,7 +45,9 @@ export async function getTodayAttendance(): Promise<Attendance | null> {
   return data ? writeLocal(data as Attendance) : null;
 }
 
-export async function punchIn() {
+export type WorkMode = "office" | "home" | "remote";
+
+export async function punchIn(workMode: WorkMode = "office") {
   const user = await currentUser();
   const now = new Date().toISOString();
   const workDate = indiaDate();
