@@ -12,8 +12,8 @@ import { GlassCard, EmptyState, CrmSkeleton } from "@/components/crm/CrmUI";
 import { CrmLead, TeamMember, FollowUp, Activity, WORKING_DAYS, deleteTeamMemberAuth, fetchActivities, fetchFollowUps, fetchLeads, fetchTeam, inr, saveTeamMemberAuth, stageLabel } from "@/lib/crm";
 
 type Draft = Partial<TeamMember> & { password?: string; department?: string; joining_date?: string; birthday?: string; paid_leave_balance?: number; monthly_salary?: number };
-type EmployeeProfile = { user_id:string; joining_date:string|null; designation:string|null; department:string|null; monthly_salary:number; paid_leave_balance:number; birthday?:string|null };
-type AttendanceRecord = { id:string; work_date:string; punch_in:string|null; punch_out:string|null; total_seconds:number; status:string; work_mode?:string };
+type EmployeeProfile = { user_id: string; joining_date: string | null; designation: string | null; department: string | null; monthly_salary: number; paid_leave_balance: number; birthday?: string | null };
+type AttendanceRecord = { id: string; work_date: string; punch_in: string | null; punch_out: string | null; total_seconds: number; status: string; work_mode?: string };
 
 const TEAM_ROLES = ["Founder", "CTO", "Manager", "Vice President", "Accountant", "Sales", "Intern"] as const;
 
