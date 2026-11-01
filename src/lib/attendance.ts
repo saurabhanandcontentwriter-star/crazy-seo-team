@@ -37,7 +37,7 @@ export async function punchIn(workMode: WorkMode = "office") {
   const { data, error } = await db.from("crm_attendance").upsert({
     user_id:user.id,email:user.email ?? "",work_date:workDate,punch_in:now,punch_out:null,total_seconds:0,
     regular_seconds:0,overtime_seconds:0,overtime_started_at:null,total_break_seconds:0,
-    break_started_at:null,break_status:"none",status:"punched_in",work_mode:workMode
+    break_started_at:null,break_status:"none",status:"punched_in"
   }, { onConflict:"user_id,work_date" }).select("*").single();
   if (error) throw new Error(error.message || "Punch In सेव नहीं हुआ।");
   return data as Attendance;
