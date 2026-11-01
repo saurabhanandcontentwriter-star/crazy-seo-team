@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Clock3, Coffee, LogIn, LogOut, ShieldCheck, TimerReset, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Attendance, DAILY_TARGET_SECONDS, endBreak, formatClock, formatDuration, getTodayAttendance, getWorkingHours, punchIn, punchOut, startBreak, startOvertime } from "@/lib/attendance";
+import { Attendance, DAILY_TARGET_SECONDS, endBreak, formatDuration, getTodayAttendance, getWorkingHours, punchIn, punchOut, startBreak, startOvertime } from "@/lib/attendance";
 
 export default function PunchClock({ onAttendanceChange }: { onAttendanceChange?: (attendance: Attendance | null) => void }) {
   const [attendance,setAttendance]=useState<Attendance|null>(null);
