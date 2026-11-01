@@ -31,7 +31,7 @@ export async function getTodayAttendance(): Promise<Attendance | null> {
   return data as Attendance | null;
 }
 export type WorkMode = "office" | "home" | "remote";
-export async function punchIn(workMode: WorkMode = "office") {
+export async function punchIn(_workMode: WorkMode = "office") {
   const user = await currentUser(), now = new Date().toISOString(), workDate = indiaDate();
   if (await getTodayAttendance()) throw new Error("आज का Punch In पहले से दर्ज है।");
   const { data, error } = await db.from("crm_attendance").upsert({
