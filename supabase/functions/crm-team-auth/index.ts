@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
       const email = syntheticEmail(loginId);
       const adminLookup = createClient(url, service, { auth: { autoRefreshToken: false, persistSession: false } });
       const { data: member, error: memberError } = await adminLookup.from("crm_team_members")
-        .select("auth_user_id,status").eq("login_id", loginId).maybeSingle();
+        .select("auth_user_id,status").ilike("login_id", loginId).maybeSingle();
       if (memberError) throw memberError;
       if (!member || member.status !== "active" || !member.auth_user_id) return json({ error: "Employee ID not found or inactive" }, 404);
       const response = await fetch(`${url}/auth/v1/token?grant_type=password`, {
