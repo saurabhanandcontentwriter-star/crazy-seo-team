@@ -21,12 +21,23 @@ export default function CrmTeamGuard({ children }: { children: ReactNode }) {
 
     const verify = async () => {
       try {
-        const { data } = await supabase.auth.getSession();
-        const email = data.session?.user?.email?.trim().toLowerCase() ?? "";
+        const { data, error } = await supabase.auth.getUser();
+        if (error || !data.user) throw error || new Error("No active session");
+        const email = data.user.email?.trim().toLowerCase() ?? "";
+        let allowed = CRM_ADMIN_EMAILS.has(email);
 
-        if (cancelled) return;
+        if (!allowed) {
+          const { data: member, error: memberError } = await (supabase as any)
+            .from("crm_team_members")
+            .select("id")
+            .eq("auth_user_id", data.user.id)
+            .eq("status", "active")
+            .maybeSingle();
+          if (memberError) throw memberError;
+          allowed = !!member;
+        }
 
-        setState(CRM_ADMIN_EMAILS.has(email) ? "allowed" : "denied");
+        if (!cancelled) setState(allowed ? "allowed" : "denied");
       } catch (error) {
         console.error("CRM guard verification failed:", error);
         if (!cancelled) setState("denied");
@@ -34,45 +45,18 @@ export default function CrmTeamGuard({ children }: { children: ReactNode }) {
     };
 
     void verify();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      window.setTimeout(() => {
-        if (cancelled) return;
-
-        const email = session?.user?.email?.trim().toLowerCase() ?? "";
-        setState(
-          event !== "SIGNED_OUT" && CRM_ADMIN_EMAILS.has(email)
-            ? "allowed"
-            : "denied",
-        );
-      }, 0);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      window.setTimeout(() => { if (!cancelled) void verify(); }, 0);
     });
 
-    return () => {
-      cancelled = true;
-      subscription.unsubscribe();
-    };
+    return () => { cancelled = true; subscription.unsubscribe(); };
   }, []);
 
   if (state === "checking") {
-    return (
-      <div className="min-h-screen grid place-items-center bg-background">
-        <Loader2 className="animate-spin text-primary" size={28} />
-      </div>
-    );
+    return <div className="min-h-screen grid place-items-center bg-background"><Loader2 className="animate-spin text-primary" size={28}/></div>;
   }
-
   if (state === "denied") {
-    return (
-      <Navigate
-        to="/admin/crm/login"
-        replace
-        state={{ from: location.pathname }}
-      />
-    );
+    return <Navigate to="/employee/login" replace state={{ from: location.pathname }}/>;
   }
-
   return <>{children}</>;
 }
