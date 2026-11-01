@@ -13,6 +13,7 @@ export type Attendance = {
   total_seconds: number;
   status: "punched_in" | "punched_out";
   work_status: "red" | "green";
+  work_mode: "office" | "home" | "remote";
   created_at: string;
   updated_at: string;
 };
