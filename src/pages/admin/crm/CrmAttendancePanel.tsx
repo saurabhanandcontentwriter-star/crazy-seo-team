@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Clock3, LogIn, LogOut, RefreshCw, UsersRound, CheckCircle2, XCircle } from "lucide-react";
+import { Clock3, LogIn, LogOut, RefreshCw, UsersRound, CheckCircle2, XCircle, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GlassCard } from "@/components/crm/CrmUI";
@@ -20,6 +20,8 @@ const nineHourClass = (seconds: number) => seconds >= nineHourSeconds ? "bg-emer
 
 export default function CrmAttendancePanel() {
   const [rows, setRows] = useState<DisplayRow[]>([]);
+  const [history, setHistory] = useState<Attendance[]>([]);
+  const [historyRange, setHistoryRange] = useState<"7" | "30" | "90">("30");
   const [mine, setMine] = useState<Attendance | null>(null);
   const [busy, setBusy] = useState<"in" | "out" | null>(null);
   const [workMode, setWorkMode] = useState<WorkMode>("office");
@@ -31,16 +33,19 @@ export default function CrmAttendancePanel() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [{ data: userData, error: userError }, { data: team, error: teamError }, { data: attendance, error: attendanceError }, { data: leaveData, error: leaveError }] = await Promise.all([
+      const historyStart = new Date(Date.now() - 90 * 86400000).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+      const [{ data: userData, error: userError }, { data: team, error: teamError }, { data: attendance, error: attendanceError }, { data: leaveData, error: leaveError }, { data: historyData, error: historyError }] = await Promise.all([
         supabase.auth.getUser(),
         (supabase as any).from("crm_team_members").select("id,auth_user_id,name,login_id,position,photo_url").eq("status", "active").order("name"),
         (supabase as any).from("crm_attendance").select("*").eq("work_date", indiaDate()).order("punch_in", { ascending: false }),
         (supabase as any).from("crm_leave_requests").select("*").lte("start_date", indiaDate()).gte("end_date", indiaDate()).order("created_at", { ascending: false }),
+        (supabase as any).from("crm_attendance").select("*").gte("work_date", historyStart).order("work_date", { ascending: false }).order("punch_in", { ascending: false }).limit(500),
       ]);
       if (userError) throw userError;
       if (teamError) throw teamError;
       if (attendanceError) throw attendanceError;
       if (leaveError) throw leaveError;
+      if (historyError) throw historyError;
       const uid = userData.user?.id ?? null;
       const attendanceMap = new Map(((attendance ?? []) as Attendance[]).map(row => [row.user_id, row]));
       const displayRows = ((team ?? []) as TeamMember[]).filter(member => member.auth_user_id).map(member => ({
@@ -50,6 +55,7 @@ export default function CrmAttendancePanel() {
       setRows(displayRows);
       setMine(uid ? (attendanceMap.get(uid) ?? null) : null);
       setLeaves((leaveData ?? []) as Leave[]);
+      setHistory((historyData ?? []) as Attendance[]);
     } catch (e: any) { toast.error(e?.message ?? "Could not load attendance"); }
     finally { setLoading(false); }
   }, []);
@@ -84,6 +90,10 @@ export default function CrmAttendancePanel() {
 
   const today = useMemo(() => new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }), []);
   const currentSeconds = (mine?.status === "punched_in" && mine.punch_in) ? Math.max(0, Math.floor((Date.now() - new Date(mine.punch_in).getTime()) / 1000)) : Number(mine?.total_seconds ?? 0);
+  const historyCutoff = new Date(Date.now() - Number(historyRange) * 86400000).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+  const visibleHistory = history.filter(row => row.work_date >= historyCutoff);
+  const memberNames = new Map(rows.map(row => [row.user_id, row.member.name]));
+  const workModeLabel = (mode: Attendance["work_mode"]) => mode === "home" ? "Work from Home" : mode === "remote" ? "Work from Remote" : "Work from Office";
 
   return <GlassCard className="p-5">
     <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -95,7 +105,20 @@ export default function CrmAttendancePanel() {
       <div className="divide-y">{rows.map(r => <div key={r.member.id} className={"grid grid-cols-[1.4fr_1fr_1fr_1fr_1fr_1fr] items-center gap-3 px-3 py-3 " + (leaves.some(l=>l.user_id===r.user_id&&l.status==="approved") ? "bg-emerald-500/5" : "")}><div className="flex items-center gap-2 min-w-0">{r.member.photo_url ? <img src={r.member.photo_url} alt={r.member.name} className="h-9 w-9 rounded-xl object-cover" /> : <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-xs font-black text-white">{r.member.name.charAt(0).toUpperCase()}</span>}<div className="min-w-0"><p className="truncate text-sm font-bold">{r.member.name}</p><p className="truncate text-[10px] text-muted-foreground">{r.member.login_id ?? "Team member"}</p></div></div><span className={"inline-flex w-fit rounded-lg border px-2 py-1 text-[10px] font-bold " + (leaves.some(l=>l.user_id===r.user_id&&l.status==="approved") ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : statusClass(r.punch_in ? r : null))}>{leaves.some(l=>l.user_id===r.user_id&&l.status==="approved") ? "Approved Leave" : statusLabel(r.punch_in ? r : null)}</span><span className="text-xs font-semibold">{leaves.some(l=>l.user_id===r.user_id&&l.status==="approved") ? "—" : formatClock(r.punch_in)}</span><span className="text-xs font-semibold">{leaves.some(l=>l.user_id===r.user_id&&l.status==="approved") ? "—" : formatClock(r.punch_out)}</span><span className={"inline-flex w-fit rounded-lg border px-2 py-1 text-[10px] font-bold " + nineHourClass(liveWorkSeconds(r))}>{liveWorkSeconds(r) >= nineHourSeconds ? "9+ Hours" : "Under 9 Hours"}</span><span className="text-xs font-semibold">{formatDuration(liveWorkSeconds(r))}</span><span className="text-xs font-semibold">{r.work_mode === "home" ? "Work from Home" : r.work_mode === "remote" ? "Work from Remote" : r.punch_in ? "Work from Office" : "—"}</span></div>)}{!rows.length && !loading && <div className="px-3 py-8 text-center text-sm text-muted-foreground"><UsersRound size={18} className="mx-auto mb-2" />No active CRM members found.</div>}</div></div>
     </div>
     <div className="mt-5 border-t pt-5">
-      <div className="flex items-center justify-between"><div><p className="font-black">HR Leave Approval</p><p className="text-xs text-muted-foreground">Accept/reject pending leave. Approved leave is shown green in CRM attendance.</p></div><Clock3 size={18} className="text-primary"/></div>
+      <div className="flex items-center justify-between"><div><div className="mt-5 border-t pt-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2"><History size={18} className="text-primary"/><div><p className="font-black">Attendance History</p><p className="text-xs text-muted-foreground">Punch records for all CRM team members · latest 90 days available</p></div></div>
+        <div className="flex gap-1 rounded-xl border bg-muted/30 p-1">{(["7","30","90"] as const).map(days=><button key={days} type="button" onClick={()=>setHistoryRange(days)} className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${historyRange===days?"bg-primary text-primary-foreground shadow-sm":"text-muted-foreground hover:text-foreground"}`}>{days} days</button>)}</div>
+      </div>
+      <div className="mt-3 overflow-x-auto rounded-2xl border"><div className="min-w-[760px]">
+        <div className="grid grid-cols-[1.3fr_0.8fr_1fr_1fr_0.9fr_1fr] gap-3 border-b bg-muted/30 px-3 py-2 text-[10px] font-bold uppercase tracking-wide text-muted-foreground"><span>Employee</span><span>Date</span><span>Punch In</span><span>Punch Out</span><span>Duration</span><span>Work Location</span></div>
+        {visibleHistory.map(row=><div key={row.id} className="grid grid-cols-[1.3fr_0.8fr_1fr_1fr_0.9fr_1fr] items-center gap-3 border-b px-3 py-3 last:border-0">
+          <span className="truncate text-xs font-semibold">{memberNames.get(row.user_id) || row.email || "Team member"}</span><span className="text-xs">{new Date(row.work_date+"T12:00:00").toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"})}</span><span className="text-xs">{formatClock(row.punch_in)}</span><span className="text-xs">{formatClock(row.punch_out)}</span><span className="text-xs font-semibold">{formatDuration(row.status==="punched_in"&&row.punch_in?Math.max(0,Math.floor((Date.now()-new Date(row.punch_in).getTime())/1000)):Number(row.total_seconds||0))}</span><span className="text-xs">{workModeLabel(row.work_mode || "office")}</span>
+        </div>)}
+        {!visibleHistory.length&&<p className="px-3 py-8 text-center text-sm text-muted-foreground">No attendance records found for this period.</p>}
+      </div></div>
+    </div>
+    <p className="font-black">HR Leave Approval</p><p className="text-xs text-muted-foreground">Accept/reject pending leave. Approved leave is shown green in CRM attendance.</p></div><Clock3 size={18} className="text-primary"/></div>
       <div className="mt-3 space-y-3">{leaves.filter(l=>l.status==="pending").map(l=>{const member=rows.find(r=>r.user_id===l.user_id)?.member; return <div key={l.id} className="rounded-2xl border p-3"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-bold">{member?.name ?? "Team member"} <span className="ml-1 rounded-full bg-muted px-2 py-1 text-[10px] uppercase">{l.leave_type}</span></p><p className="text-xs text-muted-foreground">{l.start_date} → {l.end_date} · {l.total_days} working day(s)</p><p className="mt-1 text-xs">{l.reason}</p></div><span className="rounded-full bg-amber-500/10 px-2 py-1 text-[10px] font-bold text-amber-600">Pending</span></div><textarea value={reviewNote[l.id] ?? ""} onChange={e=>setReviewNote(x=>({...x,[l.id]:e.target.value}))} placeholder="HR message…" className="mt-3 min-h-16 w-full rounded-xl border bg-background p-3 text-sm"/><div className="mt-2 flex gap-2"><Button size="sm" className="rounded-xl" disabled={reviewing===l.id} onClick={()=>void reviewLeave(l,"approved")}><CheckCircle2 size={13} className="mr-1"/>Accept Leave</Button><Button size="sm" variant="destructive" className="rounded-xl" disabled={reviewing===l.id} onClick={()=>void reviewLeave(l,"rejected")}><XCircle size={13} className="mr-1"/>Reject Leave</Button></div></div>})}{!leaves.some(l=>l.status==="pending")&&<p className="py-5 text-center text-sm text-muted-foreground">No pending leave approvals.</p>}</div>
     </div>
   </GlassCard>;
