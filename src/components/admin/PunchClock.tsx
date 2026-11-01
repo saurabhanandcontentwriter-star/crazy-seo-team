@@ -1,105 +1,44 @@
 import { useEffect, useMemo, useState } from "react";
-import { Clock3, Coffee, LogIn, LogOut, ShieldCheck, TimerReset } from "lucide-react";
+import { Clock3, Coffee, LogIn, LogOut, ShieldCheck, TimerReset, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Attendance, formatClock, formatDuration, getTodayAttendance, getWorkingHours, punchIn, punchOut } from "@/lib/attendance";
-
-type BreakRecord = { id: string; start: string; end: string | null; reason: string };
-
-const breakKey = (userId: string, date: string) => `cst_crm_breaks:${userId}:${date}`;
-
-function readBreaks(userId: string, date: string): BreakRecord[] {
-  try { return JSON.parse(localStorage.getItem(breakKey(userId, date)) || "[]"); } catch { return []; }
-}
-function saveBreaks(userId: string, date: string, value: BreakRecord[]) {
-  try { localStorage.setItem(breakKey(userId, date), JSON.stringify(value)); } catch { /* ignore storage errors */ }
-}
-function breakSeconds(breaks: BreakRecord[], now = Date.now()) {
-  return breaks.reduce((total, b) => total + Math.max(0, ((b.end ? new Date(b.end).getTime() : now) - new Date(b.start).getTime()) / 1000), 0);
-}
+import { Attendance, DAILY_TARGET_SECONDS, endBreak, formatClock, formatDuration, getTodayAttendance, getWorkingHours, punchIn, punchOut, startBreak, startOvertime } from "@/lib/attendance";
 
 export default function PunchClock({ onAttendanceChange }: { onAttendanceChange?: (attendance: Attendance | null) => void }) {
-  const [attendance, setAttendance] = useState<Attendance | null>(null);
-  const [workingHours, setWorkingHours] = useState("10:00 - 19:00");
-  const [busy, setBusy] = useState(false);
-  const [now, setNow] = useState(Date.now());
-  const [breaks, setBreaks] = useState<BreakRecord[]>([]);
-
-  const applyAttendance = (value: Attendance | null) => { setAttendance(value); onAttendanceChange?.(value); };
-  const load = async () => {
-    try {
-      const [a, hours] = await Promise.all([getTodayAttendance(), getWorkingHours()]);
-      applyAttendance(a); setWorkingHours(hours);
-      if (a) setBreaks(readBreaks(a.user_id, a.work_date));
-    } catch (e: any) { console.error(e); toast.error(e?.message ?? "Could not load attendance."); }
-  };
-
-  useEffect(() => { load(); const id = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(id); }, []);
-
-  const active = attendance?.status === "punched_in";
-  const currentBreak = breaks.find((b) => !b.end);
-  const totalBreak = breakSeconds(breaks, now);
-  const elapsed = useMemo(() => {
-    if (!attendance?.punch_in) return 0;
-    const gross = attendance.punch_out
-      ? attendance.total_seconds
-      : Math.max(0, (now - new Date(attendance.punch_in).getTime()) / 1000);
-    return Math.max(0, Math.floor(gross - totalBreak));
-  }, [attendance, now, totalBreak]);
-
-  const updateBreaks = (next: BreakRecord[]) => {
-    if (!attendance) return;
-    setBreaks(next); saveBreaks(attendance.user_id, attendance.work_date, next);
-  };
-
-  const handlePunchIn = async () => {
-    setBusy(true);
-    try { applyAttendance(await punchIn()); toast.success("Punch In successful — CRM unlocked", { description: `Started at ${formatClock(new Date().toISOString())}` }); }
-    catch (e: any) { toast.error(e.message ?? "Punch In failed"); }
-    finally { setBusy(false); }
-  };
-
-  const handleBreakStart = () => {
-    if (!attendance || !active || currentBreak) return;
-    const reason = window.prompt("Break reason (optional):", "Tea / Lunch / Personal") ?? "";
-    if (reason === null) return;
-    if (!window.confirm("Start break now? CRM will remain open, but break time will not count as working time.")) return;
-    const record: BreakRecord = { id: crypto.randomUUID(), start: new Date().toISOString(), end: null, reason: reason.trim() || "Break" };
-    updateBreaks([...breaks, record]);
-    toast.success("Break started", { description: `${record.reason} • Break timer is running` });
-  };
-
-  const handleBreakEnd = () => {
-    if (!attendance || !currentBreak) return;
-    if (!window.confirm("End break and resume working now?")) return;
-    const ended = new Date().toISOString();
-    updateBreaks(breaks.map((b) => b.id === currentBreak.id ? { ...b, end: ended } : b));
-    toast.success("Break ended — working timer resumed", { description: `Break ended at ${formatClock(ended)}` });
-  };
-
-  const handlePunchOut = async () => {
-    if (!attendance || !active) return;
-    if (currentBreak) { toast.error("End your active break before Punch Out."); return; }
-    setBusy(true);
-    try { applyAttendance(await punchOut(attendance)); toast.success("Punch Out recorded — CRM locked", { description: `Worked ${formatDuration(elapsed)} • Breaks ${formatDuration(totalBreak)}` }); }
-    catch (e: any) { toast.error(e.message ?? "Punch Out failed"); }
-    finally { setBusy(false); }
-  };
-
-  return (
-    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border/70 bg-card/80 px-2.5 py-1.5 shadow-sm">
-      <div className={`hidden sm:flex h-8 w-8 items-center justify-center rounded-xl ${active ? "bg-emerald-500/10 text-emerald-600" : "bg-muted text-muted-foreground"}`}><Clock3 size={15} /></div>
-      <div className="hidden md:block leading-tight min-w-[180px]">
-        <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">Working hours {workingHours}</p>
-        <p className="text-xs font-semibold tabular-nums">{active ? `In ${formatClock(attendance?.punch_in ?? null)} · ${formatDuration(elapsed)}` : attendance?.punch_out ? `Out ${formatClock(attendance.punch_out)} · ${formatDuration(elapsed)}` : "Not punched in"}</p>
-        {active && <p className="text-[10px] text-muted-foreground">Breaks: {formatDuration(totalBreak)}{currentBreak ? " · ON BREAK" : ""}</p>}
-      </div>
-      {active && (currentBreak ?
-        <Button size="sm" onClick={handleBreakEnd} disabled={busy} className="rounded-xl h-8 px-3 gap-1.5"><TimerReset size={14} /> End Break</Button> :
-        <Button size="sm" variant="secondary" onClick={handleBreakStart} disabled={busy} className="rounded-xl h-8 px-3 gap-1.5"><Coffee size={14} /> Break</Button>
-      )}
-      {active ? <Button size="sm" variant="destructive" onClick={handlePunchOut} disabled={busy || !!currentBreak} className="rounded-xl h-8 px-3 gap-1.5"><LogOut size={14} /> Punch Out</Button> : <Button size="sm" onClick={handlePunchIn} disabled={busy} className="rounded-xl h-8 px-3 gap-1.5"><LogIn size={14} /> Punch In</Button>}
-      <ShieldCheck size={14} className={active ? "text-emerald-500" : "text-muted-foreground"} title={active ? "CRM unlocked" : "Punch In required for CRM"} />
+  const [attendance,setAttendance]=useState<Attendance|null>(null);
+  const [workingHours,setWorkingHours]=useState("8 घंटे प्रतिदिन");
+  const [busy,setBusy]=useState(false);
+  const [now,setNow]=useState(Date.now());
+  const apply=(a:Attendance|null)=>{setAttendance(a);onAttendanceChange?.(a);};
+  const load=async()=>{try{const [a,h]=await Promise.all([getTodayAttendance(),getWorkingHours()]);apply(a);setWorkingHours(h);}catch(e:any){toast.error(e?.message||"उपस्थिति लोड नहीं हुई।");}};
+  useEffect(()=>{void load();const id=window.setInterval(()=>setNow(Date.now()),1000);return()=>window.clearInterval(id);},[]);
+  const active=attendance?.status==="punched_in";
+  const gross=attendance?.punch_in?Math.max(0,Math.floor((now-new Date(attendance.punch_in).getTime())/1000)):0;
+  const liveBreak=attendance?.break_status==="on_break"&&attendance.break_started_at?Math.max(0,Math.floor((now-new Date(attendance.break_started_at).getTime())/1000)):0;
+  const net=attendance?.punch_out?Number(attendance.total_seconds||0):Math.max(0,gross-Number(attendance?.total_break_seconds||0)-liveBreak);
+  const reachedTarget=net>=DAILY_TARGET_SECONDS;
+  const onBreak=attendance?.break_status==="on_break";
+  const overtime=!!attendance?.overtime_started_at;
+  const action=async(fn:()=>Promise<Attendance>,success:string)=>{setBusy(true);try{apply(await fn());toast.success(success);}catch(e:any){toast.error(e?.message||"कार्रवाई पूरी नहीं हुई।");}finally{setBusy(false);}};
+  const beginBreak=(reason:"Lunch"|"Break")=>{if(!attendance)return;void action(()=>startBreak(attendance,reason),reason==="Lunch"?"लंच ब्रेक शुरू हुआ।":"शॉर्ट ब्रेक शुरू हुआ।");};
+  const finishBreak=()=>{if(!attendance)return;void action(()=>endBreak(attendance),"ब्रेक समाप्त। काम का समय फिर शुरू हुआ।");};
+  const beginOvertime=()=>{if(!attendance)return;if(!window.confirm("8 घंटे पूरे हो गए हैं। क्या आप अलग ओवरटाइम शुरू करना चाहते हैं?"))return;void action(()=>startOvertime(attendance),"ओवरटाइम शुरू हो गया।");};
+  const finishWork=()=>{if(!attendance)return;if(onBreak){toast.error("पहले ब्रेक समाप्त करें।");return;}void action(()=>punchOut(attendance),"Punch Out दर्ज हो गया।");};
+  const status=useMemo(()=>!active?"आज Punch In नहीं किया":onBreak?"ब्रेक जारी है":reachedTarget&&!overtime?"8 घंटे पूरे — CRM लॉक":overtime?"ओवरटाइम जारी है":"काम जारी है",[active,onBreak,reachedTarget,overtime]);
+  return <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border/70 bg-card/80 px-2.5 py-1.5 shadow-sm">
+    <div className="hidden sm:flex h-8 w-8 items-center justify-center rounded-xl bg-muted text-muted-foreground"><Clock3 size={15}/></div>
+    <div className="hidden md:block min-w-[190px] leading-tight">
+      <p className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">नियमित समय: {workingHours}</p>
+      <p className="text-xs font-semibold tabular-nums">{status}</p>
+      {active&&<p className="text-[10px] text-muted-foreground">काम: {formatDuration(Math.min(net,DAILY_TARGET_SECONDS))} · ब्रेक: {formatDuration(Number(attendance?.total_break_seconds||0)+liveBreak)}</p>}
+      {overtime&&<p className="text-[10px] font-semibold text-amber-600">ओवरटाइम: {formatDuration(Math.max(0,net-DAILY_TARGET_SECONDS))}</p>}
     </div>
-  );
+    {!attendance&&<Button size="sm" onClick={()=>void action(()=>punchIn(),"Punch In दर्ज हो गया। CRM खुल गया।")} disabled={busy} className="h-8 rounded-xl gap-1.5"><LogIn size={14}/> Punch In</Button>}
+    {active&&onBreak&&<Button size="sm" onClick={finishBreak} disabled={busy} className="h-8 rounded-xl gap-1.5"><TimerReset size={14}/> ब्रेक समाप्त</Button>}
+    {active&&!onBreak&&<><Button size="sm" variant="secondary" onClick={()=>beginBreak("Lunch")} disabled={busy||reachedTarget} className="h-8 rounded-xl gap-1.5"><Utensils size={14}/> Lunch</Button><Button size="sm" variant="secondary" onClick={()=>beginBreak("Break")} disabled={busy||reachedTarget} className="h-8 rounded-xl gap-1.5"><Coffee size={14}/> Break</Button></>}
+    {active&&reachedTarget&&!overtime&&!onBreak&&<Button size="sm" onClick={beginOvertime} disabled={busy} className="h-8 rounded-xl gap-1.5">ओवरटाइम शुरू करें</Button>}
+    {active&&<Button size="sm" variant="destructive" onClick={finishWork} disabled={busy||!!onBreak} className="h-8 rounded-xl gap-1.5"><LogOut size={14}/> Punch Out</Button>}
+    {attendance?.status==="punched_out"&&<span className="rounded-xl bg-muted px-3 py-2 text-xs font-semibold">आज की शिफ्ट पूरी</span>}
+    <ShieldCheck size={14} className={active&&!onBreak&&(!reachedTarget||overtime)?"text-emerald-500":"text-muted-foreground"} title="उपस्थिति स्थिति"/>
+  </div>;
 }
