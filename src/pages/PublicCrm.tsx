@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import logo from "@/assets/logo.jpeg";
+import LocalSeoWorkspace from "@/pages/admin/crm/LocalSeoWorkspace";
 
 type Discovery = {
   personas: { name:string; description:string; pain_points:string[]; buying_triggers:string[] }[];
@@ -414,6 +415,7 @@ export default function PublicCrm(){
     </header>
 
     <main>
+      {account&&<section className="mx-auto max-w-7xl px-4 pt-8"><LocalSeoWorkspace/></section>}
       <section className="relative overflow-hidden bg-white px-4 pb-16 pt-14 md:pt-20">
         <div className="pointer-events-none absolute -left-32 top-0 size-96 rounded-full bg-blue-500/10 blur-3xl"/>
         <div className="pointer-events-none absolute right-0 top-10 size-96 rounded-full bg-violet-500/10 blur-3xl"/>
