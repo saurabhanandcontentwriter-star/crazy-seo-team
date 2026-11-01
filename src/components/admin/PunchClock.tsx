@@ -33,7 +33,7 @@ export default function PunchClock({ onAttendanceChange }: { onAttendanceChange?
       {active&&<p className="text-[10px] text-muted-foreground">काम: {formatDuration(Math.min(net,DAILY_TARGET_SECONDS))} · ब्रेक: {formatDuration(Number(attendance?.total_break_seconds||0)+liveBreak)}</p>}
       {overtime&&<p className="text-[10px] font-semibold text-amber-600">ओवरटाइम: {formatDuration(Math.max(0,net-DAILY_TARGET_SECONDS))}</p>}
     </div>
-    {!attendance&&<Button size="sm" onClick={()=>void action(()=>punchIn(),"Punch In दर्ज हो गया। CRM खुल गया।")} disabled={busy} className="h-8 rounded-xl gap-1.5"><LogIn size={14}/> Punch In</Button>}
+    {(!attendance||attendance.status==="punched_out")&&<Button size="sm" onClick={()=>void action(()=>punchIn(),"Punch In दर्ज हो गया। CRM खुल गया।")} disabled={busy} className="h-8 rounded-xl gap-1.5"><LogIn size={14}/> Punch In</Button>}
     {active&&onBreak&&<Button size="sm" onClick={finishBreak} disabled={busy} className="h-8 rounded-xl gap-1.5"><TimerReset size={14}/> ब्रेक समाप्त</Button>}
     {active&&!onBreak&&<><Button size="sm" variant="secondary" onClick={()=>beginBreak("Lunch")} disabled={busy||reachedTarget} className="h-8 rounded-xl gap-1.5"><Utensils size={14}/> Lunch</Button><Button size="sm" variant="secondary" onClick={()=>beginBreak("Break")} disabled={busy||reachedTarget} className="h-8 rounded-xl gap-1.5"><Coffee size={14}/> Break</Button></>}
     {active&&reachedTarget&&!overtime&&!onBreak&&<Button size="sm" onClick={beginOvertime} disabled={busy} className="h-8 rounded-xl gap-1.5">ओवरटाइम शुरू करें</Button>}
