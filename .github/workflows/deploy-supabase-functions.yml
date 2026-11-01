@@ -39,12 +39,15 @@ jobs:
             echo "::error::Missing GitHub Actions secret SUPABASE_ACCESS_TOKEN."
             exit 1
           fi
-          if [ -n "${SUPABASE_DB_PASSWORD:-}" ]; then
-            echo "has_db_password=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_db_password=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::SUPABASE_DB_PASSWORD is not configured. Database migrations will be skipped."
+          case "$SUPABASE_ACCESS_TOKEN" in
+            sbp_*) ;;
+            *) echo "::error::SUPABASE_ACCESS_TOKEN format is invalid. Create a Supabase Personal Access Token (sbp_...) and update the GitHub secret."; exit 1 ;;
+          esac
+          if [ -z "${SUPABASE_DB_PASSWORD:-}" ]; then
+            echo "::error::Missing GitHub Actions secret SUPABASE_DB_PASSWORD. Refusing to skip required database migrations."
+            exit 1
           fi
+          echo "has_db_password=true" >> "$GITHUB_OUTPUT"
 
       - name: Link Supabase project
         if: steps.credentials.outputs.has_db_password == 'true'
@@ -55,7 +58,7 @@ jobs:
           set -euo pipefail
           supabase link --project-ref "${SUPABASE_PROJECT_REF}" --password "${SUPABASE_DB_PASSWORD}"
 
-      - name: Apply Supabase migrations
+      - name: Apply REQUIRED Supabase migrations
         if: steps.credentials.outputs.has_db_password == 'true'
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
