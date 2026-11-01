@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.linkedin-automation]
 verify_jwt = false
+
+[functions.crm-team-auth]
+verify_jwt = false
