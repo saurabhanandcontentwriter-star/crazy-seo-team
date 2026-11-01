@@ -26,19 +26,20 @@ async function currentUser() {
 }
 export async function getTodayAttendance(): Promise<Attendance | null> {
   const user = await currentUser();
-  const { data, error } = await db.from("crm_attendance").select("*").eq("user_id", user.id).eq("work_date", indiaDate()).maybeSingle();
+  const { data, error } = await db.from("crm_attendance").select("*").eq("user_id", user.id).eq("work_date", indiaDate()).order("punch_in", { ascending: false }).limit(1).maybeSingle();
   if (error) throw error;
   return data as Attendance | null;
 }
 export type WorkMode = "office" | "home" | "remote";
 export async function punchIn(_workMode: WorkMode = "office") {
   const user = await currentUser(), now = new Date().toISOString(), workDate = indiaDate();
-  if (await getTodayAttendance()) throw new Error("आज का Punch In पहले से दर्ज है।");
-  const { data, error } = await db.from("crm_attendance").upsert({
+  const current = await getTodayAttendance();
+  if (current?.status === "punched_in") throw new Error("आपकी शिफ्ट पहले से चालू है।");
+  const { data, error } = await db.from("crm_attendance").insert({
     user_id:user.id,email:user.email ?? "",work_date:workDate,punch_in:now,punch_out:null,total_seconds:0,
     regular_seconds:0,overtime_seconds:0,overtime_started_at:null,total_break_seconds:0,
     break_started_at:null,break_status:"none",status:"punched_in"
-  }, { onConflict:"user_id,work_date" }).select("*").single();
+  }).select("*").single();
   if (error) throw new Error(error.message || "Punch In सेव नहीं हुआ।");
   return data as Attendance;
 }
