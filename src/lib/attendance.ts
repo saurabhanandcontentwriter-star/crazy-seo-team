@@ -62,6 +62,7 @@ export async function punchIn(workMode: WorkMode = "office") {
     punch_out: null,
     total_seconds: 0,
     status: "punched_in",
+    work_mode: workMode,
   }, { onConflict: "user_id,work_date" }).select("*").single();
   if (error) throw new Error(error.message || "Could not save Punch In record.");
   return writeLocal(data as Attendance);
