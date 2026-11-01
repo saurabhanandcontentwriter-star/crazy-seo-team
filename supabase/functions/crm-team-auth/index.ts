@@ -22,6 +22,26 @@ Deno.serve(async (req) => {
     const url = Deno.env.get("SUPABASE_URL")!;
     const anon = Deno.env.get("SUPABASE_ANON_KEY")!;
     const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const body = await req.json();
+    if (String(body.action ?? "") === "login") {
+      const loginId = String(body.login_id ?? "").trim();
+      const email = syntheticEmail(loginId);
+      const adminLookup = createClient(url, service, { auth: { autoRefreshToken: false, persistSession: false } });
+      const { data: member, error: memberError } = await adminLookup.from("crm_team_members")
+        .select("auth_user_id,status").eq("login_id", loginId).maybeSingle();
+      if (memberError) throw memberError;
+      if (!member || member.status !== "active" || !member.auth_user_id) return json({ error: "Employee ID not found or inactive" }, 404);
+      const response = await fetch(`${url}/auth/v1/token?grant_type=password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", apikey: anon },
+        body: JSON.stringify({ email, password: String(body.password ?? "") }),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.access_token || result.user?.id !== member.auth_user_id) {
+        return json({ error: "Invalid Employee ID or password" }, 401);
+      }
+      return json({ success: true, access_token: result.access_token, refresh_token: result.refresh_token, user: result.user });
+    }
     const authHeader = req.headers.get("Authorization") ?? "";
     if (!authHeader.startsWith("Bearer ")) return json({ error: "Admin login required" }, 401);
 
@@ -35,7 +55,6 @@ Deno.serve(async (req) => {
     if (roleError) throw roleError;
     if (!roleRows?.some((r) => r.role === "admin")) return json({ error: "Admin permission required" }, 403);
 
-    const body = await req.json();
     const action = String(body.action ?? "");
     if (action === "login") {
       const email = syntheticEmail(String(body.login_id ?? ""));
