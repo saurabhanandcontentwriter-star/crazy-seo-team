@@ -31,7 +31,7 @@ export default function PunchClock({ onAttendanceChange }: { onAttendanceChange?
       const [a, hours] = await Promise.all([getTodayAttendance(), getWorkingHours()]);
       applyAttendance(a); setWorkingHours(hours);
       if (a) setBreaks(readBreaks(a.user_id, a.work_date));
-    } catch (e) { console.error(e); }
+    } catch (e: any) { console.error(e); toast.error(e?.message ?? "Could not load attendance."); }
   };
 
   useEffect(() => { load(); const id = window.setInterval(() => setNow(Date.now()), 1000); return () => window.clearInterval(id); }, []);
@@ -53,7 +53,6 @@ export default function PunchClock({ onAttendanceChange }: { onAttendanceChange?
   };
 
   const handlePunchIn = async () => {
-    if (!window.confirm(`Punch In now?\n\nWorking hours: ${workingHours}\nCRM will unlock after Punch In.`)) return;
     setBusy(true);
     try { applyAttendance(await punchIn()); toast.success("Punch In successful — CRM unlocked", { description: `Started at ${formatClock(new Date().toISOString())}` }); }
     catch (e: any) { toast.error(e.message ?? "Punch In failed"); }
@@ -81,7 +80,6 @@ export default function PunchClock({ onAttendanceChange }: { onAttendanceChange?
   const handlePunchOut = async () => {
     if (!attendance || !active) return;
     if (currentBreak) { toast.error("End your active break before Punch Out."); return; }
-    if (!window.confirm(`Punch Out now?\n\nWorking time: ${formatDuration(elapsed)}\nBreak time: ${formatDuration(totalBreak)}\n\nCRM access will lock after Punch Out.`)) return;
     setBusy(true);
     try { applyAttendance(await punchOut(attendance)); toast.success("Punch Out recorded — CRM locked", { description: `Worked ${formatDuration(elapsed)} • Breaks ${formatDuration(totalBreak)}` }); }
     catch (e: any) { toast.error(e.message ?? "Punch Out failed"); }
