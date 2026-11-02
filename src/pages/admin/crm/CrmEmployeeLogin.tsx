@@ -14,7 +14,7 @@ export default function CrmEmployeeLogin() {
   const signIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const normalizedEmail = email.trim().toLowerCase();
-    if (!normalizedEmail || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(normalizedEmail)) {
+    if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       toast.error("Enter your valid registered email address.");
       return;
     }
@@ -64,17 +64,15 @@ export default function CrmEmployeeLogin() {
           <p className="mt-1 text-sm text-muted-foreground">Employee Portal Login</p>
         </div>
         <form onSubmit={signIn} className="mt-6 space-y-4">
-          <label className="block text-sm font-semibold">Employee ID or Registered Email
-            <input value={loginId} onChange={e=>setLoginId(e.target.value)} autoComplete="username" placeholder="Enter Employee ID or registered email" className="mt-1 w-full rounded-xl border bg-background px-3 py-3 outline-none focus:ring-2 focus:ring-primary" />
-          </label>
-          <label className="block text-sm font-semibold">Password
-            <input type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" placeholder="Enter your password" className="mt-1 w-full rounded-xl border bg-background px-3 py-3 outline-none focus:ring-2 focus:ring-primary" />
+          <label className="block text-sm font-semibold">Registered Email
+            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" placeholder="Enter your HR-registered email" className="mt-1 w-full rounded-xl border bg-background px-3 py-3 outline-none focus:ring-2 focus:ring-primary" />
           </label>
           <button type="submit" disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 font-bold text-primary-foreground disabled:opacity-50">
-            {busy && <Loader2 size={17} className="animate-spin"/>}{busy ? "Sending link..." : "Send Login Link"}
+            {busy && <Loader2 size={17} className="animate-spin"/>}{busy ? "Sending link..." : "Email Me a Login Link"}
           </button>
         </form>
-        <p className="mt-4 text-center text-xs text-muted-foreground">No password needed. We will email you a secure sign-in link.</p>\n        {sent && <p role="status" className="mt-3 text-center text-sm font-medium text-primary">Check your inbox and open the secure login link.</p>}
+        <p className="mt-4 text-center text-xs text-muted-foreground">No password needed. We will email you a secure sign-in link.</p>
+        {sent && <p role="status" className="mt-3 text-center text-sm font-medium text-primary">Check your inbox and open the secure login link.</p>}
       </GlassCard>
     </main>
   );
