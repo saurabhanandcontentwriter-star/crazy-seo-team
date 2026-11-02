@@ -78,19 +78,38 @@ export default function CrmHrPanel(){
   };
 
   const saveEmployeeProfile=async(m:Member)=>{
-    const d=profileDrafts[m.id]; const p=profiles.find(x=>x.user_id===m.auth_user_id);
-    if(!d||!m.auth_user_id) return toast.error("Employee account is not linked.");
+    const d=profileDrafts[m.id];
+    if(!d) return;
     if(!d.name.trim()||!d.email.trim()) return toast.error("Employee name and email are required.");
     try{
-      const {error:memberError}=await (supabase as any).from("crm_team_members").update({name:d.name.trim(),email:d.email.trim(),position:d.position.trim()||"Employee"}).eq("id",m.id);
-      if(memberError) throw memberError;
-      if(p){
-        const {data,error}=await (supabase as any).from("crm_employee_profiles").update({designation:d.designation.trim()||null,department:d.department.trim()||null,birthday:d.birthday||null,updated_at:new Date().toISOString()}).eq("user_id",m.auth_user_id).select("*").single();
-        if(error) throw error;
-        setProfiles(old=>old.map(x=>x.user_id===m.auth_user_id?data:x));
+      let authUserId=m.auth_user_id;
+      if(!authUserId){
+        const {data:linked,error:linkError}=await supabase.functions.invoke("crm-team-auth",{
+          body:{action:"link-existing",member_id:m.id},
+        });
+        if(linkError){
+          let message=linkError.message||"Could not link employee account.";
+          const context=(linkError as any).context;
+          if(context&&typeof context.clone==="function"){try{const payload=await context.clone().json();message=payload?.error||payload?.message||message;}catch{}}
+          throw new Error(message);
+        }
+        if(linked?.error) throw new Error(linked.error);
+        authUserId=linked?.auth_user_id||null;
+        if(!authUserId) throw new Error("No existing login account was found. Open Employee Login and create/reset this employee's login first.");
       }
-      setMembers(old=>old.map(x=>x.id===m.id?{...x,name:d.name.trim(),email:d.email.trim(),position:d.position.trim()||"Employee"}:x));
-      toast.success("Employee profile updated.");
+      const {error:memberError}=await (supabase as any).from("crm_team_members").update({name:d.name.trim(),email:d.email.trim(),position:d.position.trim()||"Employee",auth_user_id:authUserId}).eq("id",m.id);
+      if(memberError) throw memberError;
+      const {data:profile,error:profileError}=await (supabase as any).from("crm_employee_profiles").upsert({
+        user_id:authUserId,
+        designation:d.designation.trim()||d.position.trim()||"Employee",
+        department:d.department.trim()||"CRM",
+        birthday:d.birthday||null,
+        updated_at:new Date().toISOString(),
+      },{onConflict:"user_id"}).select("*").single();
+      if(profileError) throw profileError;
+      setProfiles(old=>[...old.filter(x=>x.user_id!==authUserId),profile]);
+      setMembers(old=>old.map(x=>x.id===m.id?{...x,name:d.name.trim(),email:d.email.trim(),position:d.position.trim()||"Employee",auth_user_id:authUserId}:x));
+      toast.success("Employee profile updated and account linked.");
     }catch(e:any){toast.error(e?.message||"Could not update employee profile");}
   };
 
