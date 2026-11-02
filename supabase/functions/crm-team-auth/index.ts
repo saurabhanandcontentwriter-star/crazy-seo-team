@@ -23,6 +23,25 @@ Deno.serve(async (req) => {
     const anon = Deno.env.get("SUPABASE_ANON_KEY")!;
     const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const body = await req.json();
+    if (String(body.action ?? "") === "prepare-email-login") {
+      const email = String(body.email ?? "").trim().toLowerCase();
+      if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+        return json({ error: "Enter a valid registered email address." }, 400);
+      }
+      const adminLookup = createClient(url, service, { auth: { autoRefreshToken: false, persistSession: false } });
+      const { data: member, error: memberError } = await adminLookup.from("crm_team_members")
+        .select("id,auth_user_id,status,email").ilike("email", email).maybeSingle();
+      if (memberError) throw memberError;
+      if (!member || member.status !== "active" || !member.auth_user_id || !member.email) {
+        return json({ error: "This email is not linked to an active employee account. Please ask HR to verify your registered email." }, 404);
+      }
+      const { error: syncError } = await adminLookup.auth.admin.updateUserById(member.auth_user_id, {
+        email: member.email.trim().toLowerCase(),
+        email_confirm: true,
+      });
+      if (syncError) throw syncError;
+      return json({ success: true, email: member.email.trim().toLowerCase() });
+    }
     if (String(body.action ?? "") === "login") {
       const identifier = String(body.login_id ?? "").trim();
       if (!identifier) return json({ error: "Enter Employee ID or registered email" }, 400);
