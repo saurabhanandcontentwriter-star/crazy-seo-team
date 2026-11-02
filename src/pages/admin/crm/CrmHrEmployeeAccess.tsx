@@ -42,7 +42,7 @@ export default function CrmHrEmployeeAccess() {
         <label className="text-xs font-semibold">{editing?"New password (optional)":"Create password"}<Input type="password" autoComplete="new-password" value={form.password} onChange={e=>update("password",e.target.value)} placeholder={editing?"Blank = keep current password":"At least 8 characters"} className="mt-1"/></label>
         <label className="text-xs font-semibold sm:col-span-2">Designation<Input value={form.position} onChange={e=>update("position",e.target.value)} placeholder="Employee" className="mt-1"/></label>
       </div>
-      <div className="mt-4 flex flex-wrap gap-2"><Button onClick={submit} disabled={saving} className="rounded-xl">{editing?<Save size={15} className="mr-2"/>:<UserPlus size={15} className="mr-2"/ >}{saving?"Saving…":editing?"Save Login Changes":"Create Employee Login"}</Button>{editing&&<Button type="button" variant="outline" onClick={cancelEdit} disabled={saving} className="rounded-xl"><X size={15} className="mr-1"/>Cancel</Button>}</div>
+      <div className="mt-4 flex flex-wrap gap-2"><Button onClick={submit} disabled={saving} className="rounded-xl">{editing?<Save size={15} className="mr-2"/>:<UserPlus size={15} className="mr-2"/>}{saving?"Saving…":editing?"Save Login Changes":"Create Employee Login"}</Button>{editing&&<Button type="button" variant="outline" onClick={cancelEdit} disabled={saving} className="rounded-xl"><X size={15} className="mr-1"/>Cancel</Button>}</div>
       <p className="mt-3 text-xs text-muted-foreground">Employee login page: /admin/crm/login · Password is never displayed; set a new one to replace it.</p>
     </GlassCard>
     <GlassCard className="p-5">
