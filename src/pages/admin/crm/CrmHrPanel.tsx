@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { indiaDate } from "@/lib/attendance";
 import CrmHrEmployeeAccess from "./CrmHrEmployeeAccess";
 import CrmHrLetters from "./CrmHrLetters";
+import CrmHrIdCards from "./CrmHrIdCards";
 
 type Member = { id:string; auth_user_id:string|null; name:string; email:string; login_id:string|null; position:string|null };
 type Profile = { id:string; user_id:string; joining_date:string|null; designation:string|null; department:string|null; monthly_salary:number; paid_leave_balance:number; birthday:string|null };
@@ -25,7 +26,7 @@ const money = (n:number) => `₹${Math.max(0,Number(n)||0).toLocaleString("en-IN
 export default function CrmHrPanel(){
   const [user,setUser]=useState<any>(null); const [admin,setAdmin]=useState(false); const [members,setMembers]=useState<Member[]>([]);
   const [profiles,setProfiles]=useState<Profile[]>([]); const [holidays,setHolidays]=useState<Holiday[]>([]); const [leaves,setLeaves]=useState<Leave[]>([]);
-  const [tab,setTab]=useState<"leave"|"profile"|"salary"|"notices"|"employee-access"|"letters">("leave"); const [month,setMonth]=useState(indiaDate().slice(0,7)); const [loading,setLoading]=useState(true);
+  const [tab,setTab]=useState<"leave"|"profile"|"salary"|"notices"|"employee-access"|"letters"|"id-cards">("leave"); const [month,setMonth]=useState(indiaDate().slice(0,7)); const [loading,setLoading]=useState(true);
   const [form,setForm]=useState({type:"paid" as "paid"|"unpaid",start:indiaDate(),end:indiaDate(),reason:""});
   const [saving,setSaving]=useState(false); const [salaryDraft,setSalaryDraft]=useState<Record<string,string>>({});
   const [noticeTitle,setNoticeTitle]=useState(""); const [noticeMessage,setNoticeMessage]=useState(""); const [noticeDate,setNoticeDate]=useState(indiaDate()); const [noticeSaving,setNoticeSaving]=useState(false); const [notices,setNotices]=useState<any[]>([]);
@@ -99,7 +100,7 @@ export default function CrmHrPanel(){
   const today=indiaDate();
   const birthdayPeople=members.map(m=>({member:m,profile:profiles.find(p=>p.user_id===m.auth_user_id)})).filter(x=>x.profile?.birthday && x.profile.birthday.slice(5)===today.slice(5));
   const todayHolidays=holidays.filter(h=>h.holiday_date===today);
-  const tabs=[["leave","Leave & Approvals"],["profile","Employee Profile"],["salary","Monthly Income"],["notices","HR Notices"],...(admin?[["employee-access","Employee Login"] as const]:[]),["letters","Generate Letters"] as const ] as const;
+  const tabs=[["leave","Leave & Approvals"],["profile","Employee Profile"],["salary","Monthly Income"],["notices","HR Notices"],...(admin?[["employee-access","Employee Login"] as const]:[]),["letters","Generate Letters"] as const,["id-cards","ID Card Generator"] as const ] as const;
   return <div className="space-y-4">
     <div className="rounded-2xl border border-border/70 bg-gradient-to-br from-background via-muted/30 to-primary/5 p-2 shadow-sm">
       <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">{tabs.map(([id,label])=><button key={id} onClick={()=>setTab(id)} aria-current={tab===id?"page":undefined} className={`group relative shrink-0 rounded-xl px-4 py-3 text-xs font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${tab===id?"bg-primary text-primary-foreground shadow-md shadow-primary/20":"text-muted-foreground hover:bg-background hover:text-foreground"}`}>
@@ -108,7 +109,7 @@ export default function CrmHrPanel(){
     </div>
 
     {tab==="employee-access" && admin && <CrmHrEmployeeAccess/>}
-    {tab==="letters" && <CrmHrLetters members={members} profiles={profiles}/> }
+    {tab==="letters" && <CrmHrLetters members={members} profiles={profiles}/> }\n    {tab==="id-cards" && <CrmHrIdCards members={members} profiles={profiles} admin={admin}/> }
 
     {tab==="leave" && <div className="grid gap-4 xl:grid-cols-3">
       <GlassCard className="p-5"><p className="font-black text-lg">Apply Leave</p><p className="text-xs text-muted-foreground mt-1">Paid / unpaid leave with reason and working-day calculation.</p>
