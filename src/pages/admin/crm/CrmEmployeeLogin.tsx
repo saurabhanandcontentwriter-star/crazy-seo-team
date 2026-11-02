@@ -14,24 +14,36 @@ export default function CrmEmployeeLogin() {
   const signIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!loginId.trim() || !password) {
-      toast.error("Enter Employee ID and password.");
+      toast.error("Enter your Employee ID or registered email and password.");
       return;
     }
     setBusy(true);
     try {
       await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
-      const normalizedId = loginId.trim().toLowerCase();
-      if (!/^[a-z0-9][a-z0-9._-]{1,39}$/.test(normalizedId)) {
-        throw new Error("Enter a valid Employee ID.");
-      }
-      const email = `${normalizedId}@employees.crazyseoteam.in`;
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const identifier = loginId.trim();
+      const { data, error } = await supabase.functions.invoke("crm-team-auth", {
+        body: { action: "login", login_id: identifier, password },
+      });
       if (error) {
-        if (error.message.toLowerCase().includes("invalid login credentials")) {
-          throw new Error("Invalid Employee ID or password. Check your Employee ID and try again.");
+        let message = error.message || "Could not sign in.";
+        const context = (error as any).context;
+        if (context && typeof context.clone === "function") {
+          try {
+            const payload = await context.clone().json();
+            message = payload?.error || payload?.message || message;
+          } catch { /* retain original message */ }
         }
-        throw error;
+        throw new Error(message);
       }
+      if (data?.error) throw new Error(data.error);
+      if (!data?.access_token || !data?.refresh_token) {
+        throw new Error("Login response was incomplete. Please contact HR.");
+      }
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      });
+      if (sessionError) throw sessionError;
       toast.success("Employee login successful.");
       navigate("/admin/crm", { replace: true });
     } catch (error) {
@@ -50,8 +62,8 @@ export default function CrmEmployeeLogin() {
           <p className="mt-1 text-sm text-muted-foreground">Employee Portal Login</p>
         </div>
         <form onSubmit={signIn} className="mt-6 space-y-4">
-          <label className="block text-sm font-semibold">Employee ID
-            <input value={loginId} onChange={e=>setLoginId(e.target.value)} autoComplete="username" placeholder="Enter your Employee ID" className="mt-1 w-full rounded-xl border bg-background px-3 py-3 outline-none focus:ring-2 focus:ring-primary" />
+          <label className="block text-sm font-semibold">Employee ID or Registered Email
+            <input value={loginId} onChange={e=>setLoginId(e.target.value)} autoComplete="username" placeholder="Enter Employee ID or registered email" className="mt-1 w-full rounded-xl border bg-background px-3 py-3 outline-none focus:ring-2 focus:ring-primary" />
           </label>
           <label className="block text-sm font-semibold">Password
             <input type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" placeholder="Enter your password" className="mt-1 w-full rounded-xl border bg-background px-3 py-3 outline-none focus:ring-2 focus:ring-primary" />
@@ -60,7 +72,7 @@ export default function CrmEmployeeLogin() {
             {busy && <Loader2 size={17} className="animate-spin"/>}{busy ? "Signing in..." : "Employee Login"}
           </button>
         </form>
-        <p className="mt-4 text-center text-xs text-muted-foreground">Use the Employee ID and password provided by HR.</p>
+        <p className="mt-4 text-center text-xs text-muted-foreground">Use the Employee ID or email registered by HR, and your password.</p>
       </GlassCard>
     </main>
   );
