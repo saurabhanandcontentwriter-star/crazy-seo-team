@@ -95,12 +95,34 @@ Deno.serve(async (req) => {
       if (error) throw error;
     } else {
       if (action === "update") return json({ error: "Employee account is not linked; create a new account or contact support" }, 409);
-      const { data, error } = await admin.auth.admin.createUser({
+
+      // Recover safely when a previous create attempt made the Auth user but
+      // failed before the CRM member/profile rows were saved.
+      const { data: created, error: createError } = await admin.auth.admin.createUser({
         email, password, email_confirm: true,
         user_metadata: { employee_id: loginId, name: body.name },
       });
-      if (error) throw error;
-      authUserId = data.user.id;
+      if (!createError && created.user) {
+        authUserId = created.user.id;
+      } else {
+        let existingUser: { id: string } | null = null;
+        for (let page = 1; page <= 20 && !existingUser; page += 1) {
+          const { data: usersPage, error: listError } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+          if (listError) throw listError;
+          const match = usersPage.users.find((user) => (user.email ?? "").toLowerCase() === email);
+          if (match) existingUser = { id: match.id };
+          if (usersPage.users.length < 1000) break;
+        }
+        if (!existingUser) throw createError;
+        const { error: resetError } = await admin.auth.admin.updateUserById(existingUser.id, {
+          password,
+          email,
+          email_confirm: true,
+          user_metadata: { employee_id: loginId, name: body.name },
+        });
+        if (resetError) throw resetError;
+        authUserId = existingUser.id;
+      }
       const { error: roleInsertError } = await admin.from("user_roles")
         .upsert({ user_id: authUserId, role: "crm_team" }, { onConflict: "user_id,role", ignoreDuplicates: true });
       if (roleInsertError) throw roleInsertError;
@@ -118,9 +140,17 @@ Deno.serve(async (req) => {
       login_id: loginId,
       auth_user_id: authUserId,
     };
-    const result = action === "create"
-      ? await admin.from("crm_team_members").insert(values).select("id").single()
-      : await admin.from("crm_team_members").update(values).eq("id", memberId).select("id").single();
+    let result;
+    if (action === "create") {
+      const { data: existingMember, error: existingMemberError } = await admin
+        .from("crm_team_members").select("id").ilike("login_id", loginId).maybeSingle();
+      if (existingMemberError) throw existingMemberError;
+      result = existingMember
+        ? await admin.from("crm_team_members").update(values).eq("id", existingMember.id).select("id").single()
+        : await admin.from("crm_team_members").insert(values).select("id").single();
+    } else {
+      result = await admin.from("crm_team_members").update(values).eq("id", memberId).select("id").single();
+    }
     if (result.error) throw result.error;
 
     if (action === "create") {
