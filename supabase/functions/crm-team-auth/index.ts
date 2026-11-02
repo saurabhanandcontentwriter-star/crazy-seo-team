@@ -130,16 +130,24 @@ Deno.serve(async (req) => {
       : await admin.from("crm_team_members").update(values).eq("id", memberId).select("id").single();
     if (result.error) throw result.error;
 
-    const profile = await admin.from("crm_employee_profiles").upsert({
-      user_id: authUserId,
-      designation: values.position,
-      department: String(body.department ?? "CRM"),
-      joining_date: body.joining_date || null,
-      birthday: body.birthday || null,
-      monthly_salary: Number(body.monthly_salary ?? 0),
-      paid_leave_balance: Number(body.paid_leave_balance ?? 12),
-    }, { onConflict: "user_id" });
-    if (profile.error) throw profile.error;
+    if (action === "create") {
+      const profile = await admin.from("crm_employee_profiles").upsert({
+        user_id: authUserId,
+        designation: values.position,
+        department: String(body.department ?? "CRM"),
+        joining_date: body.joining_date || null,
+        birthday: body.birthday || null,
+        monthly_salary: Number(body.monthly_salary ?? 0),
+        paid_leave_balance: Number(body.paid_leave_balance ?? 12),
+      }, { onConflict: "user_id" });
+      if (profile.error) throw profile.error;
+    } else {
+      const profile = await admin.from("crm_employee_profiles").update({
+        designation: values.position,
+        updated_at: new Date().toISOString(),
+      }).eq("user_id", authUserId);
+      if (profile.error) throw profile.error;
+    }
     return json({ success: true, member_id: result.data.id, auth_user_id: authUserId });
   } catch (error) {
     console.error("crm-team-auth error", error);
