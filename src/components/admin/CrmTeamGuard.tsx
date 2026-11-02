@@ -27,14 +27,16 @@ export default function CrmTeamGuard({ children }: { children: ReactNode }) {
         let allowed = CRM_ADMIN_EMAILS.has(email);
 
         if (!allowed) {
-          const { data: member, error: memberError } = await (supabase as any)
-            .from("crm_team_members")
-            .select("id")
-            .eq("auth_user_id", data.user.id)
-            .eq("status", "active")
-            .maybeSingle();
-          if (memberError) throw memberError;
-          allowed = !!member;
+          // Employee Google login assigns crm_team through the trusted
+          // Edge Function. Check that role through the security-definer
+          // has_role RPC instead of querying the HR table directly (which
+          // is restricted by RLS for employee sessions).
+          const { data: employeeRole, error: roleError } = await supabase.rpc(
+            "has_role",
+            { _user_id: data.user.id, _role: "crm_team" },
+          );
+          if (roleError) throw roleError;
+          allowed = employeeRole === true;
         }
 
         if (!cancelled) setState(allowed ? "allowed" : "denied");
