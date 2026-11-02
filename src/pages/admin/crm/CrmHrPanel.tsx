@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { indiaDate } from "@/lib/attendance";
 import CrmHrEmployeeAccess from "./CrmHrEmployeeAccess";
+import CrmHrLetters from "./CrmHrLetters";
 
 type Member = { id:string; auth_user_id:string|null; name:string; email:string; login_id:string|null; position:string|null };
 type Profile = { id:string; user_id:string; joining_date:string|null; designation:string|null; department:string|null; monthly_salary:number; paid_leave_balance:number; birthday:string|null };
@@ -24,7 +25,7 @@ const money = (n:number) => `₹${Math.max(0,Number(n)||0).toLocaleString("en-IN
 export default function CrmHrPanel(){
   const [user,setUser]=useState<any>(null); const [admin,setAdmin]=useState(false); const [members,setMembers]=useState<Member[]>([]);
   const [profiles,setProfiles]=useState<Profile[]>([]); const [holidays,setHolidays]=useState<Holiday[]>([]); const [leaves,setLeaves]=useState<Leave[]>([]);
-  const [tab,setTab]=useState<"leave"|"profile"|"salary"|"notices"|"employee-access">("leave"); const [month,setMonth]=useState(indiaDate().slice(0,7)); const [loading,setLoading]=useState(true);
+  const [tab,setTab]=useState<"leave"|"profile"|"salary"|"notices"|"employee-access"|"letters">("leave"); const [month,setMonth]=useState(indiaDate().slice(0,7)); const [loading,setLoading]=useState(true);
   const [form,setForm]=useState({type:"paid" as "paid"|"unpaid",start:indiaDate(),end:indiaDate(),reason:""});
   const [saving,setSaving]=useState(false); const [salaryDraft,setSalaryDraft]=useState<Record<string,string>>({});
   const [noticeTitle,setNoticeTitle]=useState(""); const [noticeMessage,setNoticeMessage]=useState(""); const [noticeDate,setNoticeDate]=useState(indiaDate()); const [noticeSaving,setNoticeSaving]=useState(false); const [notices,setNotices]=useState<any[]>([]);
@@ -98,11 +99,11 @@ export default function CrmHrPanel(){
   const today=indiaDate();
   const birthdayPeople=members.map(m=>({member:m,profile:profiles.find(p=>p.user_id===m.auth_user_id)})).filter(x=>x.profile?.birthday && x.profile.birthday.slice(5)===today.slice(5));
   const todayHolidays=holidays.filter(h=>h.holiday_date===today);
-  const tabs=[["leave","Leave & Approvals"],["profile","Employee Profile"],["salary","Monthly Income"],["notices","HR Notices"],...(admin?[["employee-access","Employee Login"] as const]:[]) ] as const;
+  const tabs=[["leave","Leave & Approvals"],["profile","Employee Profile"],["salary","Monthly Income"],["notices","HR Notices"],...(admin?[["employee-access","Employee Login"] as const,["letters","HR Letters"] as const]:[]) ] as const;
   return <div className="space-y-4">
     <div className="flex flex-wrap gap-2 rounded-2xl border bg-background/60 p-1">{tabs.map(([id,label])=><button key={id} onClick={()=>setTab(id)} className={`rounded-xl px-4 py-2 text-xs font-bold ${tab===id?"bg-primary text-primary-foreground":"text-muted-foreground hover:bg-muted"}`}>{label}</button>)}</div>
 
-    {tab==="employee-access" && admin && <CrmHrEmployeeAccess/>}
+    {tab==="employee-access" && admin && <CrmHrEmployeeAccess/>}\n    {tab==="letters" && admin && <CrmHrLetters members={members} profiles={profiles}/> }
 
     {tab==="leave" && <div className="grid gap-4 xl:grid-cols-3">
       <GlassCard className="p-5"><p className="font-black text-lg">Apply Leave</p><p className="text-xs text-muted-foreground mt-1">Paid / unpaid leave with reason and working-day calculation.</p>
