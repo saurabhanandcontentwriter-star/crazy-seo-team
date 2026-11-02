@@ -101,7 +101,11 @@ export default function CrmHrPanel(){
   const todayHolidays=holidays.filter(h=>h.holiday_date===today);
   const tabs=[["leave","Leave & Approvals"],["profile","Employee Profile"],["salary","Monthly Income"],["notices","HR Notices"],...(admin?[["employee-access","Employee Login"] as const]:[]),["letters","Generate Letters"] as const ] as const;
   return <div className="space-y-4">
-    <div className="flex flex-wrap gap-2 rounded-2xl border bg-background/60 p-1">{tabs.map(([id,label])=><button key={id} onClick={()=>setTab(id)} className={`rounded-xl px-4 py-2 text-xs font-bold ${tab===id?"bg-primary text-primary-foreground":"text-muted-foreground hover:bg-muted"}`}>{label}</button>)}</div>
+    <div className="rounded-2xl border border-border/70 bg-gradient-to-br from-background via-muted/30 to-primary/5 p-2 shadow-sm">
+      <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">{tabs.map(([id,label])=><button key={id} onClick={()=>setTab(id)} aria-current={tab===id?"page":undefined} className={`group relative shrink-0 rounded-xl px-4 py-3 text-xs font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${tab===id?"bg-primary text-primary-foreground shadow-md shadow-primary/20":"text-muted-foreground hover:bg-background hover:text-foreground"}`}>
+        <span className="flex items-center gap-2">{id==="leave"&&<CalendarDays size={15}/ >}{id==="profile"&&<UserRound size={15}/ >}{id==="salary"&&<IndianRupee size={15}/ >}{id==="notices"&&<Megaphone size={15}/ >}{id==="employee-access"&&<UserRound size={15}/ >}{id==="letters"&&<WalletCards size={15}/ >}{label}</span>
+      </button>)}</div>
+    </div>
 
     {tab==="employee-access" && admin && <CrmHrEmployeeAccess/>}
     {tab==="letters" && <CrmHrLetters members={members} profiles={profiles}/> }
