@@ -297,7 +297,24 @@ export async function saveTeamMemberAuth(input: Partial<TeamMember> & { login_id
       password: input.password ?? "",
     },
   });
-  if (error) throw error;
+  if (error) {
+    let message = error.message || "Employee account operation failed.";
+    const context = (error as any).context;
+    if (context && typeof context.clone === "function") {
+      try {
+        const payload = await context.clone().json();
+        message = payload?.error || payload?.message || message;
+      } catch {
+        try {
+          const body = await context.clone().text();
+          if (body) message = body;
+        } catch {
+          // Keep the original Functions error when the response body is unavailable.
+        }
+      }
+    }
+    throw new Error(message);
+  }
   if (data?.error) throw new Error(data.error);
   return data;
 }
