@@ -53,18 +53,11 @@ Deno.serve(async (req) => {
     const { data: roleRows, error: roleError } = await admin
       .from("user_roles").select("role").eq("user_id", userData.user.id);
     if (roleError) throw roleError;
-    const crmAdminEmails = new Set(["crazyseoteam@gmail.com", "saurabhanandshahisarmera@gmail.com", "saurabhanandcontentwriter@gmail.com", "sauravanand499@gmail.com"]);\n    const isCrmAdmin = crmAdminEmails.has((userData.user.email ?? "").trim().toLowerCase());\n    if (!isCrmAdmin && !roleRows?.some((r) => r.role === "admin")) return json({ error: "Admin permission required" }, 403);
+    const crmAdminEmails = new Set(["crazyseoteam@gmail.com", "saurabhanandshahisarmera@gmail.com", "saurabhanandcontentwriter@gmail.com", "sauravanand499@gmail.com"]);
+    const isCrmAdmin = crmAdminEmails.has((userData.user.email ?? "").trim().toLowerCase());
+    if (!isCrmAdmin && !roleRows?.some((r) => r.role === "admin")) return json({ error: "Admin permission required" }, 403);
 
     const action = String(body.action ?? "");
-    if (action === "login") {
-      const email = syntheticEmail(String(body.login_id ?? ""));
-      const { data: member, error } = await admin.from("crm_team_members")
-        .select("id,auth_user_id,status").eq("login_id", String(body.login_id).trim()).maybeSingle();
-      if (error) throw error;
-      if (!member || member.status !== "active" || !member.auth_user_id) return json({ error: "Employee ID not found or inactive" }, 404);
-      return json({ email });
-    }
-
     const memberId = body.member_id ? String(body.member_id) : null;
     if (action === "delete") {
       if (!memberId) return json({ error: "Employee is required" }, 400);
