@@ -103,7 +103,8 @@ export default function CrmHrPanel(){
   return <div className="space-y-4">
     <div className="flex flex-wrap gap-2 rounded-2xl border bg-background/60 p-1">{tabs.map(([id,label])=><button key={id} onClick={()=>setTab(id)} className={`rounded-xl px-4 py-2 text-xs font-bold ${tab===id?"bg-primary text-primary-foreground":"text-muted-foreground hover:bg-muted"}`}>{label}</button>)}</div>
 
-    {tab==="employee-access" && admin && <CrmHrEmployeeAccess/>}\n    {tab==="letters" && admin && <CrmHrLetters members={members} profiles={profiles}/> }
+    {tab==="employee-access" && admin && <CrmHrEmployeeAccess/>}
+    {tab==="letters" && admin && <CrmHrLetters members={members} profiles={profiles}/> }
 
     {tab==="leave" && <div className="grid gap-4 xl:grid-cols-3">
       <GlassCard className="p-5"><p className="font-black text-lg">Apply Leave</p><p className="text-xs text-muted-foreground mt-1">Paid / unpaid leave with reason and working-day calculation.</p>
