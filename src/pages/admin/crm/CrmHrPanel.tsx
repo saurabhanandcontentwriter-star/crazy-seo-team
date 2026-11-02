@@ -35,7 +35,7 @@ export default function CrmHrPanel(){
   const load=async()=>{
     setLoading(true); try{
       const {data:ud,error:ue}=await supabase.auth.getUser(); if(ue) throw ue; if(!ud.user) throw new Error("Please sign in again."); setUser(ud.user);
-      const {data:role}=await (supabase as any).from("user_roles").select("role").eq("user_id",ud.user.id).eq("role","admin").maybeSingle(); setAdmin(!!role);
+      const crmAdminEmails = new Set(["crazyseoteam@gmail.com","saurabhanandshahisarmera@gmail.com","saurabhanandcontentwriter@gmail.com","sauravanand499@gmail.com"]); const {data:role}=await (supabase as any).from("user_roles").select("role").eq("user_id",ud.user.id).eq("role","admin").maybeSingle(); setAdmin(!!role || crmAdminEmails.has((ud.user.email||"").trim().toLowerCase()));
       const [tm,p,h,l]=await Promise.all([
         (supabase as any).from("crm_team_members").select("id,auth_user_id,name,email,login_id,position").eq("status","active").order("name"),
         (supabase as any).from("crm_employee_profiles").select("*"),
