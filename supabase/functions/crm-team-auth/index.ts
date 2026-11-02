@@ -24,13 +24,19 @@ Deno.serve(async (req) => {
     const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const body = await req.json();
     if (String(body.action ?? "") === "login") {
-      const loginId = String(body.login_id ?? "").trim();
-      const email = syntheticEmail(loginId);
+      const identifier = String(body.login_id ?? "").trim();
+      if (!identifier) return json({ error: "Enter Employee ID or registered email" }, 400);
       const adminLookup = createClient(url, service, { auth: { autoRefreshToken: false, persistSession: false } });
-      const { data: member, error: memberError } = await adminLookup.from("crm_team_members")
-        .select("auth_user_id,status").ilike("login_id", loginId).maybeSingle();
+      const lookup = adminLookup.from("crm_team_members")
+        .select("login_id,auth_user_id,status,email");
+      const { data: member, error: memberError } = identifier.includes("@")
+        ? await lookup.ilike("email", identifier).maybeSingle()
+        : await lookup.ilike("login_id", identifier).maybeSingle();
       if (memberError) throw memberError;
-      if (!member || member.status !== "active" || !member.auth_user_id) return json({ error: "Employee ID not found or inactive" }, 404);
+      if (!member || member.status !== "active" || !member.auth_user_id || !member.login_id) {
+        return json({ error: "Employee account not found or inactive. Check the registered email or Employee ID with HR." }, 404);
+      }
+      const email = syntheticEmail(member.login_id);
       const response = await fetch(`${url}/auth/v1/token?grant_type=password`, {
         method: "POST",
         headers: { "Content-Type": "application/json", apikey: anon },
@@ -38,7 +44,7 @@ Deno.serve(async (req) => {
       });
       const result = await response.json();
       if (!response.ok || !result.access_token || result.user?.id !== member.auth_user_id) {
-        return json({ error: "Invalid Employee ID or password" }, 401);
+        return json({ error: "Invalid Employee ID/email or password" }, 401);
       }
       return json({ success: true, access_token: result.access_token, refresh_token: result.refresh_token, user: result.user });
     }
