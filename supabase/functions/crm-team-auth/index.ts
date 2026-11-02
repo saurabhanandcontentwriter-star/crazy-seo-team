@@ -65,6 +65,37 @@ Deno.serve(async (req) => {
 
     const action = String(body.action ?? "");
     const memberId = body.member_id ? String(body.member_id) : null;
+    if (action === "link-existing") {
+      if (!memberId) return json({ error: "Employee record is required" }, 400);
+      const { data: member, error: memberError } = await admin.from("crm_team_members")
+        .select("id,login_id,auth_user_id,name,position").eq("id", memberId).single();
+      if (memberError) throw memberError;
+      if (member.auth_user_id) return json({ success: true, auth_user_id: member.auth_user_id });
+      if (!member.login_id) return json({ error: "Employee ID is missing. Create an Employee Login first." }, 409);
+      const email = syntheticEmail(member.login_id);
+      let found: { id: string } | null = null;
+      for (let page = 1; page <= 20 && !found; page += 1) {
+        const { data: usersPage, error: listError } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+        if (listError) throw listError;
+        const match = usersPage.users.find((u) => (u.email ?? "").toLowerCase() === email);
+        if (match) found = { id: match.id };
+        if (usersPage.users.length < 1000) break;
+      }
+      if (!found) return json({ error: "No Supabase login account exists for this Employee ID. Open Employee Login and create/reset the employee login first." }, 404);
+      const { error: roleError } = await admin.from("user_roles")
+        .upsert({ user_id: found.id, role: "crm_team" }, { onConflict: "user_id,role", ignoreDuplicates: true });
+      if (roleError) throw roleError;
+      const { error: memberUpdateError } = await admin.from("crm_team_members")
+        .update({ auth_user_id: found.id }).eq("id", memberId);
+      if (memberUpdateError) throw memberUpdateError;
+      const { error: profileError } = await admin.from("crm_employee_profiles").upsert({
+        user_id: found.id,
+        designation: member.position || "Employee",
+        department: "CRM",
+      }, { onConflict: "user_id", ignoreDuplicates: true });
+      if (profileError) throw profileError;
+      return json({ success: true, auth_user_id: found.id });
+    }
     if (action === "delete") {
       if (!memberId) return json({ error: "Employee is required" }, 400);
       const { data: member, error } = await admin.from("crm_team_members").select("auth_user_id").eq("id", memberId).single();
