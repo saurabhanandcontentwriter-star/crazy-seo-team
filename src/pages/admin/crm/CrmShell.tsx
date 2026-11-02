@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import CrmFlashNotice from "@/pages/admin/crm/CrmFlashNotice";
-import { BarChart3, CalendarDays, KanbanSquare, LayoutDashboard, Users2, UsersRound, BriefcaseBusiness, CheckSquare, Wallet, Cpu, GraduationCap, Lightbulb, Megaphone, FileBarChart, Bell, Bot, Settings, ChevronDown, Building2, BrainCircuit, Linkedin } from "lucide-react";
+import { BarChart3, CalendarDays, KanbanSquare, LayoutDashboard, Users2, UsersRound, BriefcaseBusiness, CheckSquare, Wallet, Cpu, GraduationCap, Lightbulb, Megaphone, FileBarChart, Bell, Bot, Settings, ChevronDown, Building2, BrainCircuit, Linkedin, IdCard } from "lucide-react";
 
 const TABS = [
   { to: "/admin/crm", label: "Dashboard", icon: LayoutDashboard, end: true },
@@ -14,6 +14,7 @@ const TABS = [
   { to: "/admin/crm/finance", label: "Finance", icon: Wallet },
   { to: "/admin/crm/technology", label: "Technology", icon: Cpu },
   { to: "/admin/crm/hr", label: "HR", icon: GraduationCap },
+  { to: "/admin/crm/id-card", label: "My ID Card", icon: IdCard },
   { to: "/admin/crm/ideas", label: "Ideas", icon: Lightbulb },
     { to: "/admin/crm/reports", label: "Reports", icon: FileBarChart },
   { to: "/admin/crm/notifications", label: "Notifications", icon: Bell },
@@ -36,12 +37,12 @@ export default function CrmShell() {
       supabase.rpc("has_role", { _user_id: data.user.id, _role: "admin" }).then(({ data: ok }) => setIsAdmin(ok === true));
     });
   }, []);
-  const tabs = TABS.filter((t) => isAdmin || t.label !== "Team");
+  const tabs = TABS.filter((t) => isAdmin || !["Team","Finance","Settings","LinkedIn Automation"].includes(t.label));
   const groups = [
     { label: "WORKSPACE", items: ["Dashboard","Employees","CRM","Projects","Tasks"] },
-    { label: "OPERATIONS", items: ["Finance","Technology","HR","Ideas"] },
+    { label: "OPERATIONS", items: [...(isAdmin ? ["Finance"] : []),"Technology","HR","Ideas","My ID Card"] },
     { label: "INSIGHTS", items: ["Reports","Notifications","AI Assistant","Customer Discovery"] },
-    { label: "SYSTEM", items: ["Settings","LinkedIn Automation","Leads","Pipeline","Follow-ups","Analytics",...(isAdmin ? ["Team"] : [])] },
+    { label: "SYSTEM", items: [...(isAdmin ? ["Settings","LinkedIn Automation"] : []),"Leads","Pipeline","Follow-ups","Analytics",...(isAdmin ? ["Team"] : [])] },
   ];
   const [collapsed,setCollapsed]=useState<Record<string,boolean>>({});
   return (
