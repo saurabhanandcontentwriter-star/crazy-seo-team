@@ -1,4 +1,5 @@
 name: Deploy Supabase Edge Functions
+# Re-trigger deployment after Supabase credentials were refreshed.
 
 on:
   push:
