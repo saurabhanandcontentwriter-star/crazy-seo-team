@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     const { data: roleRows, error: roleError } = await admin
       .from("user_roles").select("role").eq("user_id", userData.user.id);
     if (roleError) throw roleError;
-    if (!roleRows?.some((r) => r.role === "admin")) return json({ error: "Admin permission required" }, 403);
+    const crmAdminEmails = new Set(["crazyseoteam@gmail.com", "saurabhanandshahisarmera@gmail.com", "saurabhanandcontentwriter@gmail.com", "sauravanand499@gmail.com"]);\n    const isCrmAdmin = crmAdminEmails.has((userData.user.email ?? "").trim().toLowerCase());\n    if (!isCrmAdmin && !roleRows?.some((r) => r.role === "admin")) return json({ error: "Admin permission required" }, 403);
 
     const action = String(body.action ?? "");
     if (action === "login") {
