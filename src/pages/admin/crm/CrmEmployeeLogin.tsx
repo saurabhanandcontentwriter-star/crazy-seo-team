@@ -21,19 +21,17 @@ export default function CrmEmployeeLogin() {
     try {
       await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
       const normalizedId = loginId.trim().toLowerCase();
-      const { data, error } = await supabase.functions.invoke("crm-team-auth", {
-        body: { action: "login", login_id: normalizedId, password },
-      });
-      if (error) throw new Error(error.message || "Employee login service unavailable. Please contact HR.");
-      if (data?.error) throw new Error(data.error);
-      if (!data?.access_token || !data?.refresh_token) {
-        throw new Error("Login service did not return a valid session. Please contact HR.");
+      if (!/^[a-z0-9][a-z0-9._-]{1,39}$/.test(normalizedId)) {
+        throw new Error("Enter a valid Employee ID.");
       }
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: data.access_token,
-        refresh_token: data.refresh_token,
-      });
-      if (sessionError) throw sessionError;
+      const email = `${normalizedId}@employees.crazyseoteam.in`;
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        if (error.message.toLowerCase().includes("invalid login credentials")) {
+          throw new Error("Invalid Employee ID or password. Check your Employee ID and try again.");
+        }
+        throw error;
+      }
       toast.success("Employee login successful.");
       navigate("/admin/crm", { replace: true });
     } catch (error) {
