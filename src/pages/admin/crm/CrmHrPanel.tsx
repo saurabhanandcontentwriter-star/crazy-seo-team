@@ -109,7 +109,8 @@ export default function CrmHrPanel(){
     </div>
 
     {tab==="employee-access" && admin && <CrmHrEmployeeAccess/>}
-    {tab==="letters" && <CrmHrLetters members={members} profiles={profiles}/> }\n    {tab==="id-cards" && <CrmHrIdCards members={members} profiles={profiles} admin={admin}/> }
+    {tab==="letters" && <CrmHrLetters members={members} profiles={profiles}/> }
+    {tab==="id-cards" && <CrmHrIdCards members={members} profiles={profiles} admin={admin}/> }
 
     {tab==="leave" && <div className="grid gap-4 xl:grid-cols-3">
       <GlassCard className="p-5"><p className="font-black text-lg">Apply Leave</p><p className="text-xs text-muted-foreground mt-1">Paid / unpaid leave with reason and working-day calculation.</p>
