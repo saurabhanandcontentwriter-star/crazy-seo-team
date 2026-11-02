@@ -32,7 +32,6 @@ jobs:
       - name: Validate Supabase credentials
         id: credentials
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: |
           set -euo pipefail
@@ -40,10 +39,19 @@ jobs:
             echo "::error::Missing GitHub Actions secret SUPABASE_ACCESS_TOKEN."
             exit 1
           fi
-          case "$SUPABASE_ACCESS_TOKEN" in
+          # GitHub secrets can accidentally contain copied whitespace/newlines.
+          # Normalize without ever printing the secret, then expose it to later steps.
+          CLEAN_SUPABASE_ACCESS_TOKEN="$(printf '%s' "$SUPABASE_ACCESS_TOKEN" | tr -d '[:space:]')"
+          case "$CLEAN_SUPABASE_ACCESS_TOKEN" in
             sbp_*) ;;
-            *) echo "::error::SUPABASE_ACCESS_TOKEN format is invalid. Create a Supabase Personal Access Token (sbp_...) and update the GitHub secret."; exit 1 ;;
+            *) echo "::error::The configured secret does not begin with sbp_ after whitespace normalization."; exit 1 ;;
           esac
+          if [ "${#CLEAN_SUPABASE_ACCESS_TOKEN}" -lt 20 ]; then
+            echo "::error::The configured Supabase token is unexpectedly short after normalization."
+            exit 1
+          fi
+          echo "SUPABASE_ACCESS_TOKEN=$CLEAN_SUPABASE_ACCESS_TOKEN" >> "$GITHUB_ENV"
+          echo "Supabase token format check passed (value hidden)."
           if [ -z "${SUPABASE_DB_PASSWORD:-}" ]; then
             echo "::warning::SUPABASE_DB_PASSWORD is not configured; database migrations will be skipped. Edge Functions will still be deployed."
             echo "has_db_password=false" >> "$GITHUB_OUTPUT"
@@ -54,7 +62,6 @@ jobs:
       - name: Link Supabase project
         if: steps.credentials.outputs.has_db_password == 'true'
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: |
           set -euo pipefail
