@@ -100,7 +100,7 @@ export default function CrmHrPanel(){
   const today=indiaDate();
   const birthdayPeople=members.map(m=>({member:m,profile:profiles.find(p=>p.user_id===m.auth_user_id)})).filter(x=>x.profile?.birthday && x.profile.birthday.slice(5)===today.slice(5));
   const todayHolidays=holidays.filter(h=>h.holiday_date===today);
-  const tabs=[["leave","Leave & Approvals"],["profile","Employee Profile"],["salary","Monthly Income"],["notices","HR Notices"],...(admin?[["employee-access","Employee Login"] as const]:[]),["letters","Generate Letters"] as const,["id-cards","ID Card Generator"] as const ] as const;
+  const tabs=[["leave","Leave & Approvals"],["profile","Employee Profile"],["salary","Monthly Income"],["notices","HR Notices"],["employee-access","Employee Login"] as const,["letters","Generate Letters"] as const,["id-cards","ID Card Generator"] as const ] as const;
   return <div className="space-y-4">
     <div className="rounded-2xl border border-border/70 bg-gradient-to-br from-background via-muted/30 to-primary/5 p-2 shadow-sm">
       <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">{tabs.map(([id,label])=><button key={id} onClick={()=>setTab(id)} aria-current={tab===id?"page":undefined} className={`group relative shrink-0 rounded-xl px-4 py-3 text-xs font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${tab===id?"bg-primary text-primary-foreground shadow-md shadow-primary/20":"text-muted-foreground hover:bg-background hover:text-foreground"}`}>
@@ -108,7 +108,7 @@ export default function CrmHrPanel(){
       </button>)}</div>
     </div>
 
-    {tab==="employee-access" && admin && <CrmHrEmployeeAccess/>}
+    {tab==="employee-access" && (admin ? <CrmHrEmployeeAccess/> : <GlassCard className="p-5"><p className="font-black text-lg">Employee Login Management</p><p className="mt-2 text-sm text-muted-foreground">Employee ID aur password create karne ka access sirf HR/Admin account ko hai. Admin account se login karein.</p></GlassCard>)}
     {tab==="letters" && <CrmHrLetters members={members} profiles={profiles}/> }
     {tab==="id-cards" && <CrmHrIdCards members={members} profiles={profiles} admin={admin}/> }
 
