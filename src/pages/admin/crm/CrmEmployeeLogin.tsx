@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LockKeyhole, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -7,50 +7,61 @@ import { supabase } from "@/integrations/supabase/client";
 
 export default function CrmEmployeeLogin() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
-  const [sent, setSent] = useState(false);
 
-  const signIn = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const normalizedEmail = email.trim().toLowerCase();
-    if (!normalizedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
-      toast.error("Enter your valid registered email address.");
-      return;
-    }
+  useEffect(() => {
+    let cancelled = false;
+    const finishGoogleLogin = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      setBusy(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("crm-team-auth", {
+          body: { action: "google-employee-login" },
+        });
+        if (error) {
+          let message = error.message || "Google login verification failed.";
+          const context = (error as any).context;
+          if (context && typeof context.clone === "function") {
+            try {
+              const payload = await context.clone().json();
+              message = payload?.error || payload?.message || message;
+            } catch { /* retain original message */ }
+          }
+          throw new Error(message);
+        }
+        if (data?.error) throw new Error(data.error);
+        if (!cancelled) {
+          toast.success("Gmail से कर्मचारी लॉगिन सफल हुआ।");
+          navigate("/admin/crm", { replace: true });
+        }
+      } catch (error) {
+        await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+        if (!cancelled) toast.error(error instanceof Error ? error.message : "Google login failed.");
+      } finally {
+        if (!cancelled) setBusy(false);
+      }
+    };
+    void finishGoogleLogin();
+    return () => { cancelled = true; };
+  }, [navigate]);
+
+  const continueWithGoogle = async () => {
     setBusy(true);
-    setSent(false);
     try {
       await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
-      const { data, error: prepareError } = await supabase.functions.invoke("crm-team-auth", {
-        body: { action: "prepare-email-login", email: normalizedEmail },
-      });
-      if (prepareError) {
-        let message = prepareError.message || "Could not send login link.";
-        const context = (prepareError as any).context;
-        if (context && typeof context.clone === "function") {
-          try {
-            const payload = await context.clone().json();
-            message = payload?.error || payload?.message || message;
-          } catch { /* retain original message */ }
-        }
-        throw new Error(message);
-      }
-      if (data?.error) throw new Error(data.error);
-      const destinationEmail = String(data?.email || normalizedEmail);
-      const { error: otpError } = await supabase.auth.signInWithOtp({
-        email: destinationEmail,
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
         options: {
-          shouldCreateUser: false,
-          emailRedirectTo: window.location.origin + "/employee/login",
+          redirectTo: `${window.location.origin}/employee/login`,
+          queryParams: { prompt: "select_account" },
         },
       });
-      if (otpError) throw otpError;
-      setSent(true);
-      toast.success("Login link sent. Check your email inbox.");
+      if (error) throw error;
+      if (data?.url) window.location.assign(data.url);
+      else setBusy(false);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not send login link.");
-    } finally {
+      toast.error(error instanceof Error ? error.message : "Google login शुरू नहीं हो सका।");
       setBusy(false);
     }
   };
@@ -58,21 +69,21 @@ export default function CrmEmployeeLogin() {
   return (
     <main className="min-h-screen grid place-items-center bg-gradient-to-br from-background via-background to-primary/5 px-4">
       <GlassCard className="w-full max-w-md p-6 md:p-8">
-        <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary"><LockKeyhole size={26}/></div>
+        <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary">
+          <LockKeyhole size={26}/>
+        </div>
         <div className="text-center">
           <h1 className="text-2xl font-black">Crazy SEO Team</h1>
           <p className="mt-1 text-sm text-muted-foreground">Employee Portal Login</p>
         </div>
-        <form onSubmit={signIn} className="mt-6 space-y-4">
-          <label className="block text-sm font-semibold">Registered Email
-            <input type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" placeholder="Enter your HR-registered email" className="mt-1 w-full rounded-xl border bg-background px-3 py-3 outline-none focus:ring-2 focus:ring-primary" />
-          </label>
-          <button type="submit" disabled={busy} className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 font-bold text-primary-foreground disabled:opacity-50">
-            {busy && <Loader2 size={17} className="animate-spin"/>}{busy ? "Sending link..." : "Email Me a Login Link"}
-          </button>
-        </form>
-        <p className="mt-4 text-center text-xs text-muted-foreground">No password needed. We will email you a secure sign-in link.</p>
-        {sent && <p role="status" className="mt-3 text-center text-sm font-medium text-primary">Check your inbox and open the secure login link.</p>}
+        <button type="button" onClick={continueWithGoogle} disabled={busy}
+          className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border bg-background px-4 py-3 font-semibold transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50">
+          <span className="grid size-7 place-items-center rounded-full bg-white text-sm font-black shadow-sm">G</span>
+          {busy ? "Google खुल रहा है..." : "Gmail से लॉगिन करें"}
+        </button>
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          HR में रजिस्टर किए गए Gmail अकाउंट से ही लॉगिन करें।
+        </p>
       </GlassCard>
     </main>
   );
