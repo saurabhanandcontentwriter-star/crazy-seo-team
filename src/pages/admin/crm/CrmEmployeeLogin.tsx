@@ -42,8 +42,21 @@ export default function CrmEmployeeLogin() {
         }
         if (data?.error) throw new Error(data.error);
         sessionStorage.removeItem(OAUTH_PENDING_KEY);
+        const { data: access, error: accessError } = await supabase.functions.invoke("crm-team-auth", {
+          body: { action: "verify-crm-access" },
+        });
+        if (accessError) throw accessError;
+        if (access?.success === true) {
+          if (!cancelled) {
+            toast.success("HR approval verified. CRM खुल रहा है…");
+            navigate("/admin/crm", { replace: true });
+          }
+          return;
+        }
         if (!cancelled) {
-          toast.success("Access request HR को भेज दी गई है। Approval के बाद CRM access मिलेगा.");
+          toast.info(access?.status === "rejected"
+            ? "HR ने इस Gmail request को reject किया है। HR से संपर्क करें।"
+            : "Access request HR को भेज दी गई है। Approval के बाद CRM खुलेगा.");
           setBusy(false);
         }
       } catch (error) {
