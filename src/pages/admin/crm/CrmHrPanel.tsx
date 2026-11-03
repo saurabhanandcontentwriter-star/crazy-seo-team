@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, CakeSlice, CheckCircle2, Clock3, Gift, IndianRupee, Megaphone, UserRound, WalletCards, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { GlassCard } from "@/components/crm/CrmUI";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
