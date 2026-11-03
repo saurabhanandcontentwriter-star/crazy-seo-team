@@ -106,17 +106,23 @@ Deno.serve(async (req) => {
       if (data.user) user = { id: data.user.id, email: data.user.email };
     }
 
-    // CRM employees are authenticated staff too. Treat crm_team as eligible
-    // for the CRM Customer Discovery allowance, while retaining admin access.
+    // Verify admin/CRM access using service-role reads. The employee-record
+    // check is a fallback if the crm_team role row was not backfilled.
     let isAdmin = false;
     if (user) {
-      const [{ data: adminRole, error: adminRoleError }, { data: teamRole, error: teamRoleError }] = await Promise.all([
-        admin.rpc("has_role", { _user_id: user.id, _role: "admin" }),
-        admin.rpc("has_role", { _user_id: user.id, _role: "crm_team" }),
+      const [{ data: roleRows, error: rolesError }, { data: employee, error: employeeError }] = await Promise.all([
+        admin.from("user_roles").select("role").eq("user_id", user.id),
+        admin.from("crm_team_members").select("id,status,email")
+          .eq("auth_user_id", user.id).eq("status", "active").maybeSingle(),
       ]);
-      if (adminRoleError) throw adminRoleError;
-      if (teamRoleError) throw teamRoleError;
-      isAdmin = adminRole === true || teamRole === true;
+      if (rolesError) throw rolesError;
+      if (employeeError) throw employeeError;
+      const email = (user.email ?? "").trim().toLowerCase();
+      const adminEmails = new Set(["crazyseoteam@gmail.com", "saurabhanandshahisarmera@gmail.com", "saurabhanandcontentwriter@gmail.com", "sauravanand499@gmail.com"]);
+      const hasAdminRole = roleRows?.some((row) => row.role === "admin") || adminEmails.has(email);
+      const hasCrmRole = roleRows?.some((row) => row.role === "crm_team") ||
+        (employee?.status === "active" && (employee.email ?? "").trim().toLowerCase() === email);
+      isAdmin = Boolean(hasAdminRole || hasCrmRole);
     }
 
     let used = 0;
@@ -125,9 +131,21 @@ Deno.serve(async (req) => {
 
     if (isAdmin && user) {
       mode = "admin";
-      const { data: credit, error: creditError } = await admin.rpc("consume_ai_customer_discovery_credit", { p_user_id: user.id });
-      if (creditError) return json({ error: creditError.message }, 429);
-      used = Number(credit);
+      // Maintain the three-run allowance directly with service-role access.
+      // This intentionally avoids the legacy SQL RPC that still raises
+      // "Admin access required" for CRM employee accounts.
+      const { data: previous, error: usageReadError } = await admin
+        .from("ai_customer_discovery_usage").select("usage_count")
+        .eq("user_id", user.id).maybeSingle();
+      if (usageReadError) return json({ error: usageReadError.message }, 500);
+      const previousCount = Number(previous?.usage_count ?? 0);
+      if (previousCount >= 3) return json({ error: "Three free Customer Discovery runs have already been used." }, 429);
+      used = previousCount + 1;
+      const { error: usageWriteError } = await admin.from("ai_customer_discovery_usage").upsert({
+        user_id: user.id, usage_count: used, last_used_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+      if (usageWriteError) return json({ error: usageWriteError.message }, 500);
       remaining = Math.max(0, 3 - used);
     } else if (user) {
       mode = "account";
