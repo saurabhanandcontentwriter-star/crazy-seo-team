@@ -39,7 +39,8 @@ export default function CrmHrAccessRequests(){
     }catch(e:any){toast.error(e?.message||"Could not review employee profile");}
   };
   const pending=items.filter(x=>x.status==="pending");
-  const reviewed=items.filter(x=>x.status!=="pending");
+  const approved=items.filter(x=>x.status==="approved");
+  const rejected=items.filter(x=>x.status==="rejected");
   const card=(item:Request)=><div key={item.id} className="rounded-2xl border p-4 space-y-3">
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div><p className="text-base font-black">{item.full_name||"Employee"}</p><p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground"><Mail size={13}/>{item.email}</p><p className="mt-1 text-xs text-muted-foreground">Submitted: {new Date(item.created_at).toLocaleString()}</p></div>
@@ -59,7 +60,8 @@ export default function CrmHrAccessRequests(){
     <div className="flex items-center justify-between gap-3"><div><h2 className="text-lg font-black">Employee Profile Approval</h2><p className="text-xs text-muted-foreground">Employee Gmail और submitted profile जाँचें। Approve करने पर ही CRM access खुलेगा।</p></div><Button size="sm" variant="outline" onClick={()=>void load()}><RefreshCw size={14} className="mr-1"/>Refresh</Button></div>
     {loading?<p className="py-6 text-sm text-muted-foreground">Loading employee profiles…</p>:<div className="mt-5 space-y-5">
       <section><div className="mb-3 flex items-center justify-between"><h3 className="font-bold">Pending Approval</h3><span className="rounded-full bg-amber-500/10 px-2 py-1 text-xs font-bold text-amber-700">{pending.length}</span></div><div className="space-y-3">{pending.map(card)}{!pending.length&&<p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">कोई pending employee profile नहीं है।</p>}</div></section>
-      <section><h3 className="mb-3 font-bold">Approved / Rejected History</h3><div className="space-y-3">{reviewed.map(card)}{!reviewed.length&&<p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">अभी कोई reviewed profile नहीं है।</p>}</div></section>
+      <section><div className="mb-3 flex items-center justify-between"><h3 className="font-bold">Approved Employees</h3><span className="rounded-full bg-emerald-500/10 px-2 py-1 text-xs font-bold text-emerald-700">{approved.length}</span></div><div className="space-y-3">{approved.map(card)}{!approved.length&&<p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">अभी कोई approved employee नहीं है।</p>}</div></section>
+      <section><div className="mb-3 flex items-center justify-between"><h3 className="font-bold">Rejected Requests</h3><span className="rounded-full bg-rose-500/10 px-2 py-1 text-xs font-bold text-rose-700">{rejected.length}</span></div><div className="space-y-3">{rejected.map(card)}{!rejected.length&&<p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">अभी कोई rejected request नहीं है।</p>}</div></section>
     </div>}
   </GlassCard>;
 }
