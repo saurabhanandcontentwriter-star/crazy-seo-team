@@ -13,7 +13,14 @@ export default function CrmEmployeeLogin() {
   useEffect(() => {
     let cancelled = false;
     const finishGoogleLogin = async () => {
-      // Only process a session when this page initiated employee Google OAuth.
+      // Never run employee verification on a plain visit to the login page.
+      // Supabase can restore an old session on page load; only a real Google
+      // OAuth callback containing the PKCE code may trigger employee linking.
+      const oauthCallback = new URLSearchParams(window.location.search).has("code");
+      if (!oauthCallback) {
+        sessionStorage.removeItem(OAUTH_PENDING_KEY);
+        return;
+      }
       if (sessionStorage.getItem(OAUTH_PENDING_KEY) !== "1") return;
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
