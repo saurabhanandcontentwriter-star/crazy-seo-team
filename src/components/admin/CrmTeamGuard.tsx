@@ -27,16 +27,27 @@ export default function CrmTeamGuard({ children }: { children: ReactNode }) {
         let allowed = CRM_ADMIN_EMAILS.has(email);
 
         if (!allowed) {
-          // Employee Google login assigns crm_team through the trusted
-          // Edge Function. Check that role through the security-definer
-          // has_role RPC instead of querying the HR table directly (which
-          // is restricted by RLS for employee sessions).
-          const { data: employeeRole, error: roleError } = await supabase.rpc(
-            "has_role",
-            { _user_id: data.user.id, _role: "crm_team" },
-          );
-          if (roleError) throw roleError;
-          allowed = employeeRole === true;
+          // Re-validate the signed-in Google account against the active HR
+          // employee record using the service-role Edge Function. This also
+          // repairs a missing crm_team role/link for an existing active
+          // employee, avoiding false denials from stale/missing role rows.
+          const { data: verification, error: verificationError } =
+            await supabase.functions.invoke("crm-team-auth", {
+              body: { action: "google-employee-login" },
+            });
+          if (verificationError) {
+            let message = verificationError.message || "Employee access verification failed.";
+            const context = (verificationError as any).context;
+            if (context && typeof context.clone === "function") {
+              try {
+                const payload = await context.clone().json();
+                message = payload?.error || payload?.message || message;
+              } catch { /* keep original message */ }
+            }
+            throw new Error(message);
+          }
+          if (verification?.error) throw new Error(verification.error);
+          allowed = verification?.success === true;
         }
 
         if (!cancelled) setState(allowed ? "allowed" : "denied");
