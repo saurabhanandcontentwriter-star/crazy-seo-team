@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
         if (!fullName || !phone || !designation || !department) {
           return json({ error: "Name, phone, designation and department are required." }, 400);
         }
-        if (phone.replace(/\\D/g, "").length < 10) return json({ error: "Enter a valid phone number." }, 400);
+        if (phone.replace(/\D/g, "").length < 10) return json({ error: "Enter a valid phone number." }, 400);
         const { data: prior, error: priorError } = await admin.from("crm_access_requests")
           .select("status").eq("user_id", signedIn.id).maybeSingle();
         if (priorError) throw priorError;
