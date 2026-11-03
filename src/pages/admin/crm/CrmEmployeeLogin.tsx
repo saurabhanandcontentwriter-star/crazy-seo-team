@@ -23,11 +23,25 @@ export default function CrmEmployeeLogin() {
       try{
         const {data:{session}}=await supabase.auth.getSession();
         if(!session?.user){if(!cancelled)setLoading(false);return;}
-        const {data,error}=await supabase.functions.invoke("crm-team-auth",{body:{action:"get-employee-access"}});
-        if(error)throw error;
+        if(cancelled)return;
+        // Render the authenticated employee form even if the access-status lookup fails.
+        // The lookup error is shown with its actual server message instead of blocking the whole page.
+        setSignedEmail(session.user.email||"");
+        let data:any=null;
+        const {data:accessData,error}=await supabase.functions.invoke("crm-team-auth",{body:{action:"get-employee-access"}});
+        data=accessData;
+        if(error){
+          let detail=error.message||"Access status lookup failed.";
+          const context=(error as any).context;
+          if(context&&typeof context.clone==="function"){
+            try{const payload=await context.clone().json();detail=payload?.error||payload?.message||detail;}catch{}
+          }
+          console.error("Employee access lookup failed:",detail);
+          if(!cancelled)toast.error(detail);
+          return;
+        }
         if(data?.error)throw new Error(data.error);
         if(cancelled)return;
-        setSignedEmail(session.user.email||"");
         setStatus(data?.status||"not_requested");
         if(data?.profile)setProfile({
           full_name:data.profile.full_name||session.user.user_metadata?.full_name||session.user.user_metadata?.name||"",
