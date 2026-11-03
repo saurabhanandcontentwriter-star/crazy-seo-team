@@ -105,7 +105,7 @@ export default function CrmEmployeeLogin() {
           <p className="text-xs text-muted-foreground">Google account</p><p className="font-semibold">{signedEmail}</p>
         </div>
         {status==="approved"?<div className="mt-5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-center"><p className="font-bold text-emerald-700">HR approval मिल गया है।</p><button onClick={()=>navigate("/admin/crm",{replace:true})} className="mt-3 rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground">Open CRM</button></div>
-        :status==="pending"?<div className="mt-5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4"><p className="font-bold">HR Approval Pending</p><p className="mt-1 text-sm">आपका Profile HR Panel में भेजा जा चुका है। HR के approve करने के बाद CRM खुलेगा।</p><button onClick={()=>void loadAgain()} className="mt-3 text-sm font-semibold text-primary">Approval status refresh करें</button></div>
+        :status==="pending"&&profile.phone&&profile.designation&&profile.department?<div className="mt-5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4"><p className="font-bold">HR Approval Pending</p><p className="mt-1 text-sm">आपका Profile HR Panel में भेजा जा चुका है। HR के approve करने के बाद CRM खुलेगा।</p><button onClick={()=>void loadAgain()} className="mt-3 text-sm font-semibold text-primary">Approval status refresh करें</button></div>
         :<div className="mt-6">
           <div className="mb-4 flex items-center gap-2"><UserRound size={18}/><div><h2 className="font-black">Employee Profile Form</h2><p className="text-xs text-muted-foreground">यह जानकारी HR Panel में approval के लिए जाएगी।</p></div></div>
           <div className="grid gap-3 sm:grid-cols-2">
