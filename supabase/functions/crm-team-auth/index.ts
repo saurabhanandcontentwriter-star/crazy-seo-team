@@ -147,6 +147,30 @@ Deno.serve(async (req) => {
     if (!isCrmAdmin && !roleRows?.some((r) => r.role === "admin")) return json({ error: "Admin permission required" }, 403);
 
     const action = String(body.action ?? "");
+    if (action === "list-crm-access-requests") {
+      const { data, error } = await admin.from("crm_access_requests")
+        .select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return json({ success: true, requests: data ?? [] });
+    }
+    if (action === "review-crm-access-request") {
+      const requestId = String(body.request_id ?? "").trim();
+      const status = String(body.status ?? "");
+      const note = String(body.review_note ?? "").trim();
+      if (!requestId || !["approved", "rejected"].includes(status)) {
+        return json({ error: "A valid request and review status are required." }, 400);
+      }
+      if (status === "rejected" && !note) {
+        return json({ error: "Rejection reason is required." }, 400);
+      }
+      const { data, error } = await admin.from("crm_access_requests").update({
+        status, reviewed_by: userData.user.id, reviewed_at: new Date().toISOString(),
+        review_note: note || null, updated_at: new Date().toISOString(),
+      }).eq("id", requestId).eq("status", "pending").select("id,status").maybeSingle();
+      if (error) throw error;
+      if (!data) return json({ error: "Request was not found or has already been reviewed." }, 409);
+      return json({ success: true, request: data });
+    }
     const memberId = body.member_id ? String(body.member_id) : null;
     if (action === "link-existing") {
       if (!memberId) return json({ error: "Employee record is required" }, 400);
