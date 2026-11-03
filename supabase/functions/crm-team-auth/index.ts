@@ -40,19 +40,21 @@ Deno.serve(async (req) => {
         return json({ success: request?.status === "approved", status: request?.status ?? "not_requested" });
       }
       const email = signedIn.email.trim().toLowerCase();
+      // Do not reset an HR-approved/rejected request to pending on every login.
+      const { data: existingRequest, error: lookupError } = await admin.from("crm_access_requests")
+        .select("status").eq("user_id", signedIn.id).maybeSingle();
+      if (lookupError) throw lookupError;
+      const status = existingRequest?.status ?? "pending";
       const { error } = await admin.from("crm_access_requests").upsert({
         user_id: signedIn.id,
         email,
         full_name: signedIn.user_metadata?.full_name || signedIn.user_metadata?.name || email.split("@")[0],
         avatar_url: signedIn.user_metadata?.avatar_url || null,
-        status: "pending",
-        reviewed_by: null,
-        reviewed_at: null,
-        review_note: null,
+        status,
         updated_at: new Date().toISOString(),
       }, { onConflict: "user_id" });
       if (error) throw error;
-      return json({ success: true, status: "pending", email });
+      return json({ success: true, status, email });
     }
     if (String(body.action ?? "") === "prepare-email-login") {
       const email = String(body.email ?? "").trim().toLowerCase();
