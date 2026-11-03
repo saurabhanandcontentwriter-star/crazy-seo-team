@@ -27,7 +27,7 @@ export default function CrmEmployeeLogin() {
       setBusy(true);
       try {
         const { data, error } = await supabase.functions.invoke("crm-team-auth", {
-          body: { action: "google-employee-login" },
+          body: { action: "request-crm-access" },
         });
         if (error) {
           let message = error.message || "Google login verification failed.";
@@ -43,8 +43,8 @@ export default function CrmEmployeeLogin() {
         if (data?.error) throw new Error(data.error);
         sessionStorage.removeItem(OAUTH_PENDING_KEY);
         if (!cancelled) {
-          toast.success("Gmail से कर्मचारी लॉगिन सफल हुआ।");
-          navigate("/admin/crm", { replace: true });
+          toast.success("Access request HR को भेज दी गई है। Approval के बाद CRM access मिलेगा.");
+          setBusy(false);
         }
       } catch (error) {
         sessionStorage.removeItem(OAUTH_PENDING_KEY);
@@ -96,7 +96,7 @@ export default function CrmEmployeeLogin() {
           {busy ? "Google खुल रहा है..." : "Gmail से लॉगिन करें"}
         </button>
         <p className="mt-4 text-center text-xs text-muted-foreground">
-          HR में रजिस्टर किए गए Gmail अकाउंट से ही लॉगिन करें।
+          Google login के बाद HR approval request भेजी जाएगी।
         </p>
       </GlassCard>
     </main>
