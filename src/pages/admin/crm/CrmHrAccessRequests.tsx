@@ -17,9 +17,15 @@ export default function CrmHrAccessRequests(){
   const load=async()=>{
     setLoading(true);
     try{
-      const {data,error}=await (supabase as any).from("crm_access_requests").select("*").order("created_at",{ascending:false});
-      if(error)throw error;
-      setItems(data||[]);
+      const {data,error}=await supabase.functions.invoke("crm-team-auth",{body:{action:"list-crm-access-requests"}});
+      if(error){
+        let message=error.message||"Employee profiles could not load";
+        const context=(error as any).context;
+        if(context&&typeof context.clone==="function"){try{const payload=await context.clone().json();message=payload?.error||payload?.message||message;}catch{}}
+        throw new Error(message);
+      }
+      if(data?.error)throw new Error(data.error);
+      setItems(data?.requests||[]);
     }catch(e:any){toast.error(e?.message||"Employee profiles could not load");}
     finally{setLoading(false);}
   };
@@ -28,12 +34,16 @@ export default function CrmHrAccessRequests(){
     const note=(notes[item.id]||"").trim();
     if(status==="rejected"&&!note){toast.error("Reject करने का कारण लिखें।");return;}
     try{
-      const {data:{user}}=await supabase.auth.getUser();
-      if(!user)throw new Error("Please sign in again.");
-      const {error}=await (supabase as any).from("crm_access_requests").update({
-        status,reviewed_by:user.id,reviewed_at:new Date().toISOString(),review_note:note||null,updated_at:new Date().toISOString()
-      }).eq("id",item.id).eq("status","pending");
-      if(error)throw error;
+      const {data,error}=await supabase.functions.invoke("crm-team-auth",{body:{
+        action:"review-crm-access-request",request_id:item.id,status,review_note:note
+      }});
+      if(error){
+        let message=error.message||"Could not review employee profile";
+        const context=(error as any).context;
+        if(context&&typeof context.clone==="function"){try{const payload=await context.clone().json();message=payload?.error||payload?.message||message;}catch{}}
+        throw new Error(message);
+      }
+      if(data?.error)throw new Error(data.error);
       toast.success(status==="approved"?"Employee approved. अब CRM access मिलेगा।":"Employee request rejected.");
       await load();
     }catch(e:any){toast.error(e?.message||"Could not review employee profile");}
