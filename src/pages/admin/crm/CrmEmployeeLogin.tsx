@@ -8,10 +8,13 @@ import { supabase } from "@/integrations/supabase/client";
 export default function CrmEmployeeLogin() {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
+  const OAUTH_PENDING_KEY = "cst_employee_google_oauth_pending";
 
   useEffect(() => {
     let cancelled = false;
     const finishGoogleLogin = async () => {
+      // Only process a session when this page initiated employee Google OAuth.
+      if (sessionStorage.getItem(OAUTH_PENDING_KEY) !== "1") return;
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
       setBusy(true);
@@ -31,11 +34,13 @@ export default function CrmEmployeeLogin() {
           throw new Error(message);
         }
         if (data?.error) throw new Error(data.error);
+        sessionStorage.removeItem(OAUTH_PENDING_KEY);
         if (!cancelled) {
           toast.success("Gmail से कर्मचारी लॉगिन सफल हुआ।");
           navigate("/admin/crm", { replace: true });
         }
       } catch (error) {
+        sessionStorage.removeItem(OAUTH_PENDING_KEY);
         await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
         if (!cancelled) toast.error(error instanceof Error ? error.message : "Google login failed.");
       } finally {
@@ -50,6 +55,7 @@ export default function CrmEmployeeLogin() {
     setBusy(true);
     try {
       await supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+      sessionStorage.setItem(OAUTH_PENDING_KEY, "1");
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -59,8 +65,9 @@ export default function CrmEmployeeLogin() {
       });
       if (error) throw error;
       if (data?.url) window.location.assign(data.url);
-      else setBusy(false);
+      else { sessionStorage.removeItem(OAUTH_PENDING_KEY); setBusy(false); }
     } catch (error) {
+      sessionStorage.removeItem(OAUTH_PENDING_KEY);
       toast.error(error instanceof Error ? error.message : "Google login शुरू नहीं हो सका।");
       setBusy(false);
     }
