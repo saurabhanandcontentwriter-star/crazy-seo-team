@@ -1,17 +1,65 @@
 import { useEffect, useState } from "react";
-import { Check, X, RefreshCw } from "lucide-react";
+import { Check, X, RefreshCw, Mail, Phone, Briefcase, Building2, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/crm/CrmUI";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-type Request = { id:string; user_id:string; email:string; full_name:string|null; status:"pending"|"approved"|"rejected"; created_at:string; };
+type Request = {
+  id:string; user_id:string; email:string; full_name:string|null; phone:string|null;
+  designation:string|null; department:string|null; employee_id:string|null; employee_note:string|null;
+  status:"pending"|"approved"|"rejected"; created_at:string; review_note:string|null;
+};
 export default function CrmHrAccessRequests(){
   const [items,setItems]=useState<Request[]>([]);
   const [loading,setLoading]=useState(true);
-  const load=async()=>{setLoading(true);try{const {data,error}=await (supabase as any).from("crm_access_requests").select("*").order("created_at",{ascending:false});if(error)throw error;setItems(data||[]);}catch(e:any){toast.error(e?.message||"Access requests could not load");}finally{setLoading(false);}};
+  const [notes,setNotes]=useState<Record<string,string>>({});
+  const load=async()=>{
+    setLoading(true);
+    try{
+      const {data,error}=await (supabase as any).from("crm_access_requests").select("*").order("created_at",{ascending:false});
+      if(error)throw error;
+      setItems(data||[]);
+    }catch(e:any){toast.error(e?.message||"Employee profiles could not load");}
+    finally{setLoading(false);}
+  };
   useEffect(()=>{void load();},[]);
-  const review=async(item:Request,status:"approved"|"rejected")=>{try{const {data:{user}}=await supabase.auth.getUser();if(!user)throw new Error("Please sign in again.");const {error}=await (supabase as any).from("crm_access_requests").update({status,reviewed_by:user.id,reviewed_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",item.id).eq("status","pending");if(error)throw error;toast.success(status==="approved"?"Gmail access approved.":"Access request rejected.");await load();}catch(e:any){toast.error(e?.message||"Could not review request");}};
-  return <GlassCard className="p-5"><div className="flex items-center justify-between gap-3"><div><h2 className="text-lg font-black">Gmail Access Requests</h2><p className="text-xs text-muted-foreground">Approve a Google account to grant CRM access. HR employee records are not required.</p></div><Button size="sm" variant="outline" onClick={()=>void load()}><RefreshCw size={14} className="mr-1"/>Refresh</Button></div>
-  {loading?<p className="py-6 text-sm text-muted-foreground">Loading requests…</p>:<div className="mt-4 space-y-3">{items.map(item=><div key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-3"><div><p className="font-semibold">{item.full_name||"Google user"}</p><p className="text-sm text-muted-foreground">{item.email}</p><p className="text-xs text-muted-foreground">{new Date(item.created_at).toLocaleString()}</p><p className="mt-1 text-xs font-bold uppercase">{item.status}</p></div>{item.status==="pending"&&<div className="flex gap-2"><Button size="sm" onClick={()=>void review(item,"approved")}><Check size={14} className="mr-1"/>Accept</Button><Button size="sm" variant="destructive" onClick={()=>void review(item,"rejected")}><X size={14} className="mr-1"/>Reject</Button></div>}</div>)}{!items.length&&<p className="py-8 text-center text-sm text-muted-foreground">No Gmail access requests yet.</p>}</div>}</GlassCard>;
+  const review=async(item:Request,status:"approved"|"rejected")=>{
+    const note=(notes[item.id]||"").trim();
+    if(status==="rejected"&&!note){toast.error("Reject करने का कारण लिखें।");return;}
+    try{
+      const {data:{user}}=await supabase.auth.getUser();
+      if(!user)throw new Error("Please sign in again.");
+      const {error}=await (supabase as any).from("crm_access_requests").update({
+        status,reviewed_by:user.id,reviewed_at:new Date().toISOString(),review_note:note||null,updated_at:new Date().toISOString()
+      }).eq("id",item.id).eq("status","pending");
+      if(error)throw error;
+      toast.success(status==="approved"?"Employee approved. अब CRM access मिलेगा।":"Employee request rejected.");
+      await load();
+    }catch(e:any){toast.error(e?.message||"Could not review employee profile");}
+  };
+  const pending=items.filter(x=>x.status==="pending");
+  const reviewed=items.filter(x=>x.status!=="pending");
+  const card=(item:Request)=><div key={item.id} className="rounded-2xl border p-4 space-y-3">
+    <div className="flex flex-wrap items-start justify-between gap-3">
+      <div><p className="text-base font-black">{item.full_name||"Employee"}</p><p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground"><Mail size={13}/>{item.email}</p><p className="mt-1 text-xs text-muted-foreground">Submitted: {new Date(item.created_at).toLocaleString()}</p></div>
+      <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase ${item.status==="approved"?"bg-emerald-500/10 text-emerald-700":item.status==="rejected"?"bg-rose-500/10 text-rose-700":"bg-amber-500/10 text-amber-700"}`}>{item.status}</span>
+    </div>
+    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="rounded-xl bg-muted/40 p-3"><p className="text-[10px] text-muted-foreground">Mobile</p><p className="mt-1 flex items-center gap-2 text-sm font-semibold"><Phone size={13}/>{item.phone||"Not provided"}</p></div>
+      <div className="rounded-xl bg-muted/40 p-3"><p className="text-[10px] text-muted-foreground">Designation</p><p className="mt-1 flex items-center gap-2 text-sm font-semibold"><Briefcase size={13}/>{item.designation||"Not provided"}</p></div>
+      <div className="rounded-xl bg-muted/40 p-3"><p className="text-[10px] text-muted-foreground">Department</p><p className="mt-1 flex items-center gap-2 text-sm font-semibold"><Building2 size={13}/>{item.department||"Not provided"}</p></div>
+      <div className="rounded-xl bg-muted/40 p-3"><p className="text-[10px] text-muted-foreground">Employee ID</p><p className="mt-1 flex items-center gap-2 text-sm font-semibold"><UserRound size={13}/>{item.employee_id||"Not provided"}</p></div>
+    </div>
+    {item.employee_note&&<div className="rounded-xl border p-3"><p className="text-[10px] font-bold uppercase text-muted-foreground">Employee note</p><p className="mt-1 text-sm">{item.employee_note}</p></div>}
+    {item.review_note&&<div className="rounded-xl border border-primary/20 bg-primary/5 p-3"><p className="text-[10px] font-bold uppercase text-primary">HR note</p><p className="mt-1 text-sm">{item.review_note}</p></div>}
+    {item.status==="pending"&&<div className="space-y-2"><label className="text-xs font-semibold">HR Note (Reject करने पर जरूरी)<textarea value={notes[item.id]||""} onChange={e=>setNotes(old=>({...old,[item.id]:e.target.value}))} className="mt-1 min-h-16 w-full rounded-xl border bg-background p-3 text-sm" placeholder="Approval note या rejection reason"/></label><div className="flex flex-wrap gap-2"><Button size="sm" onClick={()=>void review(item,"approved")}><Check size={14} className="mr-1"/>Approve & Allow CRM</Button><Button size="sm" variant="destructive" onClick={()=>void review(item,"rejected")}><X size={14} className="mr-1"/>Reject</Button></div></div>}
+  </div>;
+  return <GlassCard className="p-5">
+    <div className="flex items-center justify-between gap-3"><div><h2 className="text-lg font-black">Employee Profile Approval</h2><p className="text-xs text-muted-foreground">Employee Gmail और submitted profile जाँचें। Approve करने पर ही CRM access खुलेगा।</p></div><Button size="sm" variant="outline" onClick={()=>void load()}><RefreshCw size={14} className="mr-1"/>Refresh</Button></div>
+    {loading?<p className="py-6 text-sm text-muted-foreground">Loading employee profiles…</p>:<div className="mt-5 space-y-5">
+      <section><div className="mb-3 flex items-center justify-between"><h3 className="font-bold">Pending Approval</h3><span className="rounded-full bg-amber-500/10 px-2 py-1 text-xs font-bold text-amber-700">{pending.length}</span></div><div className="space-y-3">{pending.map(card)}{!pending.length&&<p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">कोई pending employee profile नहीं है।</p>}</div></section>
+      <section><h3 className="mb-3 font-bold">Approved / Rejected History</h3><div className="space-y-3">{reviewed.map(card)}{!reviewed.length&&<p className="rounded-xl border border-dashed p-6 text-center text-sm text-muted-foreground">अभी कोई reviewed profile नहीं है।</p>}</div></section>
+    </div>}
+  </GlassCard>;
 }
