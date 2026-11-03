@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
       const action = String(body.action);
       if (action === "verify-crm-access" || action === "get-employee-access") {
         const { data: request, error } = await admin.from("crm_access_requests")
-          .select("status,email,full_name,phone,designation,department,employee_id,employee_note,created_at")
+          .select("status,email,full_name,created_at")
           .eq("user_id", signedIn.id).maybeSingle();
         if (error) throw error;
         return json({ success: request?.status === "approved", status: request?.status ?? "not_requested", profile: request ?? null });
