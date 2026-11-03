@@ -106,9 +106,18 @@ Deno.serve(async (req) => {
       if (data.user) user = { id: data.user.id, email: data.user.email };
     }
 
-    const isAdmin = user
-      ? Boolean((await admin.rpc("has_role", { _user_id: user.id, _role: "admin" })).data)
-      : false;
+    // CRM employees are authenticated staff too. Treat crm_team as eligible
+    // for the CRM Customer Discovery allowance, while retaining admin access.
+    let isAdmin = false;
+    if (user) {
+      const [{ data: adminRole, error: adminRoleError }, { data: teamRole, error: teamRoleError }] = await Promise.all([
+        admin.rpc("has_role", { _user_id: user.id, _role: "admin" }),
+        admin.rpc("has_role", { _user_id: user.id, _role: "crm_team" }),
+      ]);
+      if (adminRoleError) throw adminRoleError;
+      if (teamRoleError) throw teamRoleError;
+      isAdmin = adminRole === true || teamRole === true;
+    }
 
     let used = 0;
     let remaining = 0;
