@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
     const anon = Deno.env.get("SUPABASE_ANON_KEY")!;
     const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const body = await req.json();
-    if (["google-employee-login", "request-crm-access", "verify-crm-access"].includes(String(body.action ?? ""))) {
+    if (["google-employee-login", "request-crm-access", "verify-crm-access", "get-employee-access", "submit-employee-profile"].includes(String(body.action ?? ""))) {
       const authHeader = req.headers.get("Authorization") ?? "";
       if (!authHeader.startsWith("Bearer ")) return json({ error: "Google session required. Please try again." }, 401);
       const caller = createClient(url, anon, { global: { headers: { Authorization: authHeader } } });
@@ -33,11 +33,42 @@ Deno.serve(async (req) => {
       const signedIn = userData.user;
       const admin = createClient(url, service, { auth: { autoRefreshToken: false, persistSession: false } });
       const action = String(body.action);
-      if (action === "verify-crm-access") {
+      if (action === "verify-crm-access" || action === "get-employee-access") {
         const { data: request, error } = await admin.from("crm_access_requests")
-          .select("status").eq("user_id", signedIn.id).maybeSingle();
+          .select("status,email,full_name,phone,designation,department,employee_id,employee_note,created_at")
+          .eq("user_id", signedIn.id).maybeSingle();
         if (error) throw error;
-        return json({ success: request?.status === "approved", status: request?.status ?? "not_requested" });
+        return json({ success: request?.status === "approved", status: request?.status ?? "not_requested", profile: request ?? null });
+      }
+      if (action === "submit-employee-profile") {
+        const fullName = String(body.full_name ?? "").trim();
+        const phone = String(body.phone ?? "").trim();
+        const designation = String(body.designation ?? "").trim();
+        const department = String(body.department ?? "").trim();
+        const employeeId = String(body.employee_id ?? "").trim();
+        const employeeNote = String(body.employee_note ?? "").trim();
+        if (!fullName || !phone || !designation || !department) {
+          return json({ error: "Name, phone, designation and department are required." }, 400);
+        }
+        if (phone.replace(/\\D/g, "").length < 10) return json({ error: "Enter a valid phone number." }, 400);
+        const { data: prior, error: priorError } = await admin.from("crm_access_requests")
+          .select("status").eq("user_id", signedIn.id).maybeSingle();
+        if (priorError) throw priorError;
+        if (prior?.status === "approved") return json({ success: true, status: "approved" });
+        const email = signedIn.email!.trim().toLowerCase();
+        const { error } = await admin.from("crm_access_requests").upsert({
+          user_id: signedIn.id,
+          email,
+          full_name: fullName,
+          avatar_url: signedIn.user_metadata?.avatar_url || null,
+          phone, designation, department, employee_id: employeeId || null,
+          employee_note: employeeNote || null,
+          status: "pending",
+          reviewed_by: null, reviewed_at: null, review_note: null,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "user_id" });
+        if (error) throw error;
+        return json({ success: true, status: "pending", email });
       }
       const email = signedIn.email.trim().toLowerCase();
       // Do not reset an HR-approved/rejected request to pending on every login.
