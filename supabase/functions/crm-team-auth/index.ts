@@ -24,33 +24,35 @@ Deno.serve(async (req) => {
     const anon = Deno.env.get("SUPABASE_ANON_KEY")!;
     const service = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const body = await req.json();
-    if (String(body.action ?? "") === "google-employee-login") {
+    if (["google-employee-login", "request-crm-access", "verify-crm-access"].includes(String(body.action ?? ""))) {
       const authHeader = req.headers.get("Authorization") ?? "";
       if (!authHeader.startsWith("Bearer ")) return json({ error: "Google session required. Please try again." }, 401);
       const caller = createClient(url, anon, { global: { headers: { Authorization: authHeader } } });
       const { data: userData, error: userError } = await caller.auth.getUser();
       if (userError || !userData.user?.email) return json({ error: "Google account could not be verified." }, 401);
-      const googleEmail = userData.user.email.trim().toLowerCase();
+      const signedIn = userData.user;
       const admin = createClient(url, service, { auth: { autoRefreshToken: false, persistSession: false } });
-      const { data: member, error: memberError } = await admin.from("crm_team_members")
-        .select("id,name,position,status,email").ilike("email", googleEmail).maybeSingle();
-      if (memberError) throw memberError;
-      if (!member || member.status !== "active") {
-        return json({ error: "यह Gmail किसी सक्रिय कर्मचारी के HR रिकॉर्ड में रजिस्टर नहीं है। HR से सही Gmail रजिस्टर करवाएँ।" }, 403);
+      const action = String(body.action);
+      if (action === "verify-crm-access") {
+        const { data: request, error } = await admin.from("crm_access_requests")
+          .select("status").eq("user_id", signedIn.id).maybeSingle();
+        if (error) throw error;
+        return json({ success: request?.status === "approved", status: request?.status ?? "not_requested" });
       }
-      const { error: roleError } = await admin.from("user_roles")
-        .upsert({ user_id: userData.user.id, role: "crm_team" }, { onConflict: "user_id,role", ignoreDuplicates: true });
-      if (roleError) throw roleError;
-      const { error: memberUpdateError } = await admin.from("crm_team_members")
-        .update({ auth_user_id: userData.user.id }).eq("id", member.id);
-      if (memberUpdateError) throw memberUpdateError;
-      const { error: profileError } = await admin.from("crm_employee_profiles").upsert({
-        user_id: userData.user.id,
-        designation: member.position || "Employee",
-        department: "CRM",
-      }, { onConflict: "user_id", ignoreDuplicates: true });
-      if (profileError) throw profileError;
-      return json({ success: true, employee_id: member.id });
+      const email = signedIn.email.trim().toLowerCase();
+      const { error } = await admin.from("crm_access_requests").upsert({
+        user_id: signedIn.id,
+        email,
+        full_name: signedIn.user_metadata?.full_name || signedIn.user_metadata?.name || email.split("@")[0],
+        avatar_url: signedIn.user_metadata?.avatar_url || null,
+        status: "pending",
+        reviewed_by: null,
+        reviewed_at: null,
+        review_note: null,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+      if (error) throw error;
+      return json({ success: true, status: "pending", email });
     }
     if (String(body.action ?? "") === "prepare-email-login") {
       const email = String(body.email ?? "").trim().toLowerCase();
