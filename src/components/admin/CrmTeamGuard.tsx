@@ -27,26 +27,11 @@ export default function CrmTeamGuard({ children }: { children: ReactNode }) {
         let allowed = CRM_ADMIN_EMAILS.has(email);
 
         if (!allowed) {
-          // Re-validate the signed-in Google account against the active HR
-          // employee record using the service-role Edge Function. This also
-          // repairs a missing crm_team role/link for an existing active
-          // employee, avoiding false denials from stale/missing role rows.
           const { data: verification, error: verificationError } =
             await supabase.functions.invoke("crm-team-auth", {
-              body: { action: "google-employee-login" },
+              body: { action: "verify-crm-access" },
             });
-          if (verificationError) {
-            let message = verificationError.message || "Employee access verification failed.";
-            const context = (verificationError as any).context;
-            if (context && typeof context.clone === "function") {
-              try {
-                const payload = await context.clone().json();
-                message = payload?.error || payload?.message || message;
-              } catch { /* keep original message */ }
-            }
-            throw new Error(message);
-          }
-          if (verification?.error) throw new Error(verification.error);
+          if (verificationError) throw verificationError;
           allowed = verification?.success === true;
         }
 
