@@ -115,7 +115,27 @@ const filtered=useMemo(()=>{
   .anvya-page-in,.anvya-premium-card,.anvya-hero-in,.anvya-glow-drift,.anvya-activity{animation:none!important}
   .anvya-reveal{opacity:1!important;transform:none!important;transition:none!important}
 }
+ @keyframes anvyaDiyaFloat{0%,100%{transform:translateY(0) rotate(-4deg);opacity:.72}50%{transform:translateY(-13px) rotate(4deg);opacity:1}}
+@keyframes anvyaDiwaliShimmer{0%,100%{background-position:0% 50%;filter:brightness(1)}50%{background-position:100% 50%;filter:brightness(1.18)}}
+@keyframes anvyaSparkle{0%,100%{opacity:.25;transform:scale(.75)}50%{opacity:1;transform:scale(1.15)}}
+.anvya-diwali-banner{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 50% 0%,rgba(211,157,88,.2),transparent 65%),linear-gradient(110deg,#29141b,#3b2027 48%,#21131a);border-bottom:1px solid rgba(239,183,120,.3)}
+.anvya-diwali-gold{background:linear-gradient(90deg,#f8e3ae,#d9a85d,#fff0c7,#d9a85d);background-size:220% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:anvyaDiwaliShimmer 5s ease-in-out infinite}
+.anvya-diya{display:inline-block;animation:anvyaDiyaFloat 3.2s ease-in-out infinite;filter:drop-shadow(0 0 10px rgba(255,177,72,.4))}
+.anvya-diwali-sparkle{display:inline-block;animation:anvyaSparkle 2s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.anvya-diwali-gold,.anvya-diya,.anvya-diwali-sparkle{animation:none!important}}
 `}</style>
+<div className="anvya-diwali-banner px-4 py-5 sm:py-6">
+  <div className="pointer-events-none absolute inset-0 opacity-40" aria-hidden="true"><span className="anvya-diwali-sparkle absolute left-[12%] top-3 text-amber-200">✦</span><span className="anvya-diwali-sparkle absolute right-[16%] top-5 text-amber-100" style={{animationDelay:".7s"}}>✧</span><span className="anvya-diwali-sparkle absolute bottom-3 left-[34%] text-amber-200" style={{animationDelay:"1.2s"}}>✦</span></div>
+  <div className="relative mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-5 gap-y-2 text-center">
+    <span className="anvya-diya text-3xl" aria-hidden="true">🪔</span>
+    <div className="min-w-0">
+      <p className="anvya-diwali-gold text-lg font-black tracking-wide sm:text-2xl">Happy Dhanteras &amp; Happy Diwali!</p>
+      <p className="mt-1 text-xs font-medium leading-6 text-[#f4d9c8] sm:text-sm">May your days shine with happiness, prosperity, good health and new beginnings. ✨</p>
+      <p className="mt-1 text-[10px] font-bold uppercase tracking-[.2em] text-[#d8b58c]">Warm wishes from Crazy SEO Team &amp; ANVYA</p>
+    </div>
+    <span className="anvya-diya text-3xl" style={{animationDelay:"1s"}} aria-hidden="true">🪔</span>
+  </div>
+</div>
 <div className="relative overflow-hidden border-b border-white/10 bg-[#11151d]">
 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_8%,rgba(100,160,175,.07),transparent_25%),radial-gradient(circle_at_88%_12%,rgba(125,110,160,.07),transparent_28%),radial-gradient(circle_at_50%_70%,rgba(90,120,160,.06),transparent_35%)]"/>
 <div className="pointer-events-none absolute -left-40 top-40 h-96 w-96 rounded-full bg-cyan-500/[.06] blur-[120px]"/>
