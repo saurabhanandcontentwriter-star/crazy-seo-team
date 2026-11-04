@@ -20,7 +20,7 @@ const filtered=useMemo(()=>{
  const textOf=(i:Idea)=>[i.title,i.content,i.subject,i.post_type].filter(Boolean).join(" ").toLowerCase();
  return ideas.filter(i=>(subject==="All"||i.subject===subject)&&(!q||textOf(i).includes(q.toLowerCase()))).sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime());
 },[ideas,q,subject]);
- return <div className="anvya-page-in min-h-screen overflow-x-hidden bg-[#11151d] text-slate-200">
+ return <div className="anvya-page-in anvya-luxury-gold min-h-screen overflow-x-hidden bg-[#080808] text-[#f3ead0]">
 <style>{`
 @keyframes anvyaPageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes anvyaPageFloat{0%,100%{transform:translate3d(0,0,0)}25%{transform:translate3d(0,-6px,0)}50%{transform:translate3d(0,-12px,0)}75%{transform:translate3d(0,-5px,0)}}
@@ -61,6 +61,20 @@ const filtered=useMemo(()=>{
   .anvya-mobile-actions button{width:100%!important;min-height:44px}
   .anvya-mobile-fixed-help{right:12px!important;bottom:12px!important}
 }
+/* ANVYA luxury black & gold theme */
+.anvya-luxury-gold{background:#080808!important;color:#f3ead0!important}
+.anvya-luxury-gold [class*="cyan-"],.anvya-luxury-gold [class*="blue-"],.anvya-luxury-gold [class*="fuchsia-"],.anvya-luxury-gold [class*="violet-"]{--tw-gradient-from:#f4df9b var(--tw-gradient-from-position)!important;--tw-gradient-to:rgb(212 175 55 / 0%) var(--tw-gradient-to-position)!important;--tw-gradient-stops:var(--tw-gradient-from),#d4af37 var(--tw-gradient-via-position),var(--tw-gradient-to)!important}
+.anvya-luxury-gold [class*="text-cyan-"],.anvya-luxury-gold [class*="text-blue-"],.anvya-luxury-gold [class*="text-fuchsia-"],.anvya-luxury-gold [class*="text-violet-"],.anvya-luxury-gold [class*="text-emerald-"]{color:#e0c16b!important}
+.anvya-luxury-gold [class*="border-cyan-"],.anvya-luxury-gold [class*="border-blue-"],.anvya-luxury-gold [class*="border-violet-"],.anvya-luxury-gold [class*="border-fuchsia-"]{border-color:rgba(212,175,55,.28)!important}
+.anvya-luxury-gold [class*="bg-cyan-"],.anvya-luxury-gold [class*="bg-blue-"],.anvya-luxury-gold [class*="bg-violet-"],.anvya-luxury-gold [class*="bg-fuchsia-"]{background-color:rgba(212,175,55,.09)!important}
+.anvya-luxury-gold .bg-gradient-to-r,.anvya-luxury-gold .bg-gradient-to-br{--tw-gradient-from:#f5e6b5 var(--tw-gradient-from-position)!important;--tw-gradient-via:#d4af37 var(--tw-gradient-via-position)!important;--tw-gradient-to:#8b6b1f var(--tw-gradient-to-position)!important}
+.anvya-luxury-gold .anvya-premium-card:hover{border-color:rgba(212,175,55,.6)!important;box-shadow:0 24px 65px rgba(212,175,55,.16)!important}
+.anvya-luxury-gold .anvya-glow-drift{background:linear-gradient(90deg,rgba(212,175,55,.1),rgba(245,230,181,.12),rgba(139,107,31,.1))!important}
+.anvya-luxury-gold [class*="bg-[#11151d]"],.anvya-luxury-gold [class*="bg-[#0d1422]"]{background-color:#0b0b0b!important}
+.anvya-luxury-gold [class*="text-white"]{color:#fff8e7!important}
+.anvya-luxury-gold [class*="text-slate-400"],.anvya-luxury-gold [class*="text-slate-500"]{color:#b8ad91!important}
+.anvya-luxury-gold button[class*="bg-white"],.anvya-luxury-gold a[class*="bg-white"]{background:#d4af37!important;color:#17120a!important}
+.anvya-luxury-gold .anvya-premium-card:hover{transform:translate3d(0,-6px,0) scale(1.01)}
 @media(prefers-reduced-motion:reduce){
   .anvya-page-in,.anvya-premium-card,.anvya-hero-in,.anvya-glow-drift,.anvya-activity{animation:none!important}
   .anvya-reveal{opacity:1!important;transform:none!important;transition:none!important}
