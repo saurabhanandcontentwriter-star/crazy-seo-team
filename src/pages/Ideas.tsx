@@ -97,6 +97,19 @@ const filtered=useMemo(()=>{
 .anvya-rosewood-elite .anvya-rosewood-hero-panel .anvya-activity:nth-child(3){background:linear-gradient(110deg,#25443e,#1c302d)!important;border-color:rgba(130,210,180,.35)!important}
 .anvya-rosewood-elite .anvya-rosewood-hero-panel .anvya-activity:nth-child(3) p:first-child{color:#ffc5b8!important}
 .anvya-rosewood-elite .anvya-rosewood-hero-panel .anvya-activity:nth-child(3) p:last-child{color:#f4fff9!important}
+/* ANVYA knowledge section: remove white panels and enforce readable contrast */
+.anvya-rosewood-elite section[aria-labelledby="anvya-search-guide"] [class*="bg-white"],
+.anvya-rosewood-elite section[aria-labelledby="anvya-search-guide"] [class*="bg-slate-50"],
+.anvya-rosewood-elite section[aria-labelledby="anvya-search-guide"] [class*="bg-violet-50"]{background:#301c25!important;border-color:rgba(239,183,173,.28)!important}
+.anvya-rosewood-elite section[aria-labelledby="anvya-search-guide"] h2,
+.anvya-rosewood-elite section[aria-labelledby="anvya-search-guide"] h3{color:#fff4ef!important}
+.anvya-rosewood-elite section[aria-labelledby="anvya-search-guide"] p,
+.anvya-rosewood-elite section[aria-labelledby="anvya-search-guide"] li,
+.anvya-rosewood-elite section[aria-labelledby="anvya-search-guide"] span{color:#ead5d1!important}
+.anvya-rosewood-elite section[aria-labelledby="anvya-search-guide"] [class*="text-slate-"],
+.anvya-rosewood-elite section[aria-labelledby="anvya-search-guide"] [class*="text-violet-"]{color:#ead5d1!important}
+.anvya-rosewood-elite section[aria-labelledby="anvya-search-guide"]>div{background:#24151c!important}
+
 
 @media(prefers-reduced-motion:reduce){
   .anvya-page-in,.anvya-premium-card,.anvya-hero-in,.anvya-glow-drift,.anvya-activity{animation:none!important}
