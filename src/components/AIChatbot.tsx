@@ -22,14 +22,14 @@ const getSnehaFestivalGreeting = () => {
   const parts = new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
   const key = `${parts.find((p) => p.type === "month")?.value}-${parts.find((p) => p.type === "day")?.value}`;
   const greetings: Record<string, { title: string; message: string }> = {
-    "11-07": { title: "Kali Chaudas की शुभकामनाएँ", message: "May courage, wisdom and positivity guide every step. आपके जीवन में साहस और शुभता बनी रहे।" },
-    "11-08": { title: "Happy Diwali! शुभ दीपावली!", message: "May your life shine with happiness, prosperity, good health and success. आप सभी को दीपावली की हार्दिक शुभकामनाएँ।" },
-    "11-10": { title: "Happy Govardhan Puja! गोवर्धन पूजा की शुभकामनाएँ", message: "May Shri Krishna bless every home with protection, abundance and togetherness. श्रीकृष्ण की कृपा आप सभी पर बनी रहे।" },
-    "11-11": { title: "Happy Bhai Dooj! भाई दूज की शुभकामनाएँ", message: "Celebrating the bond of love, care and lifelong support between siblings. भाई-बहन का स्नेह और विश्वास हमेशा बना रहे।" },
-    "11-13": { title: "Chhath Puja – Nahay Khay की शुभकामनाएँ", message: "May this sacred beginning bring purity, peace and well-being to every family. नहाय-खाय के पावन अवसर पर हार्दिक शुभकामनाएँ।" },
-    "11-14": { title: "Chhath Puja – Kharna की शुभकामनाएँ", message: "May devotion, patience and gratitude fill your home with peace. खरना के पावन दिन पर छठी मईया का आशीर्वाद बना रहे।" },
-    "11-15": { title: "Chhath Puja – Sandhya Arghya की शुभकामनाएँ", message: "With gratitude to the setting Sun, may your family be blessed with strength and harmony. संध्या अर्घ्य पर सूर्य देव और छठी मईया को नमन।" },
-    "11-16": { title: "Chhath Puja – Usha Arghya की शुभकामनाएँ", message: "May the rising Sun bring renewed hope, health and happiness. उषा अर्घ्य के साथ आपके जीवन में नई ऊर्जा और खुशियाँ आएँ।" },
+    "11-07": { title: "कालिका चौदस की हार्दिक शुभकामनाएँ", message: "माँ काली की कृपा से आपके जीवन में साहस, सुख और समृद्धि बनी रहे। हर कठिनाई दूर हो और घर-परिवार में खुशहाली आए।" },
+    "11-08": { title: "दीपावली की हार्दिक शुभकामनाएँ!", message: "दीपों का यह पावन त्योहार आपके घर में सुख, शांति, स्वास्थ्य और समृद्धि लेकर आए। आपके जीवन का हर दिन खुशियों की रोशनी से जगमगाता रहे।" },
+    "11-10": { title: "गोवर्धन पूजा की हार्दिक शुभकामनाएँ", message: "भगवान श्रीकृष्ण की कृपा आप पर और आपके परिवार पर हमेशा बनी रहे। घर में अन्न, धन, प्रेम और खुशहाली का वास हो।" },
+    "11-11": { title: "भाई दूज की हार्दिक शुभकामनाएँ", message: "भाई-बहन का प्यार और विश्वास यूँ ही बना रहे। आपके रिश्तों में हमेशा अपनापन, खुशियाँ और मिठास बनी रहे।" },
+    "11-13": { title: "नहाय-खाय की हार्दिक शुभकामनाएँ", message: "छठ पर्व की पावन शुरुआत पर छठी मैया का आशीर्वाद आपके परिवार पर बना रहे। सभी के जीवन में सुख, शांति और आरोग्य आए।" },
+    "11-14": { title: "खरना की हार्दिक शुभकामनाएँ", message: "छठी मैया आपकी मनोकामनाएँ पूरी करें। आपके घर-आँगन में सुख-समृद्धि और परिवार में प्रेम बना रहे।" },
+    "11-15": { title: "संध्या अर्घ्य की हार्दिक शुभकामनाएँ", message: "अस्ताचलगामी सूर्य देव को नमन। छठी मैया की कृपा से आपके परिवार में सुख, शांति और खुशहाली बनी रहे।" },
+    "11-16": { title: "उषा अर्घ्य की हार्दिक शुभकामनाएँ", message: "उगते सूर्य देव को अर्घ्य अर्पित करने के इस पावन अवसर पर आपके जीवन में नई उमंग, अच्छी सेहत और खुशियाँ आएँ। छठी मैया सबका कल्याण करें।" },
   };
   return { key, greeting: greetings[key] || null };
 };
@@ -57,7 +57,7 @@ const QUICK_ACTIONS = [
 ];
 
 const AGENT_CONTEXT = `You are Sneha, the friendly, natural, two-way voice and chat assistant for ANVYA and Crazy SEO Team.
-Your conversation must feel like a real human conversation, not a scripted questionnaire.
+Your conversation must feel like a real human conversation, not a scripted questionnaire. Speak in natural, fluent Indian Hindi when the user uses Hindi or Hinglish.
 
 CONVERSATION FLOW:
 1. At the beginning of a new voice call, greet the user warmly and ask how they are doing / how their day is going.
@@ -67,13 +67,15 @@ CONVERSATION FLOW:
 5. If they speak English, continue in English.
 6. Do not force a language switch and do not repeatedly ask which language they prefer when their language is already clear.
 7. Once a language is detected, keep using it consistently unless the user naturally changes language.
-8. Match the user's level of formality and speaking style. Use natural Indian conversational phrasing where appropriate.
+8. Match the user's level of formality and speaking style. In Hindi, use natural Indian बोलचाल की भाषा, सहज वाक्य और सम्मानजनक संबोधन such as 'जी', 'बताइए', 'मैं समझ गई'. Avoid stiff textbook Hindi, overly formal constructions, and unnecessary English words.
 9. After the initial rapport, understand their actual requirement, then provide concise and useful help.
 10. Ask only one relevant follow-up question at a time. Never sound like a form or call-center script.
 
 LANGUAGE RULES:
 - Detect language from the user's actual speech/text, not from assumptions about their location or name.
 - Hinglish means natural Hindi-English mixing; preserve it when the user speaks that way.
+- When the user speaks Hindi, prefer Devanagari Hindi and familiar Indian expressions. Keep common technical terms in English only when they are clearer that way.
+- Do not use Urdu vocabulary or Urdu script. Prefer everyday Hindi words.
 - Never claim to support a language if you cannot reliably respond in it.
 - Never switch to Hindi just because the user is Indian; follow the user's language.
 
@@ -174,7 +176,7 @@ const AIChatbot = () => {
       sessionStorage.setItem(`cst-sneha-festival-${key}`, "1");
       setMessages((prev) => [...prev, { role: "assistant", content: `🪔 **${greeting.title}**\n\n${greeting.message}\n\n— Sneha, Crazy SEO Team`, ts: Date.now() }]);
     }
-    playTTS(`Namaste! Main Sneha hoon, ANVYA aur Crazy SEO Team se. Aap kaise hain? Aaj aapki kis tarah help kar sakti hoon. ${festivalLine}`, -2);
+    playTTS(`नमस्ते! मैं स्नेहा हूँ, ANVYA और Crazy SEO Team से। आप कैसे हैं? बताइए, आज मैं आपकी क्या मदद कर सकती हूँ? ${festivalLine}`, -2);
   }, [open]);
 
   const showWelcome = messages.length === 1 && messages[0].role === "assistant" && messages[0].content === WELCOME.content;
