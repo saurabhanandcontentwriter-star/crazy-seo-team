@@ -102,7 +102,7 @@ const Navbar = () => {
               @keyframes homeDiyaBob{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-9px) rotate(6deg)}}
               @keyframes homeGoldFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
               @keyframes homeSparkle{0%,100%{opacity:.25;transform:scale(.75)}50%{opacity:1;transform:scale(1.15)}}
-              .home-diwali-banner{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 50% 0%,rgba(255,190,95,.22),transparent 65%),linear-gradient(105deg,#35151d,#51232b 50%,#2b141e);border-bottom:1px solid rgba(255,205,130,.42);padding:15px 16px}
+              .home-diwali-banner{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 50% 0%,rgba(255,190,95,.22),transparent 65%),linear-gradient(105deg,#35151d,#51232b 50%,#2b141e);border-bottom:1px solid rgba(255,205,130,.42);padding:8px 16px}
               .home-diwali-title{background:linear-gradient(90deg,#fff0c8,#e5ad54,#fff8df,#e5ad54);background-size:220% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:homeGoldFlow 4s ease-in-out infinite}
               .home-diwali-diya{display:inline-block;animation:homeDiyaBob 2.8s ease-in-out infinite;filter:drop-shadow(0 0 12px rgba(255,185,75,.55))}
               .home-diwali-sparkle{position:absolute;color:#ffe5ad;pointer-events:none;animation:homeSparkle 1.8s ease-in-out infinite}
@@ -115,23 +115,12 @@ const Navbar = () => {
                 <span className="home-diwali-diya text-3xl sm:text-4xl" aria-hidden="true">🪔</span>
                 <div>
                   <h2 className="home-diwali-title text-base font-black tracking-wide sm:text-2xl">Happy Diwali! शुभ दीपावली!</h2>
-                  <p className="mt-1 text-[11px] font-medium leading-5 text-[#ffe9dc] sm:text-sm">May your life shine with happiness, prosperity, good health and success. आप सभी को दीपावली की हार्दिक शुभकामनाएँ।</p>
-                  <p className="mt-1 text-[9px] font-bold uppercase tracking-[.18em] text-[#eac99d] sm:text-[10px]">Warm wishes from Crazy SEO Team</p>
+                  <p className="mt-0.5 text-[10px] font-medium leading-4 text-[#ffe9dc] sm:text-xs">May your life shine with happiness, prosperity, good health and success. आप सभी को दीपावली की हार्दिक शुभकामनाएँ।</p>
+                  <p className="mt-0.5 text-[8px] font-bold uppercase tracking-[.18em] text-[#eac99d] sm:text-[9px]">Warm wishes from Crazy SEO Team</p>
                 </div>
                 <span className="home-diwali-diya text-3xl sm:text-4xl" style={{animationDelay:"1.1s"}} aria-hidden="true">🪔</span>
               </div>
             </section>
-        <div className="cst-public-announcement border-b border-slate-200/70 bg-gradient-to-r from-slate-50 via-white to-blue-50 text-slate-800">
-          <div className="container mx-auto flex min-h-10 items-center justify-center gap-2 px-3 py-2 text-center">
-            <Sparkles aria-hidden="true" className="h-4 w-4 shrink-0 text-blue-600" />
-            <div className="max-w-[92vw] truncate text-sm font-extrabold leading-tight text-slate-950 sm:text-[15px]">
-              {navratriDay
-                ? `Happy Navratri • Day ${navratriDay.day} • ${navratriDay.maa} — ${navratriDay.quote}`
-                : "Next Zen AI"}
-            </div>
-          </div>
-        </div>
-
         <div className="cst-nav-inner border-b border-slate-200/70 bg-white/90 backdrop-blur-xl">
           <div className="container mx-auto flex h-[68px] items-center justify-between px-4 lg:px-6">
             <Link
