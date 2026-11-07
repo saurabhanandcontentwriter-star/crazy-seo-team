@@ -90,7 +90,7 @@ SAFETY AND ACCURACY:
 const WELCOME: Msg = {
   role: "assistant",
   ts: Date.now(),
-  content: "👋 **Namaste! Main Sneha hoon.**\n\nMain aapki language automatically samajhkar Hindi, Hinglish, Bhojpuri, Maithili, English aur kai Indian languages mein baat kar sakti hoon. Urdu ko chhodkar, aap jis supported language mein bolenge main usi language mein reply karungi.\n\nAap ANVYA, SEO, AI, digital marketing, automation, website development ya voice-agent services ke baare mein pooch sakte hain. Aap chahein toh **Call Sneha** se voice mein bhi baat kar sakte hain.",
+  content: "🙏 **नमस्ते! मैं स्नेहा हूँ।**\\n\\nआप मुझसे हिंदी या हिंग्लिश में बिल्कुल सहज होकर बात कर सकते हैं। मैं आपकी बात ध्यान से सुनूँगी और आसान, स्वाभाविक भारतीय हिंदी में जवाब दूँगी।\\n\\nANVYA, SEO, AI, डिजिटल मार्केटिंग, ऑटोमेशन या वेबसाइट से जुड़ी किसी भी जानकारी के लिए बताइए। चाहें तो **Call Sneha** पर दबाकर मुझसे बोलकर भी बात कर सकते हैं।",
 };
 
 const AIChatbot = () => {
