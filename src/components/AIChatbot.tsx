@@ -18,6 +18,23 @@ const STORAGE_KEY = "cst-chat-history-v1";
 
 const RESPONSE_TIMEOUT_MS = 15000;
 
+const getSnehaFestivalGreeting = () => {
+  const parts = new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
+  const key = `${parts.find((p) => p.type === "month")?.value}-${parts.find((p) => p.type === "day")?.value}`;
+  const greetings: Record<string, { title: string; message: string }> = {
+    "11-07": { title: "Kali Chaudas की शुभकामनाएँ", message: "May courage, wisdom and positivity guide every step. आपके जीवन में साहस और शुभता बनी रहे।" },
+    "11-08": { title: "Happy Diwali! शुभ दीपावली!", message: "May your life shine with happiness, prosperity, good health and success. आप सभी को दीपावली की हार्दिक शुभकामनाएँ।" },
+    "11-10": { title: "Happy Govardhan Puja! गोवर्धन पूजा की शुभकामनाएँ", message: "May Shri Krishna bless every home with protection, abundance and togetherness. श्रीकृष्ण की कृपा आप सभी पर बनी रहे।" },
+    "11-11": { title: "Happy Bhai Dooj! भाई दूज की शुभकामनाएँ", message: "Celebrating the bond of love, care and lifelong support between siblings. भाई-बहन का स्नेह और विश्वास हमेशा बना रहे।" },
+    "11-13": { title: "Chhath Puja – Nahay Khay की शुभकामनाएँ", message: "May this sacred beginning bring purity, peace and well-being to every family. नहाय-खाय के पावन अवसर पर हार्दिक शुभकामनाएँ।" },
+    "11-14": { title: "Chhath Puja – Kharna की शुभकामनाएँ", message: "May devotion, patience and gratitude fill your home with peace. खरना के पावन दिन पर छठी मईया का आशीर्वाद बना रहे।" },
+    "11-15": { title: "Chhath Puja – Sandhya Arghya की शुभकामनाएँ", message: "With gratitude to the setting Sun, may your family be blessed with strength and harmony. संध्या अर्घ्य पर सूर्य देव और छठी मईया को नमन।" },
+    "11-16": { title: "Chhath Puja – Usha Arghya की शुभकामनाएँ", message: "May the rising Sun bring renewed hope, health and happiness. उषा अर्घ्य के साथ आपके जीवन में नई ऊर्जा और खुशियाँ आएँ।" },
+  };
+  return { key, greeting: greetings[key] || null };
+};
+
+
 const fetchWithTimeout = async (input: RequestInfo | URL, init: RequestInit = {}) => {
   const controller = new AbortController();
   const timer = window.setTimeout(() => controller.abort(), RESPONSE_TIMEOUT_MS);
@@ -151,7 +168,13 @@ const AIChatbot = () => {
     greetedRef.current = true;
     if (sessionStorage.getItem("cst-chat-greeted")) return;
     sessionStorage.setItem("cst-chat-greeted", "1");
-    playTTS("Namaste! Main Sneha hoon, ANVYA aur Crazy SEO Team se. Aap kaise hain? Aaj aapki kis tarah help kar sakti hoon?", -2);
+    const { key, greeting } = getSnehaFestivalGreeting();
+    const festivalLine = greeting ? `${greeting.title}. ${greeting.message}` : "";
+    if (greeting && sessionStorage.getItem(`cst-sneha-festival-${key}`) !== "1") {
+      sessionStorage.setItem(`cst-sneha-festival-${key}`, "1");
+      setMessages((prev) => [...prev, { role: "assistant", content: `🪔 **${greeting.title}**\n\n${greeting.message}\n\n— Sneha, Crazy SEO Team`, ts: Date.now() }]);
+    }
+    playTTS(`Namaste! Main Sneha hoon, ANVYA aur Crazy SEO Team se. Aap kaise hain? Aaj aapki kis tarah help kar sakti hoon. ${festivalLine}`, -2);
   }, [open]);
 
   const showWelcome = messages.length === 1 && messages[0].role === "assistant" && messages[0].content === WELCOME.content;
