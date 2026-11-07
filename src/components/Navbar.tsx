@@ -21,12 +21,14 @@ import logo from "@/assets/logo.jpeg";
 import { servicesByCategory, categoryOrder } from "@/data/services";
 import { BarChart3 } from "lucide-react";
 
+const getFestivalGreeting=()=>{const parts=new Intl.DateTimeFormat("en-IN",{timeZone:"Asia/Kolkata",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const key=`${parts.find(p=>p.type==="month")?.value}-${parts.find(p=>p.type==="day")?.value}`;const greetings:Record<string,{title:string;message:string;from:string;diya:string}>={"11-07":{title:"Kali Chaudas की शुभकामनाएँ",message:"May courage, wisdom and positivity guide every step. आपके जीवन में साहस और शुभता बनी रहे।",from:"Warm wishes from Crazy SEO Team",diya:"🪔"},"11-08":{title:"Happy Diwali! शुभ दीपावली!",message:"May your life shine with happiness, prosperity, good health and success. आप सभी को दीपावली की हार्दिक शुभकामनाएँ।",from:"Warm wishes from Crazy SEO Team",diya:"🪔"},"11-10":{title:"Happy Govardhan Puja! गोवर्धन पूजा की शुभकामनाएँ",message:"May Shri Krishna bless every home with protection, abundance and togetherness. श्रीकृष्ण की कृपा आप सभी पर बनी रहे।",from:"Warm wishes from Crazy SEO Team",diya:"🌼"},"11-11":{title:"Happy Bhai Dooj! भाई दूज की शुभकामनाएँ",message:"Celebrating the bond of love, care and lifelong support between siblings. भाई-बहन का स्नेह और विश्वास हमेशा बना रहे।",from:"Warm wishes from Crazy SEO Team",diya:"🎉"},"11-13":{title:"Chhath Puja – Nahay Khay की शुभकामनाएँ",message:"May this sacred beginning bring purity, peace and well-being to every family. नहाय-खाय के पावन अवसर पर हार्दिक शुभकामनाएँ।",from:"Warm wishes from Crazy SEO Team",diya:"☀️"},"11-14":{title:"Chhath Puja – Kharna की शुभकामनाएँ",message:"May devotion, patience and gratitude fill your home with peace. खरना के पावन दिन पर छठी मईया का आशीर्वाद बना रहे।",from:"Warm wishes from Crazy SEO Team",diya:"🌾"},"11-15":{title:"Chhath Puja – Sandhya Arghya की शुभकामनाएँ",message:"With gratitude to the setting Sun, may your family be blessed with strength and harmony. संध्या अर्घ्य पर सूर्य देव और छठी मईया को नमन।",from:"Warm wishes from Crazy SEO Team",diya:"🌅"},"11-16":{title:"Chhath Puja – Usha Arghya की शुभकामनाएँ",message:"May the rising Sun bring renewed hope, health and happiness. उषा अर्घ्य के साथ आपके जीवन में नई ऊर्जा और खुशियाँ आएँ।",from:"Warm wishes from Crazy SEO Team",diya:"🌄"}};return greetings[key]||null;};
 const GOOGLE_LOGO_URL = "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState<"product" | "solutions" | "resources" | "industries" | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const festivalGreeting=getFestivalGreeting();
   const [navratriDay, setNavratriDay] = useState<{
     day: number;
     maa: string;
@@ -108,19 +110,19 @@ const Navbar = () => {
               .home-diwali-sparkle{position:absolute;color:#ffe5ad;pointer-events:none;animation:homeSparkle 1.8s ease-in-out infinite}
               @media(prefers-reduced-motion:reduce){.home-diwali-title,.home-diwali-diya,.home-diwali-sparkle{animation:none!important}}
             `}</style>
-            <section className="home-diwali-banner w-full" aria-label="Diwali greetings">
+            {festivalGreeting&&(<section className="home-diwali-banner w-full" aria-label="Festival greetings">
               <span className="home-diwali-sparkle left-[8%] top-3 text-xl" aria-hidden="true">✦</span>
               <span className="home-diwali-sparkle right-[9%] bottom-3 text-lg" style={{animationDelay:".7s"}} aria-hidden="true">✧</span>
               <div className="mx-auto flex max-w-7xl items-center justify-center gap-3 text-center sm:gap-5">
-                <span className="home-diwali-diya text-3xl sm:text-4xl" aria-hidden="true">🪔</span>
+                <span className="home-diwali-diya text-3xl sm:text-4xl" aria-hidden="true">{festivalGreeting?.diya||"✨"}</span>
                 <div>
-                  <h2 className="home-diwali-title text-base font-black tracking-wide sm:text-2xl">Happy Diwali! शुभ दीपावली!</h2>
-                  <p className="mt-0.5 text-[10px] font-medium leading-4 text-[#ffe9dc] sm:text-xs">May your life shine with happiness, prosperity, good health and success. आप सभी को दीपावली की हार्दिक शुभकामनाएँ।</p>
-                  <p className="mt-0.5 text-[8px] font-bold uppercase tracking-[.18em] text-[#eac99d] sm:text-[9px]">Warm wishes from Crazy SEO Team</p>
+                  <h2 className="home-diwali-title text-base font-black tracking-wide sm:text-2xl">{festivalGreeting?.title||"Festive wishes from Crazy SEO Team"}</h2>
+                  <p className="mt-0.5 text-[10px] font-medium leading-4 text-[#ffe9dc] sm:text-xs">{festivalGreeting?.message||"Wishing you peace, happiness and new beginnings."}</p>
+                  <p className="mt-0.5 text-[8px] font-bold uppercase tracking-[.18em] text-[#eac99d] sm:text-[9px]">{festivalGreeting?.from||"Warm wishes from Crazy SEO Team"}</p>
                 </div>
-                <span className="home-diwali-diya text-3xl sm:text-4xl" style={{animationDelay:"1.1s"}} aria-hidden="true">🪔</span>
+                <span className="home-diwali-diya text-3xl sm:text-4xl" style={{animationDelay:"1.1s"}} aria-hidden="true">{festivalGreeting?.diya||"✨"}</span>
               </div>
-            </section>
+            </section>)}
         <div className="cst-nav-inner border-b border-slate-200/70 bg-white/90 backdrop-blur-xl">
           <div className="container mx-auto flex h-[68px] items-center justify-between px-4 lg:px-6">
             <Link
