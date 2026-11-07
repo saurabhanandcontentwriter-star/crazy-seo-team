@@ -271,6 +271,10 @@ const AIChatbot = () => {
       let analyser: AnalyserNode | null = null;
       let audioContext: AudioContext | null = null;
       let monitorFrame = 0;
+      let speechDetected = false;
+      let silenceStartedAt = 0;
+      const SILENCE_END_MS = 2000;
+      const SPEECH_THRESHOLD = 0.035;
 
       const finishRecording = () => {
         if (mr.state === "recording") mr.stop();
@@ -296,6 +300,18 @@ const AIChatbot = () => {
           const now = performance.now();
 
           setVoiceLevel(Math.min(1, rms * 18));
+
+          // End the user's turn after 2 seconds of silence, but only after speech begins.
+          if (rms >= SPEECH_THRESHOLD) {
+            speechDetected = true;
+            silenceStartedAt = 0;
+          } else if (speechDetected) {
+            if (!silenceStartedAt) silenceStartedAt = now;
+            if (now - silenceStartedAt >= SILENCE_END_MS) {
+              finishRecording();
+              return;
+            }
+          }
 
           monitorFrame = requestAnimationFrame(monitor);
         };
