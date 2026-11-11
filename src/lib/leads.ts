@@ -141,7 +141,7 @@ export async function submitLead(input: LeadInput, source: string) {
   }
   const score = scoreLead({ ...parsed, service: parsed.service ?? "", source, toolRuns });
 
-  const { error } = await supabase.from("leads").insert({
+  const { data: createdLead, error } = await supabase.from("leads").insert({
     full_name: parsed.full_name,
     email: parsed.email,
     phone_country: parsed.phone_country,
@@ -159,7 +159,7 @@ export async function submitLead(input: LeadInput, source: string) {
     page_path: window.location.pathname,
     session_id: sessionId,
     score,
-  });
+  }).select("id").single();
   if (error) throw error;
-  return { score };
+  return { score, id: createdLead.id as string };
 }
