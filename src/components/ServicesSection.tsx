@@ -43,7 +43,7 @@ const TAGLINE: Record<ServiceCategory, string> = {
 
 const ServicesSection = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState<string | undefined>();
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const grouped = servicesByCategory();
 
   return (
@@ -96,8 +96,8 @@ const ServicesSection = () => {
                         </div>
                         <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{s.tagline}</p>
                       </Link>
-                      <button type="button" onClick={() => { setSelectedService(s.title); setDialogOpen(true); }} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg gradient-bg px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity">
-                        <ShoppingCart size={15} /> Add to Cart
+                      <button type="button" onClick={() => setSelectedServices((current) => current.includes(s.title) ? current : [...current, s.title])} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg gradient-bg px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity">
+                        <ShoppingCart size={15} /> {selectedServices.includes(s.title) ? "Added to Cart" : "Add to Cart"}
                       </button>
                     </div>
                   ))}
@@ -106,13 +106,12 @@ const ServicesSection = () => {
             );
           })}
 
-          <div className="text-center mt-12">
-            <button
-              onClick={() => setDialogOpen(true)}
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-lg gradient-bg text-primary-foreground font-semibold hover:opacity-90 transition-opacity"
-            >
-              Get a Custom Plan <ArrowRight size={18} />
-            </button>
+          <div className="mt-12 rounded-2xl border border-primary/20 bg-card p-5 shadow-lg">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div><p className="font-bold text-foreground flex items-center gap-2"><ShoppingCart size={18} /> Your Service Cart</p><p className="text-sm text-muted-foreground">{selectedServices.length} service{selectedServices.length === 1 ? "" : "s"} selected · No prices or payment</p></div>
+              <button type="button" disabled={!selectedServices.length} onClick={() => setDialogOpen(true)} className="rounded-lg gradient-bg px-5 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-40">Submit Enquiry <ArrowRight size={16} className="inline ml-1" /></button>
+            </div>
+            {selectedServices.length > 0 ? <ul className="mt-4 grid gap-2 sm:grid-cols-2">{selectedServices.map((service) => <li key={service} className="flex items-center justify-between gap-3 rounded-lg bg-muted/50 px-3 py-2 text-sm"><span>{service}</span><button type="button" onClick={() => setSelectedServices((items) => items.filter((item) => item !== service))} className="text-xs font-semibold text-destructive">Remove</button></li>)}</ul> : <p className="mt-4 text-sm text-muted-foreground">Add one or more services above to start your enquiry.</p>}
           </div>
         </div>
       </section>
@@ -120,10 +119,10 @@ const ServicesSection = () => {
       <ContactFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        title={selectedService ? `Submit enquiry: ${selectedService}` : "Get Started With Our Services"}
-        description="Submit your details and our team will follow up. No pricing or payment is required."
+        title="Submit your service enquiry"
+        description="Your selected services will be added to one CRM enquiry. No pricing or payment is required."
         source="services_add_to_cart"
-        defaultService={selectedService}
+        defaultService={selectedServices.join(", ")}
       />
     </>
   );
