@@ -8,6 +8,7 @@ interface ContactFormDialogProps {
   description?: string;
   source?: string;
   defaultService?: string;
+  onSuccess?: (enquiryId: string) => void;
 }
 
 const ContactFormDialog = ({
@@ -17,6 +18,7 @@ const ContactFormDialog = ({
   description = "Fill in your details and we'll get back to you within 24 hours with a custom strategy.",
   source = "contact_form",
   defaultService,
+  onSuccess,
 }: ContactFormDialogProps) => (
   <Dialog open={open} onOpenChange={onOpenChange}>
     <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
@@ -24,7 +26,7 @@ const ContactFormDialog = ({
         <DialogTitle className="text-xl">{title}</DialogTitle>
         <DialogDescription>{description}</DialogDescription>
       </DialogHeader>
-      <LeadForm source={source} defaultService={defaultService} onSuccess={() => onOpenChange(false)} />
+      <LeadForm source={source} defaultService={defaultService} onSuccess={(id) => { onOpenChange(false); onSuccess?.(id); }} />
     </DialogContent>
   </Dialog>
 );
