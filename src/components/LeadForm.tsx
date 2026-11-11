@@ -15,7 +15,7 @@ interface LeadFormProps {
   defaultService?: string;
   submitLabel?: string;
   compact?: boolean;
-  onSuccess?: () => void;
+  onSuccess?: (enquiryId: string) => void;
 }
 
 const empty = {
@@ -50,10 +50,10 @@ export default function LeadForm({
     }
     setLoading(true);
     try {
-      await submitLead(parsed.data, source);
-      toast({ title: "Request received ✅", description: "Your service purpose and message have been added to our CRM for the team." });
+      const result = await submitLead(parsed.data, source);
+      toast({ title: "Request received ✅", description: `Enquiry ID: ${result.id}` });
       setValues({ ...empty, service: defaultService ?? "" });
-      onSuccess?.();
+      onSuccess?.(result.id);
     } catch (err) {
       toast({ title: "Could not submit", description: err instanceof Error ? err.message : "Please try again in a moment.", variant: "destructive" });
     } finally {
@@ -74,7 +74,7 @@ export default function LeadForm({
         <div><Label className="text-xs">Company (optional)</Label><Input value={values.company} onChange={(e) => set("company", e.target.value)} placeholder="Company name" /></div>
         <div><Label className="text-xs">Website (optional)</Label><Input value={values.website} onChange={(e) => set("website", e.target.value)} placeholder="example.com" /><Err k="website" /></div>
       </div>
-      <div><Label className="text-xs">Purpose / service you need *</Label><Select value={values.service} onValueChange={(v) => set("service", v)}><SelectTrigger><SelectValue placeholder="What are you contacting us for?" /></SelectTrigger><SelectContent className="bg-popover max-h-72">{LEAD_SERVICES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><Err k="service" /></div>
+      <div><Label className="text-xs">Purpose / service you need *</Label><Select value={values.service} onValueChange={(v) => set("service", v)}><SelectTrigger><SelectValue placeholder="What are you contacting us for?" /></SelectTrigger><SelectContent className="bg-popover max-h-72">{defaultService && !LEAD_SERVICES.includes(defaultService as typeof LEAD_SERVICES[number]) && <SelectItem value={defaultService}>{defaultService}</SelectItem>}{LEAD_SERVICES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent></Select><Err k="service" /></div>
       <div><Label className="text-xs">Purpose / message / requirement</Label><Textarea rows={4} value={values.message} onChange={(e) => set("message", e.target.value)} placeholder="Tell us exactly why you are contacting Crazy SEO Team, what you need, your goal, budget or deadline…" /></div>
       <div><Label className="text-xs">Preferred contact method</Label><Select value={values.preferred_contact} onValueChange={(v) => set("preferred_contact", v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent className="bg-popover"><SelectItem value="email">Email</SelectItem><SelectItem value="phone">Phone call</SelectItem><SelectItem value="whatsapp">WhatsApp</SelectItem></SelectContent></Select></div>
       <p className="flex items-start gap-2 text-[11px] text-muted-foreground rounded-xl bg-muted/50 p-2.5"><ShieldCheck size={14} className="mt-0.5 shrink-0 text-primary" />We collect your details only to respond to this enquiry. The selected purpose/service and your message are stored with the lead so our CRM team knows why you contacted us.</p>
