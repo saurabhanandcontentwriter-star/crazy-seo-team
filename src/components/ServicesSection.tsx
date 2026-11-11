@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Search, Sparkles, FileText, Newspaper, BookOpen, UserCheck, PenTool, MousePointerClick, Code2, ShoppingCart } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import ContactFormDialog from "@/components/ContactFormDialog";
@@ -42,6 +42,7 @@ const TAGLINE: Record<ServiceCategory, string> = {
 };
 
 const ServicesSection = () => {
+  const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const grouped = servicesByCategory();
@@ -123,6 +124,7 @@ const ServicesSection = () => {
         description="Your selected services will be added to one CRM enquiry. No pricing or payment is required."
         source="services_add_to_cart"
         defaultService={selectedServices.join(", ")}
+        onSuccess={(id) => { setSelectedServices([]); navigate(`/track-enquiry/${id}`); }}
       />
     </>
   );
