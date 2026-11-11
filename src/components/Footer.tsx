@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import logo from "@/assets/logo.jpeg";
 import NewsletterSignup from "./NewsletterSignup";
 import { startWebsiteTour } from "./WebsiteTour";
-import { ArrowUpRight, Globe2, Sparkles } from "lucide-react";
+import { ArrowUpRight, Globe2, Sparkles, Linkedin } from "lucide-react";
 
 const Footer = () => (
   <footer className="cst-public-footer border-t border-slate-200/80 px-4 py-14 lg:py-20">
@@ -18,6 +18,7 @@ const Footer = () => (
           </div>
           <p className="mb-5 max-w-sm text-sm leading-6 text-slate-500">AI-powered SEO, search visibility and automation for ambitious businesses building their next stage of growth.</p>
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50/70 px-3 py-1.5 text-[11px] font-bold text-blue-700"><Globe2 size={13} /> Serving growth teams worldwide</div>
+          <a href="https://www.linkedin.com/search/results/companies/?keywords=Crazy%20SEO%20Team" target="_blank" rel="noopener noreferrer" className="mb-5 inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-semibold text-foreground transition hover:border-primary/50 hover:text-primary"><Linkedin size={16} /> Find us on LinkedIn</a>
           <div>
             <p className="mb-2 text-xs font-bold uppercase tracking-[.12em] text-slate-700">Get free SEO insights</p>
             <NewsletterSignup source="footer" />
