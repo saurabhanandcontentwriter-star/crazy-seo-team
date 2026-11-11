@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Search, Sparkles, FileText, Newspaper, BookOpen, UserCheck, PenTool, MousePointerClick, Code2 } from "lucide-react";
+import { ArrowRight, Search, Sparkles, FileText, Newspaper, BookOpen, UserCheck, PenTool, MousePointerClick, Code2, ShoppingCart } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import { servicesByCategory, categoryOrder, type ServiceCategory } from "@/data/services";
@@ -43,6 +43,7 @@ const TAGLINE: Record<ServiceCategory, string> = {
 
 const ServicesSection = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<string | undefined>();
   const grouped = servicesByCategory();
 
   return (
@@ -84,19 +85,21 @@ const ServicesSection = () => {
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {items.map((s) => (
-                    <Link
+                    <div
                       key={s.slug}
-                      to={`/services/${s.slug}`}
                       className="group p-5 rounded-xl border border-border bg-card hover:shadow-xl hover:border-primary/40 hover:-translate-y-0.5 transition-all"
                     >
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors leading-snug">
-                          {s.title}
-                        </h3>
-                        <ArrowRight size={16} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-0.5" />
-                      </div>
-                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{s.tagline}</p>
-                    </Link>
+                      <Link to={`/services/${s.slug}`} className="block">
+                        <div className="flex items-start justify-between mb-2">
+                          <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors leading-snug">{s.title}</h3>
+                          <ArrowRight size={16} className="text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0 mt-0.5" />
+                        </div>
+                        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">{s.tagline}</p>
+                      </Link>
+                      <button type="button" onClick={() => { setSelectedService(s.title); setDialogOpen(true); }} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg gradient-bg px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity">
+                        <ShoppingCart size={15} /> Add to Cart
+                      </button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -117,8 +120,10 @@ const ServicesSection = () => {
       <ContactFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        title="Get Started With Our Services"
-        description="Tell us which service interests you and we'll create a custom plan."
+        title={selectedService ? `Submit enquiry: ${selectedService}` : "Get Started With Our Services"}
+        description="Submit your details and our team will follow up. No pricing or payment is required."
+        source="services_add_to_cart"
+        defaultService={selectedService}
       />
     </>
   );
