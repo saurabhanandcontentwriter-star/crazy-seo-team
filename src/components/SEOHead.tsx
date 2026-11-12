@@ -40,7 +40,12 @@ const pageMeta: Record<string, { title: string; description: string; keywords: s
   "/classifieds": { title: "Classifieds Marketplace India | Buy, Sell, Jobs, Property & Services | Crazy SEO Team", description: "Browse approved classifieds across India for products, services, jobs, property, vehicles, businesses, education and more on Crazy SEO Team.", keywords: "classifieds India, online marketplace, buy sell India, jobs, property, cars, mobiles, services, business listings" },
   "/anvya": { title: "ANVYA Community Platform | AI, SEO, GEO, AEO & LLM Discussions", description: "Discover ANVYA, a knowledge-sharing community for AI and SEO discussions, questions and answers, blogs, GEO, AEO, LLM optimization, technology and professional networking.", keywords: "ANVYA community, knowledge sharing platform, online discussion community, AI community, SEO community, GEO discussions, generative engine optimization, AEO, answer engine optimization, LLM SEO, LLM optimization, AI search optimization, AI Overviews, ChatGPT search, Perplexity, Gemini, technical SEO, keyword research, semantic SEO, digital marketing community, Q&A platform, blogging platform, professional networking" },
   "/anvya/explore": { title: "Explore AI, SEO, Technology Ideas & Communities | ANVYA", description: "Explore public ideas, questions, blogs, profiles, communities and events on ANVYA across AI, SEO, technology, science, travel, business and economics.", keywords: "ANVYA explore, explore ideas, AI discussions, SEO discussions, technology discussions, AI questions, SEO questions, technology questions, public Q&A, blogs and posts, community discovery, knowledge discovery, online communities" },
-  "/post-ad": { title: "Post an Ad in India | Classifieds Marketplace | Crazy SEO Team", description: "Create an account, complete your profile and submit a moderated classified ad for products, services, jobs, property, vehicles and businesses on Crazy SEO Team.", keywords: "post ad India, submit classified ad, free classified listing, sell online India, business listing, property listing, jobs listing" },
+  "/post-ad": { title: "Post a Free Classified Ad in India | Crazy SEO Team", description: "Create a classified listing for products, services, jobs, property or vehicles. Submit your ad for review and reach people browsing the Crazy SEO Team marketplace.", keywords: "post ad India, submit classified ad, free classified listing, sell online India, business listing, property listing, jobs listing" },
+  "/contact": { title: "Contact Crazy SEO Team | SEO & AI Search Consultation", description: "Contact Crazy SEO Team to discuss technical SEO, AI SEO, GEO, AEO, content strategy, website optimization and digital marketing for your business.", keywords: "contact Crazy SEO Team, SEO consultation, AI SEO agency contact, digital marketing enquiry" },
+  "/privacy-policy": { title: "Privacy Policy | Crazy SEO Team", description: "Read the Crazy SEO Team privacy policy to understand how website information, contact enquiries, account data and cookies are collected and handled.", keywords: "Crazy SEO Team privacy policy, data privacy, website privacy" },
+  "/terms-and-conditions": { title: "Terms & Conditions | Crazy SEO Team", description: "Review the terms and conditions for using Crazy SEO Team services, website features, ANVYA community and classifieds marketplace.", keywords: "Crazy SEO Team terms, website terms and conditions, service terms" },
+  "/business-directory": { title: "Business Directory India | Discover Businesses & Services | Crazy SEO Team", description: "Explore business profiles and service providers in the Crazy SEO Team directory. Discover businesses by category and location across India.", keywords: "business directory India, company listings, service providers, local businesses" },
+  "/classified-profile": { title: "Marketplace Profile | Crazy SEO Team", description: "Manage your Crazy SEO Team marketplace profile, seller information and classified listings.", keywords: "marketplace profile, seller profile, classified listings" },
 };
 const faqSets: Record<string, Array<{ q: string; a: string }>> = {
   "/faq": [
@@ -116,6 +121,11 @@ function getBasePath(pathname: string) {
   if (pathname.startsWith("/services/")) return "/services";
   if (pathname.startsWith("/industries/")) return "/industries";
   if (pathname.startsWith("/classifieds")) return "/classifieds";
+  if (pathname.startsWith("/seller/")) return "/seller";
+  if (pathname.startsWith("/anvya/profile/")) return "/anvya/profile";
+  if (pathname.startsWith("/anvya/newsletters/")) return "/anvya/newsletters";
+  if (pathname.startsWith("/track-enquiry/")) return "/track-enquiry";
+  if (pathname.startsWith("/listing/")) return "/listing";
   return pathname.replace(/\/$/, "") || "/";
 }
 
@@ -132,7 +142,7 @@ export default function SEOHead() {
   const isAnvyaPost = !!anvyaSlug;
   const isIdeas = basePath === "/anvya" || basePath === "/anvya/explore";
   const isPostAd = basePath === "/post-ad";
-  const isPrivateOrUtility = location.pathname.startsWith("/admin") || location.pathname.startsWith("/crm") || ["/anvya/login", "/anvya/settings", "/anvya/analytics", "/anvya/notifications", "/anvya/saved", "/classified-dashboard", "/classified-profile", "/post-ad"].includes(basePath);
+  const isPrivateOrUtility = location.pathname.startsWith("/admin") || location.pathname.startsWith("/crm") || location.pathname.startsWith("/employee") || ["/anvya/login", "/anvya/settings", "/anvya/analytics", "/anvya/notifications", "/anvya/saved", "/anvya/profile", "/anvya/newsletters", "/classified-dashboard", "/classified-profile", "/track-enquiry", "/thank-you"].includes(basePath);
   const meta = service
     ? { title: service.metaTitle, description: service.metaDescription, keywords: [service.seo.primaryKeyword, ...service.seo.secondaryKeywords, ...service.seo.entities].join(", ") }
     : industry
