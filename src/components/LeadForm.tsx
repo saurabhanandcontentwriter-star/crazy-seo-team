@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,6 +31,9 @@ export default function LeadForm({
   compact = false,
   onSuccess,
 }: LeadFormProps) {
+  const navigate = useNavigate();
+  const [formStartedAt] = useState(() => Date.now());
+  const [honeypot, setHoneypot] = useState("");
   const [values, setValues] = useState({ ...empty, service: defaultService ?? "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -41,6 +45,7 @@ export default function LeadForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (honeypot || Date.now() - formStartedAt < 2500) return;
     const parsed = leadSchema.safeParse(values);
     if (!parsed.success) {
       const errs: Record<string, string> = {};
@@ -54,6 +59,7 @@ export default function LeadForm({
       toast({ title: "Request received ✅", description: `Enquiry ID: ${result.id}` });
       setValues({ ...empty, service: defaultService ?? "" });
       onSuccess?.(result.id);
+      navigate("/thank-you", { state: { enquiryId: result.id } });
     } catch (err) {
       toast({ title: "Could not submit", description: err instanceof Error ? err.message : "Please try again in a moment.", variant: "destructive" });
     } finally {
@@ -64,7 +70,8 @@ export default function LeadForm({
   const Err = ({ k }: { k: string }) => errors[k] ? <p className="text-xs text-destructive mt-1">{errors[k]}</p> : null;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form onSubmit={handleSubmit} className="space-y-3" noValidate>
+      <div aria-hidden="true" className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden"><label>Leave this field empty<input tabIndex={-1} autoComplete="off" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} /></label></div>
       <div className={compact ? "space-y-3" : "grid sm:grid-cols-2 gap-3"}>
         <div><Label className="text-xs">Full name *</Label><Input value={values.full_name} onChange={(e) => set("full_name", e.target.value)} placeholder="Rahul Sharma" /><Err k="full_name" /></div>
         <div><Label className="text-xs">Email address *</Label><Input type="email" value={values.email} onChange={(e) => set("email", e.target.value)} placeholder="you@company.com" /><Err k="email" /></div>
