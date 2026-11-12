@@ -240,7 +240,7 @@ export default function SEOHead() {
     {anvyaPost?.image_url && <meta property="og:image:alt" content={`${anvyaPost.title || "ANVYA community post"} | ANVYA`} />}
     <meta property="og:image" content={anvyaPost?.image_url || listing?.image_url || "https://crazyseoteam.in/images/hero-ai-seo.webp"} />
     <meta property="og:image:alt" content={anvyaPost?.title ? String(anvyaPost.title) + " | ANVYA" : listing?.title ? String(listing.title) + " | Crazy SEO Team listing" : meta.title + " | Crazy SEO Team"} />
-    <meta name="twitter:image" content={anvyaPost?.image_url || listing?.image_url || "https://crazyseoteam.in/images/hero-ai-seo.webp"} />}
+    <meta name="twitter:image" content={anvyaPost?.image_url || listing?.image_url || "https://crazyseoteam.in/images/hero-ai-seo.webp"} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={anvyaPost ? `${anvyaPost.title || "ANVYA Post"} | ANVYA | ${BRAND}` : listing ? `${listing.title} | Classifieds | ${BRAND}` : meta.title} />
     <meta name="twitter:description" content={anvyaPost ? String(anvyaPost.content || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) : listing?.description?.slice(0, 160) || meta.description} />
