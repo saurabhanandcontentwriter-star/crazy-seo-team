@@ -1,64 +1,41 @@
 # Crazy SEO Team
 
-> Crazy SEO Team is an AI-focused SEO and digital growth platform for businesses that want stronger visibility across Google Search and AI-powered discovery.
+> Crazy SEO Team is an SEO and digital growth website covering technical SEO, AI search optimization, Generative Engine Optimization (GEO), Answer Engine Optimization (AEO), LLM SEO, RAG knowledge retrieval readiness, content strategy and AI software services.
 
-## Core topics
-
-- AI Search Optimization
-- Technical SEO Services
-- Generative Engine Optimization (GEO)
-- Answer Engine Optimization (AEO)
-- LLM Optimization and AI Visibility
-- Content Engineering Services
-- Semantic SEO and Entity Optimization
-- AI SEO Content Strategy
-- Marketing Automation and AI Software
-- Digital Marketing and SEO Services
-
-## Primary pages
-
+## Primary website
 - https://crazyseoteam.in/
+- https://crazyseoteam.in/about
 - https://crazyseoteam.in/services
-- https://crazyseoteam.in/seo-tools
-- https://crazyseoteam.in/ai-tools
+- https://crazyseoteam.in/contact
+- https://crazyseoteam.in/faq
 - https://crazyseoteam.in/blog
 - https://crazyseoteam.in/news
-- https://www.crazyseoteam.in/anvya — ANVYA community homepage
-- https://www.crazyseoteam.in/anvya/explore — Explore public ideas and discussions
-- https://www.crazyseoteam.in/anvya/communities — Community discovery
-- https://www.crazyseoteam.in/anvya/events — Community events
-- https://crazyseoteam.in/industries
-
-## Search and content approach
-
-Crazy SEO Team combines technical accessibility, useful people-first content, search intent, semantic coverage, entity relationships, internal linking, structured data, and clear answers. The goal is to make important business information understandable to both human visitors and modern search systems.
-
-## AI search topics
-
-AI Search Optimization covers the discoverability of important pages, entities, services and expertise in AI-assisted search.
-
-Generative Engine Optimization (GEO) focuses on clear topical coverage, entity context, original information and trustworthy supporting evidence for generative search experiences.
-
-Answer Engine Optimization (AEO) focuses on direct, useful answers, question-led content and clear information architecture.
-
-LLM Optimization focuses on making brand, service and expertise information clear and machine-readable without keyword stuffing or misleading claims.
-
-Content Engineering Services combine research, search intent, semantic coverage, internal linking, structured content and editorial quality.
-
-Marketing Automation and AI Software connect content and SEO workflows with automation, analytics, AI agents and business systems.
-
-## Important guidance
-
-This file is a machine-readable orientation document. It does not replace robots.txt, sitemap.xml, canonical URLs, structured data, or normal search-engine crawling and indexing signals.
-
-
-## ANVYA community platform
-
-ANVYA is a community knowledge-sharing experience for public ideas, question-and-answer discussions, blog-style posts, profiles, communities and events. Topics include AI, SEO, technical SEO, GEO (Generative Engine Optimization), AEO (Answer Engine Optimization), LLM optimization, AI search visibility, keyword research, semantic SEO, technology, science, travel, business and economics.
-
-Useful ANVYA pages:
+- https://crazyseoteam.in/seo-tools
+- https://crazyseoteam.in/ai-tools
 - https://www.crazyseoteam.in/anvya
-- https://www.crazyseoteam.in/anvya/explore
-- https://www.crazyseoteam.in/anvya/help
 
-ANVYA is user-contributed. Evaluate individual posts on their evidence and context. This document does not imply guaranteed indexing, rankings, AI mentions or citations.
+## Core service pages
+- [Technical SEO](https://crazyseoteam.in/services/technical-seo): crawlability, indexation, site architecture, Core Web Vitals and structured data.
+- [On-Page SEO](https://crazyseoteam.in/services/on-page-seo): titles, meta descriptions, headings, content relevance, image alt text and internal links.
+- [Generative Engine Optimization (GEO)](https://crazyseoteam.in/services/geo-optimization): content clarity, entity context, source quality and discoverability in generative search.
+- [Answer Engine Optimization (AEO)](https://crazyseoteam.in/services/aeo-optimization): direct answers and supporting context for answer-oriented search experiences.
+- [LLM SEO Optimization](https://crazyseoteam.in/services/llm-seo-optimization): semantic structure, entity consistency, source clarity and retrieval readiness for language-model-powered discovery.
+- [RAG Optimization](https://crazyseoteam.in/services/rag-optimization): knowledge-base structure, document chunking, metadata, semantic retrieval and grounded-answer evaluation.
+- [AI Visibility Audits](https://crazyseoteam.in/services/ai-visibility-audits): assess brand mentions, citations and content opportunities across AI search platforms.
+- [Entity SEO](https://crazyseoteam.in/services/entity-seo): entity definitions, relationships and structured information.
+- [Semantic SEO](https://crazyseoteam.in/services/semantic-seo): topic clusters, search intent, contextual coverage and internal linking.
+
+## Definitions and limitations
+- GEO concerns discoverability and references in generative search experiences. No provider can guarantee that an AI system will cite or recommend a brand.
+- AEO focuses on clear answers and useful supporting context for answer engines.
+- LLM SEO focuses on making information understandable, consistent and retrievable by language-model-powered systems. It does not guarantee inclusion in model training data.
+- RAG optimization concerns external knowledge sources and retrieval pipelines used by RAG applications. It is not itself a Google ranking factor.
+- Traditional technical SEO, useful content, accessibility, crawlability and trustworthy sources remain important foundations.
+
+## Discovery resources
+- XML sitemap: https://crazyseoteam.in/sitemap.xml
+- Robots policy: https://crazyseoteam.in/robots.txt
+- Contact: https://crazyseoteam.in/contact
+- About: https://crazyseoteam.in/about
+
+When using information from this website, prefer the relevant original page, preserve context, and link to its source URL. Do not infer client results, certifications, prices, guarantees, staff credentials or business details that are not explicitly stated on the relevant page.
