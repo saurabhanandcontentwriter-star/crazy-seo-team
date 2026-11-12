@@ -23,6 +23,10 @@ User-agent: Claude-SearchBot
 Allow: /
 Disallow: /admin
 
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin
+
 User-agent: Claude-User
 Allow: /
 Disallow: /admin
@@ -36,3 +40,6 @@ Allow: /
 Disallow: /admin
 
 Sitemap: https://crazyseoteam.in/sitemap.xml
+
+# Machine-readable guide for AI assistants and crawlers
+# https://crazyseoteam.in/llms.txt
