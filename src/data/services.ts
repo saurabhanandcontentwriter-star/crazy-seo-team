@@ -46,9 +46,10 @@ const buildServiceSEO = (category: ServiceCategory, title: string, slug: string)
     "claude-optimization": { primaryKeyword: "Claude Optimization", secondaryKeywords: ["Claude SEO", "AI Visibility", "LLM Optimization", "AI Search Optimization"], entities: ["Claude", "Anthropic", "LLM", "Generative AI"] },
     "perplexity-optimization": { primaryKeyword: "Perplexity SEO", secondaryKeywords: ["Perplexity Optimization", "AI Citation Optimization", "AI Search Visibility", "LLM SEO"], entities: ["Perplexity", "AI Search", "LLM", "AI Citations"] },
     "google-ai-overview-optimization": { primaryKeyword: "Google AI Overview Optimization", secondaryKeywords: ["AI Overview SEO", "Google AI Search", "AI Search Optimization", "Generative Search Optimization"], entities: ["Google AI Overviews", "Google Search", "Generative AI", "AI Search"] },
-    "geo-optimization": { primaryKeyword: "Generative Engine Optimization", secondaryKeywords: ["GEO Services", "GEO SEO", "AI Search Optimization", "LLM Visibility"], entities: ["Generative Engine Optimization", "AI Search", "LLMs", "Generative AI"] },
+    "geo-optimization": { primaryKeyword: "Generative Engine Optimization (GEO)", secondaryKeywords: ["GEO SEO Services", "AI Search Optimization", "Generative Search Visibility", "AI Citation Optimization"], entities: ["Generative Engine Optimization", "Google AI Overviews", "ChatGPT Search", "Gemini", "Claude", "Perplexity", "Entity SEO", "AI Citations"] },
+    "rag-optimization": { primaryKeyword: "RAG Optimization Services", secondaryKeywords: ["Retrieval-Augmented Generation SEO", "RAG Search Optimization", "Knowledge Base Optimization", "Vector Search Optimization"], entities: ["Retrieval-Augmented Generation", "Vector Database", "Embeddings", "Semantic Retrieval", "Knowledge Graph", "Chunking", "Reranking", "Large Language Models"] },
     "aeo-optimization": { primaryKeyword: "Answer Engine Optimization", secondaryKeywords: ["AEO Services", "Answer Engine SEO", "Featured Snippet Optimization", "Voice Search Optimization"], entities: ["Answer Engine Optimization", "Featured Snippets", "People Also Ask", "Voice Search", "FAQ Schema"] },
-    "llm-seo-optimization": { primaryKeyword: "LLM SEO", secondaryKeywords: ["LLM Optimization", "LLM Search Optimization", "AI SEO", "LLM Visibility"], entities: ["Large Language Models", "LLM SEO", "AI Search", "Semantic Search"] },
+    "llm-seo-optimization": { primaryKeyword: "LLM SEO & Optimization Services", secondaryKeywords: ["Large Language Model Optimization", "LLM Search Visibility", "AI Citation Readiness", "Entity SEO for LLMs"], entities: ["Large Language Models", "LLM SEO", "Retrieval-Augmented Generation", "Semantic Search", "Embeddings", "Knowledge Graphs", "AI Search"] },
     "ai-visibility-audits": { primaryKeyword: "AI Visibility Audit", secondaryKeywords: ["AI Search Audit", "LLM Visibility Audit", "ChatGPT Visibility Audit", "GEO Audit"], entities: ["AI Visibility", "ChatGPT", "Gemini", "Claude", "Perplexity"] },
   };
   if (special[slug]) return { ...special[slug], searchIntent: "commercial", schemaType: "Service" };
@@ -157,9 +158,26 @@ export const services: ServiceDef[] = [
     ["AI Overview opportunity audit", "Answer-engineered content", "Snippet & schema work", "Entity signals", "Citation-grade structure", "Tracking dashboard"]),
 
   make("AI SEO Services", "GEO Optimization", "geo-optimization",
-    "Generative Engine Optimization that earns AI citations.",
-    "GEO structures your content so large language models cite your brand. We engineer pages to be the source AI prefers across ChatGPT, Gemini, Claude, and Perplexity.",
-    ["Citation-worthy content", "Entity authority building", "Source-quality signals", "Schema & structured data", "LLM citation tracking", "Brand mention monitoring"]),
+    "Generative Engine Optimization for stronger visibility in AI-generated answers.",
+    "Our GEO programme improves how generative search systems discover, interpret and reference your brand. We map entities and audience questions, build original evidence-led pages, strengthen crawlability and structured data, and monitor brand mentions and citations across AI search experiences. GEO supports discoverability; no provider can guarantee a citation or recommendation.",
+    ["AI search visibility and citation baseline", "Entity and topical authority mapping", "Original, evidence-led answer content", "Crawlability, schema and source attribution", "Competitor citation-gap analysis", "AI mention and citation monitoring"],
+    ["GEO audit and baseline report", "Entity and content opportunity map", "Prioritized implementation roadmap", "Visibility measurement framework"],
+    [
+      { q: "What is Generative Engine Optimization (GEO)?", a: "GEO is the practice of improving content clarity, source quality, entity context and technical accessibility so generative search systems can understand and potentially reference a brand." },
+      { q: "Does GEO guarantee citations in ChatGPT or Gemini?", a: "No. AI systems choose sources using their own retrieval, ranking and generation processes. GEO improves eligibility and clarity but cannot guarantee inclusion, citations or recommendations." },
+      { q: "How is GEO different from traditional SEO?", a: "Traditional SEO focuses on organic search visibility. GEO extends that foundation with answer-focused content, entity context, source attribution and measurement of AI-generated mentions and citations." },
+    ]),
+
+  make("AI SEO Services", "RAG Optimization", "rag-optimization",
+    "Structure trusted knowledge so retrieval-augmented AI systems can find the right information.",
+    "RAG (Retrieval-Augmented Generation) connects language models to an external knowledge source at answer time. Our RAG optimization service improves the source content and retrieval layer: we audit knowledge-base quality, organize documents into meaningful sections, define metadata and entity relationships, improve chunk boundaries, support embedding and vector-search relevance, and evaluate retrieval quality and grounded answers. This is an information architecture and retrieval-readiness service, not a promise of rankings in public AI search engines.",
+    ["Knowledge-base and source-content audit", "Document structure, chunking and metadata design", "Entity, taxonomy and knowledge-graph alignment", "Embedding and vector retrieval relevance review", "Reranking, citations and source traceability", "Retrieval evaluation and answer-grounding tests"],
+    ["RAG readiness and content audit", "Knowledge-base architecture recommendations", "Retrieval test set and evaluation criteria", "Implementation roadmap for content and metadata"],
+    [
+      { q: "What is Retrieval-Augmented Generation (RAG)?", a: "RAG is an AI architecture that retrieves relevant information from an external knowledge source and provides it to a language model to help generate a grounded response." },
+      { q: "How does RAG optimization relate to SEO?", a: "RAG optimization is not a direct Google ranking factor. It improves the structure, metadata, clarity and retrievability of content used by an organization's own AI assistants or retrieval systems. The same content-quality improvements can also support broader discoverability." },
+      { q: "Do you build vector databases or AI applications?", a: "This service focuses on source content and retrieval readiness. Custom vector databases, retrieval pipelines and RAG applications can be scoped separately through our AI software development services." },
+    ]),
 
   make("AI SEO Services", "AEO Optimization", "aeo-optimization",
     "Win Answer Engine results with structured authority.",
@@ -167,9 +185,15 @@ export const services: ServiceDef[] = [
     ["Featured snippet engineering", "People Also Ask coverage", "Voice search optimization", "FAQ schema", "Question-first content", "Voice assistant testing"]),
 
   make("AI SEO Services", "LLM SEO Optimization", "llm-seo-optimization",
-    "Engineer your content for the large language model era.",
-    "We structure, chunk, and signal your content so LLMs index, embed, and retrieve it accurately — increasing the odds your brand appears in generated answers.",
-    ["Semantic chunking", "Embedding-friendly structure", "Topical authority maps", "Entity disambiguation", "Citation hooks", "LLM readability audit"]),
+    "Make your brand, expertise and source content easier for language models to interpret.",
+    "LLM SEO combines technical accessibility, entity consistency, semantic information architecture and useful, verifiable content. We assess how your pages describe products, services, people and expertise; improve passage-level clarity; connect related topics with internal links and structured data; and prepare source material for retrieval and citation workflows. We do not promise inclusion in any model's training data or outputs.",
+    ["LLM and AI-search visibility baseline", "Entity definitions and knowledge relationships", "Passage structure and semantic content design", "Internal links and structured data", "Source, author and evidence signals", "Cross-platform mention and citation monitoring"],
+    ["LLM discoverability audit", "Entity and content architecture", "Technical and editorial recommendations", "Measurement and reporting plan"],
+    [
+      { q: "What does LLM SEO mean?", a: "LLM SEO improves the clarity, structure, authority and accessibility of a website's information so large language model-powered search and answer systems can interpret and potentially retrieve it." },
+      { q: "Can LLM SEO put a website into a model's training data?", a: "No SEO provider can guarantee training-data inclusion. Optimization focuses on accessible, useful source information and retrieval-based discovery where supported." },
+      { q: "Is LLM SEO the same as GEO?", a: "They overlap. LLM SEO focuses on how language-model systems interpret and retrieve information, while GEO focuses more broadly on visibility and citations in generative search experiences." },
+    ]),
 
   make("AI SEO Services", "AI Visibility Audits", "ai-visibility-audits",
     "Know exactly where you stand inside ChatGPT, Gemini, Claude & Perplexity.",
