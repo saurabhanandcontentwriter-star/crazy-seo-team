@@ -31,6 +31,7 @@ const searchSystems = [
   ["AEO", "Answer Engines", "Structure useful information so search systems can understand and answer it."],
   ["GEO", "Generative Search", "Improve visibility across AI-powered discovery and generative search experiences."],
   ["LLM", "AI Visibility", "Make important brand, service and expertise signals easier for AI systems to interpret."],
+  ["RAG", "Knowledge Retrieval", "Organize trusted source content, metadata and semantic passages so retrieval systems can find relevant information."],
   ["Automation", "Always On", "Automate recurring checks, reporting and operational workflows."],
   ["Monitoring", "Measure & Improve", "Track visibility, traffic, leads and technical signals continuously."],
 ];
@@ -122,11 +123,12 @@ const Index = () => {
               {[
                 ["AI Search Optimization", "Improve how important pages, entities, services and expertise are understood across AI-assisted search.", "/ai-tools"],
                 ["Technical SEO Services", "Strengthen crawlability, indexability, performance, internal linking, metadata and structured data.", "/services"],
-                ["Generative Engine Optimization (GEO)", "Build clear topical coverage and entity context for generative search discovery.", "/services"],
+                ["Generative Engine Optimization (GEO)", "Build clear topical coverage and entity context for generative search discovery.", "/services/geo-optimization"],
                 ["Content Engineering Services", "Combine search intent, semantic coverage, original information and conversion-focused content structure.", "/services"],
                 ["Marketing Automation & AI Software", "Connect SEO and content workflows with automation, AI agents, analytics and software systems.", "/services"],
                 ["Answer Engine Optimization (AEO)", "Structure direct, useful answers and supporting context so answer engines can interpret the page clearly.", "/services"],
-                ["LLM Optimization & AI Visibility", "Make brand, service and expertise information easier for language models to interpret and cite.", "/services"],
+                ["LLM Optimization & AI Visibility", "Make brand, service and expertise information easier for language models to interpret and cite.", "/services/llm-seo-optimization"],
+                ["RAG Optimization", "Improve knowledge-base structure, chunking, metadata and retrieval relevance for grounded AI answers.", "/services/rag-optimization"],
                 ["Semantic SEO & Entity Optimization", "Build topic clusters, entity relationships and internal links that reinforce topical relevance.", "/services"],
                 ["AI SEO Content Strategy", "Map questions, entities, intent and content opportunities into a sustainable editorial system.", "/blog"],
                 ["AI Search Content & Citation Readiness", "Create original, trustworthy and well-structured information designed for human readers and AI discovery.", "/services"]
