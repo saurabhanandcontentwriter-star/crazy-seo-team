@@ -10,7 +10,7 @@ const CORE_TOPICS = "SEO, technical SEO, AI search optimization, AEO, GEO, gener
 const ANVYA_TOPICS = [
   "ANVYA community platform", "AI and SEO discussions", "Generative Engine Optimization (GEO)",
   "Answer Engine Optimization (AEO)", "LLM optimization and LLM SEO", "AI search visibility",
-  "technical SEO", "keyword research", "semantic SEO", "question and answer community",
+  "technical SEO", "keyword research", "semantic SEO", "RAG", "retrieval-augmented generation", "LLM knowledge retrieval", "question and answer community",
   "knowledge sharing", "professional networking", "technology discussions", "community blogs"
 ];
 const AI_SEARCH_TOPICS = [
@@ -26,7 +26,7 @@ const AI_SEARCH_TOPICS = [
   "AI Search Content & Citation Readiness",
 ];
 const pageMeta: Record<string, { title: string; description: string; keywords: string }> = {
-  "/": { title: "Crazy SEO Team | AI SEO, GEO & Digital Marketing Agency", description: "AI SEO and digital marketing agency helping businesses grow with technical SEO, GEO, AEO, content, automation and AI search optimization.", keywords: "AI SEO agency, SEO agency, technical SEO services, AI search optimization, generative engine optimization, GEO, answer engine optimization, AEO, LLM optimization, LLM SEO, content engineering, semantic SEO, entity SEO, marketing automation, AI software, digital marketing, SEO services" },
+  "/": { title: "Crazy SEO Team | AI SEO, GEO & Digital Marketing Agency", description: "AI SEO and digital marketing agency helping businesses grow with technical SEO, GEO, AEO, content, automation and AI search optimization.", keywords: "AI SEO agency, SEO agency, technical SEO services, AI search optimization, generative engine optimization, GEO, answer engine optimization, AEO, LLM optimization, LLM SEO, content engineering, semantic SEO, entity SEO, RAG optimization, retrieval-augmented generation, vector search, embeddings, knowledge retrieval, marketing automation, AI software, digital marketing, SEO services" },
   "/about": { title: "About Crazy SEO Team | AI SEO & Digital Marketing", description: "Learn how Crazy SEO Team approaches SEO, content, AI-search visibility, automation and digital growth.", keywords: "Crazy SEO Team, AI SEO company, SEO experts, LLM optimization, digital marketing" },
   "/services": { title: "AI SEO & Digital Marketing Services | Crazy SEO Team", description: "Explore SEO, content, technical optimization, AI-search support, automation and digital marketing services.", keywords: "AI SEO services, AI search optimization, technical SEO services, GEO services, generative engine optimization, AEO, answer engine optimization, LLM optimization, content engineering services, semantic SEO, entity SEO, marketing automation, AI software, content writing, digital marketing" },
   "/industries": { title: "Industries We Serve | SEO & AI Search Growth | Crazy SEO Team", description: "Explore industry-specific SEO, AI search, content, local visibility and digital growth strategies for e-commerce, SaaS, healthcare, education, finance and more.", keywords: "industry SEO, ecommerce SEO, SaaS SEO, healthcare SEO, education SEO, fintech SEO, real estate SEO, local SEO" },
