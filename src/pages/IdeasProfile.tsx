@@ -11,6 +11,7 @@ import {Badge} from "@/components/ui/badge";
 import {toast} from "sonner";
 import IdeasMessages from "@/components/IdeasMessages";
 import IdeasInlinePostComposer from "@/components/IdeasInlinePostComposer";
+import IdeasStoryHighlights from "@/components/IdeasStoryHighlights";
 import CreatorProfilePanel from "@/components/CreatorProfilePanel";
 import {BadgeCheck,ArrowLeft,LogIn,LogOut,UserPlus,UserCheck,Users,FileText,Activity,HelpCircle,Save,ExternalLink,Loader2,UserCircle2,Camera,ShieldCheck,Upload,Clock3,Bookmark,FileEdit,BarChart3,Moon,Sun,Languages,Globe2,Settings2,MessageCircle,Quote,Facebook,Linkedin,Instagram,Twitter,Mail,Send,Home,Compass,Bell,Plus,Crown,Calendar,Link2,PawPrint,Trash2,Newspaper,Info,ChevronDown,BookOpen,X} from "lucide-react";
 
@@ -728,6 +729,7 @@ useEffect(()=>{let cancelled=false;let channel:any=null;(async()=>{if(!me)return
             </div>
           </CardContent>
         </Card>
+        <IdeasStoryHighlights profileUserId={p.user_id} avatarUrl={p.avatar_url} displayName={p.display_name} isOwner={me===p.user_id}/>
         <Card className="rounded-2xl border shadow-sm">
           <CardContent className="p-5">
             <div className="flex items-center justify-between"><h3 className="font-black">About Me</h3>{me===p.user_id&&<button className="text-sm font-semibold text-primary hover:underline" onClick={()=>setEdit(true)}>Edit</button>}</div>
