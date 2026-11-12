@@ -17,6 +17,8 @@ const AI_SEARCH_TOPICS = [
   "AI Search Optimization",
   "Technical SEO Services",
   "Generative Engine Optimization (GEO)",
+  "Retrieval-Augmented Generation (RAG) Optimization",
+  "LLM SEO and Knowledge Retrieval",
   "Content Engineering Services",
   "Marketing Automation & AI Software",
   "Answer Engine Optimization (AEO)",
@@ -69,6 +71,7 @@ const faqSets: Record<string, Array<{ q: string; a: string }>> = {
     { q: "Do you provide technical SEO?", a: "Yes. Technical SEO is part of our optimization approach, including crawlability, metadata, structured data, performance and internal linking." },
   ],
   "/services": [
+    { q: "What is RAG optimization?", a: "RAG optimization improves the structure, metadata, chunking and retrievability of source knowledge used by retrieval-augmented AI applications. It is distinct from a direct Google ranking factor." },
     { q: "Which SEO services do you offer?", a: "Services include AI SEO, technical SEO, GEO, AEO, LLM SEO, content writing, article writing, ghostwriting and digital marketing support." },
     { q: "Do you offer AI automation?", a: "Yes. We support workflow automation, AI agents, AI chatbots and AI software development alongside SEO services." },
     { q: "Can services be customized?", a: "Yes. Service scope can be tailored to a website, business model, target audience and growth objectives." },
