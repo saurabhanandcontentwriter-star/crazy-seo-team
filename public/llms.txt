@@ -32,7 +32,7 @@
 - RAG optimization concerns external knowledge sources and retrieval pipelines used by RAG applications. It is not itself a Google ranking factor.
 - Traditional technical SEO, useful content, accessibility, crawlability and trustworthy sources remain important foundations.
 
-## Discovery resources
+## Machine-readable knowledge retrieval\n- Public retrieval endpoint: https://crazyseoteam.in/api/knowledge?q=your-question\n- The endpoint searches public service descriptions, features, deliverables, FAQs and key reference pages, returning source URLs and excerpts.\n- Retrieval currently uses lexical relevance scoring; it does not call an LLM or generate answers.\n- Example: https://crazyseoteam.in/api/knowledge?q=RAG%20optimization\n\n## Discovery resources
 - XML sitemap: https://crazyseoteam.in/sitemap.xml
 - Robots policy: https://crazyseoteam.in/robots.txt
 - Contact: https://crazyseoteam.in/contact
