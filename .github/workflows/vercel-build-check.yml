@@ -2,7 +2,7 @@ name: Vercel Build Check
 
 on:
   push:
-    branches: [main]
+    branches: [main, "fix/seo-prerender-and-audit"]
   pull_request:
     branches: [main]
   workflow_dispatch:
