@@ -14,7 +14,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prerender:seo": "node scripts/prerender-seo.mjs",
+    "build:seo": "npm run build && npm run prerender:seo"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

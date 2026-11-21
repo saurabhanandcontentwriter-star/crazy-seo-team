@@ -1,0 +1,82 @@
+import { chromium } from "@playwright/test";
+import { spawn } from "node:child_process";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+
+const dist = path.resolve("dist");
+const sitemap = await readFile(path.join(dist, "sitemap.xml"), "utf8");
+const urls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1].trim());
+const origin = "https://crazyseoteam.in";
+const port = process.env.PRERENDER_PORT || "4173";
+const preview = spawn("npx", ["vite", "preview", "--host", "127.0.0.1", "--port", port, "--strictPort"], { stdio: "ignore", shell: process.platform === "win32" });
+let browser;
+
+try {
+  let ready = false;
+  for (let attempt = 0; attempt < 40; attempt++) {
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/`);
+      if (response.ok) { ready = true; break; }
+    } catch {}
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  if (!ready) throw new Error("Vite preview did not start");
+
+  browser = await chromium.launch({ headless: true });
+  const routes = [...new Set(urls.map((rawUrl) => {
+    const parsed = new URL(rawUrl);
+    return parsed.origin === origin && !parsed.search && !parsed.hash
+      ? parsed.pathname.replace(/\/$/, "") || "/"
+      : null;
+  }).filter(Boolean))].filter((route) => !/^\/(admin|crm|employee|track-enquiry|classified-dashboard|post-ad|classified-profile|classifieds|anvya)(\/|$)/i.test(route));
+
+  let generated = 0;
+  const failed = [];
+  const workerCount = Math.min(4, routes.length);
+  await Promise.all(Array.from({ length: workerCount }, async (_, workerIndex) => {
+    const page = await browser.newPage({ viewport: { width: 1365, height: 900 }, locale: "en-IN" });
+    page.setDefaultNavigationTimeout(12000);
+    for (let index = workerIndex; index < routes.length; index += workerCount) {
+      const route = routes[index];
+      try {
+        const response = await page.goto(`http://127.0.0.1:${port}${route}`, { waitUntil: "domcontentloaded", timeout: 12000 });
+        if (!response?.ok()) throw new Error(`HTTP ${response?.status() ?? "no response"}`);
+        await page.waitForFunction(() => {
+          const root = document.querySelector("#root");
+          return !!root && root.innerText.trim().length > 80;
+        }, { timeout: 3000 }).catch(() => {});
+        await page.waitForTimeout(150);
+
+        const snapshot = await page.evaluate(() => {
+          const root = document.querySelector("#root");
+          const h1 = root?.querySelector("h1");
+          return { html: document.documentElement.outerHTML, textLength: root?.innerText.trim().length ?? 0, h1: h1?.textContent?.trim() ?? "" };
+        });
+        if (!snapshot.h1 || snapshot.textLength < 80) {
+          failed.push(`${route}: rendered content missing (h1=${Boolean(snapshot.h1)}, chars=${snapshot.textLength})`);
+          continue;
+        }
+
+        const html = snapshot.html.replace("</head>", '<meta name="cst-prerendered" content="true">\n</head>');
+        const output = route === "/" ? path.join(dist, "index.html") : path.join(dist, route.slice(1), "index.html");
+        await mkdir(path.dirname(output), { recursive: true });
+        await writeFile(output, `<!doctype html>\n${html}`, "utf8");
+        generated++;
+        console.log(`PRERENDERED ${route} — ${snapshot.textLength} chars`);
+      } catch (error) {
+        failed.push(`${route}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+    await page.close();
+  }));
+
+  if (generated === 0) throw new Error("No pages were prerendered");
+  console.log(`\nSEO prerender: ${generated}/${routes.length} public sitemap routes generated.`);
+  if (failed.length) console.warn(`Prerender warnings (${failed.length}):\n${failed.slice(0, 20).join("\n")}`);
+  if (!await readFile(path.join(dist, "index.html"), "utf8").then((html) => html.includes('name="cst-prerendered"'))) {
+    throw new Error("Homepage was not prerendered");
+  }
+} finally {
+  await browser?.close();
+  preview.kill("SIGTERM");
+}

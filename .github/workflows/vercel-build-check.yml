@@ -2,6 +2,8 @@ name: Vercel Build Check
 
 on:
   push:
+    branches: [main, "fix/seo-prerender-and-audit"]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 
@@ -17,5 +19,7 @@ jobs:
           node-version: 24
       - name: Install dependencies
         run: npm install --legacy-peer-deps --no-audit --no-fund
-      - name: Build
-        run: npm run build
+      - name: Install Chromium for SEO prerender
+        run: npx playwright install --with-deps chromium
+      - name: Build and prerender public pages
+        run: npm run build:seo
