@@ -48,5 +48,18 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.crazyseoteam.in"
+        }
+      ],
+      "destination": "https://crazyseoteam.in/:path*",
+      "permanent": true
+    }
   ]
 }
