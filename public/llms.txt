@@ -12,7 +12,7 @@
 - https://crazyseoteam.in/news
 - https://crazyseoteam.in/seo-tools
 - https://crazyseoteam.in/ai-tools
-- https://www.crazyseoteam.in/anvya
+- https://crazyseoteam.in/anvya
 
 ## Core service pages
 - [Technical SEO](https://crazyseoteam.in/services/technical-seo): crawlability, indexation, site architecture, Core Web Vitals and structured data.
