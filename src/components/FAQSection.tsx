@@ -87,7 +87,7 @@ const FAQSection = () => {
         <Accordion type="single" collapsible className="space-y-3">
           {faqs[active].map((faq, i) => (
             <AccordionItem key={`${active}-${i}`} value={`faq-${i}`} className="border border-border rounded-lg px-4 bg-card">
-              <AccordionTrigger className="text-left font-semibold text-foreground hover:no-underline">
+              <AccordionTrigger className="text-left font-semibold text-foreground hover:no-underline"><h3 className="text-left font-semibold">{faq.q}</h3>
                 {faq.q}
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground text-sm leading-relaxed">
