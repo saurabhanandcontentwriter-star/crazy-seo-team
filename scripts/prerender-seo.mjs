@@ -56,7 +56,7 @@ try {
       const html = snapshot.html.replace("</head>", '<meta name="cst-prerendered" content="true">\n</head>');
       const output = route === "/" ? path.join(dist, "index.html") : path.join(dist, route.slice(1), "index.html");
       await mkdir(path.dirname(output), { recursive: true });
-      await writeFile(output, html, "utf8");
+      await writeFile(output, `<!doctype html>\\n${html}`, "utf8");
       generated++;
       console.log(`PRERENDERED ${route} — ${snapshot.textLength} chars`);
     } catch (error) {
